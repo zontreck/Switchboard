@@ -40,7 +40,7 @@ Future<int> main(List<String> args) async {
 
   print("\n\n");
   print("Switchboard Server");
-  print("Version 1.0.031926+2347\n\n");
+  print("Version 1.0.032126+2338\n\n");
 
   print("> Searching for test.json");
   File testFile = File("test.json");

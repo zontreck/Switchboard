@@ -9,11 +9,11 @@ class OctoconData {
   /// Fronting History
   List<OctoconFront> fronts = [];
 
-  /// Not enough data collected to determine the data structure of this list.
-  List<dynamic> polls = [];
+  /// All polls logged in the app. Compatibility with SB unknown at this time.
+  List<OctoconPoll> polls = [];
 
-  ///Not enough data collected to determine data structure
-  List<dynamic> tags = [];
+  /// All tag groupings
+  List<OctoconTag> tags = [];
 
   /// Initialized based on the octocon user json field.
   OctoconUser user = OctoconUser.blank();
@@ -33,11 +33,32 @@ class OctoconData {
 
     List<Map<String, dynamic>> frontHistory =
         jsx['fronts'] as List<Map<String, dynamic>>;
+
+    List<Map<String, dynamic>> polling =
+        jsx['polls'] as List<Map<String, dynamic>>;
     for (var octoFront in frontHistory) {
       data.fronts.add(OctoconFront.fromJson(octoFront));
     }
 
+    for (var poll in polling) {
+      data.polls.add(OctoconPoll.fromJson(poll));
+    }
+
+    List<Map<String, dynamic>> tags = jsx['tags'] as List<Map<String, dynamic>>;
+
+    for (var tag in tags) {
+      data.tags.add(OctoconTag.fromJson(tag));
+    }
+
     return data;
+  }
+
+  Map<String, dynamic> toJson() {
+    List<Map<String, dynamic>> alterList = [];
+    for (var alter in alters) {
+      alterList.add(alter.toJson());
+    }
+    return {"user": user.toJson()};
   }
 }
 
@@ -190,6 +211,25 @@ class OctoconAlter {
     required this.pronouns,
     required this.proxyName,
   });
+
+  Map<String, dynamic> toJson() {
+    List<Map<String, dynamic>> fieldLs = [];
+    for (var field in fields) {
+      fieldLs.add(field.toJson());
+    }
+
+    return {
+      "id": id,
+      "name": name,
+      "description": description,
+      "fields": fieldLs,
+      "color": color,
+      "avatar_url": avatarURL,
+      "discord_proxies": discordProxies,
+      "pronouns": pronouns,
+      "proxy_name": proxyName,
+    };
+  }
 }
 
 class OctoField {
@@ -200,6 +240,10 @@ class OctoField {
 
   factory OctoField.fromJson(Map<String, dynamic> jsx) {
     return OctoField(id: UUID.parse(jsx['id'] as String), value: jsx['value']);
+  }
+
+  Map<String, dynamic> toJson() {
+    return {"id": id.toString(), "value": value};
   }
 }
 
@@ -388,5 +432,404 @@ enum OctoconSecurityLevel {
       default:
         return OctoconSecurityLevel.public;
     }
+  }
+}
+
+class OctoconPoll {
+  final OctoconPollData data;
+  final UUID id;
+  final OctoconPollType type;
+  final String description;
+  final String title;
+  final DateTime insertedAt;
+  final DateTime updatedAt;
+  final DateTime timeEnd; // time_end
+
+  OctoconPoll({
+    required this.data,
+    required this.id,
+    required this.type,
+    required this.description,
+    required this.title,
+    required this.insertedAt,
+    required this.updatedAt,
+    required this.timeEnd,
+  });
+
+  Map<String, dynamic> toJson() {
+    return {
+      "data": data.toJson(),
+      "id": id.toString(),
+      "type": type.toString(),
+      "description": description,
+      "title": title,
+      "inserted_at": insertedAt.toIso8601String(),
+      "updated_at": updatedAt.toIso8601String(),
+      "time_end": (timeEnd.year > 1995) ? timeEnd.toIso8601String() : null,
+    };
+  }
+
+  factory OctoconPoll.fromJson(Map<String, dynamic> jsx) {
+    OctoconPollData opd = OPDVoteData(allowVeto: false, responses: []);
+    UUID id = UUID.ZERO;
+    OctoconPollType type = OctoconPollType.vote;
+    String description = "";
+    String title = "";
+    DateTime insert = DateTime.now();
+    DateTime update = DateTime.now();
+    DateTime end = DateTime(1995);
+
+    if (jsx['type'] != null) {
+      type = OctoconPollType.fromString(jsx['type'] as String);
+    }
+
+    if (jsx['data'] != null) {
+      if (type == OctoconPollType.vote) {
+        opd = OPDVoteData.fromJson(jsx['data'] as Map<String, dynamic>);
+      }
+      if (type == OctoconPollType.choice) {
+        opd = OPDChoiceData.fromJson(jsx['data'] as Map<String, dynamic>);
+      }
+    }
+
+    if (jsx['id'] != null) {
+      id = UUID.parse(jsx['id'] as String);
+    }
+    if (jsx['description'] != null) {
+      description = jsx['description'] as String;
+    }
+
+    if (jsx['title'] != null) {
+      title = jsx['title'] as String;
+    }
+
+    if (jsx['inserted_at'] != null) {
+      insert = DateTime.parse(jsx['inserted_at'] as String);
+    }
+
+    if (jsx['updated_at'] != null) {
+      update = DateTime.parse(jsx['updated_at'] as String);
+    }
+
+    if (jsx['time_end'] != null) {
+      end = DateTime.parse(jsx['time_end'] as String);
+    }
+
+    return OctoconPoll(
+      data: opd,
+      id: id,
+      type: type,
+      description: description,
+      title: title,
+      insertedAt: insert,
+      updatedAt: update,
+      timeEnd: end,
+    );
+  }
+}
+
+abstract class OctoconPollData {
+  Map<String, dynamic> toJson();
+}
+
+class OPDChoiceData implements OctoconPollData {
+  final List<OPDChoice> choices;
+  final List<OPDChoiceSelection> responses;
+
+  OPDChoiceData({required this.choices, required this.responses});
+
+  @override
+  Map<String, dynamic> toJson() {
+    List<Map<String, dynamic>> choiceList = [];
+
+    for (var entry in choices) {
+      choiceList.add(entry.toJson());
+    }
+
+    List<Map<String, dynamic>> response = [];
+
+    for (var entry in responses) {
+      response.add(entry.toJson());
+    }
+    return {"choices": choiceList, "responses": response};
+  }
+
+  factory OPDChoiceData.fromJson(Map<String, dynamic> jsx) {
+    List<OPDChoice> parse = [];
+    List<Map<String, dynamic>> enc =
+        jsx['choices'] as List<Map<String, dynamic>>;
+
+    for (var entry in enc) {
+      parse.add(OPDChoice.fromJson(entry));
+    }
+
+    List<OPDChoiceSelection> response = [];
+    enc = jsx['responses'] as List<Map<String, dynamic>>;
+    for (var entry in enc) {
+      response.add(OPDChoiceSelection.fromJson(entry));
+    }
+
+    return OPDChoiceData(choices: parse, responses: response);
+  }
+}
+
+class OPDChoiceSelection {
+  final int alterId;
+  final UUID choiceId;
+
+  OPDChoiceSelection({required this.alterId, required this.choiceId});
+
+  Map<String, dynamic> toJson() {
+    return {"alter_id": alterId, "choice_id": choiceId.toString()};
+  }
+
+  factory OPDChoiceSelection.fromJson(Map<String, dynamic> jsx) {
+    int alter = 0;
+    UUID id = UUID.ZERO;
+
+    if (jsx['alter_id'] != null) {
+      alter = jsx['alter_id'] as int;
+    }
+
+    if (jsx['choice_id'] != null) {
+      id = UUID.parse(jsx['choice_id'] as String);
+    }
+
+    return OPDChoiceSelection(alterId: alter, choiceId: id);
+  }
+}
+
+class OPDChoice {
+  final UUID id;
+  final String name;
+
+  OPDChoice({required this.id, required this.name});
+
+  Map<String, dynamic> toJson() {
+    return {"id": id.toString(), "name": name};
+  }
+
+  factory OPDChoice.fromJson(Map<String, dynamic> jsx) {
+    UUID id = UUID.ZERO;
+    String name = "";
+
+    if (jsx['id'] != null) id = UUID.parse(jsx['id'] as String);
+    if (jsx['name'] != null) {
+      name = jsx['name'] as String;
+    }
+
+    return OPDChoice(id: id, name: name);
+  }
+}
+
+enum OctoconPollType {
+  vote,
+  choice;
+
+  static OctoconPollType fromString(String str) {
+    switch (str) {
+      case "vote":
+        return vote;
+      case "choice":
+        return choice;
+    }
+
+    return vote;
+  }
+
+  @override
+  String toString() {
+    return name;
+  }
+}
+
+class OPDVoteData implements OctoconPollData {
+  final bool allowVeto;
+  final List<OPDVoteEntry> responses;
+
+  OPDVoteData({required this.allowVeto, required this.responses});
+
+  @override
+  Map<String, dynamic> toJson() {
+    List<Map<String, dynamic>> resp = [];
+
+    for (var entry in responses) {
+      resp.add(entry.toJson());
+    }
+
+    return {"allow_veto": allowVeto, "responses": resp};
+  }
+
+  factory OPDVoteData.fromJson(Map<String, dynamic> jsx) {
+    bool veto = false;
+    List<OPDVoteEntry> resps = [];
+
+    if (jsx['allow_veto'] != null) veto = jsx['allow_veto'] as bool;
+    if (jsx['responses'] != null) {
+      List<Map<String, dynamic>> resp =
+          jsx['responses'] as List<Map<String, dynamic>>;
+
+      for (var entry in resp) {
+        resps.add(OPDVoteEntry.fromJson(entry));
+      }
+    }
+
+    return OPDVoteData(allowVeto: veto, responses: resps);
+  }
+}
+
+class OPDVoteEntry {
+  final int alterId; // alter_id
+  final String comment;
+  final OPDVote vote;
+
+  OPDVoteEntry({
+    required this.alterId,
+    required this.comment,
+    required this.vote,
+  });
+
+  Map<String, dynamic> toJson() {
+    return {"alter_id": alterId, "comment": comment, "vote": vote.toString()};
+  }
+
+  factory OPDVoteEntry.fromJson(Map<String, dynamic> jsx) {
+    int alterId = 0;
+    String comment = "";
+    OPDVote vote = OPDVote.yes;
+
+    if (jsx['alter_id'] != null) alterId = jsx['alter_id'] as int;
+    if (jsx['comment'] != null) comment = jsx['comment'] as String;
+    if (jsx['vote'] != null) vote = OPDVote.fromString(jsx['vote'] as String);
+
+    return OPDVoteEntry(alterId: alterId, comment: comment, vote: vote);
+  }
+}
+
+enum OPDVote {
+  yes,
+  no,
+  abstain,
+  veto;
+
+  @override
+  String toString() {
+    return name;
+  }
+
+  static OPDVote fromString(String value) {
+    switch (value) {
+      case "yes":
+        return yes;
+      case "Yes":
+        return yes;
+      case "no":
+        return no;
+      case "No":
+        return no;
+      case "abstain":
+        return abstain;
+      case "Abstain":
+        return abstain;
+      case "veto":
+        return veto;
+      case "Veto":
+        return veto;
+    }
+
+    return yes;
+  }
+}
+
+class OctoconTag {
+  final UUID id;
+  final String name;
+  final String description;
+  final String color;
+  final DateTime insertedAt; // inserted_at
+  final DateTime updatedAt; //updated_at
+  final OctoconSecurityLevel securityLevel; //security_level
+  final List<int> alters;
+  final UUID parentTagId; // parent_tag_id
+
+  OctoconTag({
+    required this.id,
+    required this.name,
+    required this.description,
+    required this.color,
+    required this.insertedAt,
+    required this.updatedAt,
+    required this.securityLevel,
+    required this.alters,
+    required this.parentTagId,
+  });
+
+  Map<String, dynamic> toJson() {
+    return {
+      "id": id.toString(),
+      "name": name,
+      "description": description,
+      "color": color,
+      "inserted_at": insertedAt.toIso8601String(),
+      "updated_at": updatedAt.toIso8601String(),
+      "security_level": securityLevel.toString(),
+      "alters": alters,
+      "parent_tag_id": parentTagId.toString(),
+    };
+  }
+
+  factory OctoconTag.fromJson(Map<String, dynamic> jsx) {
+    UUID id = UUID.ZERO;
+    String name = "";
+    String description = "";
+    String color = "";
+    DateTime insertedAt = DateTime.now();
+    DateTime updatedAt = DateTime.now();
+    OctoconSecurityLevel securityLevel = OctoconSecurityLevel.private;
+    List<int> alters = [];
+    UUID parentTagId = UUID.ZERO;
+
+    if (jsx['id'] != null) {
+      id = UUID.parse(jsx['id'] as String);
+    }
+
+    if (jsx['name'] != null) {
+      name = jsx['name'] as String;
+    }
+
+    if (jsx['description'] != null) {
+      description = jsx['description'] as String;
+    }
+
+    if (jsx['color'] != null) {
+      color = jsx['color'] as String;
+    }
+    if (jsx['inserted_at'] != null) {
+      insertedAt = DateTime.parse(jsx['inserted_at'] as String);
+    }
+
+    if (jsx['updated_at'] != null) {
+      updatedAt = DateTime.parse(jsx['updated_at'] as String);
+    }
+
+    if (jsx['alters'] != null) {
+      alters = jsx['alters'] as List<int>;
+    }
+
+    if (jsx['parent_tag_id'] != null) {
+      parentTagId = UUID.parse(jsx['parent_tag_id']);
+    }
+
+    return OctoconTag(
+      id: id,
+      name: name,
+      description: description,
+      color: color,
+      insertedAt: insertedAt,
+      updatedAt: updatedAt,
+      securityLevel: securityLevel,
+      alters: alters,
+      parentTagId: parentTagId,
+    );
   }
 }
