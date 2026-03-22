@@ -40,6 +40,9 @@ dependencies:
   libacflutter:
     hosted: https://git.zontreck.com/api/packages/Packages/pub/
     version: 1.4.82125+1108
+  dio: ^5.9.2
+  mysql_client: ^0.0.27
+  http: ^1.6.0
 
 dev_dependencies:
   flutter_test:
