@@ -2,7 +2,7 @@
 
 import 'dart:io';
 
-import 'package:switchboard/octocon_format.dart';
+import 'package:switchboard/dart/octocon_format.dart';
 
 Future<int> main(List<String> args) async {
   print("\n\n");
@@ -40,7 +40,7 @@ Future<int> main(List<String> args) async {
 
   print("\n\n");
   print("Switchboard Server");
-  print("Version 1.0.032126+2338\n\n");
+  print("Version 1.0.032126+2339\n\n");
 
   print("> Searching for test.json");
   File testFile = File("test.json");
