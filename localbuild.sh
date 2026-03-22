@@ -3,6 +3,10 @@
 flutter clean
 flutter pub get
 
+flutter doctor
+flutter doctor --android-licenses
+
+
 rm -rf outputs
 mkdir -pv outputs
 
