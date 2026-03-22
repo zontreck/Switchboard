@@ -61,11 +61,12 @@ pipeline {
                     sh '''
                     #!/bin/bash
 
+                    docker build -t git.zontreck.com/packages/switchboard:builder docker/build-helper
+                    docker push git.zontreck.com/packages/switchboard:builder
+                    
                     docker build -t git.zontreck.com/packages/switchboard:latest "$(pwd)"
                     docker push git.zontreck.com/packages/switchboard:latest
 
-                    docker build -t git.zontreck.com/packages/switchboard:builder docker/build-helper
-                    docker push git.zontreck.com/packages/switchboard:builder
                     '''
                 }
             }
