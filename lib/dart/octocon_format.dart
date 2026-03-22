@@ -1,6 +1,11 @@
 import 'dart:convert';
+import 'dart:io';
 
+import 'package:dio/dio.dart';
 import 'package:libac_dart/utils/uuid/UUID.dart';
+import 'package:switchboard/dart/MemoryState.dart';
+import 'package:switchboard/dart/storage.dart';
+import 'package:switchboard/dart/switchboard_format.dart';
 
 class OctoconData {
   /// Alter List
@@ -59,6 +64,23 @@ class OctoconData {
       alterList.add(alter.toJson());
     }
     return {"user": user.toJson()};
+  }
+
+  Future<void> commitToStorage(StorageProvider provider) async {
+    MemoryState state = MemoryState();
+    SwitchboardUser usr = SwitchboardUser();
+    usr.userID = user.id;
+    usr.description = user.description;
+
+    Dio dio = Dio();
+    UUID imageId = UUID.generate(4);
+    String extension = user.avatarUrl.split('.').last;
+
+    dio.download(
+      user.avatarUrl,
+      "cdn/avatar/${imageId.toString()}.${extension}",
+    );
+    usr.avatarURL = "${state.cdnUrl}/avatar/${imageId.toString()}.${extension}";
   }
 }
 

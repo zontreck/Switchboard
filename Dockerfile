@@ -13,13 +13,15 @@ WORKDIR /app
 COPY --from=builder /app/Switchboard/outputs/server-x86_64-linux /sbin/switchboardserver
 RUN chmod +x /sbin/switchboardserver
 
-VOLUME ["/app/data"]
+VOLUME ["/app/data", "/app/cdn"]
 
 ENV MARIADB_HOST 127.0.0.1
 ENV MARIADB_USER switchboard
 ENV MARIADB_PASS PASS
 ENV MARIADB_DB switchboard
 ENV USE_SQL 0
+ENV BOT_TOKEN NotSet
+ENV CDN_URL "https://change.me/cdn/path/"
 
 ADD ./entrypoint.sh /bin/entrypoint
 RUN chmod +x /bin/entrypoint

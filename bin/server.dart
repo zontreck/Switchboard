@@ -1,10 +1,18 @@
 // ignore_for_file: avoid_print
 
+import 'dart:async';
 import 'dart:io';
 
+import 'package:libac_dart/argparse/Args.dart';
+import 'package:libac_dart/argparse/Parser.dart';
+import 'package:switchboard/dart/MemoryState.dart';
 import 'package:switchboard/dart/octocon_format.dart';
+import 'package:switchboard/dart/storage.dart';
 
 Future<int> main(List<String> args) async {
+  MemoryState state = MemoryState();
+  StorageProvider storage = StorageProvider();
+
   print("\n\n");
 
   print(
@@ -40,7 +48,61 @@ Future<int> main(List<String> args) async {
 
   print("\n\n");
   print("Switchboard Server");
-  print("Version 1.0.032126+2339\n\n");
+  print("Version 1.0.032226+1642\n\n");
+
+  print("\n> Loading argument parser...");
+  Arguments arg = ArgumentParser.parse(args);
+  if (arg.hasArg("sql")) {
+    state.useSQL = arg.getBool("sql");
+  }
+
+  if (arg.hasArg("mdb_host")) {
+    state.mariaDBHost = arg.getArg("mdb_host")!.getValue() as String;
+  }
+
+  if (arg.hasArg("mdb_user")) {
+    state.mariaDBUser = arg.getArg("mdb_user")!.getValue() as String;
+  }
+
+  if (arg.hasArg("mdb_pass")) {
+    state.mariaDBPass = arg.getArg("mdb_pass")!.getValue() as String;
+  }
+
+  if (arg.hasArg("mdb_db")) {
+    state.mariaDBName = arg.getArg("mdb_db")!.getValue() as String;
+  }
+
+  if (arg.hasArg("token")) {
+    state.botToken = arg.getArg("token")!.getValue() as String;
+  }
+
+  if (arg.hasArg("cdn")) {
+    state.cdnUrl = arg.getArg("cdn")!.getValue() as String;
+  }
+
+  // Determine storage backend
+  if (!state.useSQL) {
+    print("> Data Storage Backend Selected!");
+    print(">> NBT");
+
+    storage.backend = StorageNBT();
+    storage.backend.initialize();
+
+    // Schedule the repeating task
+    state.flushTimer = Timer.periodic(Duration(seconds: 10), (timer) async {
+      storage.backend.flush();
+
+      if (state.terminating) {
+        timer.cancel();
+      }
+    });
+  } else {
+    print("> Storage will use SQL");
+    print(">> SQL");
+
+    storage.backend = StorageSQL();
+    storage.backend.initialize();
+  }
 
   print("> Searching for test.json");
   File testFile = File("test.json");
@@ -50,6 +112,13 @@ Future<int> main(List<String> args) async {
 
     String dataJs = testFile.readAsStringSync();
     OctoconData data = OctoconData.fromJson(dataJs);
+
+    print(">> SAVING USER DATA TO PERSISTENT STORAGE");
+    await data.commitToStorage(storage);
   }
+
+  state.flushTimer!.cancel();
+  state.terminating = true;
+  await storage.backend.flush();
   return 0;
 }
