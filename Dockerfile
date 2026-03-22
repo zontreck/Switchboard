@@ -21,4 +21,6 @@ ENV MARIADB_PASS PASS
 ENV MARIADB_DB switchboard
 ENV USE_SQL 0
 
-ENTRYPOINT ["/sbin/switchboardserver"]
+ADD ./entrypoint.sh /bin/entrypoint
+RUN chmod +x /bin/entrypoint
+ENTRYPOINT ["/bin/entrypoint"]
