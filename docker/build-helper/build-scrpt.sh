@@ -4,6 +4,7 @@
 cd /app/project
 rsync -a --progress -h /app/source/ ./
 
+flutter clean
 flutter doctor
 flutter doctor --android-licenses
 

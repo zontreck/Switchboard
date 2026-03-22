@@ -1,6 +1,5 @@
 #!/bin/bash
 # 
-flutter clean
 
 echo "Building project using Docker..."
 rm -rf outputs || true
