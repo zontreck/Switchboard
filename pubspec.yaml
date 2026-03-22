@@ -43,7 +43,8 @@ dependencies:
   dio: ^5.9.2
   mysql_client: ^0.0.27
   http: ^1.6.0
-  nyxx: ^6.8.1
+  mineral: ^4.2.0
+  mineral_cache: ^1.2.0
 
 dev_dependencies:
   flutter_test:
