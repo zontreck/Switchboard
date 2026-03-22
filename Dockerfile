@@ -1,7 +1,9 @@
 FROM git.zontreck.com/packages/switchboard:builder AS builder
 
 WORKDIR /app
-RUN git clone https://git.zontreck.com/zontreck/Switchboard.git && cd Switchboard
+RUN git clone https://git.zontreck.com/zontreck/Switchboard.git
+
+WORKDIR /app/Switchboard
 RUN chmod +x localbuild.sh && ./localbuild.sh
 
 
