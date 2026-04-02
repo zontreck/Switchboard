@@ -27,8 +27,8 @@ class OctoconData {
     OctoconData data = OctoconData();
 
     Map<String, dynamic> jsx = json.decode(jsn);
-    List<Map<String, dynamic>> octoalt =
-        jsx['alters'] as List<Map<String, dynamic>>;
+
+    List<dynamic> octoalt = jsx['alters'] as List<dynamic>;
 
     for (var octoAlter in octoalt) {
       OctoAlterBuilder OAB = OctoAlterBuilder()..fromJson(octoAlter);
@@ -36,11 +36,9 @@ class OctoconData {
       data.alters.add(OAB.build());
     }
 
-    List<Map<String, dynamic>> frontHistory =
-        jsx['fronts'] as List<Map<String, dynamic>>;
+    List<dynamic> frontHistory = jsx['fronts'] as List<dynamic>;
 
-    List<Map<String, dynamic>> polling =
-        jsx['polls'] as List<Map<String, dynamic>>;
+    List<dynamic> polling = jsx['polls'] as List<dynamic>;
     for (var octoFront in frontHistory) {
       data.fronts.add(OctoconFront.fromJson(octoFront));
     }
@@ -49,11 +47,13 @@ class OctoconData {
       data.polls.add(OctoconPoll.fromJson(poll));
     }
 
-    List<Map<String, dynamic>> tags = jsx['tags'] as List<Map<String, dynamic>>;
+    List<dynamic> tags = jsx['tags'] as List<dynamic>;
 
     for (var tag in tags) {
       data.tags.add(OctoconTag.fromJson(tag));
     }
+
+    data.user = OctoconUser.fromJson(jsx['user']);
 
     return data;
   }
@@ -63,7 +63,28 @@ class OctoconData {
     for (var alter in alters) {
       alterList.add(alter.toJson());
     }
-    return {"user": user.toJson()};
+
+    List<Map<String, dynamic>> frontHistory = [];
+    for (var front in fronts) {
+      frontHistory.add(front.toJson());
+    }
+
+    List<Map<String, dynamic>> polling = [];
+    for (var poll in polls) {
+      polling.add(poll.toJson());
+    }
+
+    List<Map<String, dynamic>> tagging = [];
+    for (var tag in tags) {
+      tagging.add(tag.toJson());
+    }
+    return {
+      "alters": alterList,
+      "fronts": frontHistory,
+      "polls": polling,
+      "tags": tagging,
+      "user": user.toJson(),
+    };
   }
 
   Future<void> commitToStorage(StorageProvider provider) async {
@@ -107,7 +128,7 @@ class OctoAlterBuilder {
       withDescription(desc: jsx["description"] as String);
     }
     if (jsx['fields'] != null) {
-      List<Map<String, dynamic>> jsf = jsx['fields'];
+      List<dynamic> jsf = jsx['fields'];
       if (jsf.isNotEmpty) {
         for (var f in jsf) {
           withField(field: OctoField.fromJson(f));
@@ -124,7 +145,7 @@ class OctoAlterBuilder {
     }
 
     if (jsx['discord_proxies'] != null) {
-      List<String> proxies = jsx['discord_proxies'] as List<String>;
+      List<dynamic> proxies = jsx['discord_proxies'] as List<dynamic>;
       for (var proxy in proxies) {
         withDiscordProxy(proxy: proxy);
       }
@@ -289,7 +310,11 @@ class OctoconFront {
     String comment = jsx['comment'] as String;
     DateTime end = DateTime.parse(jsx['time_end'] as String);
     int alterId = jsx['alter_id'] as int;
-    DateTime start = DateTime.parse(jsx['time_start'] as String);
+    DateTime start;
+    if (jsx['time_start'] == null)
+      start = DateTime.fromMillisecondsSinceEpoch(0);
+    else
+      start = DateTime.parse(jsx['time_start'] as String);
 
     return OctoconFront(
       id: id,
@@ -300,14 +325,14 @@ class OctoconFront {
     );
   }
 
-  String toJson() {
-    return json.encode({
+  Map<String, dynamic> toJson() {
+    return {
       "id": id.toString(),
       "comment": comment,
       "time_end": timeEnd.toIso8601String(),
       "alter_id": alterId,
       "start": timeStart.toIso8601String(),
-    });
+    };
   }
 }
 
@@ -339,12 +364,15 @@ class OctoconUser {
   factory OctoconUser.fromJson(Map<String, dynamic> jsx) {
     UUID id = UUID.parse(jsx['id'] as String);
     String description = jsx['description'] as String;
-    List<Map<String, dynamic>> fieldx =
-        jsx['fields'] as List<Map<String, dynamic>>;
+    List<dynamic> fieldx = jsx['fields'] as List<dynamic>;
     String username = jsx['username'] as String;
     String avatarUrl = jsx['avatar_url'];
 
     List<OctoconField> fields = [];
+    for (var entry in fieldx) {
+      fields.add(OctoconField.fromJson(entry));
+    }
+
     return OctoconUser(
       id: id,
       description: description,
