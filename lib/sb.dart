@@ -9,19 +9,19 @@ class Switchboard extends StatelessWidget {
     return MaterialApp(
       title: "Switchboard",
       theme: ThemeData.dark(),
-      routes: {"/": (ctx) => SBHome()},
+      routes: {"/": (ctx) => SBHomeTest()},
     );
   }
 }
 
-class SBHome extends StatelessWidget {
-  const SBHome({super.key});
+class SBHomeTest extends StatelessWidget {
+  const SBHomeTest({super.key});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("Switchboard"),
+        title: Text("System Switchboard"),
         backgroundColor: LibACFlutterConstants.TITLEBAR_COLOR,
       ),
       body: Padding(
