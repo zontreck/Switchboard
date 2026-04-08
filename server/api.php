@@ -1,4 +1,8 @@
 <?php
+
+$DEBUG = true;
+
+
 $route = $_GET['rt'] ?? '';
 $request = $_SERVER['REQUEST_METHOD'];
 $ID = gen_uuid(); // Session ID, can be used for tracing back errors
@@ -198,8 +202,9 @@ switch($route) {
                     }
                     // Update user info
                     $HashedPwd = $packet['pwd'];
-                    if(isset($packet['pwdRaw'])) {
-                        $HashedPwd = md5($packet['pwdRaw']);
+                    if(isset($packet['pwdRaw']) && $DEBUG) {
+                        $HashedPwd = md5($packet['pwdRaw']); // For security reasons, this is disabled when debug is turned off.
+                        // We must enforce security in a production environment.
                     }
                     $Salt = md5(md5(time()).":".time().md5($HashedPwd));
                     $Hash = md5($HashedPwd.":".$Salt);
