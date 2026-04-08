@@ -1,0 +1,8 @@
+#!/bin/bash
+
+echo -ne "<?php\n\n" > dbconfig.php
+echo -ne "\$HOST=\"$1\";\n" >> dbconfig.php
+echo -ne "\$DBUSER=\"$2\";\n" >> dbconfig.php
+echo -ne "\$DBPASS=\"$3\";\n" >> dbconfig.php
+
+echo -ne "\n\n?>" >> dbconfig.php

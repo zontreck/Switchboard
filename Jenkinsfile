@@ -45,6 +45,10 @@ pipeline {
                     #!/bin/bash
                     chmod +x tools/build.sh
                     tools/build.sh || true
+
+                    cd server
+                    tar -cvf ../outputs/cdnserver.tgz .
+                    cd ..
                     '''
                 }
             }
