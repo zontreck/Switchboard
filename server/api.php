@@ -18,11 +18,62 @@ $ID = gen_uuid(); // Session ID, can be used for tracing back errors
 header("Content-Type: application/json");
 require_once("dbconfig.php");
 
+function MakeSAT() {
+    return base64_encode(json_encode(array(
+        "token" => $Token,
+        "expires" => $Expire,
+        "iss" => $ISS,
+        "valid_for" => (60*60*24) // one day
+    )));
+}
+
+function ValidateSAT($SAT) {
+    $payload = base64_decode($SAT);
+    $jsonPayload = json_decode($payload, true);
+
+    // Query the database to ensure SAT validity.
+    $DB = get_DB("switchboard");
+
+    $res = $DB->query("SELECT * FROM Access WHERE Token='".$jsonPayload['token']."';");
+
+    if($res->num_rows == 0) {
+        return SATReply(false, 0, 0, "", "");
+    }
+    $row = $res->fetch_assoc();
+    
+    // Check the expiration now.
+    $expire = $jsonPayload['expire'];
+    $Scope = $row['TokenScope'];
+    $Flags = $row['TokenFlags'];
+    if(time() >= $expire) {
+        $DB->query("DELETE FROM Access WHERE Token='".$jsonPayload['token']."';");
+        return SATReply(false, 0, 0, "", "");
+    } else {
+        return SATReply(true, $Scope, $Flags, $row['User'], $row['Token']);
+    }
+}
+
+function SATReply($Success, $Scope, $Flags, $UserID, $Token) {
+    return array(
+        "success" => $Success,
+        "scope" => $Scope,
+        "flags" => $Flags,
+        "id" => $UserID,
+        "token" => $Token
+    );
+}
+
+function get_Authorization()
+{
+    $headers = apache_request_headers();
+    return $headers["Authorization"];
+    return "X X";
+}
 
 function get_DB($dbname)
 {
     global $HOST, $DBUSER, $DBPASS;
-    
+
     $DB_Handle = new mysqli($HOST, $DBUSER, $DBPASS, $dbname);
 
 
@@ -193,6 +244,7 @@ switch($route) {
         $packet = json_decode(file_get_contents("php://input"), true);
 
         $username = $matches[1] ?? null; // null if /user was requested without a username
+        
         $reason = "";
         if($username == null) {
             $success=  false;
@@ -211,9 +263,9 @@ switch($route) {
                         break;
                     }
                     // Update user info
-                    $HashedPwd = $packet['pwd'];
-                    if(isset($packet['pwdRaw']) && $DEBUG) {
-                        $HashedPwd = md5($packet['pwdRaw']); // For security reasons, this is disabled when debug is turned off.
+                    $HashedPwd = $packet['auth'];
+                    if(isset($packet['authRaw']) && $DEBUG) {
+                        $HashedPwd = md5($packet['authRaw']); // For security reasons, this is disabled when debug is turned off.
                         // We must enforce security in a production environment.
                     }
                     $Salt = md5(md5(time()).":".time().md5($HashedPwd));
@@ -320,6 +372,124 @@ switch($route) {
         )));
 
         break;
+    }
+
+    case "/auth/login": {
+        $success = false;
+        $data = array();
+        
+        // Only accepts handling via POST requests
+        $packet = json_decode(file_get_contents("php://input"), true);
+
+        $username = $packet['username'];
+        $password = $packet['auth'];
+
+        // Begin the authentication process
+        // We will return either a success or a failure
+        // 
+        // If success, we'll return the authentication token that should be included in all future requests.
+        // When the token gets near to expiration, we will automatically renew the token for the client.
+        
+        $DB = get_DB("switchboard");
+
+        $res = $DB->query("SELECT * FROM users WHERE `UserName`='".$username."';");
+        if($res->num_rows ==0){
+            $success=false;
+        } else {
+            $row = $res->fetch_assoc();
+
+            $Salt = $row['PasswordSalt'];
+            $Hash = md5($password.":".$Salt);
+            $UserID = $row['ID'];
+
+            if($Hash == $row['PasswordHash']) {
+                $success = true;
+
+                // Generate a authentication token
+                $Token = gen_uuid();
+
+                // Set token scope
+                $Scope = 1; // User login by password
+                $ISS = time();
+                $Expire = $ISS + (60*60*24); // ONE DAY
+                $Flags = 1; // Only usable for user login, not for automated bot actions. 
+                
+                // Push the token to the database
+                $stmt = $DB->prepare("INSERT INTO Access (User, Token, TokenScope, TokenFlags, Expire, IssuedAt) VALUES (?, ?, ?, ?, ?, ?);");
+                $stmt->bind_params("ssiii", $UserID, $Token, $Scope, $Flags, $Expire, $ISS);
+                $stmt->execute();
+                $stmt->close();
+
+                $DB->commit();
+
+
+                // Make a Switchboard Access Token
+                $SAT = MakeSAT($Token, $Expire, $ISS);
+
+                $data['token'] = $SAT;
+            }
+        }
+
+
+        die(json_encode(array(
+            "result" => $success,
+            "username" => $username,
+            "data" => $data
+        )));
+        break;
+    }
+
+
+    case "/auth/refresh": {
+        $success = false;
+        $packet = json_decode(file_get_contents("php://input"), true);
+
+        $DB = get_DB("switchboard");
+        $NewToken = "";
+
+        $AuthHeader = get_Authorization();
+        $reply = ValidateSAT($AuthHeader);
+        if($reply['success']) {
+            // Valid SAT. Now verify the token's scope and flags. In both instances it should just be a 1.
+            if($reply['scope'] == 1 && $reply['flags'] == 1) {
+                $success = true;
+                // Make new token
+                $token = gen_uuid();
+                $iss = time();
+                $expire = $iss + (60*60*24);
+                $id = $reply['id'];
+
+                // Delete the old token and insert the new one
+                $DB->query("DELETE FROM Access WHERE Token='".$reply['token']."';");
+                $stmt = $DB->prepare("INSERT INTO Access (User, Token, TokenScope, TokenFlags, Expire, IssuedAt) VALUES (?,?,?,?,?);");
+                $stmt->bind_params("ssiiii", $id, $token, 1, 1, $expire, $iss);
+                $stmt->execute();
+                $stmt->close();
+
+                $DB->commit();
+
+                $NewToken = MakeSAT($token, $expire, $iss);
+            }
+        } else {
+            $success = false;
+            $NewToken = "";
+        }
+
+
+
+        die(json_encode(array(
+            "result" => $success,
+            "token" => $NewToken
+        )));
+        break;
+    }
+
+
+    case "/version": {
+        die(json_encode(array(
+            "product" => "Switchboard API Server (PHP)",
+            "version" => "0.1.040826+1403"
+        )));
     }
 
     default: {
