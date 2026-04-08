@@ -2,6 +2,8 @@
 
 $DEBUG = true;
 
+$VERSION = "0.1.040826+1418";
+
 if(defined("MAINTENANCE")) {
     header("Content-Type: application/json");
     die(json_encode(array(
@@ -16,6 +18,7 @@ $request = $_SERVER['REQUEST_METHOD'];
 $ID = gen_uuid(); // Session ID, can be used for tracing back errors
 
 header("Content-Type: application/json");
+header("Server: Switchboard/v".$VERSION);
 require_once("dbconfig.php");
 
 function MakeSAT() {
@@ -488,7 +491,7 @@ switch($route) {
     case "/version": {
         die(json_encode(array(
             "product" => "Switchboard API Server (PHP)",
-            "version" => "0.1.040826+1403"
+            "version" => $VERSION
         )));
     }
 
