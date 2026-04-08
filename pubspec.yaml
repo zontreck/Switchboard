@@ -45,6 +45,7 @@ dependencies:
   http: ^1.6.0
   mineral: ^4.2.0
   mineral_cache: ^1.2.0
+  shared_preferences: ^2.5.5
 
 dev_dependencies:
   flutter_test:
