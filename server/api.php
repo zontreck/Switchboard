@@ -2,7 +2,7 @@
 
 $DEBUG = true;
 
-$VERSION = "0.1.040826+1418";
+$VERSION = "0.1.040826+1421";
 
 if(defined("MAINTENANCE")) {
     header("Content-Type: application/json");
@@ -419,7 +419,7 @@ switch($route) {
                 
                 // Push the token to the database
                 $stmt = $DB->prepare("INSERT INTO Access (User, Token, TokenScope, TokenFlags, Expire, IssuedAt) VALUES (?, ?, ?, ?, ?, ?);");
-                $stmt->bind_params("ssiii", $UserID, $Token, $Scope, $Flags, $Expire, $ISS);
+                $stmt->bind_param("ssiii", $UserID, $Token, $Scope, $Flags, $Expire, $ISS);
                 $stmt->execute();
                 $stmt->close();
 
@@ -465,7 +465,7 @@ switch($route) {
                 // Delete the old token and insert the new one
                 $DB->query("DELETE FROM Access WHERE Token='".$reply['token']."';");
                 $stmt = $DB->prepare("INSERT INTO Access (User, Token, TokenScope, TokenFlags, Expire, IssuedAt) VALUES (?,?,?,?,?);");
-                $stmt->bind_params("ssiiii", $id, $token, 1, 1, $expire, $iss);
+                $stmt->bind_param("ssiiii", $id, $token, 1, 1, $expire, $iss);
                 $stmt->execute();
                 $stmt->close();
 
