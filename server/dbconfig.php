@@ -1,5 +1,6 @@
 <?php
 
+define("MAINTENANCE", 1);
 $HOST="127.0.0.1:3306";
 $DBUSER="SWITCHBOARD";
 $DBPASS="CHANGEME";

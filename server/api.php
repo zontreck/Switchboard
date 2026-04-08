@@ -2,6 +2,14 @@
 
 $DEBUG = true;
 
+if(defined("MAINTENANCE")) {
+    header("Content-Type: application/json");
+    die(json_encode(array(
+        "result" => "fail",
+        "maintenance" => true,
+        "reason" => "The server is in maintenance mode. Try again later."
+    )));
+}
 
 $route = $_GET['rt'] ?? '';
 $request = $_SERVER['REQUEST_METHOD'];
