@@ -2,7 +2,7 @@
 
 $DEBUG = true;
 
-$VERSION = "0.1.040826+1421";
+$VERSION = "0.1.040826+2118";
 
 if(defined("MAINTENANCE")) {
     header("Content-Type: application/json");
@@ -419,7 +419,7 @@ switch($route) {
                 
                 // Push the token to the database
                 $stmt = $DB->prepare("INSERT INTO Access (User, Token, TokenScope, TokenFlags, Expire, IssuedAt) VALUES (?, ?, ?, ?, ?, ?);");
-                $stmt->bind_param("ssiii", $UserID, $Token, $Scope, $Flags, $Expire, $ISS);
+                $stmt->bind_param("ssiiii", $UserID, $Token, $Scope, $Flags, $Expire, $ISS);
                 $stmt->execute();
                 $stmt->close();
 
