@@ -409,7 +409,7 @@ switch($route) {
                 $success = true;
 
                 // Generate a authentication token
-                $Token = gen_uuid();
+                $Token = gen_uuid(); // NOTE: We do not invalidate previous auth tokens here. We yield to expirations. Once expired, they get flushed from database anyway.
 
                 // Set token scope
                 $Scope = 1; // User login by password
