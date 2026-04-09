@@ -2,7 +2,7 @@
 
 $DEBUG = true;
 
-$VERSION = "0.1.040826+2118";
+$VERSION = "0.1.040826+2157";
 
 if(defined("MAINTENANCE")) {
     header("Content-Type: application/json");
@@ -21,7 +21,7 @@ header("Content-Type: application/json");
 header("Server: Switchboard/v".$VERSION);
 require_once("dbconfig.php");
 
-function MakeSAT() {
+function MakeSAT($Token, $Expire, $ISS) {
     return base64_encode(json_encode(array(
         "token" => $Token,
         "expires" => $Expire,
@@ -430,6 +430,8 @@ switch($route) {
                 $SAT = MakeSAT($Token, $Expire, $ISS);
 
                 $data['token'] = $SAT;
+            } else {
+                $success = false;
             }
         }
 
