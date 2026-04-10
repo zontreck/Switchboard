@@ -444,6 +444,19 @@ switch($route) {
         break;
     }
 
+    case "/auth/check": {
+        $success = false;
+        $auth = get_Authorization();
+
+        $reply = ValidateSAT($auth);
+
+
+        die(json_encode(array(
+            "result" => $success,
+            "user" => ""
+        )));
+        break;
+    }
 
     case "/auth/refresh": {
         $success = false;

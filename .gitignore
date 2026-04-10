@@ -132,3 +132,6 @@ Mkfile.old
 dkms.conf
 
 test/*.json
+
+# Cardinal: Prevent libreoffice lock files from being committed.
+.~*.*
