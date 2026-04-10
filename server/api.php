@@ -2,7 +2,7 @@
 
 $DEBUG = true;
 
-$VERSION = "0.1.040826+2219";
+$VERSION = "0.1.041026+1349";
 
 if(defined("MAINTENANCE")) {
     header("Content-Type: application/json");
@@ -450,10 +450,12 @@ switch($route) {
 
         $reply = ValidateSAT($auth);
 
+        $success = $reply['success'];
+
 
         die(json_encode(array(
             "result" => $success,
-            "user" => ""
+            "user" => $reply['id']
         )));
         break;
     }
