@@ -29,7 +29,10 @@ main() {
     Dio dio = Dio();
     dio.options.contentType = "application/json";
 
-    var reply = await dio.put("https://cdn.zontreck.com/user/1234apitest");
+    var reply = await dio.put(
+      "https://cdn.zontreck.com/user/1234apitest",
+      data: {"auth": testSum},
+    );
     print("[/user/1234apitest]: ${json.encode(reply.data)}");
 
     // Check result flag
@@ -61,8 +64,16 @@ main() {
     );
     print("[/auth/login]: ${json.encode(reply.data)}");
     expect(reply.data['success'], true);
+    print("[/auth/login]: PASS");
 
     String token = reply.data['data']['token'];
-    print("Login token obtained: $token");
+
+    dio.options.headers["Authorization"] = token;
+
+    reply = await dio.get("https://cdn.zontreck.com/auth/check");
+    print("[/auth/check]: ${reply.data}");
+    expect(reply.data['success'], true);
+
+    print("[/auth/check]: PASS");
   });
 }
