@@ -2,7 +2,7 @@
 
 $DEBUG = true;
 
-$VERSION = "0.1.041026+1835";
+$VERSION = "0.1.041026+2033";
 
 if(defined("MAINTENANCE")) {
     header("Content-Type: application/json");
