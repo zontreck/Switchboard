@@ -97,11 +97,8 @@ class OctoconData {
     UUID imageId = UUID.generate(4);
     String extension = user.avatarUrl.split('.').last;
 
-    dio.download(
-      user.avatarUrl,
-      "cdn/avatar/${imageId.toString()}.${extension}",
-    );
-    usr.avatarURL = "${state.cdnUrl}/avatar/${imageId.toString()}.${extension}";
+    dio.download(user.avatarUrl, "cdn/avatar/${imageId.toString()}.$extension");
+    usr.avatarURL = "${state.cdnUrl}/avatar/${imageId.toString()}.$extension";
   }
 }
 
@@ -311,10 +308,11 @@ class OctoconFront {
     DateTime end = DateTime.parse(jsx['time_end'] as String);
     int alterId = jsx['alter_id'] as int;
     DateTime start;
-    if (jsx['time_start'] == null)
+    if (jsx['time_start'] == null) {
       start = DateTime.fromMillisecondsSinceEpoch(0);
-    else
+    } else {
       start = DateTime.parse(jsx['time_start'] as String);
+    }
 
     return OctoconFront(
       id: id,
