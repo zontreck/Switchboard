@@ -11,7 +11,7 @@ main() {
     var jsonData = reply.data as Map<String, dynamic>;
 
     print("[/version]: ${json.encode(jsonData)}");
-    expect(jsonData['product'], "Switchboard API Server (PHP)");
+    expect(jsonData['data']['product'], "Switchboard API Server (PHP)");
 
     print("[/version] : PASS");
   });
@@ -60,6 +60,9 @@ main() {
       data: {"auth": Hashing.md5Hash("test"), "username": "1234apitest"},
     );
     print("[/auth/login]: ${json.encode(reply.data)}");
-    expect(reply.data['result'], true);
+    expect(reply.data['success'], true);
+
+    String token = reply.data['data']['token'];
+    print("Login token obtained: $token");
   });
 }
