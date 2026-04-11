@@ -2,7 +2,7 @@
 
 $DEBUG = true;
 
-$VERSION = "0.1.041026+2033";
+$VERSION = "0.1.041126+0818";
 
 if(defined("MAINTENANCE")) {
     header("Content-Type: application/json");
@@ -274,9 +274,9 @@ switch($route) {
                     $Salt = md5(md5(time()).":".time().md5($HashedPwd));
                     $Hash = md5($HashedPwd.":".$Salt);
 
-                    $stmt = $DB->prepare("INSERT INTO users (UserName, PasswordSalt, PasswordHash, DisplayName, AccountLevel) VALUES (?,?,?,?,?);");
+                    $stmt = $DB->prepare("INSERT INTO users (UserName, PasswordSalt, PasswordHash, DisplayName) VALUES (?,?,?,?);");
 
-                    $stmt->bind_param("ssssi", $username, $Salt, $Hash, $username, 1);
+                    $stmt->bind_param("ssss", $username, $Salt, $Hash, $username);
                     $stmt->execute();
                     $stmt->close();
 
