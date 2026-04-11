@@ -435,12 +435,18 @@ switch($route) {
             }
         }
 
-
         die(json_encode(array(
-            "result" => $success,
-            "username" => $username,
-            "data" => $data
+            "success" => $success,
+            "path" => $route,
+            "reason" => $reason,
+            "type" => $request,
+            "id" => $ID,
+            "data" => array (
+                "username" => $username,
+                "token" => $data['token']
+            )
         )));
+
         break;
     }
 
@@ -452,11 +458,16 @@ switch($route) {
 
         $success = $reply['success'];
 
-
         die(json_encode(array(
-            "result" => $success,
-            "user" => $reply['id']
+            "success" => $success,
+            "path" => $route,
+            "type" => $request,
+            "id" => $ID,
+            "data" =>  array(
+                "id" => $reply['id']
+            )
         )));
+
         break;
     }
 
@@ -495,20 +506,30 @@ switch($route) {
             $NewToken = "";
         }
 
-
-
         die(json_encode(array(
-            "result" => $success,
-            "token" => $NewToken
+            "success" => $success,
+            "path" => $route,
+            "id" => $ID,
+            "type" => $request,
+            "data" => array(
+                "token" => $NewToken
+            )
         )));
+
         break;
     }
 
 
     case "/version": {
         die(json_encode(array(
-            "product" => "Switchboard API Server (PHP)",
-            "version" => $VERSION
+            "success" => true,
+            "id" => $ID,
+            "path" => $route,
+            "type" => $request,
+            "data" => array(
+                "product" => "Switchboard API Server (PHP)",
+                "version" => $VERSION
+            )
         )));
     }
 
