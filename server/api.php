@@ -2,7 +2,7 @@
 
 $DEBUG = true;
 
-$VERSION = "0.1.041126+1459";
+$VERSION = "0.1.041126+1830";
 
 if(defined("MAINTENANCE")) {
     header("Content-Type: application/json");
@@ -216,8 +216,8 @@ function runMigrations(mysqli $conn, string $dir = __DIR__ . '/migrations'): voi
 function logAudit($ID, $Type, $Path, $DBHandle) {
     $payload = file_get_contents("php://input");
 
-    $STMT = $DBHandle->prepare("INSERT INTO Audit (ID, RequestType, RequestPath, RequestData, Timestamp) VALUES (?, ?, ?, ?, ?);");
-    $STMT->bind_param("ssssi", $ID, $Type, $Path, $payload, time());
+    $STMT = $DBHandle->prepare("INSERT INTO Audit (ID, RequestType, RequestPath, RequestData, Timestamp, RequestHeaders) VALUES (?, ?, ?, ?, ?, ?);");
+    $STMT->bind_param("ssssis", $ID, $Type, $Path, $payload, time(), json_encode(apache_request_headers()));
     $STMT->execute();
     $STMT->close();
     $DBHandle->commit();
