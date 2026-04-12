@@ -2,7 +2,9 @@
 
 $DEBUG = true;
 
-$VERSION = "0.1.041126+2056";
+$VERSION = "0.1.041126+2121";
+
+require_once("dbconfig.php");
 
 if(defined("MAINTENANCE")) {
     header("Content-Type: application/json");
@@ -17,9 +19,8 @@ $route = $_GET['rt'] ?? '';
 $request = $_SERVER['REQUEST_METHOD'];
 $ID = gen_uuid(); // Session ID, can be used for tracing back errors
 
-header("Content-Type: application/json");
-header("Server: Switchboard/v".$VERSION);
-require_once("dbconfig.php");
+header("Content-Type: application/json", true);
+header("Server: Switchboard/v".$VERSION, true);
 
 function MakeSAT($Token, $Expire, $ISS) {
     return base64_encode(json_encode(array(
@@ -28,6 +29,22 @@ function MakeSAT($Token, $Expire, $ISS) {
         "iss" => $ISS,
         "valid_for" => (60*60*24) // one day
     )));
+}
+
+class SATReply {
+    public bool $Success;
+    public int $Scope;
+    public int $Flags;
+    public string $UserID;
+    public string $Token;
+
+    public function __construct(bool $Success, int $Scope, int $Flags, string $UserID, string $Token) {
+        $this->Success = $Success;
+        $this->Scope = $Scope;
+        $this->Flags = $Flags;
+        $this->UserID = $UserID;
+        $this->Token = $Token;
+    }
 }
 
 function ValidateSAT($SAT) {
@@ -40,30 +57,20 @@ function ValidateSAT($SAT) {
     $res = $DB->query("SELECT * FROM Access WHERE Token='".$jsonPayload['token']."';");
 
     if($res->num_rows == 0) {
-        return SATReply(false, 0, 0, "", "");
+        return new SATReply(false, 0, 0, "", "");
     }
     $row = $res->fetch_assoc();
     
     // Check the expiration now.
-    $expire = $jsonPayload['expire'];
+    $expire = $jsonPayload['expires'];
     $Scope = $row['TokenScope'];
     $Flags = $row['TokenFlags'];
     if(time() >= $expire) {
         $DB->query("DELETE FROM Access WHERE Token='".$jsonPayload['token']."';");
-        return SATReply(false, 0, 0, "", "");
+        return new SATReply(false, 0, 0, "", "");
     } else {
-        return SATReply(true, $Scope, $Flags, $row['User'], $row['Token']);
+        return new SATReply(true, $Scope, $Flags, $row['User'], $row['Token']);
     }
-}
-
-function SATReply($Success, $Scope, $Flags, $UserID, $Token) {
-    return array(
-        "success" => $Success,
-        "scope" => $Scope,
-        "flags" => $Flags,
-        "id" => $UserID,
-        "token" => $Token
-    );
 }
 
 function get_Authorization()
@@ -457,7 +464,7 @@ switch($route) {
 
         $reply = ValidateSAT($auth);
 
-        $success = $reply['success'];
+        $success = $reply->Success;
 
         die(json_encode(array(
             "success" => $success,
@@ -481,18 +488,18 @@ switch($route) {
 
         $AuthHeader = get_Authorization();
         $reply = ValidateSAT($AuthHeader);
-        if($reply['success']) {
+        if($reply->Success) {
             // Valid SAT. Now verify the token's scope and flags. In both instances it should just be a 1.
-            if($reply['scope'] == 1 && $reply['flags'] == 1) {
+            if($reply->Scope == 1 && $reply->Flags == 1) {
                 $success = true;
                 // Make new token
                 $token = gen_uuid();
                 $iss = time();
                 $expire = $iss + (60*60*24);
-                $id = $reply['id'];
+                $id = $reply->ID;
 
                 // Delete the old token and insert the new one
-                $DB->query("DELETE FROM Access WHERE Token='".$reply['token']."';");
+                $DB->query("DELETE FROM Access WHERE Token='".$reply->Token."';");
                 $stmt = $DB->prepare("INSERT INTO Access (User, Token, TokenScope, TokenFlags, Expire, IssuedAt) VALUES (?,?,?,?,?);");
                 $stmt->bind_param("ssiiii", $id, $token, 1, 1, $expire, $iss);
                 $stmt->execute();

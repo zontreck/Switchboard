@@ -10,6 +10,8 @@ main() {
     var reply = await dio.get("https://cdn.zontreck.com/version");
     var jsonData = reply.data as Map<String, dynamic>;
 
+    print("SERVER: ${reply.headers.map["Server"]}");
+
     print("[/version]: ${json.encode(jsonData)}");
     expect(jsonData['data']['product'], "Switchboard API Server (PHP)");
 
