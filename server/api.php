@@ -2,7 +2,7 @@
 
 $DEBUG = true;
 
-$VERSION = "0.1.041126+2138";
+$VERSION = "0.1.041126+2157";
 
 require_once("dbconfig.php");
 
@@ -57,7 +57,7 @@ function ValidateSAT($SAT) {
     $res = $DB->query("SELECT * FROM Access WHERE Token='".$jsonPayload['token']."';");
 
     if($res->num_rows == 0) {
-        return new SATReply(false, 0, 0, "", "");
+        return new SATReply(false, 0, 0, "N/A", "No Such Token");
     }
     $row = $res->fetch_assoc();
     
@@ -67,7 +67,7 @@ function ValidateSAT($SAT) {
     $Flags = $row['TokenFlags'];
     if(time() >= $expire) {
         $DB->query("DELETE FROM Access WHERE Token='".$jsonPayload['token']."';");
-        return new SATReply(false, 0, 0, "", "");
+        return new SATReply(false, 0, 0, "nan", "invalid");
     } else {
         return new SATReply(true, $Scope, $Flags, $row['User'], $row['Token']);
     }
