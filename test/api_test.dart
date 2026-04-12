@@ -68,7 +68,7 @@ main() {
 
     String token = reply.data['data']['token'];
 
-    dio.options.headers["Authorization"] = token;
+    dio.options.headers["X-SB-Auth"] = token;
 
     reply = await dio.get("https://cdn.zontreck.com/auth/check");
     print("[/auth/check]: ${reply.data}");

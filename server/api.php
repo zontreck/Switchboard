@@ -2,7 +2,7 @@
 
 $DEBUG = true;
 
-$VERSION = "0.1.041126+2039";
+$VERSION = "0.1.041126+2056";
 
 if(defined("MAINTENANCE")) {
     header("Content-Type: application/json");
@@ -69,8 +69,9 @@ function SATReply($Success, $Scope, $Flags, $UserID, $Token) {
 function get_Authorization()
 {
     $headers = apache_request_headers();
-    return $headers["Authorization"];
-    return "X X";
+    if(isset($headers["X-SB-Auth"])) 
+        return $headers["X-SB-Auth"];
+    else return "XX";
 }
 
 function get_DB($dbname)
