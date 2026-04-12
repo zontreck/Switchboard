@@ -2,7 +2,7 @@
 
 $DEBUG = true;
 
-$VERSION = "0.1.041126+2157";
+$VERSION = "0.1.041226+1219";
 
 require_once("dbconfig.php");
 
@@ -76,9 +76,13 @@ function ValidateSAT($SAT) {
 function get_Authorization()
 {
     $headers = apache_request_headers();
-    if(isset($headers["X-SB-Auth"])) 
-        return $headers["X-SB-Auth"];
-    else return "XX";
+    foreach ($headers as $header => $value) {
+        if(strtolower($header) == "x-sb-auth") {
+            return $value;
+        }
+    }
+    
+    return "XX";
 }
 
 function get_DB($dbname)
