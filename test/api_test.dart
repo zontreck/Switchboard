@@ -77,5 +77,11 @@ main() {
     expect(reply.data['success'], true);
 
     print("[/auth/check]: PASS");
+
+    reply = await dio.get("https://cdn.zontreck.com/auth/refresh");
+    print("[/auth/refresh]: ${reply.data}");
+    expect(reply.data['success'], true);
+
+    print("[/auth/refresh]: PASS");
   });
 }

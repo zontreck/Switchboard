@@ -2,7 +2,7 @@
 
 $DEBUG = true;
 
-$VERSION = "0.1.041226+1219";
+$VERSION = "0.1.041226+1533";
 
 require_once("dbconfig.php");
 
@@ -504,8 +504,8 @@ switch($route) {
 
                 // Delete the old token and insert the new one
                 $DB->query("DELETE FROM Access WHERE Token='".$reply->Token."';");
-                $stmt = $DB->prepare("INSERT INTO Access (User, Token, TokenScope, TokenFlags, Expire, IssuedAt) VALUES (?,?,?,?,?);");
-                $stmt->bind_param("ssiiii", $id, $token, 1, 1, $expire, $iss);
+                $stmt = $DB->prepare("INSERT INTO Access (User, Token, TokenScope, TokenFlags, Expire, IssuedAt) VALUES (?,?,?,?,?,?);");
+                $stmt->bind_param("ssiiii", $id, $token, $reply->Scope, $reply->Flags, $expire, $iss);
                 $stmt->execute();
                 $stmt->close();
 
