@@ -496,7 +496,7 @@ switch($route) {
                 $token = gen_uuid();
                 $iss = time();
                 $expire = $iss + (60*60*24);
-                $id = $reply->ID;
+                $id = $reply->UserID;
 
                 // Delete the old token and insert the new one
                 $DB->query("DELETE FROM Access WHERE Token='".$reply->Token."';");
