@@ -2,7 +2,7 @@
 
 $DEBUG = true;
 
-$VERSION = "0.1.041126+2121";
+$VERSION = "0.1.041126+2138";
 
 require_once("dbconfig.php");
 
@@ -472,7 +472,7 @@ switch($route) {
             "type" => $request,
             "id" => $ID,
             "data" =>  array(
-                "id" => $reply['id']
+                "id" => $reply->UserID
             )
         )));
 
