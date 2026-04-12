@@ -57,7 +57,7 @@ function ValidateSAT($SAT) {
     $res = $DB->query("SELECT * FROM Access WHERE Token='".$jsonPayload['token']."';");
 
     if($res->num_rows == 0) {
-        return new SATReply(false, 0, 0, "N/A", "No Such Token");
+        return new SATReply(false, 0, 0, "N/A/$payload", "No Such Token");
     }
     $row = $res->fetch_assoc();
     
@@ -65,7 +65,7 @@ function ValidateSAT($SAT) {
     $expire = $jsonPayload['expires'];
     $Scope = $row['TokenScope'];
     $Flags = $row['TokenFlags'];
-    if(time() >= $expire) {
+    if(time() >= $expire && $row['Expire'] == $expire) {
         $DB->query("DELETE FROM Access WHERE Token='".$jsonPayload['token']."';");
         return new SATReply(false, 0, 0, "nan", "invalid");
     } else {
