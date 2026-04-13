@@ -109,6 +109,9 @@ main() {
     }
     String token = "";
     dio.options.contentType = "application/json";
+    dio.options.validateStatus = (i) {
+      return true;
+    };
 
     if (!ctTest.containsKey("loginToken")) {
       // Login to the server
@@ -132,7 +135,7 @@ main() {
     print("[/images/thiswillfail] GET: PASS");
 
     // Read the file: imgtest.png
-    var fData = File("imgtest.png").readAsBytesSync();
+    var fData = File("test/imgtest.png").readAsBytesSync();
     var b64Data = base64.encode(fData);
 
     // Upload to the server's POST endpoint
@@ -140,8 +143,8 @@ main() {
       "https://cdn.zontreck.com/images/new",
       data: {"image": b64Data},
     );
+    print("[/images/new] POST: ${reply.data}");
     expect(reply.data["success"], true);
-    print("[/images/new] POST: ${reply.data["data"]["img"]}");
     print("[/images/new] POST: PASS");
 
     var imageId = reply.data["data"]["img"];
