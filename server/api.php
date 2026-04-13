@@ -2,7 +2,7 @@
 
 $DEBUG = true;
 
-$VERSION = "0.1.041326+0847";
+$VERSION = "0.1.041326+0901";
 
 require_once("dbconfig.php");
 
@@ -607,7 +607,7 @@ switch($route) {
                 $Image = imagecreatefromstring($rawImage);
                 $ImgWebP = ob_get_clean();
 
-                imagewebp($Image, $ImgWebP, 100);
+                imagewebp($Image, null, 100);
                 imagedestroy($Image);
 
                 // Insert new image into the database
