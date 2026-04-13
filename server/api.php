@@ -2,7 +2,7 @@
 
 $DEBUG = true;
 
-$VERSION = "0.1.041226+2205";
+$VERSION = "0.1.041326+0847";
 
 require_once("dbconfig.php");
 
@@ -602,13 +602,18 @@ switch($route) {
                 $rawImage = base64_decode($packet["image"]);
 
                 // Convert image to webp
+                ob_start();
+
                 $Image = imagecreatefromstring($rawImage);
+                $ImgWebP = ob_get_clean();
+
                 imagewebp($Image, $ImgWebP, 100);
                 imagedestroy($Image);
 
                 // Insert new image into the database
                 $stmt = $DB->prepare("INSERT INTO `Images` (OwnerID, ImageID, ImageBinary, Timestamp) VALUES(?, ?, ?, ?);");
-                $stmt->bind_param("ssbi", $UserID, $XIMGID, $ImgWebP, time());
+                $stmt->bind_param("ssbi", $UserID, $XIMGID, null, time());
+                $stmt->send_long_data(2, $ImgWebP);
                 $stmt->execute();
                 $stmt->close();
 
