@@ -2,7 +2,7 @@
 
 $DEBUG = true;
 
-$VERSION = "0.1.041326+0916";
+$VERSION = "0.1.041326+0929";
 
 require_once("dbconfig.php");
 
@@ -620,7 +620,7 @@ switch($route) {
 
                 // Insert new image into the database
                 $stmt = $DB->prepare("INSERT INTO `Images` (OwnerID, ImageID, ImageBinary, Timestamp) VALUES(?, ?, ?, ?);");
-                $stmt->bind_param("ssbi", $UserID, $XIMGID, null, time());
+                $stmt->bind_param("ssbi", $UserID, $XIMGID, $null, time());
                 $stmt->send_long_data(2, $ImgWebP);
                 $stmt->execute();
                 $stmt->close();
