@@ -2,7 +2,7 @@
 
 $DEBUG = true;
 
-$VERSION = "0.1.041326+0901";
+$VERSION = "0.1.041326+0916";
 
 require_once("dbconfig.php");
 
@@ -600,14 +600,22 @@ switch($route) {
                 );
 
                 $rawImage = base64_decode($packet["image"]);
+                if ($rawImage === false) {
+                    throw new Exception("Invalid base64");
+                }
 
-                // Convert image to webp
-                ob_start();
+                if (!function_exists('imagewebp')) {
+                    throw new Exception("WebP not supported on this server");
+                }
 
                 $Image = imagecreatefromstring($rawImage);
+                if ($Image === false) {
+                    throw new Exception("Invalid image data");
+}
+                // Convert image to webp
+                ob_start();
+                imagewebp($Image, quality: 100);
                 $ImgWebP = ob_get_clean();
-
-                imagewebp($Image, null, 100);
                 imagedestroy($Image);
 
                 // Insert new image into the database
