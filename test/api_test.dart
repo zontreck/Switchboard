@@ -3,8 +3,10 @@ import 'dart:io';
 
 import 'package:dio/dio.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:libac_dart/nbt/NbtIo.dart';
+import 'package:libac_dart/nbt/impl/CompoundTag.dart';
+import 'package:libac_dart/nbt/impl/StringTag.dart';
 import 'package:libac_dart/utils/Hashing.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 main() {
   test("Test version endpoint", () async {
@@ -60,7 +62,13 @@ main() {
 
   test("Test auth endpoints", () async {
     Dio dio = Dio();
-    SharedPreferencesAsync spa = SharedPreferencesAsync();
+    CompoundTag ctTest;
+    if (File("test.nbt").existsSync()) {
+      ctTest = (await NbtIo.read("test.nbt")).asCompoundTag();
+    } else {
+      ctTest = CompoundTag();
+    }
+
     dio.options.contentType = "application/json";
 
     var reply = await dio.post(
@@ -86,16 +94,23 @@ main() {
     expect(reply.data['success'], true);
 
     print("[/auth/refresh]: PASS");
-    await spa.setString("loginToken", reply.data["data"]["token"]);
+    ctTest.put("loginToken", StringTag.valueOf(reply.data["data"]["token"]));
+
+    await NbtIo.write("test.nbt", ctTest);
   });
 
   test("Test image endpoints", () async {
     Dio dio = Dio();
-    SharedPreferencesAsync SPA = SharedPreferencesAsync();
-    String? token = await SPA.getString("loginToken");
+    CompoundTag ctTest;
+    if (File("test.nbt").existsSync()) {
+      ctTest = (await NbtIo.read("test.nbt")).asCompoundTag();
+    } else {
+      ctTest = CompoundTag();
+    }
+    String token = "";
     dio.options.contentType = "application/json";
 
-    if (token == null) {
+    if (!ctTest.containsKey("loginToken")) {
       // Login to the server
 
       var reply = await dio.post(
@@ -104,6 +119,8 @@ main() {
       );
 
       token = reply.data["data"]["token"];
+    } else {
+      token = ctTest.get("loginToken")!.asString();
     }
     dio.options.headers["X-SB-Auth"] = token;
 
@@ -136,16 +153,22 @@ main() {
     expect(reply.data["success"], true);
     print("[/images/$imageId] PUT: PASS");
 
-    await SPA.setString("imageTest", imageId);
+    ctTest.put("imageTest", StringTag.valueOf(imageId));
+    await NbtIo.write("test.nbt", ctTest);
   });
 
   test("Test image delete endpoint", () async {
     Dio dio = Dio();
-    SharedPreferencesAsync SPA = SharedPreferencesAsync();
-    String? token = await SPA.getString("loginToken");
+    CompoundTag ctTest;
+    if (File("test.nbt").existsSync()) {
+      ctTest = (await NbtIo.read("test.nbt")).asCompoundTag();
+    } else {
+      ctTest = CompoundTag();
+    }
+    String token = "";
     dio.options.contentType = "application/json";
 
-    if (token == null) {
+    if (!ctTest.containsKey("loginToken")) {
       // Login to the server
 
       var reply = await dio.post(
@@ -154,15 +177,19 @@ main() {
       );
 
       token = reply.data["data"]["token"];
+    } else {
+      token = ctTest.get("loginToken")!.asString();
     }
+
     dio.options.headers["X-SB-Auth"] = token;
 
-    var imageId = await SPA.getString("imageTest");
+    var imageId = ctTest.get("imageTest")!.asString();
     var reply = await dio.delete("https://cdn.zontreck.com/images/$imageId");
 
     expect(reply.data["success"], true);
     print("[/images/$imageId] DELETE: PASS");
 
-    await SPA.remove("imageTest");
+    ctTest.remove("imageTest");
+    await NbtIo.write("test.nbt", ctTest);
   });
 }

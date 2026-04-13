@@ -135,3 +135,5 @@ test/*.json
 
 # Cardinal: Prevent libreoffice lock files from being committed.
 .~*.*
+
+test.nbt
