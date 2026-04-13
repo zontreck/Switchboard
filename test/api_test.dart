@@ -1,8 +1,10 @@
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:dio/dio.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:libac_dart/utils/Hashing.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 main() {
   test("Test version endpoint", () async {
@@ -58,6 +60,7 @@ main() {
 
   test("Test auth endpoints", () async {
     Dio dio = Dio();
+    SharedPreferencesAsync spa = SharedPreferencesAsync();
     dio.options.contentType = "application/json";
 
     var reply = await dio.post(
@@ -83,5 +86,83 @@ main() {
     expect(reply.data['success'], true);
 
     print("[/auth/refresh]: PASS");
+    await spa.setString("loginToken", reply.data["data"]["token"]);
+  });
+
+  test("Test image endpoints", () async {
+    Dio dio = Dio();
+    SharedPreferencesAsync SPA = SharedPreferencesAsync();
+    String? token = await SPA.getString("loginToken");
+    dio.options.contentType = "application/json";
+
+    if (token == null) {
+      // Login to the server
+
+      var reply = await dio.post(
+        "https://cdn.zontreck.com/auth/login",
+        data: {"auth": Hashing.md5Hash("test"), "username": "1234apitest"},
+      );
+
+      token = reply.data["data"]["token"];
+    }
+    dio.options.headers["X-SB-Auth"] = token;
+
+    // Test uploading the test image to the server in the image endpoint
+    // First, test a obvious failure, should be a 404
+    var reply = await dio.get("https://cdn.zontreck.com/images/thiswillfail");
+    expect(reply.statusCode, 404);
+
+    print("[/images/thiswillfail] GET: PASS");
+
+    // Read the file: imgtest.png
+    var fData = File("imgtest.png").readAsBytesSync();
+    var b64Data = base64.encode(fData);
+
+    // Upload to the server's POST endpoint
+    reply = await dio.post(
+      "https://cdn.zontreck.com/images/new",
+      data: {"image": b64Data},
+    );
+    expect(reply.data["success"], true);
+    print("[/images/new] POST: ${reply.data["data"]["img"]}");
+    print("[/images/new] POST: PASS");
+
+    var imageId = reply.data["data"]["img"];
+
+    reply = await dio.put(
+      "https://cdn.zontreck.com/images/${imageId}",
+      data: {"image": b64Data},
+    );
+    expect(reply.data["success"], true);
+    print("[/images/$imageId] PUT: PASS");
+
+    await SPA.setString("imageTest", imageId);
+  });
+
+  test("Test image delete endpoint", () async {
+    Dio dio = Dio();
+    SharedPreferencesAsync SPA = SharedPreferencesAsync();
+    String? token = await SPA.getString("loginToken");
+    dio.options.contentType = "application/json";
+
+    if (token == null) {
+      // Login to the server
+
+      var reply = await dio.post(
+        "https://cdn.zontreck.com/auth/login",
+        data: {"auth": Hashing.md5Hash("test"), "username": "1234apitest"},
+      );
+
+      token = reply.data["data"]["token"];
+    }
+    dio.options.headers["X-SB-Auth"] = token;
+
+    var imageId = await SPA.getString("imageTest");
+    var reply = await dio.delete("https://cdn.zontreck.com/images/$imageId");
+
+    expect(reply.data["success"], true);
+    print("[/images/$imageId] DELETE: PASS");
+
+    await SPA.remove("imageTest");
   });
 }

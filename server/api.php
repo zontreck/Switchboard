@@ -2,7 +2,7 @@
 
 $DEBUG = true;
 
-$VERSION = "0.1.041226+1533";
+$VERSION = "0.1.041226+2119";
 
 require_once("dbconfig.php");
 
@@ -543,6 +543,156 @@ switch($route) {
                 "version" => $VERSION
             )
         )));
+    }
+
+    case preg_match('#^/images(?:/([^/]+))?$#', $route, $matches) === 1: {
+
+        $DB = get_DB("switchboard");
+        $packet = json_decode(file_get_contents("php://input"), true);
+
+        $imgid = $matches[1] ?? null; // null if /user was requested without a username
+        
+        $reason = "";
+        if($imgid == null) {
+            $success=  false;
+        }
+        $success=false;
+        $data = null;
+
+        switch($request) {
+            case "GET": {
+                // Retrieve image from database, return proper content type.
+                $res = $DB->query("SELECT * FROM Images WHERE ImageID='$imgid';");
+                if($res->num_rows == 0) {
+                    http_response_code(404);
+                    header("Content-Type: text/html", true);
+
+                    die("<h2>Content not found</h2>");
+                }
+                $success=true;
+                header("Content-Type: image/webp");
+
+                $row = $res->fetch_assoc();
+                header("X-SB-CreatedAt=".$row['Timestamp']);
+                die($row['ImageBinary']);
+                break;
+            }
+            case "POST": {
+                // Insert new, but not overwrite.
+                $SBAuth = get_Authorization();
+                $SBAuth = ValidateSAT($SBAuth);
+
+                if($imgid != "new") {
+                    $success=false;
+                    $reason = "Cannot post to a image ID, you must use the /images/new endpoint.";
+                    break;
+                }
+
+                // Get the user ID from the authorization response.
+                $UserID = "";
+                if($SBAuth->Success) {
+                    $UserID = $SBAuth->UserID;
+                }
+
+                $XIMGID = gen_uuid();
+                $data = array(
+                    "img" => $XIMGID
+                );
+
+                $rawImage = base64_decode($packet["image"]);
+
+                // Convert image to webp
+                $Image = imagecreatefromstring($rawImage);
+                imagewebp($Image, $ImgWebP, 100);
+                imagedestroy($Image);
+
+                // Insert new image into the database
+                $stmt = $DB->prepare("INSERT INTO `Images` (OwnerID, ImageID, ImageBinary, Timestamp) VALUES(?, ?, ?, ?);");
+                $stmt->bind_param("ssbi", $UserID, $XIMGID, $ImgWebP, time());
+                $stmt->execute();
+                $stmt->close();
+
+                $DB->commit();
+
+                
+                break;
+            }
+
+            case "DELETE": {
+                $SBAuth = ValidateSAT(get_Authorization());
+
+                $UserID = $SBAuth->UserID;
+                // Query the image data
+                $res = $DB->query("SELECT * FROM Images WHERE ImageID='$imgid';");
+
+                if($res->num_rows == 0) {
+                    $success=false;
+                    $reason = "No such image found";
+                    break;
+                }
+
+                $row = $res->fetch_assoc();
+                if($row['OwnerID'] == $UserID) {
+                    // Authorized to delete own resource
+                    $DB->query("DELETE FROM Images WHERE ImageID='$imgid';");
+                    $success=true;
+                    $reason = "Image deleted";
+                } else {
+                    $success=false;
+                    $reason = "Resource Owner";
+                }
+                break;
+            }
+
+            case "PUT": {
+
+                $SBAuth = ValidateSAT(get_Authorization());
+
+                $UserID = $SBAuth->UserID;
+                // Query the image data
+                $res = $DB->query("SELECT * FROM Images WHERE ImageID='$imgid';");
+
+                if($res->num_rows == 0) {
+                    $success=false;
+                    $reason = "No such image found";
+                    break;
+                }
+
+                $row = $res->fetch_assoc();
+                if($row['OwnerID'] == $UserID) {
+                    // Authorized to replace own resource!
+                    $imgData = $packet['image'];
+                    $Image = imagecreatefromstring($imgData);
+                    imagewebp($Image,$IWebP,100);
+                    imagedestroy($Image);
+
+                    $stmt = $DB->prepare("UPDATE Images SET ImageBinary=? WHERE ImageID='?';");
+                    $stmt->bind_param("bs", $IWebP, $imgid);
+                    $stmt->execute();
+                    $stmt->close();
+
+                    $DB->commit();
+
+                    $success=true;
+                    $reason = "Image replaced";
+                } else {
+                    $success=false;
+                    $reason = "Resource Owner";
+                }
+                break;
+            }
+            
+        }
+
+
+        die(json_encode(array(
+            "success" => $success,
+            "path" => $route,
+            "type" => $request,
+            "id" => $ID,
+            "data" => $data
+        )));
+        break;
     }
 
     default: {
