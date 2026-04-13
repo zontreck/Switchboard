@@ -2,7 +2,7 @@
 
 $DEBUG = true;
 
-$VERSION = "0.1.041326+0929";
+$VERSION = "0.1.041326+0946";
 
 require_once("dbconfig.php");
 
@@ -626,6 +626,8 @@ switch($route) {
                 $stmt->close();
 
                 $DB->commit();
+
+                $success=true;
 
                 
                 break;
