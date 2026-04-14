@@ -21,7 +21,7 @@ ENV MARIADB_PASS PASS
 ENV MARIADB_DB switchboard
 ENV USE_SQL 0
 ENV BOT_TOKEN NotSet
-ENV CDN_URL "https://change.me/cdn/path/"
+ENV CDN_URL "https://api.systemswitchboard.com/"
 
 ADD ./entrypoint.sh /bin/entrypoint
 RUN chmod +x /bin/entrypoint

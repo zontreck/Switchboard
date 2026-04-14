@@ -11,7 +11,7 @@ import 'package:libac_dart/utils/Hashing.dart';
 main() {
   test("Test version endpoint", () async {
     Dio dio = Dio();
-    var reply = await dio.get("https://cdn.zontreck.com/version");
+    var reply = await dio.get("https://api.systemswitchboard.com/version");
     var jsonData = reply.data as Map<String, dynamic>;
 
     print("SERVER: ${reply.headers.map["Server"]}");
@@ -36,7 +36,7 @@ main() {
     dio.options.contentType = "application/json";
 
     var reply = await dio.put(
-      "https://cdn.zontreck.com/user/1234apitest",
+      "https://api.systemswitchboard.com/user/1234apitest",
       data: {"auth": testSum},
     );
     print("[/user/1234apitest]: ${json.encode(reply.data)}");
@@ -51,7 +51,9 @@ main() {
 
   test("Get test user", () async {
     Dio dio = Dio();
-    var reply = await dio.get("https://cdn.zontreck.com/user/1234apitest");
+    var reply = await dio.get(
+      "https://api.systemswitchboard.com/user/1234apitest",
+    );
     print("[/user/1234apitest]: ${json.encode(reply.data)}");
 
     expect(reply.data['success'], true);
@@ -72,7 +74,7 @@ main() {
     dio.options.contentType = "application/json";
 
     var reply = await dio.post(
-      "https://cdn.zontreck.com/auth/login",
+      "https://api.systemswitchboard.com/auth/login",
       data: {"auth": Hashing.md5Hash("test"), "username": "1234apitest"},
     );
     print("[/auth/login]: ${json.encode(reply.data)}");
@@ -83,13 +85,13 @@ main() {
 
     dio.options.headers["X-SB-Auth"] = token;
 
-    reply = await dio.get("https://cdn.zontreck.com/auth/check");
+    reply = await dio.get("https://api.systemswitchboard.com/auth/check");
     print("[/auth/check]: ${reply.data}");
     expect(reply.data['success'], true);
 
     print("[/auth/check]: PASS");
 
-    reply = await dio.get("https://cdn.zontreck.com/auth/refresh");
+    reply = await dio.get("https://api.systemswitchboard.com/auth/refresh");
     print("[/auth/refresh]: ${reply.data}");
     expect(reply.data['success'], true);
 
@@ -117,7 +119,7 @@ main() {
       // Login to the server
 
       var reply = await dio.post(
-        "https://cdn.zontreck.com/auth/login",
+        "https://api.systemswitchboard.com/auth/login",
         data: {"auth": Hashing.md5Hash("test"), "username": "1234apitest"},
       );
 
@@ -129,7 +131,9 @@ main() {
 
     // Test uploading the test image to the server in the image endpoint
     // First, test a obvious failure, should be a 404
-    var reply = await dio.get("https://cdn.zontreck.com/images/thiswillfail");
+    var reply = await dio.get(
+      "https://api.systemswitchboard.com/images/thiswillfail",
+    );
     expect(reply.statusCode, 404);
 
     print("[/images/thiswillfail] GET: PASS");
@@ -140,7 +144,7 @@ main() {
 
     // Upload to the server's POST endpoint
     reply = await dio.post(
-      "https://cdn.zontreck.com/images/new",
+      "https://api.systemswitchboard.com/images/new",
       data: {"image": b64Data},
     );
     print("[/images/new] POST: ${reply.data}");
@@ -150,7 +154,7 @@ main() {
     var imageId = reply.data["data"]["img"];
 
     reply = await dio.put(
-      "https://cdn.zontreck.com/images/${imageId}",
+      "https://api.systemswitchboard.com/images/${imageId}",
       data: {"image": b64Data},
     );
     expect(reply.data["success"], true);
@@ -175,7 +179,7 @@ main() {
       // Login to the server
 
       var reply = await dio.post(
-        "https://cdn.zontreck.com/auth/login",
+        "https://api.systemswitchboard.com/auth/login",
         data: {"auth": Hashing.md5Hash("test"), "username": "1234apitest"},
       );
 
@@ -187,7 +191,9 @@ main() {
     dio.options.headers["X-SB-Auth"] = token;
 
     var imageId = ctTest.get("imageTest")!.asString();
-    var reply = await dio.delete("https://cdn.zontreck.com/images/$imageId");
+    var reply = await dio.delete(
+      "https://api.systemswitchboard.com/images/$imageId",
+    );
 
     expect(reply.data["success"], true);
     print("[/images/$imageId] DELETE: PASS");
