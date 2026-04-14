@@ -2,7 +2,7 @@
 
 $DEBUG = true;
 
-$VERSION = "0.1.041326+1844";
+$VERSION = "0.1.041326+1906";
 
 require_once("dbconfig.php");
 
@@ -688,7 +688,7 @@ switch($route) {
                     $ImgWebP = ob_get_clean();
                     imagedestroy($Image);
 
-                    $stmt = $DB->prepare("UPDATE Images SET ImageBinary=? WHERE ImageID='?';");
+                    $stmt = $DB->prepare("UPDATE Images SET ImageBinary=? WHERE ImageID=?;");
                     $stmt->bind_param("bs", $null, $imgid);
                     $stmt->send_long_data(0, $ImgWebP);
                     $stmt->execute();
