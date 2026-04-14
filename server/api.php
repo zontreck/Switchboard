@@ -2,7 +2,7 @@
 
 $DEBUG = true;
 
-$VERSION = "0.1.041326+1906";
+$VERSION = "0.1.041326+2215";
 
 require_once("dbconfig.php");
 
@@ -611,7 +611,7 @@ switch($route) {
                 $Image = imagecreatefromstring($rawImage);
                 if ($Image === false) {
                     throw new Exception("Invalid image data");
-}
+                }
                 // Convert image to webp
                 ob_start();
                 imagewebp($Image, quality: 100);
@@ -712,6 +712,118 @@ switch($route) {
             "success" => $success,
             "path" => $route,
             "type" => $request,
+            "id" => $ID,
+            "data" => $data
+        )));
+        break;
+    }
+
+    case preg_match('#^/alter(?:/([^/]+))?$#', $route, $matches) === 1: {
+
+        $success=true;
+        $DB = get_DB("switchboard");
+        $packet = json_decode(file_get_contents("php://input"), true);
+
+        $alterId = $matches[1] ?? null; // null if /alter was requested without a alter specified.
+        
+        $reason = "";
+        if($alterId == null) {
+            $success=  false;
+        }
+        $data = null;
+        $SBAuth = ValidateSAT(get_Authorization());
+
+        $res = $DB->query("SELECT * FROM Alters WHERE ID='$alterId';");
+
+        if($res->num_rows == 0) {
+            $success=false;
+            $reason="No such alter";
+        }
+
+        $row = $res->fetch_assoc();
+
+        if($SBAuth->UserID != $row['User']) { // This endpoint (/alter) requires you to be the one who 'owns' the alter being managed or retrieved.
+            // Wrong Endpoint used.
+            $success = false;
+            $reason = "Access Denied";
+        }
+
+        if($success) {
+            switch($request) {
+                case "GET": {
+
+                    // Populate the response
+                    $reason = "Alter exists";
+                    $data = array(
+                        "user" => $row['User'],
+                        "id" => $row['ID'],
+                        "name" => $row['Name'],
+                        "avatar_url" => $row['Avatar'],
+                        "subid" => $row['SubID'],
+                        "parent" => $row['ParentID'],
+                        "flags" => $row['Flags']
+                    );
+                    break;
+                }
+
+                case "PUT": {
+                    $alter = $packet['alter'];
+                    $alterId = gen_uuid();
+
+                    $stmt = $DB->prepare("INSERT INTO Alters (User, ID, Name, Avatar, SubID, ParentID, Flags) VALUES (?, ?, ?, ?, ?, ?, ?);");
+                    $stmt->bind_param("ssssisi", $alter['user'], $alterId, $alter['name'], $alter['avatar'], $alter['subid'], $alter['parent'], 0);
+                    $stmt->execute();
+                    $stmt->close();
+
+                    $DB->commit();
+
+                    $reason = "Alter created";
+                    $data = array(
+                        "id" => $alterId
+                    );
+                    break;
+                }
+
+                case "DELETE": {
+                    $stmt = $DB->prepare("DELETE FROM Alters WHERE User=? AND ID=?;");
+                    $stmt->bind_param("ss", $SBAuth->UserID, $alterId);
+                    $stmt->execute();
+                    $stmt->close();
+
+                    $DB->commit();
+
+                    $reason = "Alter deleted";
+                    break;
+                }
+
+                case "PATCH": {
+                    // This endpoint takes parameters and updates the relevant sections in the alter's table. Everything except the user or id fields can be replaced.
+                    $alter = $packet['alter'];
+                    
+                    $stmt = $DB->prepare("REPLACE INTO Alters WHERE ID=? (User, ID, Name, Avatar, SubID, ParentID, Flags) VALUES (?, ?, ?, ?, ?, ?, ?);");
+                    $stmt->bind_param("sssssisi", $alterId, $SBAuth->UserID, $alterId, $alter['name'] ?? $row['Name'], $alter['avatar'] ?? $row['Avatar'], $alter['subid'] ?? $row['SubID'], $alter['parent'] ?? $row['ParentID'], $alter['flags'] ?? $row['Flags']);
+                    $stmt->execute();
+                    $stmt->close();
+
+                    $DB->commit();
+
+                    $reason = "Alter updated";
+                    break;
+                }
+                default: {
+                    $data = array();
+                    break;
+                }
+            }
+        }
+        
+
+
+        die(json_encode(array(
+            "success" => $success,
+            "path" => $route,
+            "type" => $request,
+            "reason" => $reason,
             "id" => $ID,
             "data" => $data
         )));
