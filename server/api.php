@@ -2,7 +2,7 @@
 
 $DEBUG = true;
 
-$VERSION = "0.1.041326+1818";
+$VERSION = "0.1.041326+1844";
 
 require_once("dbconfig.php");
 
@@ -678,7 +678,7 @@ switch($route) {
                     // Authorized to replace own resource!
                     $imgData = base64_decode($packet['image']);
                     
-                    $Image = imagecreatefromstring($rawImage);
+                    $Image = imagecreatefromstring($imgData);
                     if ($Image === false) {
                         throw new Exception("Invalid image data");
                     }
