@@ -2,7 +2,7 @@
 
 $DEBUG = true;
 
-$VERSION = "0.1.041326+0946";
+$VERSION = "0.1.041326+1818";
 
 require_once("dbconfig.php");
 
@@ -676,13 +676,21 @@ switch($route) {
                 $row = $res->fetch_assoc();
                 if($row['OwnerID'] == $UserID) {
                     // Authorized to replace own resource!
-                    $imgData = $packet['image'];
-                    $Image = imagecreatefromstring($imgData);
-                    imagewebp($Image,$IWebP,100);
+                    $imgData = base64_decode($packet['image']);
+                    
+                    $Image = imagecreatefromstring($rawImage);
+                    if ($Image === false) {
+                        throw new Exception("Invalid image data");
+                    }
+                    // Convert image to webp
+                    ob_start();
+                    imagewebp($Image, quality: 100);
+                    $ImgWebP = ob_get_clean();
                     imagedestroy($Image);
 
                     $stmt = $DB->prepare("UPDATE Images SET ImageBinary=? WHERE ImageID='?';");
-                    $stmt->bind_param("bs", $IWebP, $imgid);
+                    $stmt->bind_param("bs", $null, $imgid);
+                    $stmt->send_long_data(0, $ImgWebP);
                     $stmt->execute();
                     $stmt->close();
 
