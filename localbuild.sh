@@ -1,5 +1,7 @@
 #!/bin/bash
 
+rel=$1
+
 flutter clean
 flutter pub get
 
@@ -17,7 +19,10 @@ flutter build macos || true
 flutter build ios || true
 flutter build web
 flutter build apk
-flutter build aab --release --obfuscate --split-debug-info=build/app/outputs/symbols
+if [ $rel == "--release" ]
+then
+	flutter build aab --release --obfuscate --split-debug-info=build/app/outputs/symbols
+fi
 
 
 
