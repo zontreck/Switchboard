@@ -11,6 +11,13 @@ pipeline {
             	 label 'linux'
             }
 
+            steps {
+            	script {
+                	sh '''
+                    '''
+                }
+            }
+
             post {
             	always {
                 	cleanWs()
