@@ -1,21 +1,7 @@
-
-import java.util.Properties
-import java.io.FileInputStream
-import java.io.File
-
-
 plugins {
     id("com.android.application")
     id("kotlin-android")
-    // The Flutter Gradle Plugin must be applied after the Android and Kotlin Gradle plugins.
     id("dev.flutter.flutter-gradle-plugin")
-}
-
-val keystorePropertiesFile = File("/key.properties")
-val keystoreProperties = Properties()
-
-if (keystorePropertiesFile.exists()) {
-    keystoreProperties.load(FileInputStream(keystorePropertiesFile))
 }
 
 android {
@@ -33,27 +19,34 @@ android {
     }
 
     defaultConfig {
-        // TODO: Specify your own unique Application ID (https://developer.android.com/studio/build/application-id.html).
         applicationId = "com.zontreck.switchboard"
-        // You can update the following values to match your application needs.
-        // For more information, see: https://flutter.dev/to/review-gradle-config.
         minSdk = flutter.minSdkVersion
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode
         versionName = flutter.versionName
     }
 
+    signingConfigs {
+        create("release") {
+            val storeFilePath = System.getenv("KEYSTORE_FILE")
+            val storePasswordEnv = System.getenv("KEYSTORE_PASSWORD")
+            val keyAliasEnv = System.getenv("KEY_ALIAS")
+            val keyPasswordEnv = System.getenv("KEY_PASSWORD")
+
+            if (storeFilePath != null) {
+                storeFile = file(storeFilePath)
+            }
+
+            storePassword = storePasswordEnv
+            keyAlias = keyAliasEnv
+            keyPassword = keyPasswordEnv
+        }
+    }
+
     buildTypes {
         release {
-            minifyEnabled = true
-            signingConfig = signingConfigs.release
-
-
-            storeFile = "/keystore.store"
-            
-            keyAlias keystoreProperties['keyAlias']
-            keyPassword keystoreProperties['keyPassword']
-            storePassword keystoreProperties['storePassword']
+            isMinifyEnabled = true
+            signingConfig = signingConfigs.getByName("release")
         }
     }
 }
