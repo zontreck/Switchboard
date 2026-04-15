@@ -36,15 +36,15 @@ pipeline {
         
         stage ("Build Linux") {
             agent {
-                label 'dockermain'
+                label 'linux'
             }
 
             steps {
                 script {
                     sh '''
                     #!/bin/bash
-                    chmod +x tools/build.sh
-                    tools/build.sh || true
+                    chmod +x localbuild.sh
+                    ./localbuild.sh || true
 
                     cd server
                     tar -cvf ../outputs/cdnserver.tgz .

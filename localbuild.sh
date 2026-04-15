@@ -17,7 +17,7 @@ flutter build macos || true
 flutter build ios || true
 flutter build web
 flutter build apk
-flutter build aab
+flutter build aab --release --obfuscate --split-debug-info=build/app/outputs/symbols
 
 
 

@@ -23,7 +23,7 @@ cd build/app/outputs/flutter-apk
 cp app-release.apk ../../../../outputs/switchboard.apk
 cd ../../../../
 
-flutter build aab --release --obfuscate --split-debug-info=build/app/outputs/symbols
+flutter build aab
 cp build/app/outputs/bundle/release/app-release.aab outputs/switchboard.aab
 
 dart compile exe -o outputs/server-x86_64-linux bin/server.dart
