@@ -62,7 +62,7 @@ pipeline {
                     sh '''
                     #!/bin/bash
                     chmod +x localbuild.sh
-                    ./localbuild.sh --release || true
+                    ./localbuild.sh --release || true
 
                     cd server
                     tar -cvf ../outputs/cdnserver.tgz .
