@@ -6,6 +6,17 @@ pipeline {
     }
 
     stages {
+    	stage("Clean") {
+        	agent {
+            	 label 'linux'
+            }
+
+            post {
+            	always {
+                	cleanWs()
+                }
+            }
+        }
 
         stage ("Build Docker") {
             agent {
