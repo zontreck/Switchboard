@@ -36,9 +36,7 @@ android {
 
             if (storeFilePath != null) {
                 storeFile = file(storeFilePath)
-            } else {
-                storeFile = file("/keystore.store")
-            }
+            } 
 
             storePassword = storePasswordEnv
             keyAlias = keyAliasEnv
@@ -49,7 +47,12 @@ android {
     buildTypes {
         release {
             isMinifyEnabled = true
-            signingConfig = signingConfigs.getByName("release")
+            val storeFilePath = System.getenv("KEYSTORE_FILE")
+            if (storeFilePath != null) {
+                signingConfig = signingConfigs.getByName("release")
+            } else {
+                signingConfig = signingConfigs.getByName("debug")
+            }
         }
     }
 }
