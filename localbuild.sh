@@ -1,6 +1,6 @@
 #!/bin/bash
 
-rel="$1"
+rel="$RELEASE"
 
 flutter clean
 flutter pub get
@@ -19,7 +19,7 @@ flutter build macos || true
 flutter build ios || true
 flutter build web
 flutter build apk
-if [ "$rel" = "--release" ]
+if [ "$rel" = "1" ]
 then
 	flutter build aab --release --obfuscate --split-debug-info=build/app/outputs/symbols
 fi
@@ -34,7 +34,7 @@ tar -cvf ../../../../../outputs/linux.tgz
 
 cd ../../../../../
 
-if [ "$rel" = "--release" ]
+if [ "$rel" = "1" ]
 then
 	cp build/app/outputs/bundle/release/app-release.aab outputs/switchboard.aab
 fi
