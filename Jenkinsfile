@@ -6,21 +6,21 @@ pipeline {
     }
 
     stages {
-    	stage("Clean") {
-        	agent {
-            	 label 'linux'
+        stage("Clean") {
+            agent {
+                label 'linux'
             }
 
             steps {
-            	script {
-                	sh '''
+                script {
+                    sh '''
                     '''
                 }
             }
 
             post {
-            	always {
-                	cleanWs()
+                always {
+                    cleanWs()
                 }
             }
         }
