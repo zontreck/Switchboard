@@ -2,7 +2,7 @@
 
 $DEBUG = true;
 
-$VERSION = "0.1.041526+1930";
+$VERSION = "0.1.041526+2315";
 
 require_once("dbconfig.php");
 
@@ -742,7 +742,7 @@ switch($route) {
 
         $row = $res->fetch_assoc();
 
-        if($SBAuth->UserID != $row['User']) { // This endpoint (/alter) requires you to be the one who 'owns' the alter being managed or retrieved.
+        if($SBAuth->UserID != $row['User'] && $res->num_rows != 0) { // This endpoint (/alter) requires you to be the one who 'owns' the alter being managed or retrieved.
             // Wrong Endpoint used.
             $success = false;
             $reason = "Access Denied";

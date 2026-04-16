@@ -7,6 +7,7 @@ import 'package:libac_dart/nbt/NbtIo.dart';
 import 'package:libac_dart/nbt/impl/CompoundTag.dart';
 import 'package:libac_dart/nbt/impl/StringTag.dart';
 import 'package:libac_dart/utils/Hashing.dart';
+import 'package:libac_dart/utils/uuid/UUID.dart';
 
 main() {
   test("Test version endpoint", () async {
@@ -200,5 +201,49 @@ main() {
 
     ctTest.remove("imageTest");
     await NbtIo.write("test.nbt", ctTest);
+  });
+
+  test("Test alter endpoints", () async {
+    // Test the endpoints designed for alter management.
+    Dio dio = Dio();
+    CompoundTag ctTest;
+    if (File("test.nbt").existsSync()) {
+      ctTest = (await NbtIo.read("test.nbt")).asCompoundTag();
+    } else {
+      ctTest = CompoundTag();
+    }
+    String token = "";
+    dio.options.contentType = "application/json";
+
+    if (!ctTest.containsKey("loginToken")) {
+      // Login to the server
+
+      var reply = await dio.post(
+        "https://api.systemswitchboard.com/auth/login",
+        data: {"auth": Hashing.md5Hash("test"), "username": "1234apitest"},
+      );
+
+      token = reply.data["data"]["token"];
+    } else {
+      token = ctTest.get("loginToken")!.asString();
+    }
+
+    dio.options.headers["X-SB-Auth"] = token;
+
+    var reply = await dio.put(
+      "https://api.systemswitchboard.com/alter/new",
+      data: {
+        "alter": {
+          "name": "New Alter",
+          "subid": -1,
+          "parent": UUID.ZERO.toString(),
+        },
+      },
+    );
+
+    print("[/alter/new] PUT: ${reply.data}");
+    expect(reply.data["success"], true);
+
+    print("[/alter/new] PUT: PASS");
   });
 }
