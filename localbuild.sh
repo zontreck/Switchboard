@@ -1,6 +1,6 @@
 #!/bin/bash
 
-rel=$1
+rel="$1"
 
 flutter clean
 flutter pub get
@@ -13,13 +13,13 @@ rm -rf outputs
 mkdir -pv outputs
 
 dart compile exe -o outputs/server-x86_64-linux bin/server.dart
-flutter build linux
+flutter build linux || true
 flutter build windows || true
 flutter build macos || true
 flutter build ios || true
 flutter build web
 flutter build apk
-if [ $rel == "--release" ]
+if [ "$rel" = "--release" ]
 then
 	flutter build aab --release --obfuscate --split-debug-info=build/app/outputs/symbols
 fi
@@ -33,5 +33,10 @@ cd ../linux/x64/release/bundle
 tar -cvf ../../../../../outputs/linux.tgz
 
 cd ../../../../../
-cp build/app/outputs/bundle/release/app-release.aab outputs/switchboard.aab
+
+if [ "$rel" = "--release" ]
+then
+	cp build/app/outputs/bundle/release/app-release.aab outputs/switchboard.aab
+fi
+
 cp build/app/outputs/flutter-apk/app-release.apk outputs/switchboard.apk
