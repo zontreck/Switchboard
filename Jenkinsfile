@@ -59,6 +59,10 @@ pipeline {
                 label 'linux'
             }
 
+            tools {
+                jdk 'jdk17'
+            }
+
             steps {
                 script {
                     sh '''
