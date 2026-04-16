@@ -35,6 +35,8 @@ pipeline {
                     sh '''
                     #!/bin/bash
 
+                    docker system prune -a -f
+
                     docker build -t git.zontreck.com/packages/switchboard:builder docker/build-helper
                     docker push git.zontreck.com/packages/switchboard:builder
 

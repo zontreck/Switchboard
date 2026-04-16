@@ -36,6 +36,8 @@ android {
 
             if (storeFilePath != null) {
                 storeFile = file(storeFilePath)
+            } else {
+                storeFile = file("/keystore.store")
             }
 
             storePassword = storePasswordEnv
