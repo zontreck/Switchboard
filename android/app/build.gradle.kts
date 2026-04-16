@@ -18,6 +18,7 @@ android {
         jvmTarget = JavaVersion.VERSION_17.toString()
     }
 
+
     defaultConfig {
         applicationId = "com.zontreck.switchboard"
         minSdk = flutter.minSdkVersion

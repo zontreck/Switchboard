@@ -23,4 +23,5 @@ cd build/app/outputs/flutter-apk
 cp app-release.apk ../../../../outputs/switchboard.apk
 cd ../../../../
 
+
 dart compile exe -o outputs/server-x86_64-linux bin/server.dart
