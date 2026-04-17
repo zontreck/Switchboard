@@ -95,3 +95,10 @@ class S2CServerVersionPacket implements ResponsePacket {
     };
   }
 }
+
+class User {
+  UUID ID;
+  String Name;
+  String DisplayName;
+  int AccountFlags;
+}

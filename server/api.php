@@ -2,7 +2,7 @@
 
 $DEBUG = true;
 
-$VERSION = "0.1.041626+1054";
+$VERSION = "0.1.041626+1120";
 
 require_once("dbconfig.php");
 
@@ -285,10 +285,11 @@ switch($route) {
                     }
                     $Salt = md5(md5(time()).":".time().md5($HashedPwd));
                     $Hash = md5($HashedPwd.":".$Salt);
+                    $userid = gen_uuid();
 
                     $stmt = $DB->prepare("INSERT INTO users (UserName, PasswordSalt, PasswordHash, DisplayName, ID) VALUES (?,?,?,?, ?);");
 
-                    $stmt->bind_param("sssss", $username, $Salt, $Hash, $username, gen_uuid());
+                    $stmt->bind_param("sssss", $username, $Salt, $Hash, $username, $userid);
                     $stmt->execute();
                     $stmt->close();
 
@@ -301,7 +302,8 @@ switch($route) {
                         "user" => $username,
                         "displayName" => $username,
                         "alter_count" => 0,
-                        "level" => 1
+                        "level" => 1,
+                        "id" => $userid
                     );
                 } else {
                     // Handle error: username missing
@@ -360,7 +362,8 @@ switch($route) {
                         "user" => $row['UserName'],
                         "displayName" => $row['DisplayName'],
                         "alter_count" => $alterCount,
-                        "level" => $row['AccountLevel']
+                        "level" => $row['AccountLevel'],
+                        "id" => $row['ID']
                     );
 
                 } else {
