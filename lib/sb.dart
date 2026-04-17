@@ -14,6 +14,31 @@ class Switchboard extends StatelessWidget {
   }
 }
 
+class SBLoginPage extends StatefulWidget {
+  SBLoginPage({super.key});
+
+  @override
+  State<StatefulWidget> createState() {
+    return _loginState();
+  }
+}
+
+class _loginState extends State<SBLoginPage> {
+  _loginState();
+
+  @override
+  void didChangeDependencies() {
+    // we must try to load or refresh the authentication
+
+    super.didChangeDependencies();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold();
+  }
+}
+
 class SBHomeTest extends StatelessWidget {
   const SBHomeTest({super.key});
 

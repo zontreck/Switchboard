@@ -1,203 +1,97 @@
-import 'dart:io';
+import 'package:dio/dio.dart';
+import 'package:libac_dart/utils/uuid/UUID.dart';
+import 'package:switchboard/dart/privacyPolicy.dart';
 
-import 'package:libac_dart/nbt/NbtIo.dart';
-import 'package:libac_dart/nbt/impl/CompoundTag.dart';
+class NetworkInterface {
+  // Here, we will have a packet system to send and receive data.
+  // If a packet has been tested using a testsuite, and it worked, it will have been turned into a Packet here.
+  static Future<S2CServerVersionPacket> getServerVersion() async {
+    Dio dio = Dio();
+    var reply = await dio.get("${getAPIServerURL()}/version");
 
-class StorageProvider {
-  StorageBackend backend = NullBackend();
-}
-
-enum DataTable { Users, FrontHistory }
-
-abstract class StorageBackend {
-  Future<void> write(DataTable source, String key, dynamic value);
-  Future<dynamic> read(DataTable source, String key);
-  Future<void> delete(DataTable source, String key);
-
-  Future<void> initialize();
-  String getProviderName();
-  Future<bool> contains(DataTable source, String key);
-  Future<void> flush();
-  bool isDirty();
-  void markDirty();
-  void clearDirty();
-}
-
-class StorageNBT implements StorageBackend {
-  bool _dirty = false;
-  // Example in-memory structure: { source: { key: value } }
-  final Map<DataTable, CompoundTag> _data = {};
-
-  @override
-  Future<bool> contains(DataTable source, String key) async {
-    return _data[source]?.containsKey(key) ?? false;
-  }
-
-  @override
-  Future<void> delete(DataTable source, String key) async {
-    _data[source]?.remove(key);
-
-    markDirty();
-  }
-
-  @override
-  String getProviderName() {
-    return "NBT";
-  }
-
-  @override
-  Future<void> initialize() async {
-    // Load NBT files into _data
-    File users = File("data/${DataTable.Users.name}.nbt");
-    if (users.existsSync()) {
-      // Load into memory
-      _data[DataTable.Users] = (await NbtIo.read(
-        "data/${DataTable.Users.name}.nbt",
-      )).asCompoundTag();
-
-      _data[DataTable.FrontHistory] = (await NbtIo.read(
-        "data/${DataTable.FrontHistory.name}.nbt",
-      )).asCompoundTag();
-    } else {
-      // Create the file
-      _data[DataTable.Users] = CompoundTag();
-      _data[DataTable.FrontHistory] = CompoundTag();
-    }
-
-    markDirty();
-  }
-
-  @override
-  Future<dynamic> read(DataTable source, String key) async {
-    return _data[source]?[key];
-  }
-
-  @override
-  Future<void> write(DataTable source, String key, dynamic value) async {
-    _data.putIfAbsent(source, () => CompoundTag());
-    _data[source]![key] = value;
-
-    markDirty();
-  }
-
-  @override
-  Future<void> flush() async {
-    // Flush all files in memory to the disc.
-    for (var table in _data.entries) {
-      NbtIo.write("data/${table.key.name}.nbt", table.value);
-    }
-
-    clearDirty();
-  }
-
-  @override
-  void clearDirty() {
-    _dirty = false;
-  }
-
-  @override
-  bool isDirty() {
-    return _dirty;
-  }
-
-  @override
-  void markDirty() {
-    _dirty = true;
+    return S2CServerVersionPacket.deserialize(reply.data);
   }
 }
 
-class NullBackend implements StorageBackend {
-  @override
-  Future<void> delete(DataTable source, String key) async {}
+/**
+ * This is the most basic form of a packet, containing the information on how to send and receive only. 
+ */
+abstract class Packet {}
 
-  @override
-  Future<void> initialize() async {}
+abstract class ResponsePacket {
+  late UUID id;
+  late String path;
+  late String type;
+  late String reason;
+  late bool success;
+}
 
-  @override
-  Future<dynamic> read(DataTable source, String key) async {
-    return null;
+class ServerVersion {
+  String product;
+  String version;
+
+  ServerVersion({required this.product, required this.version});
+
+  static ServerVersion deserialize(Map<String, dynamic> js) {
+    return ServerVersion(
+      product: js['product'] as String,
+      version: js['version'] as String,
+    );
   }
 
-  @override
-  Future<void> write(DataTable source, String key, dynamic value) async {}
-
-  @override
-  String getProviderName() {
-    return "NULL";
-  }
-
-  @override
-  Future<bool> contains(DataTable source, String key) async {
-    return false;
-  }
-
-  @override
-  void clearDirty() {}
-
-  @override
-  Future<void> flush() async {}
-
-  @override
-  bool isDirty() {
-    return false;
-  }
-
-  @override
-  void markDirty() {
-    // TODO: implement markDirty
+  Map<String, dynamic> encode() {
+    return {"product": product, "version": version};
   }
 }
 
-class StorageSQL implements StorageBackend {
-  @override
-  Future<bool> contains(DataTable source, String key) {
-    // SELECT EXISTS(SELECT 1 FROM source WHERE key = ?)
-    throw UnimplementedError();
-  }
+class S2CServerVersionPacket implements ResponsePacket {
+  ServerVersion data;
 
   @override
-  Future<void> delete(DataTable source, String key) {
-    // DELETE FROM source WHERE key = ?
-    throw UnimplementedError();
-  }
+  UUID id;
 
   @override
-  String getProviderName() {
-    return "SQL";
-  }
+  String path;
 
   @override
-  Future<void> initialize() async {
-    // Initialize DB connection
-  }
+  String reason;
 
   @override
-  Future<dynamic> read(DataTable source, String key) {
-    // SELECT value FROM source WHERE key = ?
-    throw UnimplementedError();
-  }
+  bool success;
 
   @override
-  Future<void> write(DataTable source, String key, dynamic value) {
-    // INSERT OR UPDATE source (key, value)
-    throw UnimplementedError();
+  String type;
+
+  S2CServerVersionPacket({
+    required this.data,
+    required this.id,
+    required this.path,
+    required this.reason,
+    required this.success,
+    required this.type,
+  });
+
+  static S2CServerVersionPacket deserialize(Map<String, dynamic> js) {
+    return S2CServerVersionPacket(
+      path: js['path'] ?? "",
+      type: js['type'] ?? "",
+      reason: js['reason'] ?? "",
+      success: js['success'] ?? false,
+      data: ServerVersion.deserialize(
+        js['data'] ?? {"product": "null", "version": "null"},
+      ),
+      id: UUID.parse(js['id'] ?? UUID.ZERO.toString()),
+    );
   }
 
-  @override
-  void clearDirty() {
-    // Not supported by this provider.
+  Map<String, dynamic> encode() {
+    return {
+      "id": id,
+      "type": type,
+      "path": path,
+      "reason": reason,
+      "success": success,
+      "data": data.encode(),
+    };
   }
-
-  @override
-  Future<void> flush() async {
-    // Not supported in this provider
-  }
-
-  @override
-  bool isDirty() {
-    return false;
-  }
-
-  @override
-  void markDirty() {}
 }

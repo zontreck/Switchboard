@@ -11,7 +11,6 @@ import 'package:switchboard/dart/storage.dart';
 
 Future<int> main(List<String> args) async {
   MemoryState state = MemoryState();
-  StorageProvider storage = StorageProvider();
 
   print("\n\n");
 
@@ -85,13 +84,10 @@ Future<int> main(List<String> args) async {
     print("> Data Storage Backend Selected!");
     print(">> NBT");
 
-    storage.backend = StorageNBT();
-    storage.backend.initialize();
+    //storage.backend = StorageNBT();
 
     // Schedule the repeating task
     state.flushTimer = Timer.periodic(Duration(seconds: 10), (timer) async {
-      storage.backend.flush();
-
       if (state.terminating) {
         timer.cancel();
       }
@@ -100,8 +96,7 @@ Future<int> main(List<String> args) async {
     print("> Storage will use SQL");
     print(">> SQL");
 
-    storage.backend = StorageSQL();
-    storage.backend.initialize();
+    //storage.backend = StorageSQL();
   }
 
   print("> Searching for test.json");
@@ -114,11 +109,10 @@ Future<int> main(List<String> args) async {
     OctoconData data = OctoconData.fromJson(dataJs);
 
     print(">> SAVING USER DATA TO PERSISTENT STORAGE");
-    await data.commitToStorage(storage);
+    await data.commitToStorage();
   }
 
   state.flushTimer!.cancel();
   state.terminating = true;
-  await storage.backend.flush();
   return 0;
 }

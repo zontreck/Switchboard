@@ -87,7 +87,7 @@ class OctoconData {
     };
   }
 
-  Future<void> commitToStorage(StorageProvider provider) async {
+  Future<void> commitToStorage() async {
     MemoryState state = MemoryState();
     SwitchboardUser usr = SwitchboardUser();
     usr.userID = user.id;

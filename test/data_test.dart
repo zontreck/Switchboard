@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:libac_dart/utils/uuid/UUID.dart';
 import 'package:switchboard/dart/octocon_format.dart';
+import 'package:switchboard/globalHelpers.dart';
 
 void main() {
   test("Make test data", () async {
@@ -43,5 +44,11 @@ void main() {
     OctoconData data = OctoconData.fromJson(await tjson.readAsString());
 
     expect(data.user.username, "usertest");
+  });
+
+  test("Get app version", () async {
+    print(await SwitchboardConsts.getPackageVersion());
+
+    expect(true, true);
   });
 }

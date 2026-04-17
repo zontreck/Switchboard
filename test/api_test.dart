@@ -8,17 +8,14 @@ import 'package:libac_dart/nbt/impl/CompoundTag.dart';
 import 'package:libac_dart/nbt/impl/StringTag.dart';
 import 'package:libac_dart/utils/Hashing.dart';
 import 'package:libac_dart/utils/uuid/UUID.dart';
+import 'package:switchboard/dart/storage.dart';
 
 main() {
   test("Test version endpoint", () async {
-    Dio dio = Dio();
-    var reply = await dio.get("https://api.systemswitchboard.com/version");
-    var jsonData = reply.data as Map<String, dynamic>;
+    S2CServerVersionPacket verReply = await NetworkInterface.getServerVersion();
 
-    print("SERVER: ${reply.headers.map["Server"]}");
-
-    print("[/version]: ${json.encode(jsonData)}");
-    expect(jsonData['data']['product'], "Switchboard API Server (PHP)");
+    print("[/version]: ${verReply.encode()}");
+    expect(verReply.data.product, "Switchboard API Server (PHP)");
 
     print("[/version] : PASS");
   });
