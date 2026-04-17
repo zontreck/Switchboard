@@ -21,41 +21,34 @@ main() {
   });
 
   test("Test make user", () async {
-    var testSum = Hashing.md5Hash("test");
-    expect(testSum, "098f6bcd4621d373cade4e832627b4f6");
-
     // Create a user named 1234apitest
     // APITest user MUST have a user account level of 3, that way we can delete it later. When a user allows account deletion, their account level will get increased.
     // 1 - Standard Account
     // 2 - Allow Deletion
     // Effectively, the level also acts as Flags for the account.
 
-    Dio dio = Dio();
-    dio.options.contentType = "application/json";
-
-    var reply = await dio.put(
-      "https://api.systemswitchboard.com/user/1234apitest",
-      data: {"auth": testSum},
+    S2CUserPacket userReply = await NetworkInterface.putNewUser(
+      "1234apitest",
+      "test",
     );
-    print("[/user/1234apitest]: ${json.encode(reply.data)}");
+
+    print("[/user/1234apitest]: ${json.encode(userReply.encode())}");
 
     // Check result flag
-    expect(reply.data['success'], true);
-    expect(reply.data['reason'], "User created");
+    expect(userReply.success, true);
+    expect(userReply.reason, "User created");
 
     // We've passed the test.
     print("[/user/1234apitest] (PUT): PASS");
   });
 
   test("Get test user", () async {
-    Dio dio = Dio();
-    var reply = await dio.get(
-      "https://api.systemswitchboard.com/user/1234apitest",
-    );
-    print("[/user/1234apitest]: ${json.encode(reply.data)}");
+    S2CUserPacket userReply = await NetworkInterface.getUser("1234apitest");
 
-    expect(reply.data['success'], true);
-    expect(reply.data['data']['user'], "1234apitest");
+    print("[/user/1234apitest]: ${json.encode(userReply.encode())}");
+
+    expect(userReply.success, true);
+    expect(userReply.data.Name, "1234apitest");
 
     print("[/user/1234apitest] (GET): PASS");
   });
