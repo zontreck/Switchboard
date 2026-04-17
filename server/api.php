@@ -2,7 +2,7 @@
 
 $DEBUG = true;
 
-$VERSION = "0.1.041526+2315";
+$VERSION = "0.1.041626+0824";
 
 require_once("dbconfig.php");
 
@@ -735,7 +735,7 @@ switch($route) {
 
         $res = $DB->query("SELECT * FROM Alters WHERE ID='$alterId';");
 
-        if($res->num_rows == 0) {
+        if($res->num_rows == 0 ) {
             $success=false;
             $reason="No such alter";
         }
@@ -746,6 +746,10 @@ switch($route) {
             // Wrong Endpoint used.
             $success = false;
             $reason = "Access Denied";
+        }
+        if ($alterId == "new" && $request == "PUT") {
+            $success=true;
+            $reason = "";
         }
 
         if($success) {
