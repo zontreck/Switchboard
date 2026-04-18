@@ -12,7 +12,7 @@ class SBAboutPage extends StatelessWidget {
           child: Column(
             children: [
               Text(
-                "System Switchboard is an accessibility app, designed to help accommodate role play needs, and for those who are plural, or have DID or OSDD.",
+                "Switchboard is an accessibility app, designed to help accommodate those with DID/OSDD, plurality, or for roleplay needs.",
               ),
               Text("At present there is a single developer."),
             ],
