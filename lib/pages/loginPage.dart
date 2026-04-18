@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
+import 'package:switchboard/dart/storage.dart';
 import 'package:switchboard/globalHelpers.dart';
 
 class SBLoginPage extends StatefulWidget {
@@ -14,18 +15,8 @@ class SBLoginPage extends StatefulWidget {
 class _loginState extends State<SBLoginPage> {
   TextEditingController usernameController = TextEditingController();
   TextEditingController passwordController = TextEditingController();
-  String version = "";
 
   _loginState();
-
-  @override
-  void initState() {
-    SwitchboardConsts.getPackageVersion().then((R) async {
-      version = R;
-      setState(() {});
-    });
-    super.initState();
-  }
 
   @override
   void didChangeDependencies() {
@@ -46,7 +37,16 @@ class _loginState extends State<SBLoginPage> {
                 child: Column(
                   children: [
                     Text("System Switchboard"),
-                    Text("Version ${version}"),
+                    FutureBuilder(
+                      future: SwitchboardConsts.getPackageVersion(),
+                      builder: (BCTX, AsyncSnapshot<String> snapshot) {
+                        if (!snapshot.hasData) {
+                          return CircularProgressIndicator();
+                        } else {
+                          return Text("Version ${snapshot.data}");
+                        }
+                      },
+                    ),
                     Text(""),
                   ],
                 ),
@@ -59,24 +59,24 @@ class _loginState extends State<SBLoginPage> {
                 },
               ),
               ListTile(
-                title: Text("L O G I N"),
-                leading: Icon(Icons.login),
-                onTap: () async {
-                  Navigator.pushReplacementNamed(context, "/");
-                },
-              ),
-              ListTile(
                 title: Text("R E G I S T E R"),
                 leading: Icon(Icons.app_registration),
                 onTap: () async {
                   Navigator.pushNamed(context, "/register");
                 },
               ),
+              ListTile(
+                title: Text("P R I V A C Y  P O L I C Y"),
+                leading: Icon(Icons.privacy_tip),
+                onTap: () {
+                  Navigator.pushNamed(context, "/privacy");
+                },
+              ),
             ],
           ),
         ),
       ),
-      appBar: AppBar(title: Text("System Switchboard")),
+      appBar: AppBar(title: Text("Switchboard")),
       body: SingleChildScrollView(
         child: Padding(
           padding: EdgeInsetsGeometry.all(8),
@@ -112,7 +112,44 @@ class _loginState extends State<SBLoginPage> {
         ),
       ),
       floatingActionButton: ElevatedButton.icon(
-        onPressed: () async {},
+        onPressed: () async {
+          // Perform Login
+          FocusManager.instance.primaryFocus?.unfocus();
+
+          S2CAuthenticationResponse authReply =
+              await NetworkInterface.authenticate(
+                usernameController.text,
+                passwordController.text,
+              );
+
+          if (!authReply.success) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(
+                  "ERROR [${authReply.id}] Login failed for reason:\n${authReply.reason}",
+                ),
+              ),
+            );
+          } else {
+            showDialog(
+              context: context,
+              builder: (B) => AlertDialog(
+                title: Text("Thanks!"),
+                content: Text(
+                  "The app is still in active development, your login succeeded, but there is nothing to do yet.\n\nThis build is mostly a build to get feedback about our UI design and what language changes need to be made to the various text elements.",
+                ),
+                actions: [
+                  ElevatedButton(
+                    onPressed: () {
+                      Navigator.pop(context);
+                    },
+                    child: Text("Dismiss"),
+                  ),
+                ],
+              ),
+            );
+          }
+        },
         label: Text("Login"),
         icon: Icon(Icons.login_outlined),
       ),

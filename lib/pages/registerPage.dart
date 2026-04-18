@@ -21,7 +21,7 @@ class _SBRegister extends State<SBRegisterPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text("System Switchboard")),
+      appBar: AppBar(title: Text("Switchboard")),
       floatingActionButton:
           (agreeToPrivacy &&
               agreeToTOS &&

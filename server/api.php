@@ -2,7 +2,7 @@
 
 $DEBUG = true;
 
-$VERSION = "0.1.041726+2152";
+$VERSION = "0.1.041826+1248";
 
 require_once("dbconfig.php");
 

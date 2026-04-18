@@ -2,6 +2,7 @@ import 'package:dio/dio.dart';
 import 'package:libac_dart/utils/Hashing.dart';
 import 'package:libac_dart/utils/TimeUtils.dart';
 import 'package:libac_dart/utils/uuid/UUID.dart';
+import 'package:switchboard/dart/MemoryState.dart';
 import 'package:switchboard/dart/privacyPolicy.dart';
 
 class NetworkInterface {
@@ -39,13 +40,49 @@ class NetworkInterface {
 
     return S2CUserPacket.decode(reply.data);
   }
+
+  static Future<S2CAuthenticationResponse> authenticate(
+    String username,
+    String password,
+  ) async {
+    Dio dio = Dio();
+    dio.options.headers["Content-Type"] = "application/json";
+
+    var reply = await dio.post(
+      "${getAPIServerURL()}/auth/login",
+      data: {"username": username, "auth": Hashing.md5Hash(password)},
+    );
+
+    return S2CAuthenticationResponse.decode(reply.data);
+  }
+
+  static Future<S2CAuthenticationCheckResponse> checkAuth() async {
+    MemoryState ms = MemoryState();
+    Dio dio = Dio();
+    dio.options.headers["Content-Type"] = "application/json";
+    dio.options.headers["X-SB-Auth"] = ms.authenticationToken;
+
+    var reply = await dio.get("${getAPIServerURL()}/auth/check");
+
+    return S2CAuthenticationCheckResponse.decode(reply.data);
+  }
+
+  static Future<S2CAuthenticationRefreshResponse> refreshAuth() async {
+    MemoryState ms = MemoryState();
+    Dio dio = Dio();
+    dio.options.headers["Content-Type"] = "application/json";
+    dio.options.headers["X-SB-Auth"] = ms.authenticationToken;
+
+    var reply = await dio.get("${getAPIServerURL()}/auth/refresh");
+    return S2CAuthenticationRefreshResponse.decode(reply.data);
+  }
 }
 
 abstract class ResponsePacket {
   late UUID id;
   late String path;
   late String type;
-  late String reason;
+  late String? reason;
   late bool success;
 }
 
@@ -77,7 +114,7 @@ class S2CServerVersionPacket implements ResponsePacket {
   String path;
 
   @override
-  String reason;
+  String? reason;
 
   @override
   bool success;
@@ -134,7 +171,7 @@ class S2CUserPacket implements ResponsePacket {
   String path;
 
   @override
-  String reason;
+  String? reason;
 
   @override
   bool success;
@@ -175,7 +212,7 @@ class S2CUserPacket implements ResponsePacket {
 
     id = UUID.parse(js['id']);
     String path = js['path'];
-    String reason = js['reason'];
+    String? reason = js['reason'];
     String type = js['type'];
     bool success = js['success'];
     User? data = null;
@@ -263,5 +300,211 @@ class User {
       "alter_count": AlterCount,
       "level": AccountLevel,
     };
+  }
+}
+
+class AuthReply {
+  String? token;
+  String? username;
+
+  Map<String, dynamic> encode() {
+    return {"username": username, "token": token};
+  }
+
+  AuthReply({required this.token, required this.username});
+  factory AuthReply.decode(Map<String, dynamic> js) {
+    if (!js.containsKey("token")) {
+      throw InvalidServerResponseException(
+        reason:
+            "The data field does not conform to the Authentication Reply format",
+      );
+    }
+    return AuthReply(token: js['token'], username: js['username']);
+  }
+}
+
+class S2CAuthenticationResponse implements ResponsePacket {
+  @override
+  UUID id;
+
+  @override
+  String path;
+
+  @override
+  String? reason;
+
+  @override
+  bool success;
+
+  @override
+  String type;
+
+  AuthReply data;
+
+  S2CAuthenticationResponse({
+    required this.id,
+    required this.path,
+    required this.reason,
+    required this.success,
+    required this.type,
+    required this.data,
+  });
+
+  Map<String, dynamic> encode() {
+    return {
+      "id": id,
+      "path": path,
+      "reason": reason,
+      "success": success,
+      "type": type,
+      "data": data.encode(),
+    };
+  }
+
+  factory S2CAuthenticationResponse.decode(Map<String, dynamic> js) {
+    // Deserialize the input data
+    if (!js.containsKey("success")) {
+      throw InvalidServerResponseException(
+        reason:
+            "The response from the server does not follow the standard response format.",
+      );
+    }
+
+    return S2CAuthenticationResponse(
+      id: UUID.parse(js['id']),
+      path: js['path'],
+      reason: js['reason'],
+      success: js['success'],
+      type: js['type'],
+      data: AuthReply.decode(js['data']),
+    );
+  }
+}
+
+class AuthCheck {
+  UUID? id;
+
+  Map<String, dynamic> encode() {
+    return {"id": id};
+  }
+
+  AuthCheck({required this.id});
+
+  factory AuthCheck.decode(Map<String, dynamic> js) {
+    return AuthCheck(id: UUID.parse(js['id']));
+  }
+}
+
+class S2CAuthenticationCheckResponse implements ResponsePacket {
+  @override
+  UUID id;
+
+  @override
+  String path;
+
+  @override
+  String? reason;
+
+  @override
+  bool success;
+
+  @override
+  String type;
+
+  AuthCheck data;
+
+  Map<String, dynamic> encode() {
+    return {
+      "id": id,
+      "path": path,
+      "reason": reason,
+      "success": success,
+      "type": type,
+      "data": data.encode(),
+    };
+  }
+
+  S2CAuthenticationCheckResponse({
+    required this.id,
+    required this.path,
+    required this.reason,
+    required this.success,
+    required this.type,
+    required this.data,
+  });
+
+  factory S2CAuthenticationCheckResponse.decode(Map<String, dynamic> js) {
+    return S2CAuthenticationCheckResponse(
+      id: UUID.parse(js['id']),
+      path: js['path'],
+      reason: js['reason'],
+      success: js['success'],
+      type: js['type'],
+      data: AuthCheck.decode(js['data']),
+    );
+  }
+}
+
+class AuthRefresh {
+  String? token;
+
+  Map<String, dynamic> encode() {
+    return {"token": token};
+  }
+
+  AuthRefresh({required this.token});
+
+  factory AuthRefresh.decode(Map<String, dynamic> js) {
+    return AuthRefresh(token: js['token']);
+  }
+}
+
+class S2CAuthenticationRefreshResponse implements ResponsePacket {
+  @override
+  UUID id;
+
+  @override
+  String path;
+
+  @override
+  String? reason;
+
+  @override
+  bool success;
+
+  @override
+  String type;
+
+  AuthRefresh data;
+
+  Map<String, dynamic> encode() {
+    return {
+      "id": id,
+      "path": path,
+      "reason": reason,
+      "success": success,
+      "type": type,
+      "data": data.encode(),
+    };
+  }
+
+  S2CAuthenticationRefreshResponse({
+    required this.id,
+    required this.path,
+    required this.reason,
+    required this.success,
+    required this.type,
+    required this.data,
+  });
+
+  factory S2CAuthenticationRefreshResponse.decode(Map<String, dynamic> js) {
+    return S2CAuthenticationRefreshResponse(
+      id: UUID.parse(js['id']),
+      path: js['path'],
+      reason: js['reason'],
+      success: js['success'],
+      type: js['type'],
+      data: AuthRefresh.decode(js['data']),
+    );
   }
 }

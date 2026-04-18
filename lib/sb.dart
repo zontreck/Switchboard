@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:switchboard/pages/aboutPage.dart';
 import 'package:switchboard/pages/loginPage.dart';
+import 'package:switchboard/pages/privacyPolicyPage.dart';
 import 'package:switchboard/pages/registerPage.dart';
 
 class Switchboard extends StatelessWidget {
@@ -15,6 +16,7 @@ class Switchboard extends StatelessWidget {
         "/": (ctx) => SBLoginPage(),
         "/about": (ctx) => SBAboutPage(),
         "/register": (ctx) => SBRegisterPage(),
+        "/privacy": (ctx) => PrivacyPolicyPage(),
       },
     );
   }

@@ -8,6 +8,7 @@ import 'package:libac_dart/nbt/impl/CompoundTag.dart';
 import 'package:libac_dart/nbt/impl/StringTag.dart';
 import 'package:libac_dart/utils/Hashing.dart';
 import 'package:libac_dart/utils/uuid/UUID.dart';
+import 'package:switchboard/dart/MemoryState.dart';
 import 'package:switchboard/dart/storage.dart';
 
 main() {
@@ -54,7 +55,6 @@ main() {
   });
 
   test("Test auth endpoints", () async {
-    Dio dio = Dio();
     CompoundTag ctTest;
     if (File("test.nbt").existsSync()) {
       ctTest = (await NbtIo.read("test.nbt")).asCompoundTag();
@@ -62,32 +62,32 @@ main() {
       ctTest = CompoundTag();
     }
 
-    dio.options.contentType = "application/json";
-
-    var reply = await dio.post(
-      "https://api.systemswitchboard.com/auth/login",
-      data: {"auth": Hashing.md5Hash("test"), "username": "1234apitest"},
+    S2CAuthenticationResponse authReply = await NetworkInterface.authenticate(
+      "1234apitest",
+      "test",
     );
-    print("[/auth/login]: ${json.encode(reply.data)}");
-    expect(reply.data['success'], true);
+
+    print("[/auth/login]: ${json.encode(authReply.encode())}");
+    expect(authReply.success, true);
     print("[/auth/login]: PASS");
 
-    String token = reply.data['data']['token'];
+    String token = authReply.data.token ?? "";
+    MemoryState ms = MemoryState();
+    ms.authenticationToken = token;
 
-    dio.options.headers["X-SB-Auth"] = token;
-
-    reply = await dio.get("https://api.systemswitchboard.com/auth/check");
-    print("[/auth/check]: ${reply.data}");
-    expect(reply.data['success'], true);
+    var checkReply = await NetworkInterface.checkAuth();
+    print("[/auth/check]: ${checkReply.encode()}");
+    expect(checkReply.success, true);
 
     print("[/auth/check]: PASS");
 
-    reply = await dio.get("https://api.systemswitchboard.com/auth/refresh");
-    print("[/auth/refresh]: ${reply.data}");
-    expect(reply.data['success'], true);
+    S2CAuthenticationRefreshResponse refreshReply =
+        await NetworkInterface.refreshAuth();
+    print("[/auth/refresh]: ${refreshReply.encode()}");
+    expect(refreshReply.success, true);
 
     print("[/auth/refresh]: PASS");
-    ctTest.put("loginToken", StringTag.valueOf(reply.data["data"]["token"]));
+    ctTest.put("loginToken", StringTag.valueOf(authReply.data.token!));
 
     await NbtIo.write("test.nbt", ctTest);
   });

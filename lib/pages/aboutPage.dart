@@ -5,7 +5,7 @@ class SBAboutPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text("System Switchboard")),
+      appBar: AppBar(title: Text("Switchboard - About")),
       body: SingleChildScrollView(
         child: Padding(
           padding: EdgeInsetsGeometry.all(8),
