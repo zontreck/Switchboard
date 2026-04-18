@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:dio/dio.dart';
 import 'package:libac_dart/utils/uuid/UUID.dart';
 import 'package:switchboard/dart/MemoryState.dart';
+import 'package:switchboard/dart/privacyPolicy.dart';
 import 'package:switchboard/dart/storage.dart';
 import 'package:switchboard/dart/switchboard_format.dart';
 
@@ -98,7 +99,8 @@ class OctoconData {
     String extension = user.avatarUrl.split('.').last;
 
     dio.download(user.avatarUrl, "cdn/avatar/${imageId.toString()}.$extension");
-    usr.avatarURL = "${state.cdnUrl}/avatar/${imageId.toString()}.$extension";
+    usr.avatarURL =
+        "${getAPIServerURL()}/avatar/${imageId.toString()}.$extension";
   }
 }
 

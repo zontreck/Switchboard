@@ -22,8 +22,8 @@ class NetworkInterface {
     Dio dio = Dio();
     dio.options.contentType = "application/json";
     var reply = await dio.put(
-      "${getAPIServerURL()}/user/new",
-      data: {"user": username, "auth": Hashing.md5Hash(password)},
+      "${getAPIServerURL()}/user/${username}",
+      data: {"auth": Hashing.md5Hash(password)},
     );
 
     // Deserialize the make new user packet
@@ -142,7 +142,7 @@ class S2CUserPacket implements ResponsePacket {
   @override
   String type;
 
-  User data;
+  User? data;
 
   S2CUserPacket({
     required this.id,
@@ -160,7 +160,7 @@ class S2CUserPacket implements ResponsePacket {
       "reason": reason,
       "success": success,
       "type": type,
-      "data": data.encode(),
+      "data": data?.encode() ?? null,
     };
   }
 
@@ -178,7 +178,10 @@ class S2CUserPacket implements ResponsePacket {
     String reason = js['reason'];
     String type = js['type'];
     bool success = js['success'];
-    User data = User.deserialize(js['data']);
+    User? data = null;
+    if (js['data'] != null) {
+      data = User.deserialize(js['data']);
+    }
 
     return S2CUserPacket(
       id: id,

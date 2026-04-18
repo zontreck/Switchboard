@@ -48,7 +48,7 @@ main() {
     print("[/user/1234apitest]: ${json.encode(userReply.encode())}");
 
     expect(userReply.success, true);
-    expect(userReply.data.Name, "1234apitest");
+    expect(userReply.data!.Name, "1234apitest");
 
     print("[/user/1234apitest] (GET): PASS");
   });

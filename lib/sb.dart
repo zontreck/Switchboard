@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:libacflutter/Constants.dart';
+import 'package:mineral/api.dart';
+import 'package:switchboard/aboutPage.dart';
+import 'package:switchboard/globalHelpers.dart';
+import 'package:switchboard/registerPage.dart';
 
 class Switchboard extends StatelessWidget {
   const Switchboard({super.key});
@@ -9,7 +13,11 @@ class Switchboard extends StatelessWidget {
     return MaterialApp(
       title: "Switchboard",
       theme: ThemeData.dark(),
-      routes: {"/": (ctx) => SBHomeTest()},
+      routes: {
+        "/": (ctx) => SBLoginPage(),
+        "/about": (ctx) => SBAboutPage(),
+        "/register": (ctx) => SBRegisterPage(),
+      },
     );
   }
 }
@@ -24,18 +32,111 @@ class SBLoginPage extends StatefulWidget {
 }
 
 class _loginState extends State<SBLoginPage> {
+  TextEditingController usernameController = TextEditingController();
+  TextEditingController passwordController = TextEditingController();
+  String version = "";
+
   _loginState();
 
   @override
+  void initState() {
+    SwitchboardConsts.getPackageVersion().then((R) async {
+      version = R;
+      setState(() {});
+    });
+    super.initState();
+  }
+
+  @override
   void didChangeDependencies() {
-    // we must try to load or refresh the authentication
+    // try to load or refresh the authentication
 
     super.didChangeDependencies();
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold();
+    return Scaffold(
+      drawer: Drawer(
+        backgroundColor: Colors.blueGrey,
+        child: SingleChildScrollView(
+          child: Column(
+            children: [
+              DrawerHeader(
+                child: Column(
+                  children: [
+                    Text("System Switchboard"),
+                    Text("Version ${version}"),
+                    Text(""),
+                  ],
+                ),
+              ),
+              ListTile(
+                title: Text("A B O U T"),
+                leading: Icon(Icons.info_outline),
+                onTap: () async {
+                  Navigator.pushNamed(context, "/about");
+                },
+              ),
+              ListTile(
+                title: Text("L O G I N"),
+                leading: Icon(Icons.login),
+                onTap: () async {
+                  Navigator.pushReplacementNamed(context, "/");
+                },
+              ),
+              ListTile(
+                title: Text("R E G I S T E R"),
+                leading: Icon(Icons.app_registration),
+                onTap: () async {
+                  Navigator.pushNamed(context, "/register");
+                },
+              ),
+            ],
+          ),
+        ),
+      ),
+      appBar: AppBar(title: Text("System Switchboard")),
+      body: SingleChildScrollView(
+        child: Padding(
+          padding: EdgeInsetsGeometry.all(8),
+          child: Column(
+            children: [
+              Container(
+                alignment: AlignmentGeometry.center,
+                child: Text("LOGIN", style: TextStyle(fontSize: 22)),
+              ),
+              Divider(thickness: 1),
+              Text(
+                "You must login to Switchboard in order to use this application and service.\n\n* NOTE: Switchboard is not yet in a usable state. If you are currently testing, you will have been given login permissions by the development team. \n\nUntil the app is usable, we are making every effort to make it possible to migrate Ocotocon data as painlessly as possible.\n\n* Interested in joining the team? Message zontreck on Discord.",
+              ),
+              Divider(),
+              TextField(
+                controller: usernameController,
+                decoration: InputDecoration(
+                  border: OutlineInputBorder(),
+                  hintText: "Username",
+                ),
+              ),
+              SizedBox(height: 8),
+              TextField(
+                controller: passwordController,
+                decoration: InputDecoration(
+                  border: OutlineInputBorder(),
+                  hintText: "Password",
+                ),
+                obscureText: true,
+              ),
+            ],
+          ),
+        ),
+      ),
+      floatingActionButton: ElevatedButton.icon(
+        onPressed: () async {},
+        label: Text("Login"),
+        icon: Icon(Icons.login_outlined),
+      ),
+    );
   }
 }
 

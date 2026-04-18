@@ -15,7 +15,6 @@ class MemoryState {
   String mariaDBPass = "";
   String mariaDBName = "";
   String botToken = "";
-  String cdnUrl = "";
 
   Timer? flushTimer;
   bool terminating = false;

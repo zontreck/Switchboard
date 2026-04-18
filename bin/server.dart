@@ -75,10 +75,6 @@ Future<int> main(List<String> args) async {
     state.botToken = arg.getArg("token")!.getValue() as String;
   }
 
-  if (arg.hasArg("cdn")) {
-    state.cdnUrl = arg.getArg("cdn")!.getValue() as String;
-  }
-
   // Determine storage backend
   if (!state.useSQL) {
     print("> Data Storage Backend Selected!");
