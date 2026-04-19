@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
+import 'package:switchboard/dart/MemoryState.dart';
 import 'package:switchboard/dart/storage.dart';
 import 'package:switchboard/globalHelpers.dart';
 
@@ -21,6 +22,24 @@ class _loginState extends State<SBLoginPage> {
   @override
   void didChangeDependencies() {
     // try to load or refresh the authentication
+    getAuthToken().then((S) async {
+      if (S == "") {
+        // Not logged in, do nothing, just let the user log in.
+      } else {
+        usernameController.text = "******";
+        passwordController.text = "************";
+        setState(() {});
+
+        S2CAuthenticationRefreshResponse refresh =
+            await NetworkInterface.refreshAuth();
+        if (refresh.success) {
+          setAuthToken(refresh.data.token!);
+        }
+
+        // Use new token and move on to the next screen.
+        Navigator.pushReplacementNamed(context, "/account");
+      }
+    });
 
     super.didChangeDependencies();
   }
@@ -131,23 +150,23 @@ class _loginState extends State<SBLoginPage> {
               ),
             );
           } else {
-            showDialog(
-              context: context,
-              builder: (B) => AlertDialog(
-                title: Text("Thanks!"),
-                content: Text(
-                  "The app is still in active development, your login succeeded, but there is nothing to do yet.\n\nThis build is mostly a build to get feedback about our UI design and what language changes need to be made to the various text elements.",
-                ),
-                actions: [
-                  ElevatedButton(
-                    onPressed: () {
-                      Navigator.pop(context);
-                    },
-                    child: Text("Dismiss"),
-                  ),
-                ],
-              ),
-            );
+            MemoryState ms = MemoryState();
+            ms.authenticationToken = authReply.data.token!;
+
+            await setAuthToken(ms.authenticationToken);
+
+            getAuthToken().then((S) async {
+              if (S == "") {
+                // Not logged in, do nothing, just let the user log in.
+              } else {
+                usernameController.text = "******";
+                passwordController.text = "************";
+                setState(() {});
+
+                // Use new token and move on to the next screen.
+                Navigator.pushReplacementNamed(context, "/account");
+              }
+            });
           }
         },
         label: Text("Login"),

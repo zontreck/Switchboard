@@ -3,6 +3,7 @@
 ## ADD:
 
 - [x] Implemented `/alters` endpoint
+- [x] Start implementing the alters management page, post-login screen.
 
 ## CHANGE/FIX:
 
