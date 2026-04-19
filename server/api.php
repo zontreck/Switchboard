@@ -2,7 +2,7 @@
 
 $DEBUG = true;
 
-$VERSION = "0.1.0+0419261054";
+$VERSION = "0.1.0+0419261146";
 
 require_once("dbconfig.php");
 
@@ -395,6 +395,93 @@ switch($route) {
             "path"=>$route,
             "type" => $request,
             "reason" => $reason,
+            "data" => $data
+        )));
+
+        break;
+    }
+
+    case preg_match('#^/alters(?:/([^/]+))?$#', $route, $matches) === 1: {
+
+        $DB = get_DB("switchboard");
+        $packet = json_decode(file_get_contents("php://input"), true);
+
+        $userid = $matches[1] ?? null; // null if /alters was requested without a username
+        
+        $auth = get_Authorization();
+        $AuthReply = ValidateSAT($auth);
+
+
+        $reason = "";
+
+        $success=false;
+        $data = array(
+            "userid" => $userid
+        );
+
+        if($userid == null) {
+            $userid = $AuthReply->UserID;
+        }
+
+        $headers = apache_request_headers();
+        $SkipAlters = $headers["x-sb-skip"];
+        $AlterCount = $headers['x-sb-count'];
+
+        switch($request) {
+            case "GET": {
+
+                if(!$AuthReply->Success) {
+                    $success = false;
+                    $reason = "Not Logged In";
+                    break;
+                }
+
+
+                
+                // TODO: Bind permissions to alters, so that alters have a permission group set to them, changeable by the user, but the Permission Group will allow setting which friends can view what alters, or how much info can be shown
+                // 
+                // For now, We'll use Flags to determine public or private status
+                $rres = $DB->query("SELECT * FROM Alters WHERE User='$userid' SKIP '$SkipAlters' LIMIT '$AlterCount';");
+
+                if($rres->num_rows < $AlterCount) {
+                    header("X-SB-Done", "1");
+                }
+                $diffUser = !($userid == $AuthReply->UserID);
+
+                $count = 0;
+                $alters = array();
+                while($row = $rres->fetch_assoc()) {
+                    $count++;
+                    $flags = $row['Flags'];
+                    if(($flags & 2) == 2 && $diffUser) {
+                        // Hidden Alter
+                        // TODO: Adjust this section to check against a Permission Group
+                        continue;
+                    }
+                    array_push($alters, array(
+                        "user" => $row['User'],
+                        "id" => $row['ID'],
+                        "name" => $row['Name'],
+                        "avatar_url" => $row['Avatar'],
+                        "subid" => $row['SubID'],
+                        "parent" => $row['ParentID'],
+                        "flags" => $row['Flags']
+                    ));
+                }
+
+                header("X-SB-Count", "$count");
+                $data['count'] = $count;
+                $data['alters'] = $alters;
+                break;
+            }
+        }
+
+        die(json_encode(array(
+            "success" => $success,
+            "reason" => $reason,
+            "type" => $request,
+            "path" => $route,
+            "id" => $ID,
             "data" => $data
         )));
 
