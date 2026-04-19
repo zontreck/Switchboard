@@ -2,7 +2,7 @@
 
 $DEBUG = true;
 
-$VERSION = "0.1.0+0418261248";
+$VERSION = "0.1.0+0419261054";
 
 require_once("dbconfig.php");
 
@@ -250,6 +250,15 @@ switch($route) {
             "path"=> $route,
             "id"=> $ID
         )));
+        break;
+    }
+
+    case "/cron": {
+        // Execute recurring cron tasks, such as checking for expired content in the database and cleaning it up.
+        header("Content-Type: text/plain");
+        echo("System Switchboard Server v/$VERSION (PHP)\n> Cron task script invoked.\n\n");
+
+        die("Finished with all tasks"); // Currently, no task logic exists here.
         break;
     }
     
@@ -701,6 +710,144 @@ switch($route) {
 
                     $success=true;
                     $reason = "Image replaced";
+                } else {
+                    $success=false;
+                    $reason = "Resource Owner";
+                }
+                break;
+            }
+            
+        }
+
+
+        die(json_encode(array(
+            "success" => $success,
+            "path" => $route,
+            "type" => $request,
+            "id" => $ID,
+            "data" => $data
+        )));
+        break;
+    }
+
+
+    case preg_match('#^/avatar(?:/([^/]+))?$#', $route, $matches) === 1: {
+
+        $DB = get_DB("switchboard");
+        $packet = json_decode(file_get_contents("php://input"), true);
+
+        $avatarid = $matches[1] ?? null; // null if /user was requested without a username
+        
+        $reason = "";
+        if($imgid == null) {
+            $success=  false;
+        }
+        $success=false;
+        $data = null;
+
+        $AuthHeader = get_Authorization();
+        $AuthReply = ValidateSAT($AuthHeader);
+
+        switch($request) {
+            case "GET": {
+                // Retrieve image from database, return proper content type.
+                $res = $DB->query("SELECT * FROM Avatars WHERE AlterId='$avatarid';");
+                if($res->num_rows == 0) {
+                    // Unlike images, we want to return a not found placeholder here.
+                    if(file_exists("placeholder_avatar.png")) {
+                        $rawImage = file_get_contents("placeholder_avatar.png");
+                        ob_start();
+
+                        $Img = imagecreatefromstring($rawImage);
+                        imagewebp($Img, quality: 100);
+                        $ImgWebP = ob_get_clean();
+                        imagedestroy($Img);
+                        header("Content-Type: image/webp");
+                        die($ImgWebP);
+                    }
+                    http_response_code(404);
+                    header("Content-Type: text/html", true);
+
+                    die("<h2>Content not found</h2>");
+                }
+                $success=true;
+                header("Content-Type: image/webp");
+
+                $row = $res->fetch_assoc();
+                header("X-SB-CreatedAt=".$row['Timestamp']);
+                die($row['ImageBinary']);
+                break;
+            }
+            case "POST": {
+                // Insert or overwrite the avatar, if the current user has an alter with this ID.
+
+                // Get the user ID from the authorization response.
+                $UserID = "";
+                if($AuthReply->Success) {
+                    $UserID = $AuthReply->UserID;
+                }
+
+
+                $qres = $DB->query("SELECT * FROM Alters WHERE ID='$avatarid' AND User='$UserID';");
+                if($qres->num_rows == 0) {
+                    $success=false;
+                    $reason = "Unauthorized action";
+                    break;
+                }
+
+                $rawImage = base64_decode($packet["image"]);
+                if ($rawImage === false) {
+                    throw new Exception("Invalid base64");
+                }
+
+                if (!function_exists('imagewebp')) {
+                    throw new Exception("WebP not supported on this server");
+                }
+
+                $Image = imagecreatefromstring($rawImage);
+                if ($Image === false) {
+                    throw new Exception("Invalid image data");
+                }
+                // Convert image to webp
+                ob_start();
+                imagewebp($Image, quality: 100);
+                $ImgWebP = ob_get_clean();
+                imagedestroy($Image);
+
+                // Insert new image into the database
+                $stmt = $DB->prepare("REPLACE INTO `Avatars` (User, AlterId, ImageBinary, Timestamp) VALUES(?, ?, ?, ?);");
+                $stmt->bind_param("ssbi", $UserID, $avatarid, $null, time());
+                $stmt->send_long_data(2, $ImgWebP);
+                $stmt->execute();
+                $stmt->close();
+
+                $DB->commit();
+
+                $success=true;
+
+                
+                break;
+            }
+
+            case "DELETE": {
+                $SBAuth = ValidateSAT(get_Authorization());
+
+                $UserID = $SBAuth->UserID;
+                // Query the image data
+                $res = $DB->query("SELECT * FROM Avatars WHERE AlterId='$avatarid';");
+
+                if($res->num_rows == 0) {
+                    $success=false;
+                    $reason = "No such image found";
+                    break;
+                }
+
+                $row = $res->fetch_assoc();
+                if($row['User'] == $UserID) {
+                    // Authorized to delete own resource
+                    $DB->query("DELETE FROM Avatars WHERE AvatarId='$avatarid';");
+                    $success=true;
+                    $reason = "Image deleted";
                 } else {
                     $success=false;
                     $reason = "Resource Owner";

@@ -1,3 +1,12 @@
+# 0.1.0+0419261054
+
+## ADD:
+
+- [x] Implement the Avatars endpoint on backend
+- [x] Added the Avatars table to database
+- [x] Added a placeholder Avatar image to be returned when not found, or when not yet set.
+  - [x] Contributed by The Asterism Theatre
+
 # 0.1.0+0418261248
 
 ## ADD:
