@@ -4,9 +4,10 @@
 
 - [x] Implemented `/alters` endpoint
 
-## CHANGE:
+## CHANGE/FIX:
 
 - [x] Fix the SQL format used for queries in `/alters`
+- [x] Fix the images in `/images` or `/avatar` so that the Alpha channel is preserved.
 
 # 0.1.0+0419261054
 

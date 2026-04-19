@@ -2,7 +2,7 @@
 
 $DEBUG = true;
 
-$VERSION = "0.1.0+0419261157";
+$VERSION = "0.1.0+0419261208";
 
 require_once("dbconfig.php");
 
@@ -722,6 +722,10 @@ switch($route) {
                 if ($Image === false) {
                     throw new Exception("Invalid image data");
                 }
+                imagepalettetotruecolor($Image);
+                imagealphablending($Image, true);
+                imagesavealpha($Image, true);
+
                 // Convert image to webp
                 ob_start();
                 imagewebp($Image, quality: 100);
@@ -792,6 +796,10 @@ switch($route) {
                     if ($Image === false) {
                         throw new Exception("Invalid image data");
                     }
+                    imagepalettetotruecolor($Image);
+                    imagealphablending($Image, true);
+                    imagesavealpha($Image, true);
+
                     // Convert image to webp
                     ob_start();
                     imagewebp($Image, quality: 100);
@@ -857,6 +865,10 @@ switch($route) {
                         ob_start();
 
                         $Img = imagecreatefromstring($rawImage);
+                        imagepalettetotruecolor($Img);
+                        imagealphablending($Img, true);
+                        imagesavealpha($Img, true);
+
                         imagewebp($Img, quality: 100);
                         $ImgWebP = ob_get_clean();
                         imagedestroy($Img);
@@ -906,6 +918,9 @@ switch($route) {
                 if ($Image === false) {
                     throw new Exception("Invalid image data");
                 }
+                imagepalettetotruecolor($Image);
+                imagealphablending($Image, true);
+                imagesavealpha($Image, true);
                 // Convert image to webp
                 ob_start();
                 imagewebp($Image, quality: 100);
