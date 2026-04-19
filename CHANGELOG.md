@@ -4,6 +4,10 @@
 
 - [x] Implemented `/alters` endpoint
 
+## CHANGE:
+
+- [x] Fix the SQL format used for queries in `/alters`
+
 # 0.1.0+0419261054
 
 ## ADD:

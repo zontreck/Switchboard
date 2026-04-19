@@ -2,7 +2,7 @@
 
 $DEBUG = true;
 
-$VERSION = "0.1.0+0419261146";
+$VERSION = "0.1.0+0419261157";
 
 require_once("dbconfig.php");
 
@@ -441,7 +441,18 @@ switch($route) {
                 // TODO: Bind permissions to alters, so that alters have a permission group set to them, changeable by the user, but the Permission Group will allow setting which friends can view what alters, or how much info can be shown
                 // 
                 // For now, We'll use Flags to determine public or private status
-                $rres = $DB->query("SELECT * FROM Alters WHERE User='$userid' SKIP '$SkipAlters' LIMIT '$AlterCount';");
+                $rres=null;
+                if($AlterCount == -1) {
+                    $stmt = $DB->prepare("SELECT * FROM Alters WHERE User='$userid';");
+                    $stmt->bind_param("s", $userid);
+                    $stmt->execute();
+                    $rres = $stmt->get_result();
+                } else {
+                    $stmt = $DB->prepare("SELECT * FROM Alters WHERE User=? LIMIT ? OFFSET ?;");
+                    $stmt->bind_param("sii", $userid, $AlterCount, $SkipAlters);
+                    $stmt->execute();
+                    $rres = $stmt->get_result();
+                }
 
                 if($rres->num_rows < $AlterCount) {
                     header("X-SB-Done", "1");
