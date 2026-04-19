@@ -1,3 +1,9 @@
+# 0.1.0+041926
+
+## ADD:
+
+- [x] Implemented `/alters` endpoint
+
 # 0.1.0+0419261054
 
 ## ADD:
