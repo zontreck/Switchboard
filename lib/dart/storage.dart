@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import 'package:libac_dart/nbt/impl/ListTag.dart';
 import 'package:libac_dart/utils/Hashing.dart';
 import 'package:libac_dart/utils/TimeUtils.dart';
 import 'package:libac_dart/utils/uuid/UUID.dart';
@@ -75,6 +76,45 @@ class NetworkInterface {
 
     var reply = await dio.get("${getAPIServerURL()}/auth/refresh");
     return S2CAuthenticationRefreshResponse.decode(reply.data);
+  }
+
+  static Future<S2CAltersResponse> requestAltersList(UUID? user) async {
+    MemoryState ms = MemoryState();
+    Dio dio = Dio();
+    dio.options.headers["Content-Type"] = "application/json";
+    dio.options.headers["X-SB-Auth"] = ms.authenticationToken;
+
+    bool keepRequesting = true;
+
+    int skip = 0;
+    int request = 50;
+
+    List<Alter> allAlters = [];
+
+    while (keepRequesting) {
+      dio.options.headers["X-SB-Skip"] = "$skip";
+      dio.options.headers["X-SB-Count"] = "$request";
+
+      var reply = await dio.get(
+        "${getAPIServerURL()}/alters${user == null ? '' : "/${user.toString()}"}",
+      );
+      // Check for the X-SB-Done header.
+      if (reply.headers.value("X-SB-Done") == null) {
+        // Increment by X-SB-Count
+        skip += int.parse(reply.headers.value("X-SB-Count") ?? "0");
+      } else {
+        // This is the final iteration
+        keepRequesting = false;
+      }
+
+      S2CAltersPartialResponse partialAlters = S2CAltersPartialResponse.decode(
+        reply.data,
+      );
+
+      allAlters.addAll(partialAlters.data.alters);
+    }
+
+    return S2CAltersResponse(alters: allAlters);
   }
 }
 
@@ -507,4 +547,157 @@ class S2CAuthenticationRefreshResponse implements ResponsePacket {
       data: AuthRefresh.decode(js['data']),
     );
   }
+}
+
+class S2CAltersPartialResponse implements ResponsePacket {
+  @override
+  UUID id;
+
+  @override
+  String path;
+
+  @override
+  String? reason;
+
+  @override
+  bool success;
+
+  @override
+  String type;
+
+  PartialAlters data;
+
+  S2CAltersPartialResponse({
+    required this.id,
+    required this.path,
+    required this.reason,
+    required this.success,
+    required this.type,
+    required this.data,
+  });
+
+  Map<String, dynamic> encode() {
+    return {
+      "id": id.toString(),
+      "path": path,
+      "reason": reason,
+      "success": success,
+      "type": type,
+      "data": data.encode(),
+    };
+  }
+
+  factory S2CAltersPartialResponse.decode(Map<String, dynamic> js) {
+    return S2CAltersPartialResponse(
+      id: UUID.parse(js['id']),
+      path: js['path'],
+      reason: js['reason'],
+      success: js['success'],
+      type: js['type'],
+      data: PartialAlters.decode(js['data']),
+    );
+  }
+}
+
+/**
+ * {
+ *  "id": uuid,
+ * "path": /request/path
+ * "reason": reason for error,
+ * "success": boolean
+ * "type": "POST/PUT/GET/DELETE/PATCH/etc",
+ * "data": {
+ *    "count": number of alters iterated,
+ *    "alters": [
+ *      
+                        "user" => $row['User'],
+                        "id" => $row['ID'],
+                        "name" => $row['Name'],
+                        "avatar_url" => $row['Avatar'],
+                        "subid" => $row['SubID'],
+                        "parent" => $row['ParentID'],
+                        "flags" => $row['Flags']
+ *    ]
+ * }
+ * }
+ */
+class PartialAlters {
+  int count;
+  List<Alter> alters;
+
+  PartialAlters({required this.count, required this.alters});
+
+  Map<String, dynamic> encode() {
+    List<Map<String, dynamic>> tg = [];
+    for (var alter in alters) {
+      tg.add(alter.encode());
+    }
+
+    return {"count": count, "alters": tg};
+  }
+
+  factory PartialAlters.decode(Map<String, dynamic> js) {
+    int count = js['count'];
+    List<Alter> alters = [];
+
+    List<dynamic> tmpalters = js['alters'];
+    for (var entry in tmpalters) {
+      alters.add(Alter.decode(entry));
+    }
+
+    return PartialAlters(count: count, alters: alters);
+  }
+}
+
+class Alter {
+  UUID id;
+  UUID user;
+  String name;
+  String avatarUrl;
+  int subid;
+  UUID parent;
+  int flags;
+
+  Alter({
+    required this.id,
+    required this.user,
+    required this.name,
+    required this.avatarUrl,
+    required this.subid,
+    required this.parent,
+    required this.flags,
+  });
+
+  Map<String, dynamic> encode() {
+    return {
+      "id": id.toString(),
+      "user": user.toString(),
+      "name": name,
+      "avatar_url": avatarUrl,
+      "subid": subid,
+      "parent": parent.toString(),
+      "flags": flags,
+    };
+  }
+
+  factory Alter.decode(Map<String, dynamic> js) {
+    if (!js.containsKey("subid"))
+      throw InvalidServerResponseException(reason: "Not alter formatted data");
+
+    return Alter(
+      id: UUID.parse(js['id']),
+      user: UUID.parse(js['user']),
+      name: js['name'],
+      avatarUrl: js['avatar_url'],
+      subid: js['subid'],
+      parent: UUID.parse(js['parent']),
+      flags: js['flags'],
+    );
+  }
+}
+
+class S2CAltersResponse {
+  final List<Alter> alters;
+
+  S2CAltersResponse({required this.alters});
 }

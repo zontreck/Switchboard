@@ -1,3 +1,9 @@
+# 0.1.0+042026
+
+## ADD:
+
+- [x] Implement the `/alters` endpoint in the app, so we can retrieve the list of alters.
+
 # 0.1.0+0419262121
 
 ## ADD:
