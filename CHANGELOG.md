@@ -1,3 +1,16 @@
+# 0.1.0+0419262121
+
+## ADD:
+
+- [x] Color preference settings for the Selected bottom navigation bar indicator.
+- [x] Color preference for unselected navigator indicator
+- [x] Ability to import app settings
+- [x] Ability to reset to default theme
+
+## REMOVE:
+
+- [x] Leftover debug code
+
 # 0.1.0+0419261700
 
 ## ADD:

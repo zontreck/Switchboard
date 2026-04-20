@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
+import 'package:switchboard/dart/MemoryState.dart';
 import 'package:switchboard/globalHelpers.dart';
 
 class AccountPage extends StatefulWidget {
@@ -11,6 +12,7 @@ class AccountPage extends StatefulWidget {
 
 class _AccountPage extends State<AccountPage> {
   int _index = 0;
+  MemoryState ms = MemoryState();
 
   Widget getPageForIndex() {
     switch (_index) {
@@ -106,7 +108,8 @@ class _AccountPage extends State<AccountPage> {
           _index = value;
           setState(() {});
         },
-        selectedItemColor: const Color.fromARGB(255, 0, 183, 255),
+        selectedItemColor: getNavSelColor(),
+        unselectedItemColor: getNavUnselColor(),
       ),
       body: Padding(
         padding: EdgeInsetsGeometry.all(8),

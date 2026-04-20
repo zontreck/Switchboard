@@ -40,10 +40,31 @@ class MemoryState {
   int AlterTextGreen = 255;
   int AlterTextBlue = 255;
 
+  int NavSelAlpha = 255;
+  int NavSelRed = 0;
+  int NavSelGreen = 183;
+  int NavSelBlue = 255;
+
+  int NavUnSelAlpha = 255;
+  int NavUnSelRed = 105;
+  int NavUnSelGreen = 105;
+  int NavUnSelBlue = 105;
+
   void deserialize(CompoundTag ct) {
-    if (ct.containsKey("flush_avatars")) flushPictures = true;
-    if (ct.containsKey("roundedborder")) roundedBorder = true;
-    if (ct.containsKey("squarePicture")) squarePicture = true;
+    if (ct.containsKey("flush_avatars"))
+      flushPictures = true;
+    else
+      flushPictures = false;
+
+    if (ct.containsKey("roundedborder"))
+      roundedBorder = true;
+    else
+      roundedBorder = false;
+
+    if (ct.containsKey("squarePicture"))
+      squarePicture = true;
+    else
+      squarePicture = false;
 
     if (ct.containsKey("alterBackground")) {
       List<int> iat = ct.get("alterBackground")!.asIntArray();
@@ -51,6 +72,11 @@ class MemoryState {
       AlterBackgroundRed = iat[1];
       AlterBackgroundGreen = iat[2];
       AlterBackgroundBlue = iat[3];
+    } else {
+      AlterBackgroundAlpha = 255;
+      AlterBackgroundBlue = 90;
+      AlterBackgroundGreen = 90;
+      AlterBackgroundRed = 90;
     }
 
     if (ct.containsKey("alterText")) {
@@ -59,6 +85,37 @@ class MemoryState {
       AlterTextRed = iat[1];
       AlterTextGreen = iat[2];
       AlterTextBlue = iat[3];
+    } else {
+      AlterTextAlpha = 179;
+      AlterTextRed = 255;
+      AlterTextGreen = 255;
+      AlterTextBlue = 255;
+    }
+
+    if (ct.containsKey("navSelColor")) {
+      List<int> iat = ct.get("navSelColor")!.asIntArray();
+      NavSelAlpha = iat[0];
+      NavSelRed = iat[1];
+      NavSelGreen = iat[2];
+      NavSelBlue = iat[3];
+    } else {
+      NavSelAlpha = 255;
+      NavSelRed = 0;
+      NavSelGreen = 183;
+      NavSelBlue = 255;
+    }
+
+    if (ct.containsKey("navUnSelColor")) {
+      List<int> iat = ct.get("navUnSelColor")!.asIntArray();
+      NavUnSelAlpha = iat[0];
+      NavUnSelRed = iat[1];
+      NavUnSelGreen = iat[2];
+      NavUnSelBlue = iat[3];
+    } else {
+      NavUnSelAlpha = 255;
+      NavUnSelRed = 105;
+      NavUnSelGreen = 105;
+      NavUnSelBlue = 105;
     }
   }
 
@@ -97,6 +154,42 @@ class MemoryState {
       ct.put("alterText", iat);
     }
 
+    if (NavSelAlpha != 255 ||
+        NavSelRed != 0 ||
+        NavSelGreen != 183 ||
+        NavSelBlue != 255) {
+      IntArrayTag iat = IntArrayTag.valueOf([
+        NavSelAlpha,
+        NavSelRed,
+        NavSelGreen,
+        NavSelBlue,
+      ]);
+
+      ct.put("navSelColor", iat);
+    }
+
+    if (NavUnSelAlpha != 255 ||
+        NavUnSelRed != 105 ||
+        NavUnSelGreen != 105 ||
+        NavUnSelBlue != 105) {
+      IntArrayTag iat = IntArrayTag.valueOf([
+        NavUnSelAlpha,
+        NavUnSelRed,
+        NavUnSelGreen,
+        NavUnSelBlue,
+      ]);
+
+      ct.put("navUnSelColor", iat);
+    }
+
     return ct;
+  }
+
+  void reset() {
+    CompoundTag defaults = CompoundTag();
+
+    NbtUtils.writeBoolean(defaults, "roundedborder", true);
+
+    deserialize(defaults);
   }
 }

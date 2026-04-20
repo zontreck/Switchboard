@@ -49,7 +49,7 @@ Future<void> setAppSettings(CompoundTag ct) async {
   prefs.setString("settings", snbt);
   ms.deserialize(ct);
 
-  print("DEBUG: $snbt");
+  //print("DEBUG: $snbt");
 }
 
 Future<void> getAppSettings() async {
@@ -98,6 +98,46 @@ void setAlterTextColor(Color b) {
   ms.AlterTextRed = (b.r.clamp(0.0, 1.0) * 255).round();
   ms.AlterTextGreen = (b.g.clamp(0.0, 1.0) * 255).round();
   ms.AlterTextBlue = (b.b.clamp(0.0, 1.0) * 255).round();
+
+  setAppSettings(ms.serialize());
+}
+
+Color getNavSelColor() {
+  MemoryState ms = MemoryState();
+  return Color.fromARGB(
+    ms.NavSelAlpha,
+    ms.NavSelRed,
+    ms.NavSelGreen,
+    ms.NavSelBlue,
+  );
+}
+
+void setNavSelColor(Color b) {
+  MemoryState ms = MemoryState();
+  ms.NavSelAlpha = (b.a.clamp(0.0, 1.0) * 255).round();
+  ms.NavSelRed = (b.r.clamp(0.0, 1.0) * 255).round();
+  ms.NavSelGreen = (b.g.clamp(0.0, 1.0) * 255).round();
+  ms.NavSelBlue = (b.b.clamp(0.0, 1.0) * 255).round();
+
+  setAppSettings(ms.serialize());
+}
+
+Color getNavUnselColor() {
+  MemoryState ms = MemoryState();
+  return Color.fromARGB(
+    ms.NavUnSelAlpha,
+    ms.NavUnSelRed,
+    ms.NavUnSelGreen,
+    ms.NavUnSelBlue,
+  );
+}
+
+void setNavUnselColor(Color b) {
+  MemoryState ms = MemoryState();
+  ms.NavUnSelAlpha = (b.a.clamp(0.0, 1.0) * 255).round();
+  ms.NavUnSelRed = (b.r.clamp(0.0, 1.0) * 255).round();
+  ms.NavUnSelGreen = (b.g.clamp(0.0, 1.0) * 255).round();
+  ms.NavUnSelBlue = (b.b.clamp(0.0, 1.0) * 255).round();
 
   setAppSettings(ms.serialize());
 }

@@ -4,6 +4,7 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_colorpicker/flutter_colorpicker.dart';
 import 'package:libac_dart/nbt/NbtIo.dart';
 import 'package:libac_dart/nbt/SnbtIo.dart';
+import 'package:libac_dart/nbt/impl/CompoundTag.dart';
 import 'package:switchboard/dart/MemoryState.dart';
 import 'package:switchboard/globalHelpers.dart';
 import 'package:switchboard/pages/elements.dart';
@@ -18,6 +19,8 @@ class SettingsPage extends StatefulWidget {
 class _settings extends State<SettingsPage> {
   MemoryState ms = MemoryState();
   Color tempColor = getAlterBackgroundColor();
+  TextEditingController importThemeController = TextEditingController();
+  bool importErrorHint = false;
 
   @override
   void didChangeDependencies() {
@@ -163,6 +166,85 @@ class _settings extends State<SettingsPage> {
                 child: Text("Alter Text Color"),
               ),
               SizedBox(height: 8),
+              Row(
+                children: [
+                  Icon(Icons.people_alt, color: getNavSelColor(), size: 50),
+                  SizedBox(width: 25),
+                  Text("NavBar Selected Color"),
+                  ElevatedButton(
+                    onPressed: () async {
+                      tempColor = getNavSelColor();
+
+                      await showDialog(
+                        context: context,
+                        builder: (bldr) {
+                          return AlertDialog(
+                            title: Text("Pick a color"),
+                            content: ColorPicker(
+                              pickerColor: tempColor,
+                              onColorChanged: (C) {
+                                tempColor = C;
+                              },
+                            ),
+                            actions: [
+                              ElevatedButton(
+                                onPressed: () async {
+                                  setNavSelColor(tempColor);
+                                  Navigator.pop(context);
+
+                                  setState(() {});
+                                },
+                                child: Text("Dismiss"),
+                              ),
+                            ],
+                          );
+                        },
+                      );
+                    },
+                    child: Icon(Icons.colorize),
+                  ),
+                ],
+              ),
+              SizedBox(height: 8),
+              Row(
+                children: [
+                  Icon(Icons.people_alt, color: getNavUnselColor(), size: 50),
+                  SizedBox(width: 25),
+                  Text("NavBar Unselected Color"),
+                  ElevatedButton(
+                    onPressed: () async {
+                      tempColor = getNavUnselColor();
+
+                      await showDialog(
+                        context: context,
+                        builder: (bldr) {
+                          return AlertDialog(
+                            title: Text("Pick a color"),
+                            content: ColorPicker(
+                              pickerColor: tempColor,
+                              onColorChanged: (C) {
+                                tempColor = C;
+                              },
+                            ),
+                            actions: [
+                              ElevatedButton(
+                                onPressed: () async {
+                                  setNavUnselColor(tempColor);
+                                  Navigator.pop(context);
+
+                                  setState(() {});
+                                },
+                                child: Text("Dismiss"),
+                              ),
+                            ],
+                          );
+                        },
+                      );
+                    },
+                    child: Icon(Icons.colorize),
+                  ),
+                ],
+              ),
               ListTile(
                 title: Text("E X P O R T  A P P  T H E M E"),
                 leading: Icon(Icons.download_for_offline),
@@ -205,6 +287,106 @@ class _settings extends State<SettingsPage> {
                   );
 
                   print(data);
+                },
+              ),
+
+              SizedBox(height: 25),
+              ListTile(
+                title: Text("I M P O R T  A P P  T H E M E"),
+                leading: Icon(Icons.install_mobile),
+                subtitle: Text("Import a app theme, and apply it immediately!"),
+                tileColor: const Color.fromARGB(255, 0, 34, 144),
+                onTap: () async {
+                  // Display a prompt to obtain the base64 encoded settings.
+                  await showDialog(
+                    context: context,
+                    builder: (bldr) {
+                      return AlertDialog(
+                        title: Text("Paste Theme"),
+                        actions: [
+                          ElevatedButton(
+                            onPressed: () async {
+                              // Do apply theme
+                              try {
+                                CompoundTag ct =
+                                    (await NbtIo.readBase64StringCompressed(
+                                      importThemeController.text,
+                                    ))!.asCompoundTag();
+                                ms.deserialize(ct);
+
+                                setState(() {});
+
+                                setAppSettings(ct);
+                                Navigator.pop(context);
+                              } catch (E) {
+                                importErrorHint = true;
+                                setState(() {});
+                              }
+                            },
+                            child: Text("Apply"),
+                          ),
+                          ElevatedButton(
+                            onPressed: () async {
+                              Navigator.pop(context);
+                            },
+                            child: Text("CANCEL"),
+                          ),
+                        ],
+                        content: SizedBox(
+                          height: 75,
+                          child: Column(
+                            children: [
+                              TextField(
+                                controller: importThemeController,
+                                decoration: InputDecoration(
+                                  hintText: "Base64 Encoded Theme",
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      );
+                    },
+                  );
+                },
+              ),
+              SizedBox(height: 25),
+              ListTile(
+                title: Text("R E S E T  T O  D E F A U L T S"),
+                leading: Icon(Icons.restore_from_trash),
+                subtitle: Text("Reset all defaults for the app theme"),
+                tileColor: const Color.fromARGB(255, 148, 111, 0),
+                onTap: () async {
+                  await showDialog(
+                    context: context,
+                    builder: (builder) {
+                      return AlertDialog(
+                        title: Text("Are you sure?"),
+                        actions: [
+                          ElevatedButton(
+                            onPressed: () async {
+                              Navigator.pop(context);
+                            },
+                            child: Text("Cancel"),
+                          ),
+                          ElevatedButton(
+                            onPressed: () async {
+                              ms.reset();
+
+                              setState(() {});
+
+                              Navigator.pop(context);
+                            },
+                            child: Text("Confirm"),
+                          ),
+                        ],
+                        content: Text(
+                          "WARNING: This cannot be undone. All theme settings will be reset to defaults.",
+                        ),
+                        icon: Icon(Icons.warning),
+                      );
+                    },
+                  );
                 },
               ),
             ],
