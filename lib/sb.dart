@@ -4,6 +4,7 @@ import 'package:switchboard/pages/accountPage.dart';
 import 'package:switchboard/pages/loginPage.dart';
 import 'package:switchboard/pages/privacyPolicyPage.dart';
 import 'package:switchboard/pages/registerPage.dart';
+import 'package:switchboard/pages/settingsPage.dart';
 
 class Switchboard extends StatelessWidget {
   const Switchboard({super.key});
@@ -19,6 +20,7 @@ class Switchboard extends StatelessWidget {
         "/register": (ctx) => SBRegisterPage(),
         "/privacy": (ctx) => PrivacyPolicyPage(),
         "/account": (ctx) => AccountPage(),
+        "/account/settings": (ctx) => SettingsPage(),
       },
     );
   }

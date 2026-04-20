@@ -36,6 +36,9 @@ class _loginState extends State<SBLoginPage> {
           setAuthToken(refresh.data.token!);
         }
 
+        await getAppSettings();
+        setState(() {});
+
         // Use new token and move on to the next screen.
         Navigator.pushReplacementNamed(context, "/account");
       }
@@ -161,6 +164,9 @@ class _loginState extends State<SBLoginPage> {
               } else {
                 usernameController.text = "******";
                 passwordController.text = "************";
+                setState(() {});
+
+                await getAppSettings();
                 setState(() {});
 
                 // Use new token and move on to the next screen.

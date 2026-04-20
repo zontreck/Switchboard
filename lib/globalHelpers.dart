@@ -1,6 +1,8 @@
 import 'dart:async' show Future;
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:flutter/widgets.dart';
+import 'package:libac_dart/nbt/SnbtIo.dart';
+import 'package:libac_dart/nbt/impl/CompoundTag.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:switchboard/dart/MemoryState.dart';
@@ -37,4 +39,65 @@ Future<String> getAuthToken() async {
   ms.authenticationToken = prefs.getString("token") ?? "";
 
   return prefs.getString("token") ?? "";
+}
+
+Future<void> setAppSettings(CompoundTag ct) async {
+  MemoryState ms = MemoryState();
+  SharedPreferences prefs = await SharedPreferences.getInstance();
+  String snbt = SnbtIo.writeToString(ct);
+
+  prefs.setString("settings", snbt);
+  ms.deserialize(ct);
+
+  print("DEBUG: $snbt");
+}
+
+Future<void> getAppSettings() async {
+  MemoryState ms = MemoryState();
+  SharedPreferences prefs = await SharedPreferences.getInstance();
+
+  CompoundTag ct = (await SnbtIo.readFromString(
+    prefs.getString("settings") ?? "{}",
+  )).asCompoundTag();
+  ms.deserialize(ct);
+}
+
+Color getAlterBackgroundColor() {
+  MemoryState ms = MemoryState();
+  return Color.fromARGB(
+    ms.AlterBackgroundAlpha,
+    ms.AlterBackgroundRed,
+    ms.AlterBackgroundGreen,
+    ms.AlterBackgroundBlue,
+  );
+}
+
+void setAlterBackgroundColor(Color b) {
+  MemoryState ms = MemoryState();
+  ms.AlterBackgroundAlpha = (b.a.clamp(0.0, 1.0) * 255).round();
+  ms.AlterBackgroundRed = (b.r.clamp(0.0, 1.0) * 255).round();
+  ms.AlterBackgroundGreen = (b.g.clamp(0.0, 1.0) * 255).round();
+  ms.AlterBackgroundBlue = (b.b.clamp(0.0, 1.0) * 255).round();
+
+  setAppSettings(ms.serialize());
+}
+
+Color getAlterTextColor() {
+  MemoryState ms = MemoryState();
+  return Color.fromARGB(
+    ms.AlterTextAlpha,
+    ms.AlterTextRed,
+    ms.AlterTextGreen,
+    ms.AlterTextBlue,
+  );
+}
+
+void setAlterTextColor(Color b) {
+  MemoryState ms = MemoryState();
+  ms.AlterTextAlpha = (b.a.clamp(0.0, 1.0) * 255).round();
+  ms.AlterTextRed = (b.r.clamp(0.0, 1.0) * 255).round();
+  ms.AlterTextGreen = (b.g.clamp(0.0, 1.0) * 255).round();
+  ms.AlterTextBlue = (b.b.clamp(0.0, 1.0) * 255).round();
+
+  setAppSettings(ms.serialize());
 }

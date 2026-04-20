@@ -1,0 +1,216 @@
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter/widgets.dart';
+import 'package:flutter_colorpicker/flutter_colorpicker.dart';
+import 'package:libac_dart/nbt/NbtIo.dart';
+import 'package:libac_dart/nbt/SnbtIo.dart';
+import 'package:switchboard/dart/MemoryState.dart';
+import 'package:switchboard/globalHelpers.dart';
+import 'package:switchboard/pages/elements.dart';
+
+class SettingsPage extends StatefulWidget {
+  @override
+  State<StatefulWidget> createState() {
+    return _settings();
+  }
+}
+
+class _settings extends State<SettingsPage> {
+  MemoryState ms = MemoryState();
+  Color tempColor = getAlterBackgroundColor();
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: Text("Switchboard")),
+      body: Padding(
+        padding: EdgeInsetsGeometry.all(8),
+        child: SingleChildScrollView(
+          child: Column(
+            children: [
+              Text("SETTINGS", style: TextStyle(fontSize: 22)),
+              Divider(),
+              AlterWidget(
+                flush: ms.flushPictures,
+                roundedElement: ms.roundedBorder,
+                squarePics: ms.squarePicture,
+                backgroundColor: getAlterBackgroundColor(),
+                textColor: getAlterTextColor(),
+              ),
+              Row(
+                children: [
+                  Checkbox(
+                    value: ms.flushPictures,
+                    onChanged: (B) {
+                      ms.flushPictures = B ?? true;
+                      setAppSettings(ms.serialize()).then((V) {
+                        setState(() {});
+                      });
+                    },
+                  ),
+                  SizedBox(width: 8),
+                  Text("Flush Pictures", style: TextStyle(fontSize: 16)),
+                ],
+              ),
+              Row(
+                children: [
+                  Checkbox(
+                    value: ms.squarePicture,
+                    onChanged: (B) {
+                      if (ms.flushPictures) return;
+                      ms.squarePicture = B ?? true;
+                      setAppSettings(ms.serialize()).then((V) {
+                        setState(() {});
+                      });
+                    },
+                  ),
+                  SizedBox(width: 8),
+                  Text("Square Pictures", style: TextStyle(fontSize: 16)),
+                ],
+              ),
+              Row(
+                children: [
+                  Checkbox(
+                    value: ms.roundedBorder,
+                    onChanged: (B) {
+                      ms.roundedBorder = B ?? true;
+                      setAppSettings(ms.serialize()).then((V) {
+                        setState(() {});
+                      });
+                    },
+                  ),
+                  SizedBox(width: 8),
+                  Text("Rounded Borders", style: TextStyle(fontSize: 16)),
+                ],
+              ),
+              ElevatedButton(
+                onPressed: () async {
+                  tempColor = getAlterBackgroundColor();
+
+                  setState(() {});
+                  await showDialog(
+                    context: context,
+                    builder: (BCTX) {
+                      return AlertDialog(
+                        title: Text("Pick A Color"),
+                        actions: [
+                          ElevatedButton(
+                            onPressed: () async {
+                              setAlterBackgroundColor(tempColor);
+
+                              setState(() {});
+                              Navigator.of(context).pop();
+                            },
+                            child: Text("Confirm"),
+                          ),
+                        ],
+                        content: SingleChildScrollView(
+                          child: ColorPicker(
+                            pickerColor: tempColor,
+                            onColorChanged: (C) {
+                              tempColor = C;
+
+                              setState(() {});
+                            },
+                          ),
+                        ),
+                      );
+                    },
+                  );
+                },
+                child: Text("Alter Background Color"),
+              ),
+              ElevatedButton(
+                onPressed: () async {
+                  tempColor = getAlterTextColor();
+
+                  setState(() {});
+                  await showDialog(
+                    context: context,
+                    builder: (BCTX) {
+                      return AlertDialog(
+                        title: Text("Pick A Color"),
+                        actions: [
+                          ElevatedButton(
+                            onPressed: () async {
+                              setAlterTextColor(tempColor);
+
+                              setState(() {});
+                              Navigator.of(context).pop();
+                            },
+                            child: Text("Confirm"),
+                          ),
+                        ],
+                        content: SingleChildScrollView(
+                          child: ColorPicker(
+                            pickerColor: tempColor,
+                            onColorChanged: (C) {
+                              tempColor = C;
+
+                              setState(() {});
+                            },
+                          ),
+                        ),
+                      );
+                    },
+                  );
+                },
+                child: Text("Alter Text Color"),
+              ),
+              SizedBox(height: 8),
+              ListTile(
+                title: Text("E X P O R T  A P P  T H E M E"),
+                leading: Icon(Icons.download_for_offline),
+                subtitle: Text(
+                  "Export your app settings for safe-keeping, or to share with others.",
+                ),
+                tileColor: const Color.fromARGB(255, 119, 8, 0),
+                onTap: () async {
+                  String data = await NbtIo.writeBase64StringCompressed(
+                    ms.serialize(),
+                  );
+
+                  await showDialog(
+                    context: context,
+                    builder: (bldr) {
+                      return AlertDialog(
+                        title: Text("Export Complete"),
+                        content: SizedBox(
+                          height: 150,
+                          child: SingleChildScrollView(
+                            child: Card(
+                              elevation: 8,
+                              child: Text(data, style: TextStyle(fontSize: 16)),
+                            ),
+                          ),
+                        ),
+                        actions: [
+                          ElevatedButton(
+                            onPressed: () async {
+                              await Clipboard.setData(
+                                ClipboardData(text: data),
+                              );
+                              Navigator.pop(context);
+                            },
+                            child: Text("COPY"),
+                          ),
+                        ],
+                      );
+                    },
+                  );
+
+                  print(data);
+                },
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}

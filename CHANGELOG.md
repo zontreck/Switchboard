@@ -1,9 +1,12 @@
-# 0.1.0+041926
+# 0.1.0+0419261700
 
 ## ADD:
 
 - [x] Implemented `/alters` endpoint
 - [x] Start implementing the alters management page, post-login screen.
+- [x] App settings screen, with customization options.
+- [x] App settings export capability
+- [x] Ability to preview what the theme would look like
 
 ## CHANGE/FIX:
 

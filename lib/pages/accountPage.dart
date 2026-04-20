@@ -10,6 +10,48 @@ class AccountPage extends StatefulWidget {
 }
 
 class _AccountPage extends State<AccountPage> {
+  int _index = 0;
+
+  Widget getPageForIndex() {
+    switch (_index) {
+      case 0:
+        {
+          return AltersPage();
+        }
+      case 1:
+        {
+          return FrontingPage();
+        }
+      case 2:
+        {
+          return FrontHistoryPage();
+        }
+    }
+
+    return AltersPage();
+  }
+
+  Widget? getActionButton() {
+    if (_index == 0) {
+      return ElevatedButton.icon(
+        onPressed: () async {
+          // Add new alter!
+        },
+        label: Text("Alter"),
+        icon: Icon(Icons.add),
+      );
+    }
+
+    return null;
+  }
+
+  @override
+  void initState() {
+    getAppSettings();
+
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -38,38 +80,85 @@ class _AccountPage extends State<AccountPage> {
               title: Text("S E T T I N G S"),
               subtitle: Text("Manage app settings"),
               leading: Icon(Icons.settings),
+              onTap: () async {
+                await Navigator.pushNamed(context, "/account/settings");
+                setState(() {});
+              },
             ),
           ],
         ),
       ),
-      floatingActionButton: ElevatedButton.icon(
-        onPressed: () async {
-          // Add new alter!
-        },
-        label: Text("Alter"),
-        icon: Icon(Icons.add),
-      ),
+      floatingActionButton: getActionButton(),
       bottomNavigationBar: BottomNavigationBar(
+        currentIndex: _index,
         items: [
           BottomNavigationBarItem(
             icon: Icon(Icons.people_alt),
             label: "Alters",
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.history),
-            label: "Front History",
+            icon: Icon(Icons.person_2),
+            label: "Fronting",
           ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.account_box),
-            label: "Account",
-          ),
+          BottomNavigationBarItem(icon: Icon(Icons.history), label: "History"),
         ],
-        onTap: (value) async {},
+        onTap: (value) async {
+          _index = value;
+          setState(() {});
+        },
+        selectedItemColor: const Color.fromARGB(255, 0, 183, 255),
       ),
       body: Padding(
         padding: EdgeInsetsGeometry.all(8),
-        child: SingleChildScrollView(child: Column(children: [Divider()])),
+        child: SingleChildScrollView(
+          child: Column(children: [Divider(), getPageForIndex()]),
+        ),
       ),
     );
+  }
+}
+
+class AltersPage extends StatefulWidget {
+  @override
+  State<StatefulWidget> createState() {
+    return _alters();
+  }
+}
+
+class _alters extends State<AltersPage> {
+  @override
+  Widget build(BuildContext context) {
+    return Column(children: [
+        
+      ],
+    );
+  }
+}
+
+class FrontingPage extends StatefulWidget {
+  @override
+  State<StatefulWidget> createState() {
+    return _fronting();
+  }
+}
+
+class _fronting extends State<FrontingPage> {
+  @override
+  Widget build(BuildContext context) {
+    return Container();
+  }
+}
+
+class FrontHistoryPage extends StatefulWidget {
+  @override
+  State<StatefulWidget> createState() {
+    return _history();
+  }
+}
+
+class _history extends State<FrontHistoryPage> {
+  @override
+  Widget build(BuildContext context) {
+    return Container();
   }
 }
