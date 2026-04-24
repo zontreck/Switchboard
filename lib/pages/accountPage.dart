@@ -43,6 +43,11 @@ class _AccountPage extends State<AccountPage> {
       return ElevatedButton.icon(
         onPressed: () async {
           // Add new alter!
+          // Make a new alter and immediately open the editor.
+          var newAlter = await NetworkInterface.makeNewAlter("New Alter");
+          setState(() {});
+
+          // Open the editor!
         },
         label: Text("Alter"),
         icon: Icon(Icons.add),

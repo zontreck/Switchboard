@@ -2,7 +2,7 @@
 
 $DEBUG = true;
 
-$VERSION = "0.1.0+0424260938";
+$VERSION = "0.1.0+0424261308";
 
 require_once("dbconfig.php");
 
@@ -1039,8 +1039,10 @@ switch($route) {
                     $alter = $packet['alter'];
                     $alterId = gen_uuid();
 
+                    $nFlags = 0;
+
                     $stmt = $DB->prepare("INSERT INTO Alters (User, ID, Name, Avatar, SubID, ParentID, Flags) VALUES (?, ?, ?, ?, ?, ?, ?);");
-                    $stmt->bind_param("ssssisi", $SBAuth->UserID, $alterId, $alter['name'], $alter['avatar'], $alter['subid'], $alter['parent'], 0);
+                    $stmt->bind_param("ssssisi", $SBAuth->UserID, $alterId, $alter['name'], $alter['avatar'], $alter['subid'], $alter['parent'], $nFlags);
                     $stmt->execute();
                     $stmt->close();
 

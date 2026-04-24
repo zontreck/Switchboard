@@ -8,7 +8,8 @@
 
 - [x] The `/alters` endpoint was improperly implemented
 - [x] Bug in the app that would cause a endless loop (DDOS) once a access token expired or failed to refresh.
-- [x] `/alter/{id}` `PUT`, `DELETE` and `PATCH` methods have been updated to either return a full Alter, or set `data` to null when there is no alter to return.
+- [x] `/alter/{id}`: `PUT`, `DELETE` and `PATCH` methods have been updated to either return a full Alter, or set `data` to null when there is no alter to return.
+- [x] Fixes Bug with API server SQL in PUT method.
 
 # 0.1.0+0419262121
 

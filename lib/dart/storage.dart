@@ -4,6 +4,7 @@ import 'package:libac_dart/utils/Hashing.dart';
 import 'package:libac_dart/utils/TimeUtils.dart';
 import 'package:libac_dart/utils/uuid/UUID.dart';
 import 'package:switchboard/dart/MemoryState.dart';
+import 'package:switchboard/dart/exceptions.dart';
 import 'package:switchboard/dart/privacyPolicy.dart';
 
 class NetworkInterface {
@@ -151,8 +152,6 @@ class NetworkInterface {
     return S2CAlterResponse.decode(reply.data);
   }
 }
-
-class NotLoggedInException implements Exception {}
 
 abstract class ResponsePacket {
   late UUID id;
@@ -304,16 +303,6 @@ class S2CUserPacket implements ResponsePacket {
       type: type,
       data: data,
     );
-  }
-}
-
-class InvalidServerResponseException implements Exception {
-  String reason;
-  InvalidServerResponseException({required this.reason});
-
-  @override
-  String toString() {
-    return reason;
   }
 }
 
