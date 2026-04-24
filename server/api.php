@@ -2,7 +2,7 @@
 
 $DEBUG = true;
 
-$VERSION = "0.1.0+0423262140";
+$VERSION = "0.1.0+0423262342";
 
 require_once("dbconfig.php");
 
@@ -455,7 +455,7 @@ switch($route) {
                 }
 
                 if($rres->num_rows < $AlterCount) {
-                    header("X-SB-Done=1");
+                    header("X-SB-Done: 1");
                     $reason = "DONE";
                 }
                 $diffUser = !($userid == $AuthReply->UserID);
@@ -482,7 +482,7 @@ switch($route) {
                 }
 
                 $success = true;
-                header("X-SB-Count=$count");
+                header("X-SB-Count: $count");
                 $data['count'] = $count;
                 $data['alters'] = $alters;
                 break;
@@ -685,7 +685,7 @@ switch($route) {
                 header("Content-Type: image/webp");
 
                 $row = $res->fetch_assoc();
-                header("X-SB-CreatedAt=".$row['Timestamp']);
+                header("X-SB-CreatedAt: ".$row['Timestamp']);
                 die($row['ImageBinary']);
                 break;
             }
@@ -886,7 +886,7 @@ switch($route) {
                 header("Content-Type: image/webp");
 
                 $row = $res->fetch_assoc();
-                header("X-SB-CreatedAt=".$row['Timestamp']);
+                header("X-SB-CreatedAt: ".$row['Timestamp']);
                 die($row['ImageBinary']);
                 break;
             }
