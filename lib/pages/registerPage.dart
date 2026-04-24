@@ -4,6 +4,8 @@ import 'package:libac_dart/utils/Hashing.dart';
 import 'package:switchboard/dart/storage.dart';
 
 class SBRegisterPage extends StatefulWidget {
+  const SBRegisterPage({super.key});
+
   @override
   State<StatefulWidget> createState() {
     return _SBRegister();

@@ -4,6 +4,11 @@
 
 - [x] Implement the `/alters` endpoint in the app, so we can retrieve the list of alters.
 
+## FIX:
+
+- [x] The `/alters` endpoint was improperly implemented
+- [x] Bug in the app that would cause a endless loop (DDOS) once a access token expired or failed to refresh.
+
 # 0.1.0+0419262121
 
 ## ADD:

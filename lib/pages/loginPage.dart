@@ -5,7 +5,7 @@ import 'package:switchboard/dart/storage.dart';
 import 'package:switchboard/globalHelpers.dart';
 
 class SBLoginPage extends StatefulWidget {
-  SBLoginPage({super.key});
+  const SBLoginPage({super.key});
 
   @override
   State<StatefulWidget> createState() {
@@ -25,19 +25,28 @@ class _loginState extends State<SBLoginPage> {
     getAuthToken().then((S) async {
       if (S == "") {
         // Not logged in, do nothing, just let the user log in.
+
+        await getAppSettings();
+        setState(() {});
       } else {
         usernameController.text = "******";
         passwordController.text = "************";
+        setState(() {});
+
+        await getAppSettings();
         setState(() {});
 
         S2CAuthenticationRefreshResponse refresh =
             await NetworkInterface.refreshAuth();
         if (refresh.success) {
           setAuthToken(refresh.data.token!);
-        }
+        } else {
+          usernameController.text = "";
+          passwordController.text = "";
+          setState(() {});
 
-        await getAppSettings();
-        setState(() {});
+          return;
+        }
 
         // Use new token and move on to the next screen.
         Navigator.pushReplacementNamed(context, "/account");

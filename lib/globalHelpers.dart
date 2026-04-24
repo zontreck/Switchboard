@@ -31,6 +31,8 @@ Future<void> setAuthToken(String authToken) async {
 
   MemoryState ms = MemoryState();
   ms.authenticationToken = authToken;
+
+  await setAppSettings(ms.serialize());
 }
 
 Future<String> getAuthToken() async {
@@ -72,14 +74,14 @@ Color getAlterBackgroundColor() {
   );
 }
 
-void setAlterBackgroundColor(Color b) {
+Future<void> setAlterBackgroundColor(Color b) async {
   MemoryState ms = MemoryState();
   ms.AlterBackgroundAlpha = (b.a.clamp(0.0, 1.0) * 255).round();
   ms.AlterBackgroundRed = (b.r.clamp(0.0, 1.0) * 255).round();
   ms.AlterBackgroundGreen = (b.g.clamp(0.0, 1.0) * 255).round();
   ms.AlterBackgroundBlue = (b.b.clamp(0.0, 1.0) * 255).round();
 
-  setAppSettings(ms.serialize());
+  await setAppSettings(ms.serialize());
 }
 
 Color getAlterTextColor() {
@@ -92,14 +94,14 @@ Color getAlterTextColor() {
   );
 }
 
-void setAlterTextColor(Color b) {
+Future<void> setAlterTextColor(Color b) async {
   MemoryState ms = MemoryState();
   ms.AlterTextAlpha = (b.a.clamp(0.0, 1.0) * 255).round();
   ms.AlterTextRed = (b.r.clamp(0.0, 1.0) * 255).round();
   ms.AlterTextGreen = (b.g.clamp(0.0, 1.0) * 255).round();
   ms.AlterTextBlue = (b.b.clamp(0.0, 1.0) * 255).round();
 
-  setAppSettings(ms.serialize());
+  await setAppSettings(ms.serialize());
 }
 
 Color getNavSelColor() {
@@ -112,14 +114,14 @@ Color getNavSelColor() {
   );
 }
 
-void setNavSelColor(Color b) {
+Future<void> setNavSelColor(Color b) async {
   MemoryState ms = MemoryState();
   ms.NavSelAlpha = (b.a.clamp(0.0, 1.0) * 255).round();
   ms.NavSelRed = (b.r.clamp(0.0, 1.0) * 255).round();
   ms.NavSelGreen = (b.g.clamp(0.0, 1.0) * 255).round();
   ms.NavSelBlue = (b.b.clamp(0.0, 1.0) * 255).round();
 
-  setAppSettings(ms.serialize());
+  await setAppSettings(ms.serialize());
 }
 
 Color getNavUnselColor() {
@@ -132,12 +134,12 @@ Color getNavUnselColor() {
   );
 }
 
-void setNavUnselColor(Color b) {
+Future<void> setNavUnselColor(Color b) async {
   MemoryState ms = MemoryState();
   ms.NavUnSelAlpha = (b.a.clamp(0.0, 1.0) * 255).round();
   ms.NavUnSelRed = (b.r.clamp(0.0, 1.0) * 255).round();
   ms.NavUnSelGreen = (b.g.clamp(0.0, 1.0) * 255).round();
   ms.NavUnSelBlue = (b.b.clamp(0.0, 1.0) * 255).round();
 
-  setAppSettings(ms.serialize());
+  await setAppSettings(ms.serialize());
 }

@@ -22,6 +22,7 @@ class MemoryState {
   String mariaDBName = "";
   String botToken = "";
   String authenticationToken = "";
+  String lastErrorRay = "";
 
   Timer? flushTimer;
   bool terminating = false;
@@ -51,20 +52,23 @@ class MemoryState {
   int NavUnSelBlue = 105;
 
   void deserialize(CompoundTag ct) {
-    if (ct.containsKey("flush_avatars"))
+    if (ct.containsKey("flush_avatars")) {
       flushPictures = true;
-    else
+    } else {
       flushPictures = false;
+    }
 
-    if (ct.containsKey("roundedborder"))
+    if (ct.containsKey("roundedborder")) {
       roundedBorder = true;
-    else
+    } else {
       roundedBorder = false;
+    }
 
-    if (ct.containsKey("squarePicture"))
+    if (ct.containsKey("squarePicture")) {
       squarePicture = true;
-    else
+    } else {
       squarePicture = false;
+    }
 
     if (ct.containsKey("alterBackground")) {
       List<int> iat = ct.get("alterBackground")!.asIntArray();

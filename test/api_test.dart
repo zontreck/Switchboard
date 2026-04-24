@@ -11,7 +11,7 @@ import 'package:libac_dart/utils/uuid/UUID.dart';
 import 'package:switchboard/dart/MemoryState.dart';
 import 'package:switchboard/dart/storage.dart';
 
-main() {
+void main() {
   test("Test version endpoint", () async {
     S2CServerVersionPacket verReply = await NetworkInterface.getServerVersion();
 
@@ -145,7 +145,7 @@ main() {
     var imageId = reply.data["data"]["img"];
 
     reply = await dio.put(
-      "https://api.systemswitchboard.com/images/${imageId}",
+      "https://api.systemswitchboard.com/images/$imageId",
       data: {"image": b64Data},
     );
     expect(reply.data["success"], true);

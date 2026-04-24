@@ -24,7 +24,7 @@ class NetworkInterface {
     Dio dio = Dio();
     dio.options.contentType = "application/json";
     var reply = await dio.put(
-      "${getAPIServerURL()}/user/${username}",
+      "${getAPIServerURL()}/user/$username",
       data: {"auth": Hashing.md5Hash(password)},
     );
 
@@ -37,7 +37,7 @@ class NetworkInterface {
   static Future<S2CUserPacket> getUser(String username) async {
     Dio dio = Dio();
     dio.options.contentType = "application/json";
-    var reply = await dio.get("${getAPIServerURL()}/user/${username}");
+    var reply = await dio.get("${getAPIServerURL()}/user/$username");
 
     return S2CUserPacket.decode(reply.data);
   }
@@ -107,6 +107,16 @@ class NetworkInterface {
         keepRequesting = false;
       }
 
+      if (reply.data['success'] == false &&
+          reply.data['reason'] == "Not Logged In") {
+        // Login expired!
+        // This should not be possible..
+        // Throw a exception!
+        ms.lastErrorRay = reply.data['id'];
+        keepRequesting = false;
+        throw NotLoggedInException();
+      }
+
       S2CAltersPartialResponse partialAlters = S2CAltersPartialResponse.decode(
         reply.data,
       );
@@ -117,6 +127,8 @@ class NetworkInterface {
     return S2CAltersResponse(alters: allAlters);
   }
 }
+
+class NotLoggedInException implements Exception {}
 
 abstract class ResponsePacket {
   late UUID id;
@@ -237,7 +249,7 @@ class S2CUserPacket implements ResponsePacket {
       "reason": reason,
       "success": success,
       "type": type,
-      "data": data?.encode() ?? null,
+      "data": data?.encode(),
     };
   }
 
@@ -255,7 +267,7 @@ class S2CUserPacket implements ResponsePacket {
     String? reason = js['reason'];
     String type = js['type'];
     bool success = js['success'];
-    User? data = null;
+    User? data;
     if (js['data'] != null) {
       data = User.deserialize(js['data']);
     }
@@ -295,7 +307,7 @@ class User {
     required this.DisplayName,
     required this.AccountLevel,
     required this.AlterCount,
-  }) : this.FetchTime = TimeUtils.getUnixTimestamp();
+  }) : FetchTime = TimeUtils.getUnixTimestamp();
 
   factory User.deserialize(Map<String, dynamic> js) {
     UUID idx = UUID.ZERO;
@@ -681,8 +693,9 @@ class Alter {
   }
 
   factory Alter.decode(Map<String, dynamic> js) {
-    if (!js.containsKey("subid"))
+    if (!js.containsKey("subid")) {
       throw InvalidServerResponseException(reason: "Not alter formatted data");
+    }
 
     return Alter(
       id: UUID.parse(js['id']),

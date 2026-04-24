@@ -23,6 +23,7 @@ class AlterWidget extends StatelessWidget {
       elevation: 8,
       shape: roundedElement ? null : BoxBorder.all(),
       margin: roundedElement ? null : EdgeInsetsGeometry.zero,
+      color: backgroundColor,
 
       child: Row(
         children: [
@@ -52,7 +53,6 @@ class AlterWidget extends StatelessWidget {
           ),
         ],
       ),
-      color: backgroundColor,
     );
   }
 }

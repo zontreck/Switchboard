@@ -1,11 +1,9 @@
 import 'dart:convert';
-import 'dart:io';
 
 import 'package:dio/dio.dart';
 import 'package:libac_dart/utils/uuid/UUID.dart';
 import 'package:switchboard/dart/MemoryState.dart';
 import 'package:switchboard/dart/privacyPolicy.dart';
-import 'package:switchboard/dart/storage.dart';
 import 'package:switchboard/dart/switchboard_format.dart';
 
 class OctoconData {

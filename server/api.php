@@ -2,7 +2,7 @@
 
 $DEBUG = true;
 
-$VERSION = "0.1.0+0419261700";
+$VERSION = "0.1.0+0423262140";
 
 require_once("dbconfig.php");
 
@@ -455,7 +455,8 @@ switch($route) {
                 }
 
                 if($rres->num_rows < $AlterCount) {
-                    header("X-SB-Done", "1");
+                    header("X-SB-Done=1");
+                    $reason = "DONE";
                 }
                 $diffUser = !($userid == $AuthReply->UserID);
 
@@ -480,7 +481,8 @@ switch($route) {
                     ));
                 }
 
-                header("X-SB-Count", "$count");
+                $success = true;
+                header("X-SB-Count=$count");
                 $data['count'] = $count;
                 $data['alters'] = $alters;
                 break;

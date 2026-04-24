@@ -7,7 +7,6 @@ import 'package:libac_dart/argparse/Args.dart';
 import 'package:libac_dart/argparse/Parser.dart';
 import 'package:switchboard/dart/MemoryState.dart';
 import 'package:switchboard/dart/octocon_format.dart';
-import 'package:switchboard/dart/storage.dart';
 
 Future<int> main(List<String> args) async {
   MemoryState state = MemoryState();

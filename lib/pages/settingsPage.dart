@@ -10,6 +10,8 @@ import 'package:switchboard/globalHelpers.dart';
 import 'package:switchboard/pages/elements.dart';
 
 class SettingsPage extends StatefulWidget {
+  const SettingsPage({super.key});
+
   @override
   State<StatefulWidget> createState() {
     return _settings();
@@ -311,7 +313,7 @@ class _settings extends State<SettingsPage> {
                                 CompoundTag ct =
                                     (await NbtIo.readBase64StringCompressed(
                                       importThemeController.text,
-                                    ))!.asCompoundTag();
+                                    )).asCompoundTag();
                                 ms.deserialize(ct);
 
                                 setState(() {});
