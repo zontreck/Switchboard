@@ -2,7 +2,7 @@
 
 $DEBUG = true;
 
-$VERSION = "0.1.0+0423262342";
+$VERSION = "0.1.0+0424260938";
 
 require_once("dbconfig.php");
 
@@ -1040,7 +1040,7 @@ switch($route) {
                     $alterId = gen_uuid();
 
                     $stmt = $DB->prepare("INSERT INTO Alters (User, ID, Name, Avatar, SubID, ParentID, Flags) VALUES (?, ?, ?, ?, ?, ?, ?);");
-                    $stmt->bind_param("ssssisi", $alter['user'], $alterId, $alter['name'], $alter['avatar'], $alter['subid'], $alter['parent'], 0);
+                    $stmt->bind_param("ssssisi", $SBAuth->UserID, $alterId, $alter['name'], $alter['avatar'], $alter['subid'], $alter['parent'], 0);
                     $stmt->execute();
                     $stmt->close();
 
@@ -1048,7 +1048,13 @@ switch($route) {
 
                     $reason = "Alter created";
                     $data = array(
-                        "id" => $alterId
+                        "id" => $alterId,
+                        "user" => $SBAuth->UserID,
+                        "name" => $alter['name'],
+                        "avatar_url" => $alter['avatar'],
+                        "subid" => $alter['subid'],
+                        "parent" => $alter['parent'],
+                        "flags" => 0
                     );
                     break;
                 }
@@ -1062,6 +1068,7 @@ switch($route) {
                     $DB->commit();
 
                     $reason = "Alter deleted";
+                    $data = null;
                     break;
                 }
 
@@ -1077,6 +1084,7 @@ switch($route) {
                     $DB->commit();
 
                     $reason = "Alter updated";
+                    $data = null;
                     break;
                 }
                 default: {

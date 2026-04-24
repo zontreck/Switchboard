@@ -126,6 +126,30 @@ class NetworkInterface {
 
     return S2CAltersResponse(alters: allAlters);
   }
+
+  // TODO: Make it possible to set a parent folder once folders are implemented.
+  static Future<S2CAlterResponse> makeNewAlter(String name) async {
+    Dio dio = Dio();
+    MemoryState ms = MemoryState();
+
+    dio.options.headers["Content-Type"] = "application/json";
+    dio.options.headers["X-SB-Auth"] = ms.authenticationToken;
+
+    // Send the creation packet!
+    var reply = await dio.put(
+      "${getAPIServerURL()}/alter/new",
+      data: {
+        "alter": {
+          "name": name,
+          "parent": UUID.ZERO.toString(),
+          "subid": 0,
+          "avatar": UUID.ZERO.toString(),
+        },
+      },
+    );
+
+    return S2CAlterResponse.decode(reply.data);
+  }
 }
 
 class NotLoggedInException implements Exception {}
@@ -713,4 +737,54 @@ class S2CAltersResponse {
   final List<Alter> alters;
 
   S2CAltersResponse({required this.alters});
+}
+
+class S2CAlterResponse implements ResponsePacket {
+  @override
+  UUID id;
+
+  @override
+  String path;
+
+  @override
+  String? reason;
+
+  @override
+  bool success;
+
+  @override
+  String type;
+
+  Alter? data;
+
+  S2CAlterResponse({
+    required this.id,
+    required this.path,
+    required this.reason,
+    required this.success,
+    required this.type,
+    required this.data,
+  });
+
+  Map<String, dynamic> encode() {
+    return {
+      "id": id,
+      "path": path,
+      "reason": reason,
+      "success": success,
+      "type": type,
+      "data": data,
+    };
+  }
+
+  factory S2CAlterResponse.decode(Map<String, dynamic> js) {
+    return S2CAlterResponse(
+      id: UUID.parse(js['id']),
+      path: js['path'],
+      reason: js['reason'],
+      success: js['success'],
+      type: js['type'],
+      data: Alter.decode(js['data'] ?? {}),
+    );
+  }
 }
