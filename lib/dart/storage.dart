@@ -115,6 +115,7 @@ class NetworkInterface {
         // Throw a exception!
         ms.lastErrorRay = reply.data['id'];
         keepRequesting = false;
+        print("Raw response: ${reply.data}");
         throw NotLoggedInException();
       }
 
@@ -149,6 +150,17 @@ class NetworkInterface {
       },
     );
 
+    return S2CAlterResponse.decode(reply.data);
+  }
+
+  static Future<S2CAlterResponse> getAlterByID(UUID id) async {
+    Dio dio = Dio();
+    MemoryState ms = MemoryState();
+
+    dio.options.headers["Content-Type"] = "application/json";
+    dio.options.headers["X-SB-Auth"] = ms.authenticationToken;
+
+    var reply = await dio.get("${getAPIServerURL()}/alter/${id.toString()}");
     return S2CAlterResponse.decode(reply.data);
   }
 }

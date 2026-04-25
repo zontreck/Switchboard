@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
+import 'package:libac_dart/utils/uuid/UUID.dart';
 
 class AlterWidget extends StatelessWidget {
   bool flush = false;
@@ -7,9 +8,13 @@ class AlterWidget extends StatelessWidget {
   bool squarePics = false;
   Color backgroundColor;
   Color textColor;
+  UUID alterID;
+  String alterName;
 
   AlterWidget({
     super.key,
+    required this.alterID,
+    required this.alterName,
     this.flush = true,
     this.roundedElement = true,
     this.squarePics = false,
@@ -29,7 +34,7 @@ class AlterWidget extends StatelessWidget {
         children: [
           flush
               ? Image.network(
-                  "https://api.systemswitchboard.com/avatar/null",
+                  "https://api.systemswitchboard.com/avatar/${alterID.toString()}",
                   width: 75,
                 )
               : Padding(
@@ -41,16 +46,13 @@ class AlterWidget extends StatelessWidget {
                     shape: squarePics ? BoxBorder.all() : null,
                     margin: squarePics ? EdgeInsets.zero : null,
                     child: Image.network(
-                      "https://api.systemswitchboard.com/avatar/null",
+                      "https://api.systemswitchboard.com/avatar/${alterID.toString()}",
                       width: 75,
                     ),
                   ),
                 ),
           SizedBox(width: 8),
-          Text(
-            "Sample Alter",
-            style: TextStyle(fontSize: 22, color: textColor),
-          ),
+          Text(alterName, style: TextStyle(fontSize: 22, color: textColor)),
         ],
       ),
     );

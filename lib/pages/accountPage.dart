@@ -5,6 +5,8 @@ import 'package:flutter/widgets.dart';
 import 'package:switchboard/dart/MemoryState.dart';
 import 'package:switchboard/dart/storage.dart';
 import 'package:switchboard/globalHelpers.dart';
+import 'package:switchboard/pages/editAlter.dart';
+import 'package:switchboard/pages/elements.dart';
 
 class AccountPage extends StatefulWidget {
   const AccountPage({super.key});
@@ -47,7 +49,11 @@ class _AccountPage extends State<AccountPage> {
           var newAlter = await NetworkInterface.makeNewAlter("New Alter");
           setState(() {});
 
-          // Open the editor!
+          var reply = await Navigator.pushNamed(
+            context,
+            "/editAlter",
+            arguments: EditAlterArguments(alterId: newAlter.data!.id),
+          );
         },
         label: Text("Alter"),
         icon: Icon(Icons.add),
@@ -130,8 +136,12 @@ class _AccountPage extends State<AccountPage> {
       ),
       body: Padding(
         padding: EdgeInsetsGeometry.all(8),
-        child: SingleChildScrollView(
-          child: Column(children: [Divider(), getPageForIndex()]),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Divider(),
+            Expanded(child: getPageForIndex()),
+          ],
         ),
       ),
     );
@@ -180,8 +190,35 @@ class _alters extends State<AltersPage> {
                 ],
               );
             } else {
-              // returns a sizedbox for now, but needs to return a ListView with every alter, each alter will need to potentially have a FutureBuilder for the avatar image.
-              return SizedBox();
+              List<Alter> alters = snapshot.data!.alters;
+              MemoryState ms = MemoryState();
+
+              return ListView.builder(
+                itemCount: alters.length,
+                shrinkWrap: true,
+                itemBuilder: (bctx, index) {
+                  return InkWell(
+                    onTap: () async {
+                      var reply = await Navigator.pushNamed(
+                        context,
+                        "/editAlter",
+                        arguments: EditAlterArguments(
+                          alterId: alters[index].id,
+                        ),
+                      );
+                    },
+                    child: AlterWidget(
+                      flush: ms.flushPictures,
+                      roundedElement: ms.roundedBorder,
+                      squarePics: ms.squarePicture,
+                      backgroundColor: getAlterBackgroundColor(),
+                      textColor: getAlterTextColor(),
+                      alterID: alters[index].id,
+                      alterName: alters[index].name,
+                    ),
+                  );
+                },
+              );
             }
           },
         ),

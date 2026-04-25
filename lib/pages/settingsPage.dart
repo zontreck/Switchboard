@@ -5,6 +5,7 @@ import 'package:flutter_colorpicker/flutter_colorpicker.dart';
 import 'package:libac_dart/nbt/NbtIo.dart';
 import 'package:libac_dart/nbt/SnbtIo.dart';
 import 'package:libac_dart/nbt/impl/CompoundTag.dart';
+import 'package:libac_dart/utils/uuid/UUID.dart';
 import 'package:switchboard/dart/MemoryState.dart';
 import 'package:switchboard/globalHelpers.dart';
 import 'package:switchboard/pages/elements.dart';
@@ -46,6 +47,8 @@ class _settings extends State<SettingsPage> {
                 squarePics: ms.squarePicture,
                 backgroundColor: getAlterBackgroundColor(),
                 textColor: getAlterTextColor(),
+                alterID: UUID.ZERO,
+                alterName: "Sample Alter",
               ),
               Row(
                 children: [

@@ -2,7 +2,7 @@
 
 $DEBUG = true;
 
-$VERSION = "0.1.0+0424261308";
+$VERSION = "0.1.0+0425261018";
 
 require_once("dbconfig.php");
 
@@ -1028,9 +1028,9 @@ switch($route) {
                         "id" => $row['ID'],
                         "name" => $row['Name'],
                         "avatar_url" => $row['Avatar'],
-                        "subid" => $row['SubID'],
+                        "subid" => (int) $row['SubID'],
                         "parent" => $row['ParentID'],
-                        "flags" => $row['Flags']
+                        "flags" => (int) $row['Flags']
                     );
                     break;
                 }
@@ -1054,7 +1054,7 @@ switch($route) {
                         "user" => $SBAuth->UserID,
                         "name" => $alter['name'],
                         "avatar_url" => $alter['avatar'],
-                        "subid" => $alter['subid'],
+                        "subid" => (int) $alter['subid'],
                         "parent" => $alter['parent'],
                         "flags" => 0
                     );
@@ -1107,6 +1107,12 @@ switch($route) {
             "data" => $data
         )));
         break;
+    }
+
+    case "/robots.txt": {
+        header("Content-Type: text/plain");
+        http_response_code(200);
+        die("User-agent: *\nDisallow: /");
     }
 
     default: {

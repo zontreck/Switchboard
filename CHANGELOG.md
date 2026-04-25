@@ -3,6 +3,7 @@
 ## ADD:
 
 - [x] Implement the `/alters` endpoint in the app, so we can retrieve the list of alters.
+- [x] Handler for `/robots.txt` which returns a static DENY ALL response.
 
 ## FIX:
 
@@ -10,6 +11,7 @@
 - [x] Bug in the app that would cause a endless loop (DDOS) once a access token expired or failed to refresh.
 - [x] `/alter/{id}`: `PUT`, `DELETE` and `PATCH` methods have been updated to either return a full Alter, or set `data` to null when there is no alter to return.
 - [x] Fixes Bug with API server SQL in PUT method.
+- [x] To allow for multiple alters, new DB Migration added (0014), which addresses this bug.
 
 # 0.1.0+0419262121
 
