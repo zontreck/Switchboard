@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
-import 'package:libac_dart/utils/Hashing.dart';
 import 'package:switchboard/dart/storage.dart';
 
 class SBRegisterPage extends StatefulWidget {

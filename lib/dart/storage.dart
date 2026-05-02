@@ -1,5 +1,4 @@
 import 'package:dio/dio.dart';
-import 'package:libac_dart/nbt/impl/ListTag.dart';
 import 'package:libac_dart/utils/Hashing.dart';
 import 'package:libac_dart/utils/TimeUtils.dart';
 import 'package:libac_dart/utils/uuid/UUID.dart';
@@ -731,6 +730,28 @@ class Alter {
       parent: UUID.parse(js['parent']),
       flags: js['flags'],
     );
+  }
+
+  /**
+ * This helper function determines if the proper URL is to the Switchboard CDN, or a external network.
+ */
+  String getAvatarURL() {
+    String url = avatarUrl.startsWith("http")
+        ? avatarUrl
+        : "${getAPIServerURL()}/avatar/${id.toString()}";
+
+    return url;
+  }
+
+  /**
+ * This helper function determines if the proper URL is to the Switchboard CDN, or a external network.
+ */
+  static String makeAvatarURL(String input) {
+    String url = input.startsWith("http")
+        ? input
+        : "${getAPIServerURL()}/avatar/${input}";
+
+    return url;
   }
 }
 

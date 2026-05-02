@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:libac_dart/utils/uuid/UUID.dart';
+import 'package:switchboard/dart/MemoryState.dart';
+import 'package:switchboard/dart/storage.dart';
 
 class AlterWidget extends StatelessWidget {
   bool flush = false;
@@ -32,29 +33,70 @@ class AlterWidget extends StatelessWidget {
 
       child: Row(
         children: [
-          flush
-              ? Image.network(
-                  "https://api.systemswitchboard.com/avatar/${alterID.toString()}",
-                  width: 75,
-                )
-              : Padding(
-                  padding: EdgeInsetsGeometry.all(
-                    (squarePics && !flush) ? 8 : 2,
-                  ),
-                  child: Card(
-                    elevation: 8,
-                    shape: squarePics ? BoxBorder.all() : null,
-                    margin: squarePics ? EdgeInsets.zero : null,
-                    child: Image.network(
-                      "https://api.systemswitchboard.com/avatar/${alterID.toString()}",
-                      width: 75,
-                    ),
-                  ),
-                ),
+          AlterImage(
+            squarePics: squarePics,
+            flush: flush,
+            alterID: alterID,
+            url: Alter.makeAvatarURL("null"),
+          ),
           SizedBox(width: 8),
           Text(alterName, style: TextStyle(fontSize: 22, color: textColor)),
         ],
       ),
     );
+  }
+}
+
+class AlterImage extends StatelessWidget {
+  bool squarePics;
+  bool flush;
+  UUID alterID;
+  double? width;
+  double? height;
+  String url;
+
+  AlterImage({
+    required this.squarePics,
+    required this.flush,
+    required this.alterID,
+    required this.url,
+    this.width = 75,
+    this.height = null,
+  });
+  factory AlterImage.defaults({
+    double? height = null,
+    double? width,
+    required Alter alter,
+  }) {
+    MemoryState ms = MemoryState();
+    return AlterImage(
+      squarePics: ms.squarePicture,
+      flush: ms.flushPictures,
+      alterID: alter.id,
+      url: alter.getAvatarURL(),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return flush
+        ? Image.network(
+            "https://api.systemswitchboard.com/avatar/${alterID.toString()}",
+            width: width,
+            height: height,
+          )
+        : Padding(
+            padding: EdgeInsetsGeometry.all((squarePics && !flush) ? 8 : 2),
+            child: Card(
+              elevation: 8,
+              shape: squarePics ? BoxBorder.all() : null,
+              margin: squarePics ? EdgeInsets.zero : null,
+              child: Image.network(
+                "https://api.systemswitchboard.com/avatar/${alterID.toString()}",
+                width: width,
+                height: height,
+              ),
+            ),
+          );
   }
 }

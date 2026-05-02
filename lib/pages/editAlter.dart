@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:libac_dart/utils/uuid/UUID.dart';
 import 'package:switchboard/dart/privacyPolicy.dart';
 import 'package:switchboard/dart/storage.dart';
+import 'package:switchboard/pages/elements.dart';
 
 class EditAlterPage extends StatefulWidget {
+  const EditAlterPage({super.key});
+
   @override
   State<StatefulWidget> createState() {
     return _editAlter();
@@ -13,6 +15,7 @@ class EditAlterPage extends StatefulWidget {
 
 class _editAlter extends State<EditAlterPage> {
   UUID alterId = UUID.ZERO;
+  TextEditingController alterNameController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -21,6 +24,11 @@ class _editAlter extends State<EditAlterPage> {
 
     return Scaffold(
       appBar: AppBar(title: Text("Switchboard - Edit Alter")),
+      floatingActionButton: ElevatedButton.icon(
+        onPressed: () {},
+        label: Text("Save"),
+        icon: Icon(Icons.done_outline_rounded),
+      ),
       body: Padding(
         padding: EdgeInsetsGeometry.all(8),
         child: SingleChildScrollView(
@@ -31,16 +39,31 @@ class _editAlter extends State<EditAlterPage> {
                 return CircularProgressIndicator();
               } else {
                 Alter alter = snapshot.data!.data!;
-
-                String avatarUrl = alter.avatarUrl.startsWith("http")
-                    ? alter.avatarUrl
-                    : "${getAPIServerURL()}/avatar/${alter.id.toString()}";
+                alterNameController.text = alter.name;
 
                 return Column(
                   children: [
                     Text(alter.name, style: TextStyle(fontSize: 22)),
                     Divider(),
-                    Center(child: Image.network(avatarUrl, scale: 20)),
+                    Center(
+                      child: InkWell(
+                        child: AlterImage.defaults(
+                          alter: alter,
+                          width: 25,
+                          height: 25,
+                        ),
+                        onTap: () {},
+                      ),
+                    ),
+                    Text("ID: ${alter.id}"),
+                    SizedBox(height: 25),
+                    TextField(
+                      controller: alterNameController,
+                      decoration: InputDecoration(
+                        hintText: "Alter Name",
+                        border: OutlineInputBorder(),
+                      ),
+                    ),
                   ],
                 );
 

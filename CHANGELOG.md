@@ -12,6 +12,7 @@
 - [x] `/alter/{id}`: `PUT`, `DELETE` and `PATCH` methods have been updated to either return a full Alter, or set `data` to null when there is no alter to return.
 - [x] Fixes Bug with API server SQL in PUT method.
 - [x] To allow for multiple alters, new DB Migration added (0014), which addresses this bug.
+- [x] Adjust the app description in `pubspec.yaml`
 
 # 0.1.0+0419262121
 

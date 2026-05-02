@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 
 class SBAboutPage extends StatelessWidget {
   const SBAboutPage({super.key});
