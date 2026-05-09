@@ -4,6 +4,8 @@
 
 - [x] Implement the `/alters` endpoint in the app, so we can retrieve the list of alters.
 - [x] Handler for `/robots.txt` which returns a static DENY ALL response.
+- [x] `/cron` will now prune the audit log based on timestamp. Audit entries are deleted every 24 hours.
+- [x] Adding fields DB table. This will be for data fields like `Description`, or `Fav Color`
 
 ## FIX:
 

@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:libac_dart/utils/uuid/UUID.dart';
-import 'package:switchboard/dart/privacyPolicy.dart';
 import 'package:switchboard/dart/storage.dart';
 import 'package:switchboard/pages/elements.dart';
 

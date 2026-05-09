@@ -732,9 +732,7 @@ class Alter {
     );
   }
 
-  /**
- * This helper function determines if the proper URL is to the Switchboard CDN, or a external network.
- */
+  /// This helper function determines if the proper URL is to the Switchboard CDN, or a external network.
   String getAvatarURL() {
     String url = avatarUrl.startsWith("http")
         ? avatarUrl
@@ -743,13 +741,11 @@ class Alter {
     return url;
   }
 
-  /**
- * This helper function determines if the proper URL is to the Switchboard CDN, or a external network.
- */
+  /// This helper function determines if the proper URL is to the Switchboard CDN, or a external network.
   static String makeAvatarURL(String input) {
     String url = input.startsWith("http")
         ? input
-        : "${getAPIServerURL()}/avatar/${input}";
+        : "${getAPIServerURL()}/avatar/$input";
 
     return url;
   }

@@ -4,6 +4,17 @@ $DEBUG = true;
 
 $VERSION = "0.1.0+0425261018";
 
+$DEFAULT_USER_FIELDS = array(
+                            array(
+                                "Name" => "Description",
+                                "Type" => -1
+                            ),
+                            array(
+                                "Name" => "Color",
+                                "Type" => -2
+                            )
+                        );
+
 require_once("dbconfig.php");
 
 if(defined("MAINTENANCE")) {
@@ -258,6 +269,20 @@ switch($route) {
         header("Content-Type: text/plain");
         echo("System Switchboard Server v/$VERSION (PHP)\n> Cron task script invoked.\n\n");
 
+        echo("> Processing audit log prune...");
+        $DB = get_DB("switchboard");
+        // First, figure out the exact time for prune.
+        $oneDay = (60*60*24);
+        $yesterday = time()-$oneDay;
+        $pruneStmt = $DB->prepare("DELETE FROM `Audit` WHERE Timestamp < ?;");
+        $pruneStmt->bind_param("i", $yesterday);
+        $pruneStmt->execute();
+        $pruneResult = $pruneResult->get_result();
+        echo("\n> Pruned ".$pruneResult->num_rows." entries from audit log\n\n");
+        $pruneStmt->close();
+        $DB->commit();
+
+        $DB->close();
         die("Finished with all tasks"); // Currently, no task logic exists here.
         break;
     }
@@ -306,6 +331,16 @@ switch($route) {
 
                     $success=true;
                     $reason="User created";
+
+                    foreach ($DEFAULT_USER_FIELDS as $value) {
+                        // Create the default fields for the specified user.
+                        $fieldID = gen_uuid();
+                        $dfStmt = $DB->prepare("INSERT INTO Fields (User, ID, FieldName, FieldType) VALUES (?,?,?,?);");
+                        $dfStmt->bind_param("sssi", $userid, $fieldID, $value["Name"], $value["Type"]);
+                        $dfStmt->execute();
+                        $dfStmt->close();
+                        $DB->commit();
+                    }
 
                     $data = array(
                         "user" => $username,

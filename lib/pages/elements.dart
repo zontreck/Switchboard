@@ -56,15 +56,16 @@ class AlterImage extends StatelessWidget {
   String url;
 
   AlterImage({
+    super.key,
     required this.squarePics,
     required this.flush,
     required this.alterID,
     required this.url,
     this.width = 75,
-    this.height = null,
+    this.height,
   });
   factory AlterImage.defaults({
-    double? height = null,
+    double? height,
     double? width,
     required Alter alter,
   }) {
