@@ -2,7 +2,7 @@
 
 $DEBUG = true;
 
-$VERSION = "0.1.0+0425261018";
+$VERSION = "0.1.0+0509261042";
 
 $DEFAULT_USER_FIELDS = array(
                             array(
@@ -510,6 +510,7 @@ switch($route) {
                         "id" => $row['ID'],
                         "name" => $row['Name'],
                         "avatar_url" => $row['Avatar'],
+                        "fields" => base64_encode($row['Fields']), // This is a CompoundTag. We need to base64 encode for transport.
                         "subid" => $row['SubID'],
                         "parent" => $row['ParentID'],
                         "flags" => $row['Flags']
@@ -1063,6 +1064,7 @@ switch($route) {
                         "id" => $row['ID'],
                         "name" => $row['Name'],
                         "avatar_url" => $row['Avatar'],
+                        "fields" => base64_encode($row['Fields']), // CompoundTag binary.
                         "subid" => (int) $row['SubID'],
                         "parent" => $row['ParentID'],
                         "flags" => (int) $row['Flags']
@@ -1075,9 +1077,10 @@ switch($route) {
                     $alterId = gen_uuid();
 
                     $nFlags = 0;
+                    $fieldBinary = base64_decode($alter['fields']);
 
-                    $stmt = $DB->prepare("INSERT INTO Alters (User, ID, Name, Avatar, SubID, ParentID, Flags) VALUES (?, ?, ?, ?, ?, ?, ?);");
-                    $stmt->bind_param("ssssisi", $SBAuth->UserID, $alterId, $alter['name'], $alter['avatar'], $alter['subid'], $alter['parent'], $nFlags);
+                    $stmt = $DB->prepare("INSERT INTO Alters (User, ID, Name, Avatar, Fields, SubID, ParentID, Flags) VALUES (?, ?, ?, ?, ?, ?, ?, ?);");
+                    $stmt->bind_param("ssssbisi", $SBAuth->UserID, $alterId, $alter['name'], $alter['avatar'], $fieldBinary, $alter['subid'], $alter['parent'], $nFlags);
                     $stmt->execute();
                     $stmt->close();
 
@@ -1089,6 +1092,7 @@ switch($route) {
                         "user" => $SBAuth->UserID,
                         "name" => $alter['name'],
                         "avatar_url" => $alter['avatar'],
+                        "fields" => base64_encode($fieldBinary),
                         "subid" => (int) $alter['subid'],
                         "parent" => $alter['parent'],
                         "flags" => 0
@@ -1112,9 +1116,14 @@ switch($route) {
                 case "PATCH": {
                     // This endpoint takes parameters and updates the relevant sections in the alter's table. Everything except the user or id fields can be replaced.
                     $alter = $packet['alter'];
+                    if(in_array("fields", $alter)) {
+                        $fieldData = base64_decode($alter['fields']);
+                    }else {
+                        $fieldData = $row['Fields'];
+                    }
                     
-                    $stmt = $DB->prepare("REPLACE INTO Alters WHERE ID=? (User, ID, Name, Avatar, SubID, ParentID, Flags) VALUES (?, ?, ?, ?, ?, ?, ?);");
-                    $stmt->bind_param("sssssisi", $alterId, $SBAuth->UserID, $alterId, $alter['name'] ?? $row['Name'], $alter['avatar'] ?? $row['Avatar'], $alter['subid'] ?? $row['SubID'], $alter['parent'] ?? $row['ParentID'], $alter['flags'] ?? $row['Flags']);
+                    $stmt = $DB->prepare("REPLACE INTO Alters WHERE ID=? (User, ID, Name, Avatar, Fields, SubID, ParentID, Flags) VALUES (?, ?, ?, ?, ?, ?, ?, ?);");
+                    $stmt->bind_param("sssssbisi", $alterId, $SBAuth->UserID, $alterId, $alter['name'] ?? $row['Name'], $alter['avatar'] ?? $row['Avatar'], $fieldData, $alter['subid'] ?? $row['SubID'], $alter['parent'] ?? $row['ParentID'], $alter['flags'] ?? $row['Flags']);
                     $stmt->execute();
                     $stmt->close();
 
