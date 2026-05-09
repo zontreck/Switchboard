@@ -6,7 +6,7 @@ return function($conn) {
     $conn->query("ALTER TABLE `Fields` ADD PRIMARY KEY(`ID`);");
     $conn->query("ALTER TABLE `Fields` ADD FOREIGN KEY (`User`) REFERENCES `users`(`ID`) ON DELETE CASCADE ON UPDATE CASCADE;");
     $conn->query("ALTER TABLE `Fields` ADD INDEX(`User`);");
-    $conn->query("ALTER TABLE `Alters` ADD `Fields` BLOB NOT NULL AFTER `Avatar`;");
+    $conn->query("ALTER TABLE `Alters` ADD `Fields` BLOB NULL AFTER `Avatar`;");
 
     // Add default system fields to every user.
     $defFields = array(

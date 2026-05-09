@@ -15,6 +15,7 @@
 - [x] Fixes Bug with API server SQL in PUT method.
 - [x] To allow for multiple alters, new DB Migration added (0014), which addresses this bug.
 - [x] Adjust the app description in `pubspec.yaml`
+- [x] The migration was patched before going live for `0015`, The patch is because it would have failed, adding a NOT NULL with no default. We'll just handle for it being null in the alter endpoints.
 
 # 0.1.0+0419262121
 
