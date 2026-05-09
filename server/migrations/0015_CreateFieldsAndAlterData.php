@@ -21,7 +21,7 @@ return function($conn) {
     ); 
     // As default fields change, migrations will be performed. For every new user account, at the time of creation it will read the list of default fields at that point in time.
 
-    $res = $conn->query("SELECT * FROM Users;");
+    $res = $conn->query("SELECT * FROM users;");
     while($row = $res->fetch_assoc()) {
         foreach($defFields as $k) {
 
