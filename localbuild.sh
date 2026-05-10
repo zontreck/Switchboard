@@ -13,6 +13,7 @@ rm -rf outputs
 mkdir -pv outputs
 
 dart compile exe -o outputs/server-x86_64-linux bin/server.dart
+dart compile exe -o outputs/dlocto bin/backupOctocon.dart
 flutter build linux || true
 flutter build windows || true
 flutter build macos || true

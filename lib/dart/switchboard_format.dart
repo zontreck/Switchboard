@@ -6,8 +6,8 @@ import 'package:libac_dart/utils/uuid/UUID.dart';
 
 class SwitchboardUser {
   UUID userID = UUID.ZERO;
-  String description = "";
-  String avatarURL = "";
+  String? description = "";
+  String? avatarURL = "";
 
   Map<String, dynamic> toJson() {
     return {
@@ -20,8 +20,8 @@ class SwitchboardUser {
   CompoundTag toNBT() {
     CompoundTag ct = CompoundTag();
     NbtUtils.writeUUID(ct, "id", NbtUUID.fromUUID(userID));
-    ct.put("description", StringTag.valueOf(description));
-    ct.put("avatar", StringTag.valueOf(avatarURL));
+    ct.put("description", StringTag.valueOf(description ?? ""));
+    ct.put("avatar", StringTag.valueOf(avatarURL ?? ""));
 
     return ct;
   }

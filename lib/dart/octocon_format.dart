@@ -85,21 +85,6 @@ class OctoconData {
       "user": user.toJson(),
     };
   }
-
-  Future<void> commitToStorage() async {
-    MemoryState state = MemoryState();
-    SwitchboardUser usr = SwitchboardUser();
-    usr.userID = user.id;
-    usr.description = user.description;
-
-    Dio dio = Dio();
-    UUID imageId = UUID.generate(4);
-    String extension = user.avatarUrl.split('.').last;
-
-    dio.download(user.avatarUrl, "cdn/avatar/${imageId.toString()}.$extension");
-    usr.avatarURL =
-        "${getAPIServerURL()}/avatar/${imageId.toString()}.$extension";
-  }
 }
 
 class OctoAlterBuilder {
@@ -290,7 +275,7 @@ class OctoField {
 class OctoconFront {
   final UUID id;
   final String comment;
-  final DateTime timeEnd; // time_end
+  final DateTime? timeEnd; // time_end
   final int alterId; // alter_id
   final DateTime timeStart; // time_start
 
@@ -305,7 +290,13 @@ class OctoconFront {
   factory OctoconFront.fromJson(Map<String, dynamic> jsx) {
     UUID id = UUID.parse(jsx['id'] as String);
     String comment = jsx['comment'] as String;
-    DateTime end = DateTime.parse(jsx['time_end'] as String);
+    DateTime? end;
+    if (jsx.containsKey("time_end")) {
+      if (jsx['time_end'] == null)
+        end = null;
+      else
+        end = DateTime.parse(jsx['time_end'] as String);
+    }
     int alterId = jsx['alter_id'] as int;
     DateTime start;
     if (jsx['time_start'] == null) {
@@ -327,7 +318,7 @@ class OctoconFront {
     return {
       "id": id.toString(),
       "comment": comment,
-      "time_end": timeEnd.toIso8601String(),
+      "time_end": timeEnd?.toIso8601String() ?? null,
       "alter_id": alterId,
       "start": timeStart.toIso8601String(),
     };
@@ -336,10 +327,10 @@ class OctoconFront {
 
 class OctoconUser {
   final UUID id;
-  final String description;
+  final String? description;
   final List<OctoconField> fields;
-  final String username;
-  final String avatarUrl; // avatar_url
+  final String? username;
+  final String? avatarUrl; // avatar_url
 
   OctoconUser({
     required this.id,
@@ -361,10 +352,10 @@ class OctoconUser {
 
   factory OctoconUser.fromJson(Map<String, dynamic> jsx) {
     UUID id = UUID.parse(jsx['id'] as String);
-    String description = jsx['description'] as String;
+    String? description = jsx['description'];
     List<dynamic> fieldx = jsx['fields'] as List<dynamic>;
-    String username = jsx['username'] as String;
-    String avatarUrl = jsx['avatar_url'];
+    String? username = jsx['username'];
+    String? avatarUrl = jsx['avatar_url'];
 
     List<OctoconField> fields = [];
     for (var entry in fieldx) {
@@ -861,7 +852,13 @@ class OctoconTag {
     }
 
     if (jsx['alters'] != null) {
-      alters = jsx['alters'] as List<int>;
+      if ((jsx['alters'] as List<dynamic>).length == 0)
+        alters = [];
+      else {
+        for (int val in jsx['alters']) {
+          alters.add(val);
+        }
+      }
     }
 
     if (jsx['parent_tag_id'] != null) {

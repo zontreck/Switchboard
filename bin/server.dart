@@ -104,7 +104,7 @@ Future<int> main(List<String> args) async {
     OctoconData data = OctoconData.fromJson(dataJs);
 
     print(">> SAVING USER DATA TO PERSISTENT STORAGE");
-    await data.commitToStorage();
+    //await data.commitToStorage();
   }
 
   state.flushTimer!.cancel();
