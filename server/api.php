@@ -2,7 +2,7 @@
 
 $DEBUG = true;
 
-$VERSION = "0.1.0+0509261409";
+$VERSION = "0.1.0+0512261128";
 
 $DEFAULT_USER_FIELDS = array(
                             array(
@@ -305,7 +305,11 @@ switch($route) {
             case "PUT": {
                 if($username) {
                     // Check for an existing user.
-                    $R = $DB->query("SELECT * FROM users where UserName='".$username."';");
+                    $stmt = $DB->prepare("SELECT * FROM users WHERE UserName=?;");
+                    $stmt->bind_param("s", $username);
+                    $stmt->execute();
+                    $R = $stmt->get_result();
+                    
                     if($R->num_rows != 0) {
                         $success=false;
                         $reason = "User exists";
@@ -360,7 +364,10 @@ switch($route) {
             case "GET": {
                 if($username) {
                     // Fetch user info
-                    $resp = $DB->query("SELECT * FROM users WHERE UserName='".$username."';");
+                    $fetchStmt = $DB->prepare("SELECT * FROM users WHERE UserName=?;");
+                    $fetchStmt->bind_param("s", $username);
+                    $fetchStmt->execute();
+                    $resp = $fetchStmt->get_result();
 
                     if($resp->num_rows == 0) {
                         $success = false;
@@ -368,7 +375,25 @@ switch($route) {
                         break;
                     }
                     $row = $resp->fetch_assoc();
-                    $alters = $DB->query("SELECT * FROM Alters WHERE User='".$row['ID']."';");
+                    $alterFetch = $DB->prepare("SELECT * FROM Alters WHERE User=?;");
+                    $alterFetch->bind_param("s", $row['ID']);
+                    $alterFetch->execute();
+                    $alters = $alterFetch->get_result();
+
+
+                    $fieldsFetch = $DB->prepare("SELECT * FROM Fields WHERE User=?;");
+                    $fieldsFetch->bind_param("s", $row['ID']);
+                    $fieldsFetch->execute();
+                    $fields = $fieldsFetch->get_result();
+
+                    $fieldData = array();
+                    while($fRow = $fields->fetch_assoc()) {
+                        array_push($fieldData, array(
+                            "id" => $fRow['ID'],
+                            "type" => $fRow['FieldType'],
+                            "name" => $fRow['FieldName']
+                        ));
+                    }
 
                     $alterCount=0;
                     while($aRow = $alters->fetch_assoc()) {
@@ -397,7 +422,8 @@ switch($route) {
                             "user" => $row['UserName'],
                             "displayName" => $row['UserName'],
                             "alter_count" => 0, // This is hard coded for level 100, privacy enabled administrator. Additionally, the success flag is set to false for a level 100 user, to inform the client app to abort trying to look up this user any further. When the admin goes to login, it uses a different packet flow. This is the public facing insecure API.
-                            "level" => $row['AccountLevel']
+                            "level" => $row['AccountLevel'],
+                            "fields" => array()
                         );
                         break;
                     }
@@ -407,7 +433,8 @@ switch($route) {
                         "displayName" => $row['DisplayName'],
                         "alter_count" => $alterCount,
                         "level" => $row['AccountLevel'],
-                        "id" => $row['ID']
+                        "id" => $row['ID'],
+                        "fields" => $fieldData
                     );
 
                 } else {
@@ -1140,6 +1167,36 @@ switch($route) {
             }
         }
         
+
+
+        die(json_encode(array(
+            "success" => $success,
+            "path" => $route,
+            "type" => $request,
+            "reason" => $reason,
+            "id" => $ID,
+            "data" => $data
+        )));
+        break;
+    }
+
+    case "/fields": {
+        $DB = get_DB("switchboard");
+        $stmt = $DB->prepare("SELECT * FROM Fields WHERE User=?;");
+        $stmt->bind_param("s", $AuthReply->UserID);
+        $success=true;
+        $stmt->execute();
+        $res = $stmt->get_result();
+
+        $data = array();
+
+        while($row = $res->fetch_assoc()) {
+            array_push($data, array(
+                "id" => $row['ID'],
+                "name" => $row['FieldName'],
+                "type" => $row['FieldType']
+            ));
+        }
 
 
         die(json_encode(array(

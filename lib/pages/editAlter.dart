@@ -24,7 +24,7 @@ class _editAlter extends State<EditAlterPage> {
     return Scaffold(
       appBar: AppBar(title: Text("Switchboard - Edit Alter")),
       floatingActionButton: ElevatedButton.icon(
-        onPressed: () {},
+        onPressed: () async {},
         label: Text("Save"),
         icon: Icon(Icons.done_outline_rounded),
       ),
@@ -65,8 +65,6 @@ class _editAlter extends State<EditAlterPage> {
                     ),
                   ],
                 );
-
-                setState(() {});
               }
             },
           ),
