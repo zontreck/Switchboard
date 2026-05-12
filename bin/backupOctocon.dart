@@ -12,7 +12,7 @@ Future<int> main(List<String> args) async {
   }
   File handle = File(file);
 
-  print("> Reading octocon export located in file: ${file}\n");
+  print("> Reading octocon export located in file: $file\n");
 
   String rawContents = await handle.readAsString();
   OctoconData data = OctoconData.fromJson(rawContents);

@@ -1,10 +1,6 @@
 import 'dart:convert';
 
-import 'package:dio/dio.dart';
 import 'package:libac_dart/utils/uuid/UUID.dart';
-import 'package:switchboard/dart/MemoryState.dart';
-import 'package:switchboard/dart/privacyPolicy.dart';
-import 'package:switchboard/dart/switchboard_format.dart';
 
 class OctoconData {
   /// Alter List
@@ -292,10 +288,11 @@ class OctoconFront {
     String comment = jsx['comment'] as String;
     DateTime? end;
     if (jsx.containsKey("time_end")) {
-      if (jsx['time_end'] == null)
+      if (jsx['time_end'] == null) {
         end = null;
-      else
+      } else {
         end = DateTime.parse(jsx['time_end'] as String);
+      }
     }
     int alterId = jsx['alter_id'] as int;
     DateTime start;
@@ -318,7 +315,7 @@ class OctoconFront {
     return {
       "id": id.toString(),
       "comment": comment,
-      "time_end": timeEnd?.toIso8601String() ?? null,
+      "time_end": timeEnd?.toIso8601String(),
       "alter_id": alterId,
       "start": timeStart.toIso8601String(),
     };
@@ -852,9 +849,9 @@ class OctoconTag {
     }
 
     if (jsx['alters'] != null) {
-      if ((jsx['alters'] as List<dynamic>).length == 0)
+      if ((jsx['alters'] as List<dynamic>).isEmpty) {
         alters = [];
-      else {
+      } else {
         for (int val in jsx['alters']) {
           alters.add(val);
         }
