@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:libac_dart/nbt/NbtUtils.dart';
 import 'package:libac_dart/nbt/impl/CompoundTag.dart';
 import 'package:libac_dart/nbt/impl/IntArrayTag.dart';
+import 'package:libac_dart/nbt/impl/StringTag.dart';
 
 class MemoryState {
   static final MemoryState _state = MemoryState._init();
@@ -30,6 +31,9 @@ class MemoryState {
   bool flushPictures = true;
   bool roundedBorder = true;
   bool squarePicture = false;
+  bool rememberMe = false;
+  String username = "";
+  String password = "";
 
   int AlterBackgroundAlpha = 255;
   int AlterBackgroundRed = 90;
@@ -121,6 +125,14 @@ class MemoryState {
       NavUnSelGreen = 105;
       NavUnSelBlue = 105;
     }
+
+    if (ct.containsKey("rememberMe")) {
+      rememberMe = NbtUtils.readBoolean(ct, "rememberMe");
+      if (rememberMe) {
+        username = ct.get("username")!.asString();
+        password = ct.get("password")!.asString();
+      }
+    }
   }
 
   CompoundTag serialize() {
@@ -184,6 +196,12 @@ class MemoryState {
       ]);
 
       ct.put("navUnSelColor", iat);
+    }
+
+    NbtUtils.writeBoolean(ct, "rememberMe", rememberMe);
+    if (rememberMe) {
+      ct.put("username", StringTag.valueOf(username));
+      ct.put("password", StringTag.valueOf(password));
     }
 
     return ct;

@@ -15,11 +15,18 @@ class SBLoginPage extends StatefulWidget {
 class _loginState extends State<SBLoginPage> {
   TextEditingController usernameController = TextEditingController();
   TextEditingController passwordController = TextEditingController();
+  MemoryState ms = MemoryState();
 
   _loginState();
 
   @override
   void didChangeDependencies() {
+    tryAuthToken();
+
+    super.didChangeDependencies();
+  }
+
+  Future<void> tryAuthToken() async {
     // try to load or refresh the authentication
     getAuthToken().then((S) async {
       if (S == "") {
@@ -27,6 +34,46 @@ class _loginState extends State<SBLoginPage> {
 
         await getAppSettings();
         setState(() {});
+
+        if (ms.rememberMe) {
+          // Obtain a new authentication token. Prefill the username and password fields with garbage.
+          usernameController.text = "***********";
+          passwordController.text = "************";
+          setState(() {});
+
+          S2CAuthenticationResponse auth = await NetworkInterface.authenticate(
+            ms.username,
+            ms.password,
+          );
+          if (!auth.success) {
+            // password changed?
+            // erase remembered settings, show snackbar Alert
+            ScaffoldMessenger.of(context).showMaterialBanner(
+              MaterialBanner(
+                content: Text(
+                  "ALERT: Login failed. The stored username and password were denied by the server. If you believe this is an error, please contact the administrator. To try again, fully close and reopen the app.\nRequest ID: ${auth.id}",
+                ),
+                actions: [
+                  IconButton(
+                    onPressed: () {
+                      Navigator.pop(context);
+                    },
+                    icon: Icon(Icons.close),
+                  ),
+                ],
+              ),
+            );
+
+            usernameController.text = "";
+            passwordController.text = "";
+            setState(() {});
+          } else {
+            ms.authenticationToken = auth.data.token!;
+            await setAuthToken(ms.authenticationToken);
+
+            tryAuthToken();
+          }
+        }
       } else {
         usernameController.text = "******";
         passwordController.text = "************";
@@ -51,8 +98,6 @@ class _loginState extends State<SBLoginPage> {
         Navigator.pushReplacementNamed(context, "/account");
       }
     });
-
-    super.didChangeDependencies();
   }
 
   @override
@@ -137,6 +182,62 @@ class _loginState extends State<SBLoginPage> {
                 ),
                 obscureText: true,
               ),
+              SizedBox(height: 16),
+              CheckboxListTile(
+                value: ms.rememberMe,
+                title: Text("Remember Me"),
+                subtitle: Text(
+                  "Remembers your username and password to sign you in automatically.\n(DANGEROUS)",
+                ),
+                onChanged: (B) async {
+                  if (B == null || ms.rememberMe) {
+                    ms.rememberMe = false;
+                    ms.username = "";
+                    ms.password = "";
+
+                    await setAppSettings(ms.serialize());
+
+                    setState(() {});
+                  } else {
+                    var reply = await showDialog(
+                      context: context,
+                      builder: (BLDR) {
+                        return AlertDialog(
+                          title: Text("Are you sure?"),
+                          content: Text(
+                            "This action will reduce the security level of the app considerably, as your username will be saved, and so will the password. We strongly advise you not to do this. However, it is your choice.\nNOTE: The app already tries to remember you. It does save your authentication token. The token expires every 24 hours, but if you open the app every 12 hours or so, it is not a issue.\n\n**NOTE: We may add a background service in the future to automatically refresh the token without user interaction.",
+                          ),
+                          actions: [
+                            ElevatedButton(
+                              onPressed: () {
+                                Navigator.pop(context, false);
+                              },
+                              child: Text("No"),
+                            ),
+                            ElevatedButton(
+                              onPressed: () async {
+                                Navigator.pop(context, true);
+                              },
+                              child: Text("Yes"),
+                            ),
+                          ],
+                        );
+                      },
+                    );
+                    bool A = false;
+
+                    if (reply == null) {
+                      A = false;
+                    } else {
+                      A = reply as bool;
+                    }
+                    ms.rememberMe = A;
+                    setAppSettings(ms.serialize());
+
+                    setState(() {});
+                  }
+                },
+              ),
             ],
           ),
         ),
@@ -163,6 +264,10 @@ class _loginState extends State<SBLoginPage> {
           } else {
             MemoryState ms = MemoryState();
             ms.authenticationToken = authReply.data.token!;
+            if (ms.rememberMe) {
+              ms.username = usernameController.text;
+              ms.password = passwordController.text;
+            }
 
             await setAuthToken(ms.authenticationToken);
 
