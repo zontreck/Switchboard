@@ -8,6 +8,8 @@
 - [x] Adding fields DB table. This will be for data fields like `Description`, or `Fav Color`
 - [x] CLI utility for downloading octocon avatar images before sunset of servers.
 - [x] Inadvisable remember me function.
+- [x] Implement `/fields` endpoint, returns all custom fields, and system fields.
+- [x] Implement `/field/uuid` endpoint. Allows fetching one field, deleting fields, and creation of fields.
 
 ## FIX:
 
@@ -19,6 +21,7 @@
 - [x] Adjust the app description in `pubspec.yaml`
 - [x] The migration was patched before going live for `0015`, The patch is because it would have failed, adding a NOT NULL with no default. We'll just handle for it being null in the alter endpoints.
 - [x] Secured the `/user/` endpoint against SQL injection.
+- [x] `/user` will now return a `fields` object in the response, containing all the user's fields.
 
 # 0.1.0+0419262121
 

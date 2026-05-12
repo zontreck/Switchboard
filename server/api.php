@@ -2,7 +2,7 @@
 
 $DEBUG = true;
 
-$VERSION = "0.1.0+0512261128";
+$VERSION = "0.1.0+0512261255";
 
 $DEFAULT_USER_FIELDS = array(
                             array(
@@ -1181,22 +1181,32 @@ switch($route) {
     }
 
     case "/fields": {
-        $DB = get_DB("switchboard");
-        $stmt = $DB->prepare("SELECT * FROM Fields WHERE User=?;");
-        $stmt->bind_param("s", $AuthReply->UserID);
-        $success=true;
-        $stmt->execute();
-        $res = $stmt->get_result();
 
-        $data = array();
+        $AuthHeader = get_Authorization();
+        $AuthReply = ValidateSAT($AuthHeader);
 
-        while($row = $res->fetch_assoc()) {
-            array_push($data, array(
-                "id" => $row['ID'],
-                "name" => $row['FieldName'],
-                "type" => $row['FieldType']
-            ));
+        if(!$AuthReply->Success) {
+            $success=false;
+            $reason = "Not Logged In";
+        } else {
+            $DB = get_DB("switchboard");
+            $stmt = $DB->prepare("SELECT * FROM Fields WHERE User=?;");
+            $stmt->bind_param("s", $AuthReply->UserID);
+            $success=true;
+            $stmt->execute();
+            $res = $stmt->get_result();
+
+            $data = array();
+
+            while($row = $res->fetch_assoc()) {
+                array_push($data, array(
+                    "id" => $row['ID'],
+                    "name" => $row['FieldName'],
+                    "type" => $row['FieldType']
+                ));
+            }
         }
+        
 
 
         die(json_encode(array(
@@ -1205,6 +1215,142 @@ switch($route) {
             "type" => $request,
             "reason" => $reason,
             "id" => $ID,
+            "data" => $data
+        )));
+        break;
+    }
+
+    case preg_match('#^/field(?:/([^/]+))?$#', $route, $matches) === 1: {
+        $success=true;
+        $DB = get_DB("switchboard");
+        $packet = json_decode(file_get_contents("php://input"), true);
+        $field = matches[1] ?? null;
+        $data = array();
+
+
+        $AuthHeader = get_Authorization();
+        $AuthReply = ValidateSAT($AuthHeader);
+        if(!$AuthReply->Success) {
+            $success=false;
+            $reason = "Not Logged In";
+        }else {
+
+            if($field == null) {
+                $success=  false;
+                $reason = "Field must not be null";
+            } else {
+                switch($request) {
+                    case "GET": {
+                        // Retrieve the field for the current user.
+                        // Retrieving for a different user requires using the /user/{id} endpoint.
+                        $stmt = $DB->prepare("SELECT * FROM Fields WHERE User=? AND ID=?;");
+                        $stmt->bind_param("ss", $AuthReply->UserID, $field);
+                        $stmt->execute();
+                        $res = $stmt->get_result();
+                        $row = $res->fetch_assoc();
+                        $data = array(
+                            "id" => $row['ID'],
+                            "type" => $row['FieldType'],
+                            "name" => $row['FieldName']
+                        );
+                        $stmt->close();
+                        break;
+                    }
+                    case "DELETE": {
+                        // Delete the field for the current user, if the field is not a system field.
+                        $stmt = $DB->prepare("SELECT * FROM Fields WHERE User=? AND ID=?;");
+                        $stmt->bind_param("ss", $AuthReply->UserID, $field);
+                        $stmt->execute();
+                        $res = $stmt->get_result();
+                        $row = $res->fetch_assoc();
+
+                        if($row['FieldType'] <= 0) {
+                            // System Row.
+                            $success = false;
+                            $reason = "Cannot delete a system field. It is required for proper functionality.";
+                        } else {
+                            $stmt = $DB->prepare("DELETE FROM Fields WHERE User=? AND ID=?;");
+                            $stmt->bind_param("ss", $AuthReply->UserID, $field);
+                            $stmt->execute();
+                            $stmt->close();
+                            $DB->commit();
+
+                            $success=true;
+                            $reason = "Field Deleted";
+                        }
+
+                        die(json_encode(array(
+                            "id" => $ID,
+                            "path" => $route,
+                            "type" => $request,
+                            "reason" => $reason,
+                            "success" => $success
+                        )));
+                        break;
+                    }
+
+                    case "POST": {
+
+                        if($field == "new") {
+                            $field = gen_uuid();
+                        } else {
+                            $newField = false;
+                        }
+                        
+                        // Update or add the field for the current user, if the field is not a system field.
+                        $stmt = $DB->prepare("SELECT * FROM Fields WHERE User=? AND ID=?;");
+                        $stmt->bind_param("ss", $AuthReply->UserID, $field);
+                        $stmt->execute();
+                        $res = $stmt->get_result();
+                        if($res->num_rows == 0) {
+                            $newField = true;
+                        }else {
+                            $row = $res->fetch_assoc();
+                        }
+
+                        if(!$newField && $row['FieldType'] <= 0) {
+                            // System Row.
+                            $success = false;
+                            $reason = "Cannot add or update a system field. It is required for proper functionality.";
+                        } else {
+                            $stmt = $DB->prepare("REPLACE INTO Fields (User, ID, FieldName, FieldType) VALUES (?, ?, ?, ?);");
+                            $stmt->bind_param("sssi", $AuthReply->UserID, $field, $packet['name'], $packet['type']);
+                            $stmt->execute();
+                            $stmt->close();
+                            $DB->commit();
+
+                            $success=true;
+                            $reason = "Field Updated";
+
+                            $data = array(
+                                "id" => $field,
+                                "name" => $packet['name'],
+                                "type" => $packet['type']
+                            );
+                        }
+
+                        die(json_encode(array(
+                            "id" => $ID,
+                            "path" => $route,
+                            "type" => $request,
+                            "reason" => $reason,
+                            "success" => $success,
+                            "data" => $data
+                        )));
+                        break;
+                    }
+                }
+            }
+        }
+
+
+
+        die(json_encode(array(
+            "id" => $ID,
+            "success" => $success,
+            "reason" => $reason,
+            "path" => $route,
+            "type" => $request,
             "data" => $data
         )));
         break;
