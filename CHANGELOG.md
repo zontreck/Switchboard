@@ -23,6 +23,7 @@
 - [x] Secured the `/user/` endpoint against SQL injection.
 - [x] `/user` will now return a `fields` object in the response, containing all the user's fields.
 - [x] Simplify development API for Color serialization and deserialization.
+- [x] Fix handling of settings to now check for differences against the default settings.
 
 # 0.1.0+0419262121
 

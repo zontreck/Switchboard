@@ -4,6 +4,7 @@ import 'package:flutter_colorpicker/flutter_colorpicker.dart';
 import 'package:libac_dart/nbt/NbtIo.dart';
 import 'package:libac_dart/nbt/impl/CompoundTag.dart';
 import 'package:libac_dart/utils/uuid/UUID.dart';
+import 'package:libacflutter/Constants.dart';
 import 'package:switchboard/dart/MemoryState.dart';
 import 'package:switchboard/globalHelpers.dart';
 import 'package:switchboard/pages/elements.dart';
@@ -390,6 +391,25 @@ class _settings extends State<SettingsPage> {
                       );
                     },
                   );
+                },
+              ),
+
+              SizedBox(height: 50),
+              ListTile(
+                title: Text("L O G  O U T"),
+                subtitle: Text(
+                  "Immediately logs you out of the app. Remember me will also be turned off and invalidated.\ncurrent auth token: ${ms.authenticationToken}",
+                ),
+                tileColor: LibACFlutterConstants.TITLEBAR_COLOR,
+                onTap: () async {
+                  ms.rememberMe = false;
+                  ms.username = "";
+                  ms.password = "";
+                  ms.authenticationToken = "";
+
+                  await setAuthToken("");
+
+                  await Navigator.pushReplacementNamed(context, "/");
                 },
               ),
             ],

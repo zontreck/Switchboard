@@ -30,7 +30,7 @@ class MemoryState {
   Timer? flushTimer;
   bool terminating = false;
 
-  bool flushPictures = true;
+  bool flushPictures = false;
   bool roundedBorder = true;
   bool squarePicture = false;
   bool rememberMe = false;
@@ -50,7 +50,7 @@ class MemoryState {
     }
 
     if (ct.containsKey("roundedborder")) {
-      roundedBorder = true;
+      roundedBorder = false;
     } else {
       roundedBorder = _defaults.roundedBorder;
     }
@@ -105,9 +105,15 @@ class MemoryState {
   CompoundTag serialize() {
     CompoundTag ct = CompoundTag();
 
-    if (flushPictures) NbtUtils.writeBoolean(ct, "flush_avatars", true);
-    if (roundedBorder) NbtUtils.writeBoolean(ct, "roundedborder", true);
-    if (squarePicture) NbtUtils.writeBoolean(ct, "squarePicture", true);
+    if (flushPictures != _defaults.flushPictures) {
+      NbtUtils.writeBoolean(ct, "flush_avatars", true);
+    }
+    if (roundedBorder != _defaults.roundedBorder) {
+      NbtUtils.writeBoolean(ct, "roundedborder", true);
+    }
+    if (squarePicture != _defaults.squarePicture) {
+      NbtUtils.writeBoolean(ct, "squarePicture", true);
+    }
 
     if (!identicalColors(
       AlterBackgroundColor,
