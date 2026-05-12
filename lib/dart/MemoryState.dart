@@ -4,9 +4,11 @@ import 'package:libac_dart/nbt/NbtUtils.dart';
 import 'package:libac_dart/nbt/impl/CompoundTag.dart';
 import 'package:libac_dart/nbt/impl/IntArrayTag.dart';
 import 'package:libac_dart/nbt/impl/StringTag.dart';
+import 'package:switchboard/globalHelpers.dart';
 
 class MemoryState {
   static final MemoryState _state = MemoryState._init();
+  static final MemoryState _defaults = MemoryState._init();
 
   factory MemoryState() {
     return _state;
@@ -35,95 +37,56 @@ class MemoryState {
   String username = "";
   String password = "";
 
-  int AlterBackgroundAlpha = 255;
-  int AlterBackgroundRed = 90;
-  int AlterBackgroundBlue = 90;
-  int AlterBackgroundGreen = 90;
-
-  int AlterTextAlpha = 179;
-  int AlterTextRed = 255;
-  int AlterTextGreen = 255;
-  int AlterTextBlue = 255;
-
-  int NavSelAlpha = 255;
-  int NavSelRed = 0;
-  int NavSelGreen = 183;
-  int NavSelBlue = 255;
-
-  int NavUnSelAlpha = 255;
-  int NavUnSelRed = 105;
-  int NavUnSelGreen = 105;
-  int NavUnSelBlue = 105;
+  List<int> AlterBackgroundColor = [255, 90, 90, 90];
+  List<int> AlterTextColor = [179, 255, 255, 255];
+  List<int> NavSelColor = [255, 0, 183, 255];
+  List<int> NavUnSelColor = [255, 105, 105, 205];
 
   void deserialize(CompoundTag ct) {
     if (ct.containsKey("flush_avatars")) {
       flushPictures = true;
     } else {
-      flushPictures = false;
+      flushPictures = _defaults.flushPictures;
     }
 
     if (ct.containsKey("roundedborder")) {
       roundedBorder = true;
     } else {
-      roundedBorder = false;
+      roundedBorder = _defaults.roundedBorder;
     }
 
     if (ct.containsKey("squarePicture")) {
       squarePicture = true;
     } else {
-      squarePicture = false;
+      _defaults.squarePicture;
     }
 
     if (ct.containsKey("alterBackground")) {
       List<int> iat = ct.get("alterBackground")!.asIntArray();
-      AlterBackgroundAlpha = iat[0];
-      AlterBackgroundRed = iat[1];
-      AlterBackgroundGreen = iat[2];
-      AlterBackgroundBlue = iat[3];
+      AlterBackgroundColor = iat;
     } else {
-      AlterBackgroundAlpha = 255;
-      AlterBackgroundBlue = 90;
-      AlterBackgroundGreen = 90;
-      AlterBackgroundRed = 90;
+      AlterBackgroundColor = _defaults.AlterBackgroundColor;
     }
 
     if (ct.containsKey("alterText")) {
       List<int> iat = ct.get("alterText")!.asIntArray();
-      AlterTextAlpha = iat[0];
-      AlterTextRed = iat[1];
-      AlterTextGreen = iat[2];
-      AlterTextBlue = iat[3];
+      AlterTextColor = iat;
     } else {
-      AlterTextAlpha = 179;
-      AlterTextRed = 255;
-      AlterTextGreen = 255;
-      AlterTextBlue = 255;
+      AlterTextColor = _defaults.AlterTextColor;
     }
 
     if (ct.containsKey("navSelColor")) {
       List<int> iat = ct.get("navSelColor")!.asIntArray();
-      NavSelAlpha = iat[0];
-      NavSelRed = iat[1];
-      NavSelGreen = iat[2];
-      NavSelBlue = iat[3];
+      NavSelColor = iat;
     } else {
-      NavSelAlpha = 255;
-      NavSelRed = 0;
-      NavSelGreen = 183;
-      NavSelBlue = 255;
+      NavSelColor = _defaults.NavSelColor;
     }
 
     if (ct.containsKey("navUnSelColor")) {
       List<int> iat = ct.get("navUnSelColor")!.asIntArray();
-      NavUnSelAlpha = iat[0];
-      NavUnSelRed = iat[1];
-      NavUnSelGreen = iat[2];
-      NavUnSelBlue = iat[3];
+      NavUnSelColor = iat;
     } else {
-      NavUnSelAlpha = 255;
-      NavUnSelRed = 105;
-      NavUnSelGreen = 105;
-      NavUnSelBlue = 105;
+      NavUnSelColor = _defaults.NavUnSelColor;
     }
 
     if (ct.containsKey("rememberMe")) {
@@ -132,6 +95,10 @@ class MemoryState {
         username = ct.get("username")!.asString();
         password = ct.get("password")!.asString();
       }
+    } else {
+      username = "";
+      password = "";
+      rememberMe = false;
     }
   }
 
@@ -142,58 +109,28 @@ class MemoryState {
     if (roundedBorder) NbtUtils.writeBoolean(ct, "roundedborder", true);
     if (squarePicture) NbtUtils.writeBoolean(ct, "squarePicture", true);
 
-    if (AlterBackgroundAlpha != 255 ||
-        AlterBackgroundRed != 90 ||
-        AlterBackgroundGreen != 90 ||
-        AlterBackgroundBlue != 90) {
-      IntArrayTag iat = IntArrayTag.valueOf([
-        AlterBackgroundAlpha,
-        AlterBackgroundRed,
-        AlterBackgroundGreen,
-        AlterBackgroundBlue,
-      ]);
-
+    if (!identicalColors(
+      AlterBackgroundColor,
+      _defaults.AlterBackgroundColor,
+    )) {
+      IntArrayTag iat = IntArrayTag.valueOf(AlterBackgroundColor);
       ct.put("alterBackground", iat);
     }
 
-    if (AlterTextAlpha != 179 ||
-        AlterTextRed != 90 ||
-        AlterTextGreen != 90 ||
-        AlterTextBlue != 90) {
-      IntArrayTag iat = IntArrayTag.valueOf([
-        AlterTextAlpha,
-        AlterTextRed,
-        AlterTextGreen,
-        AlterTextBlue,
-      ]);
+    if (!identicalColors(AlterTextColor, _defaults.AlterTextColor)) {
+      IntArrayTag iat = IntArrayTag.valueOf(AlterTextColor);
 
       ct.put("alterText", iat);
     }
 
-    if (NavSelAlpha != 255 ||
-        NavSelRed != 0 ||
-        NavSelGreen != 183 ||
-        NavSelBlue != 255) {
-      IntArrayTag iat = IntArrayTag.valueOf([
-        NavSelAlpha,
-        NavSelRed,
-        NavSelGreen,
-        NavSelBlue,
-      ]);
+    if (!identicalColors(NavSelColor, _defaults.NavSelColor)) {
+      IntArrayTag iat = IntArrayTag.valueOf(NavSelColor);
 
       ct.put("navSelColor", iat);
     }
 
-    if (NavUnSelAlpha != 255 ||
-        NavUnSelRed != 105 ||
-        NavUnSelGreen != 105 ||
-        NavUnSelBlue != 105) {
-      IntArrayTag iat = IntArrayTag.valueOf([
-        NavUnSelAlpha,
-        NavUnSelRed,
-        NavUnSelGreen,
-        NavUnSelBlue,
-      ]);
+    if (!identicalColors(NavUnSelColor, _defaults.NavUnSelColor)) {
+      IntArrayTag iat = IntArrayTag.valueOf(NavUnSelColor);
 
       ct.put("navUnSelColor", iat);
     }

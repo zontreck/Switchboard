@@ -64,82 +64,73 @@ Future<void> getAppSettings() async {
   ms.deserialize(ct);
 }
 
+List<int> Color2List(Color b) {
+  List<int> color = [];
+
+  color.add((b.a.clamp(0.0, 1.0) * 255).round());
+  color.add((b.r.clamp(0.0, 1.0) * 255).round());
+  color.add((b.g.clamp(0.0, 1.0) * 255).round());
+  color.add((b.b.clamp(0.0, 1.0) * 255).round());
+
+  return color;
+}
+
+Color ColorFromList(List<int> b) {
+  return Color.fromARGB(b[0], b[1], b[2], b[3]);
+}
+
+bool identicalColors(List<int> a, List<int> b) {
+  if (a[0] != b[0] || a[1] != b[1] || a[2] != b[2] || a[3] != b[3]) {
+    return false;
+  } else {
+    return true;
+  }
+}
+
 Color getAlterBackgroundColor() {
   MemoryState ms = MemoryState();
-  return Color.fromARGB(
-    ms.AlterBackgroundAlpha,
-    ms.AlterBackgroundRed,
-    ms.AlterBackgroundGreen,
-    ms.AlterBackgroundBlue,
-  );
+  return ColorFromList(ms.AlterBackgroundColor);
 }
 
 Future<void> setAlterBackgroundColor(Color b) async {
   MemoryState ms = MemoryState();
-  ms.AlterBackgroundAlpha = (b.a.clamp(0.0, 1.0) * 255).round();
-  ms.AlterBackgroundRed = (b.r.clamp(0.0, 1.0) * 255).round();
-  ms.AlterBackgroundGreen = (b.g.clamp(0.0, 1.0) * 255).round();
-  ms.AlterBackgroundBlue = (b.b.clamp(0.0, 1.0) * 255).round();
+  ms.AlterBackgroundColor = Color2List(b);
 
   await setAppSettings(ms.serialize());
 }
 
 Color getAlterTextColor() {
   MemoryState ms = MemoryState();
-  return Color.fromARGB(
-    ms.AlterTextAlpha,
-    ms.AlterTextRed,
-    ms.AlterTextGreen,
-    ms.AlterTextBlue,
-  );
+  return ColorFromList(ms.AlterTextColor);
 }
 
 Future<void> setAlterTextColor(Color b) async {
   MemoryState ms = MemoryState();
-  ms.AlterTextAlpha = (b.a.clamp(0.0, 1.0) * 255).round();
-  ms.AlterTextRed = (b.r.clamp(0.0, 1.0) * 255).round();
-  ms.AlterTextGreen = (b.g.clamp(0.0, 1.0) * 255).round();
-  ms.AlterTextBlue = (b.b.clamp(0.0, 1.0) * 255).round();
+  ms.AlterTextColor = Color2List(b);
 
   await setAppSettings(ms.serialize());
 }
 
 Color getNavSelColor() {
   MemoryState ms = MemoryState();
-  return Color.fromARGB(
-    ms.NavSelAlpha,
-    ms.NavSelRed,
-    ms.NavSelGreen,
-    ms.NavSelBlue,
-  );
+  return ColorFromList(ms.NavSelColor);
 }
 
 Future<void> setNavSelColor(Color b) async {
   MemoryState ms = MemoryState();
-  ms.NavSelAlpha = (b.a.clamp(0.0, 1.0) * 255).round();
-  ms.NavSelRed = (b.r.clamp(0.0, 1.0) * 255).round();
-  ms.NavSelGreen = (b.g.clamp(0.0, 1.0) * 255).round();
-  ms.NavSelBlue = (b.b.clamp(0.0, 1.0) * 255).round();
+  ms.NavSelColor = Color2List(b);
 
   await setAppSettings(ms.serialize());
 }
 
 Color getNavUnselColor() {
   MemoryState ms = MemoryState();
-  return Color.fromARGB(
-    ms.NavUnSelAlpha,
-    ms.NavUnSelRed,
-    ms.NavUnSelGreen,
-    ms.NavUnSelBlue,
-  );
+  return ColorFromList(ms.NavUnSelColor);
 }
 
 Future<void> setNavUnselColor(Color b) async {
   MemoryState ms = MemoryState();
-  ms.NavUnSelAlpha = (b.a.clamp(0.0, 1.0) * 255).round();
-  ms.NavUnSelRed = (b.r.clamp(0.0, 1.0) * 255).round();
-  ms.NavUnSelGreen = (b.g.clamp(0.0, 1.0) * 255).round();
-  ms.NavUnSelBlue = (b.b.clamp(0.0, 1.0) * 255).round();
+  ms.NavUnSelColor = Color2List(b);
 
   await setAppSettings(ms.serialize());
 }

@@ -22,6 +22,7 @@
 - [x] The migration was patched before going live for `0015`, The patch is because it would have failed, adding a NOT NULL with no default. We'll just handle for it being null in the alter endpoints.
 - [x] Secured the `/user/` endpoint against SQL injection.
 - [x] `/user` will now return a `fields` object in the response, containing all the user's fields.
+- [x] Simplify development API for Color serialization and deserialization.
 
 # 0.1.0+0419262121
 
