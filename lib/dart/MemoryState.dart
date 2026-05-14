@@ -4,7 +4,7 @@ import 'package:libac_dart/nbt/NbtUtils.dart';
 import 'package:libac_dart/nbt/impl/CompoundTag.dart';
 import 'package:libac_dart/nbt/impl/IntArrayTag.dart';
 import 'package:libac_dart/nbt/impl/StringTag.dart';
-import 'package:switchboard/globalHelpers.dart';
+import 'package:switchboard/dart/globalHelpers.dart';
 
 class MemoryState {
   static final MemoryState _state = MemoryState._init();

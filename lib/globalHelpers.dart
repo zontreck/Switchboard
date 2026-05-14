@@ -79,14 +79,6 @@ Color ColorFromList(List<int> b) {
   return Color.fromARGB(b[0], b[1], b[2], b[3]);
 }
 
-bool identicalColors(List<int> a, List<int> b) {
-  if (a[0] != b[0] || a[1] != b[1] || a[2] != b[2] || a[3] != b[3]) {
-    return false;
-  } else {
-    return true;
-  }
-}
-
 Color getAlterBackgroundColor() {
   MemoryState ms = MemoryState();
   return ColorFromList(ms.AlterBackgroundColor);
