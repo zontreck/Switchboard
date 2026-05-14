@@ -97,6 +97,9 @@ pipeline {
                 dir ("build/windows/x64/runner/Release") {
                     bat "tar -cvf ../../../../../outputs/windows.tgz ."
                 }
+
+                bat "dart compile exe -o outputs/server-x86_64-win.exe bin/server.dart"
+                bat "dart compile exe -o outputs/dlocto.exe bin/backupOctocon.dart"
             }
 
             post {
