@@ -129,7 +129,7 @@ class FieldWidget extends StatelessWidget {
       color: backgroundColor,
 
       child: SizedBox(
-        height: 75,
+        height: field.type.value() < 0 ? 95 : 75,
         child: ListTile(
           leading: Icon(Icons.edit),
           title: Text(
@@ -138,6 +138,9 @@ class FieldWidget extends StatelessWidget {
           ),
           onTap: onTap,
           trailing: enableReorder ? Icon(Icons.menu) : null,
+          subtitle: Text(
+            "Order: ${field.order}${field.type.value() < 0 ? "\n(REQUIRED FIELD)" : ""}",
+          ),
         ),
       ),
     );

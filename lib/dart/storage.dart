@@ -14,7 +14,7 @@ class NetworkInterface {
     dio.options.contentType = "application/json";
     var reply = await dio.get("${getAPIServerURL()}/version");
 
-    return S2CServerVersionPacket.deserialize(reply.data);
+    return S2CServerVersionPacket.decode(reply.data);
   }
 
   static Future<S2CUserPacket> putNewUser(
@@ -173,6 +173,24 @@ class NetworkInterface {
     var reply = await dio.get("${getAPIServerURL()}/fields");
     return S2CFieldsResponse.fromJson(reply.data);
   }
+
+  static Future<S2CFieldResponse> updateField(Field field) async {
+    // Construct a packet to update the field!
+    Map<String, dynamic> payload = field.toJson();
+    Dio dio = Dio();
+    MemoryState ms = MemoryState();
+
+    dio.options.headers["Content-Type"] = "application/json";
+    dio.options.headers["X-SB-Auth"] = ms.authenticationToken;
+
+    var reply = await dio.post(
+      "${getAPIServerURL()}/field/${field.id.toString()}",
+      data: payload,
+    );
+    S2CFieldResponse sfr = S2CFieldResponse.decode(reply.data);
+
+    return sfr;
+  }
 }
 
 abstract class ResponsePacket {
@@ -181,6 +199,63 @@ abstract class ResponsePacket {
   late String type;
   late String? reason;
   late bool success;
+}
+
+class S2CLazyResponse implements ResponsePacket {
+  @override
+  UUID id;
+
+  @override
+  String path;
+
+  @override
+  String? reason;
+
+  @override
+  bool success;
+
+  @override
+  String type;
+
+  S2CLazyResponse({
+    required this.id,
+    required this.path,
+    required this.reason,
+    required this.success,
+    required this.type,
+  });
+
+  factory S2CLazyResponse.decode(Map<String, dynamic> js) {
+    S2CLazyResponse lz = S2CLazyResponse(
+      id: UUID.ZERO,
+      path: "",
+      reason: "reason",
+      success: false,
+      type: "",
+    );
+
+    lz._decode(js);
+
+    return lz;
+  }
+
+  void _decode(Map<String, dynamic> js) {
+    id = UUID.parse(js['id'] ?? UUID.ZERO.toString());
+    path = js['path'];
+    reason = js['reason'];
+    success = js['success'];
+    type = js['type'];
+  }
+
+  Map<String, dynamic> encode() {
+    return {
+      "id": id,
+      "path": path,
+      "success": success,
+      "reason": reason,
+      "type": type,
+    };
+  }
 }
 
 class ServerVersion {
@@ -201,62 +276,46 @@ class ServerVersion {
   }
 }
 
-class S2CServerVersionPacket implements ResponsePacket {
+class S2CServerVersionPacket extends S2CLazyResponse {
   ServerVersion data;
-
-  @override
-  UUID id;
-
-  @override
-  String path;
-
-  @override
-  String? reason;
-
-  @override
-  bool success;
-
-  @override
-  String type;
 
   S2CServerVersionPacket({
     required this.data,
-    required this.id,
-    required this.path,
-    required this.reason,
-    required this.success,
-    required this.type,
+    required super.id,
+    required super.path,
+    required super.reason,
+    required super.success,
+    required super.type,
   });
 
-  factory S2CServerVersionPacket.deserialize(Map<String, dynamic> js) {
-    if (!js.containsKey("reason")) {
-      throw InvalidServerResponseException(
-        reason:
-            "The server response does not conform to the standard server packet response",
-      );
-    }
-
-    return S2CServerVersionPacket(
-      path: js['path'] ?? "",
-      type: js['type'] ?? "",
-      reason: js['reason'] ?? "",
-      success: js['success'] ?? false,
-      data: ServerVersion.deserialize(
-        js['data'] ?? {"product": "null", "version": "null"},
-      ),
-      id: UUID.parse(js['id'] ?? UUID.ZERO.toString()),
+  @override
+  void _decode(Map<String, dynamic> js) {
+    super._decode(js);
+    data = ServerVersion.deserialize(
+      js['data'] ?? {"product": "null", "version": "null"},
     );
   }
 
+  factory S2CServerVersionPacket.decode(Map<String, dynamic> js) {
+    S2CServerVersionPacket svp = S2CServerVersionPacket(
+      data: ServerVersion(product: "", version: "version"),
+      id: UUID.ZERO,
+      path: "path",
+      reason: "",
+      success: false,
+      type: "type",
+    );
+    svp._decode(js);
+
+    return svp;
+  }
+
+  @override
   Map<String, dynamic> encode() {
-    return {
-      "id": id,
-      "type": type,
-      "path": path,
-      "reason": reason,
-      "success": success,
-      "data": data.encode(),
-    };
+    Map<String, dynamic> enc = super.encode();
+
+    enc.addAll({"data": data.encode()});
+    return enc;
   }
 }
 
@@ -731,19 +790,31 @@ class Field {
   UUID id;
   String name;
   FieldType type;
+  int order;
 
-  Field({required this.id, required this.name, required this.type});
+  Field({
+    required this.id,
+    required this.name,
+    required this.type,
+    required this.order,
+  });
 
   Map<String, dynamic> toJson() {
-    return {"id": id.toString(), "name": name, "type": type.value()};
+    return {
+      "id": id.toString(),
+      "name": name,
+      "type": type.value(),
+      "order": order,
+    };
   }
 
   factory Field.fromJson(Map<String, dynamic> js) {
     UUID id = UUID.parse(js['id']);
     String name = js['name'];
     FieldType type = FieldType.valueOf(js['type']);
+    int order = js['order'] ?? 0;
 
-    return Field(id: id, name: name, type: type);
+    return Field(id: id, name: name, type: type, order: order);
   }
 }
 
@@ -933,5 +1004,54 @@ class S2CAlterResponse implements ResponsePacket {
       type: js['type'],
       data: Alter.decode(js['data'] ?? {}),
     );
+  }
+}
+
+class S2CFieldResponse extends S2CLazyResponse {
+  Field data;
+
+  S2CFieldResponse({
+    required super.id,
+    required super.path,
+    required super.reason,
+    required super.success,
+    required super.type,
+    required this.data,
+  });
+
+  @override
+  void _decode(Map<String, dynamic> js) {
+    super._decode(js);
+
+    data = Field.fromJson(js['data']);
+  }
+
+  @override
+  Map<String, dynamic> encode() {
+    Map<String, dynamic> enc = super.encode();
+
+    enc.addAll({"data": data.toJson()});
+
+    return enc;
+  }
+
+  factory S2CFieldResponse.decode(Map<String, dynamic> js) {
+    S2CFieldResponse sfr = S2CFieldResponse(
+      id: UUID.ZERO,
+      path: "path",
+      reason: "reason",
+      success: false,
+      type: "type",
+      data: Field(
+        id: UUID.ZERO,
+        name: "name",
+        type: FieldType.Unknown,
+        order: 0,
+      ),
+    );
+
+    sfr._decode(js);
+
+    return sfr;
   }
 }
