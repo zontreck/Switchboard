@@ -2,7 +2,7 @@
 
 $DEBUG = true;
 
-$VERSION = "0.1.0+0514261005";
+$VERSION = "0.1.0+0514261337";
 
 $DEFAULT_USER_FIELDS = array(
                             array(
@@ -1314,27 +1314,24 @@ switch($route) {
                             $row = $res->fetch_assoc();
                         }
 
-                        if(!$newField && $row['FieldType'] <= 0) {
-                            // System Row.
-                            $success = false;
-                            $reason = "Cannot add or update a system field. It is required for proper functionality.";
-                        } else {
-                            $stmt = $DB->prepare("REPLACE INTO Fields (User, ID, FieldName, FieldType, SortOrder) VALUES (?, ?, ?, ?, ?);");
-                            $stmt->bind_param("sssi", $AuthReply->UserID, $field, $packet['name'], $packet['type'], $packet['order']);
-                            $stmt->execute();
-                            $stmt->close();
-                            $DB->commit();
+                        if($row['FieldType'] < 0) $packet['type'] = $row['FieldType'];
 
-                            $success=true;
-                            $reason = "Field Updated";
+                        $stmt = $DB->prepare("REPLACE INTO Fields (User, ID, FieldName, FieldType, SortOrder) VALUES (?, ?, ?, ?, ?);");
+                        $stmt->bind_param("sssi", $AuthReply->UserID, $field, $packet['name'], $packet['type'], $packet['order']);
+                        $stmt->execute();
+                        $stmt->close();
+                        $DB->commit();
 
-                            $data = array(
-                                "id" => $field,
-                                "name" => $packet['name'],
-                                "type" => $packet['type'],
-                                "order" => $packet['order']
-                            );
-                        }
+                        $success=true;
+                        $reason = "Field Updated";
+
+                        $data = array(
+                            "id" => $field,
+                            "name" => $packet['name'],
+                            "type" => $packet['type'],
+                            "order" => $packet['order']
+                        );
+                        
 
                         die(json_encode(array(
                             "id" => $ID,
