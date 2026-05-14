@@ -1,6 +1,4 @@
 import 'package:dio/dio.dart';
-import 'package:libac_dart/nbt/NbtUtils.dart';
-import 'package:libac_dart/nbt/impl/CompoundTag.dart';
 import 'package:libac_dart/utils/Hashing.dart';
 import 'package:libac_dart/utils/TimeUtils.dart';
 import 'package:libac_dart/utils/uuid/UUID.dart';
@@ -713,7 +711,7 @@ enum FieldType {
   Color(-2),
   Unknown(-9999);
 
-  const FieldType(int type) : this._type = type;
+  const FieldType(int type) : _type = type;
 
   final int _type;
 
@@ -794,10 +792,11 @@ class S2CFieldsResponse implements ResponsePacket {
   }
 
   factory S2CFieldsResponse.fromJson(Map<String, dynamic> js) {
-    if (!js.containsKey("path"))
-      throw new InvalidServerResponseException(
+    if (!js.containsKey("path")) {
+      throw InvalidServerResponseException(
         reason: "Response is not properly formatted",
       );
+    }
 
     List<Field> fieldList = [];
     for (var entry in js['data']) {
