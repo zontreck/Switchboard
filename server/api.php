@@ -2,16 +2,18 @@
 
 $DEBUG = true;
 
-$VERSION = "0.1.0+0513262242";
+$VERSION = "0.1.0+0513262248";
 
 $DEFAULT_USER_FIELDS = array(
                             array(
                                 "Name" => "Description",
-                                "Type" => -1
+                                "Type" => -1,
+                                "Order" => 0
                             ),
                             array(
                                 "Name" => "Color",
-                                "Type" => -2
+                                "Type" => -2,
+                                "Order" => 1
                             )
                         );
 
@@ -339,8 +341,8 @@ switch($route) {
                     foreach ($DEFAULT_USER_FIELDS as $value) {
                         // Create the default fields for the specified user.
                         $fieldID = gen_uuid();
-                        $dfStmt = $DB->prepare("INSERT INTO Fields (User, ID, FieldName, FieldType) VALUES (?,?,?,?);");
-                        $dfStmt->bind_param("sssi", $userid, $fieldID, $value["Name"], $value["Type"]);
+                        $dfStmt = $DB->prepare("INSERT INTO Fields (User, ID, FieldName, FieldType, Order) VALUES (?,?,?,?, ?);");
+                        $dfStmt->bind_param("sssi", $userid, $fieldID, $value["Name"], $value["Type"], $value["Order"]);
                         $dfStmt->execute();
                         $dfStmt->close();
                         $DB->commit();
@@ -351,7 +353,8 @@ switch($route) {
                         "displayName" => $username,
                         "alter_count" => 0,
                         "level" => 1,
-                        "id" => $userid
+                        "id" => $userid,
+                        "fields" => null // I am lazy, and do not feel like iterating over this. We'll just have the user send a request.
                     );
                 } else {
                     // Handle error: username missing
@@ -391,7 +394,8 @@ switch($route) {
                         array_push($fieldData, array(
                             "id" => $fRow['ID'],
                             "type" => $fRow['FieldType'],
-                            "name" => $fRow['FieldName']
+                            "name" => $fRow['FieldName'],
+                            "order" => $fRow['Order']
                         ));
                     }
 
@@ -1202,7 +1206,8 @@ switch($route) {
                 array_push($data, array(
                     "id" => $row['ID'],
                     "name" => $row['FieldName'],
-                    "type" => $row['FieldType']
+                    "type" => $row['FieldType'],
+                    "order" => $row['Order']
                 ));
             }
         }
@@ -1251,7 +1256,8 @@ switch($route) {
                         $data = array(
                             "id" => $row['ID'],
                             "type" => $row['FieldType'],
-                            "name" => $row['FieldName']
+                            "name" => $row['FieldName'],
+                            "order" => $row['Order']
                         );
                         $stmt->close();
                         break;
@@ -1313,8 +1319,8 @@ switch($route) {
                             $success = false;
                             $reason = "Cannot add or update a system field. It is required for proper functionality.";
                         } else {
-                            $stmt = $DB->prepare("REPLACE INTO Fields (User, ID, FieldName, FieldType) VALUES (?, ?, ?, ?);");
-                            $stmt->bind_param("sssi", $AuthReply->UserID, $field, $packet['name'], $packet['type']);
+                            $stmt = $DB->prepare("REPLACE INTO Fields (User, ID, FieldName, FieldType, Order) VALUES (?, ?, ?, ?, ?);");
+                            $stmt->bind_param("sssi", $AuthReply->UserID, $field, $packet['name'], $packet['type'], $packet['order']);
                             $stmt->execute();
                             $stmt->close();
                             $DB->commit();
@@ -1325,7 +1331,8 @@ switch($route) {
                             $data = array(
                                 "id" => $field,
                                 "name" => $packet['name'],
-                                "type" => $packet['type']
+                                "type" => $packet['type'],
+                                "order" => $packet['order']
                             );
                         }
 
