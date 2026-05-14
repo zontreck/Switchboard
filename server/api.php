@@ -2,7 +2,7 @@
 
 $DEBUG = true;
 
-$VERSION = "0.1.0+0514261337";
+$VERSION = "0.1.0+0514261505";
 
 $DEFAULT_USER_FIELDS = array(
                             array(
@@ -1317,7 +1317,7 @@ switch($route) {
                         if($row['FieldType'] < 0) $packet['type'] = $row['FieldType'];
 
                         $stmt = $DB->prepare("REPLACE INTO Fields (User, ID, FieldName, FieldType, SortOrder) VALUES (?, ?, ?, ?, ?);");
-                        $stmt->bind_param("sssi", $AuthReply->UserID, $field, $packet['name'], $packet['type'], $packet['order']);
+                        $stmt->bind_param("sssii", $AuthReply->UserID, $field, $packet['name'], $packet['type'], $packet['order']);
                         $stmt->execute();
                         $stmt->close();
                         $DB->commit();
