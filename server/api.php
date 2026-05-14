@@ -2,7 +2,7 @@
 
 $DEBUG = true;
 
-$VERSION = "0.1.0+0514260805";
+$VERSION = "0.1.0+0514261005";
 
 $DEFAULT_USER_FIELDS = array(
                             array(
@@ -1229,7 +1229,7 @@ switch($route) {
         $success=true;
         $DB = get_DB("switchboard");
         $packet = json_decode(file_get_contents("php://input"), true);
-        $field = matches[1] ?? null;
+        $field = $matches[1] ?? null;
         $data = array();
 
 
