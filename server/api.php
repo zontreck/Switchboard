@@ -2,7 +2,7 @@
 
 $DEBUG = true;
 
-$VERSION = "0.1.0+0514260725";
+$VERSION = "0.1.0+0514260805";
 
 $DEFAULT_USER_FIELDS = array(
                             array(
@@ -395,7 +395,7 @@ switch($route) {
                             "id" => $fRow['ID'],
                             "type" => $fRow['FieldType'],
                             "name" => $fRow['FieldName'],
-                            "order" => $fRow['Order']
+                            "order" => $fRow['SortOrder']
                         ));
                     }
 
@@ -1207,7 +1207,7 @@ switch($route) {
                     "id" => $row['ID'],
                     "name" => $row['FieldName'],
                     "type" => $row['FieldType'],
-                    "order" => $row['Order']
+                    "order" => $row['SortOrder']
                 ));
             }
         }
@@ -1257,7 +1257,7 @@ switch($route) {
                             "id" => $row['ID'],
                             "type" => $row['FieldType'],
                             "name" => $row['FieldName'],
-                            "order" => $row['Order']
+                            "order" => $row['SortOrder']
                         );
                         $stmt->close();
                         break;
@@ -1319,7 +1319,7 @@ switch($route) {
                             $success = false;
                             $reason = "Cannot add or update a system field. It is required for proper functionality.";
                         } else {
-                            $stmt = $DB->prepare("REPLACE INTO Fields (User, ID, FieldName, FieldType, Order) VALUES (?, ?, ?, ?, ?);");
+                            $stmt = $DB->prepare("REPLACE INTO Fields (User, ID, FieldName, FieldType, SortOrder) VALUES (?, ?, ?, ?, ?);");
                             $stmt->bind_param("sssi", $AuthReply->UserID, $field, $packet['name'], $packet['type'], $packet['order']);
                             $stmt->execute();
                             $stmt->close();
