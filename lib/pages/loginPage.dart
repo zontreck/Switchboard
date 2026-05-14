@@ -190,6 +190,8 @@ class _loginState extends State<SBLoginPage> {
                   "Remembers your username and password to sign you in automatically.\n(DANGEROUS)",
                 ),
                 onChanged: (B) async {
+                  FocusManager.instance.primaryFocus?.unfocus();
+
                   if (B == null || ms.rememberMe) {
                     ms.rememberMe = false;
                     ms.username = "";

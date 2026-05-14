@@ -1,4 +1,6 @@
 import 'package:dio/dio.dart';
+import 'package:libac_dart/nbt/NbtUtils.dart';
+import 'package:libac_dart/nbt/impl/CompoundTag.dart';
 import 'package:libac_dart/utils/Hashing.dart';
 import 'package:libac_dart/utils/TimeUtils.dart';
 import 'package:libac_dart/utils/uuid/UUID.dart';
@@ -162,6 +164,17 @@ class NetworkInterface {
     var reply = await dio.get("${getAPIServerURL()}/alter/${id.toString()}");
     return S2CAlterResponse.decode(reply.data);
   }
+
+  static Future<S2CFieldsResponse> getDataFields() async {
+    Dio dio = Dio();
+    MemoryState ms = MemoryState();
+
+    dio.options.headers["Content-Type"] = "application/json";
+    dio.options.headers["X-SB-Auth"] = ms.authenticationToken;
+
+    var reply = await dio.get("${getAPIServerURL()}/fields");
+    return S2CFieldsResponse.fromJson(reply.data);
+  }
 }
 
 abstract class ResponsePacket {
@@ -324,6 +337,7 @@ class User {
   int AccountLevel;
   int AlterCount;
   int FetchTime;
+  List<Field> Fields;
 
   User({
     required this.ID,
@@ -331,6 +345,7 @@ class User {
     required this.DisplayName,
     required this.AccountLevel,
     required this.AlterCount,
+    required this.Fields,
   }) : FetchTime = TimeUtils.getUnixTimestamp();
 
   factory User.deserialize(Map<String, dynamic> js) {
@@ -358,6 +373,13 @@ class User {
     if (js.containsKey("level")) {
       accountLevel = js['level'];
     }
+    List<Field> fields = [];
+    if (js.containsKey("fields")) {
+      List<dynamic> jsFields = js['fields'];
+      for (var field in jsFields) {
+        fields.add(Field.fromJson(field));
+      }
+    }
 
     return User(
       ID: idx,
@@ -365,6 +387,7 @@ class User {
       DisplayName: displayName,
       AccountLevel: accountLevel,
       AlterCount: alterCount,
+      Fields: fields,
     );
   }
 
@@ -682,6 +705,113 @@ class PartialAlters {
     }
 
     return PartialAlters(count: count, alters: alters);
+  }
+}
+
+enum FieldType {
+  Description(-1),
+  Color(-2),
+  Unknown(-9999);
+
+  const FieldType(int type) : this._type = type;
+
+  final int _type;
+
+  static FieldType valueOf(int type) {
+    if (Description._type == type) return Description;
+    if (Color._type == type) return Color;
+
+    return Unknown;
+  }
+
+  int value() {
+    return _type;
+  }
+}
+
+class Field {
+  UUID id;
+  String name;
+  FieldType type;
+
+  Field({required this.id, required this.name, required this.type});
+
+  Map<String, dynamic> toJson() {
+    return {"id": id.toString(), "name": name, "type": type.value()};
+  }
+
+  factory Field.fromJson(Map<String, dynamic> js) {
+    UUID id = UUID.parse(js['id']);
+    String name = js['name'];
+    FieldType type = FieldType.valueOf(js['type']);
+
+    return Field(id: id, name: name, type: type);
+  }
+}
+
+class S2CFieldsResponse implements ResponsePacket {
+  @override
+  UUID id;
+
+  @override
+  String path;
+
+  @override
+  String? reason;
+
+  @override
+  bool success;
+
+  @override
+  String type;
+
+  List<Field> data;
+
+  S2CFieldsResponse({
+    required this.id,
+    required this.path,
+    required this.reason,
+    required this.success,
+    required this.type,
+    required this.data,
+  });
+
+  Map<String, dynamic> toJson() {
+    List<Map<String, dynamic>> fieldJs = [];
+
+    for (var field in data) {
+      fieldJs.add(field.toJson());
+    }
+
+    return {
+      "id": id.toString(),
+      "path": path,
+      "reason": reason,
+      "success": success,
+      "type": type,
+      "data": fieldJs,
+    };
+  }
+
+  factory S2CFieldsResponse.fromJson(Map<String, dynamic> js) {
+    if (!js.containsKey("path"))
+      throw new InvalidServerResponseException(
+        reason: "Response is not properly formatted",
+      );
+
+    List<Field> fieldList = [];
+    for (var entry in js['data']) {
+      fieldList.add(Field.fromJson(entry));
+    }
+
+    return S2CFieldsResponse(
+      id: UUID.parse(js['id']),
+      path: js['path'],
+      reason: js['reason'],
+      success: js['success'],
+      type: js['type'],
+      data: fieldList,
+    );
   }
 }
 

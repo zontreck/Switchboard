@@ -101,3 +101,45 @@ class AlterImage extends StatelessWidget {
           );
   }
 }
+
+class FieldWidget extends StatelessWidget {
+  bool roundedElement = true;
+  Field field;
+  Color backgroundColor;
+  Color textColor;
+  Function() onTap;
+  bool enableReorder = false;
+
+  FieldWidget({
+    super.key,
+    required this.field,
+    required this.onTap,
+    this.roundedElement = true,
+    this.enableReorder = false,
+    this.backgroundColor = Colors.grey,
+    this.textColor = Colors.white70,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      elevation: 8,
+      shape: roundedElement ? null : BoxBorder.all(),
+      margin: roundedElement ? null : EdgeInsetsGeometry.zero,
+      color: backgroundColor,
+
+      child: SizedBox(
+        height: 75,
+        child: ListTile(
+          leading: Icon(Icons.edit),
+          title: Text(
+            field.name,
+            style: TextStyle(fontSize: 22, color: textColor),
+          ),
+          onTap: onTap,
+          trailing: enableReorder ? Icon(Icons.menu) : null,
+        ),
+      ),
+    );
+  }
+}

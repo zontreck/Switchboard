@@ -250,6 +250,19 @@ class _settings extends State<SettingsPage> {
                 ],
               ),
               ListTile(
+                title: Text("Edit Fields"),
+                tileColor: Colors.greenAccent,
+                textColor: Colors.black,
+                subtitle: Text(
+                  "Edit the fields that show up for each alter.\nYou can also rearrange the order in which they appear.",
+                ),
+                leading: Icon(Icons.edit_attributes, color: Colors.black),
+                onTap: () async {
+                  Navigator.pushNamed(context, "/account/settings/fields");
+                },
+              ),
+              Divider(height: 25),
+              ListTile(
                 title: Text("E X P O R T  A P P  T H E M E"),
                 leading: Icon(Icons.download_for_offline),
                 subtitle: Text(

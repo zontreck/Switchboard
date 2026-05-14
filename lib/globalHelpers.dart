@@ -48,7 +48,7 @@ Future<void> setAppSettings(CompoundTag ct) async {
   SharedPreferences prefs = await SharedPreferences.getInstance();
   String snbt = SnbtIo.writeToString(ct);
 
-  prefs.setString("settings", snbt);
+  await prefs.setString("settings", snbt);
   ms.deserialize(ct);
 
   //print("DEBUG: $snbt");
