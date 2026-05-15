@@ -94,6 +94,7 @@ class _editFields extends State<EditFieldsPage> {
     if (fields.isEmpty) {
       S2CFieldsResponse reply = await NetworkInterface.getDataFields();
       fields = reply.data;
+      fields.sort((a, b) => a.order.compareTo(b.order));
 
       await sanityCheckFields();
     }
@@ -156,6 +157,7 @@ class _editFields extends State<EditFieldsPage> {
     int index = 0;
     for (var field in fields) {
       field.order = index;
+      print("Set field ${field.id} to order ${field.order}");
 
       index++;
     }
