@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:libacflutter/Constants.dart';
+import 'package:libacflutter/Prompt.dart';
 import 'package:switchboard/dart/storage.dart';
 import 'package:switchboard/globalHelpers.dart';
 import 'package:switchboard/pages/elements.dart';
@@ -68,7 +70,33 @@ class _editFields extends State<EditFieldsPage> {
               label: Text("S A V E"),
             )
           : ElevatedButton.icon(
-              onPressed: () {},
+              onPressed: () async {
+                // Ask for the field name, then generate, and open the editor automatically.
+                InputPrompt ip = InputPrompt(
+                  title: "What is the field name?",
+                  prompt: "Please provide the name of the new field",
+                  type: InputPromptType.Text,
+                  successAction: (fieldName) async {
+                    S2CFieldResponse newField = await NetworkInterface.newField(
+                      fieldName,
+                    );
+                    // okay, now open the editor
+                    await sanityCheckFields();
+                    await save();
+                    fields.add(newField.data);
+
+                    await Navigator.pushNamed(
+                      context,
+                      "/account/settings/fields/edit",
+                      arguments: newField.data,
+                    );
+                    setState(() {
+                      fields = [];
+                    });
+                  },
+                );
+                await showDialog(context: context, builder: (bldr) => ip);
+              },
               icon: Icon(Icons.add),
               label: Text("N E W"),
             ),
@@ -106,6 +134,21 @@ class _editFields extends State<EditFieldsPage> {
           field: field,
           onTap: () async {
             // Perform actions
+            await sanityCheckFields();
+
+            if (_dirty) {
+              await save();
+            }
+
+            await Navigator.pushNamed(
+              context,
+              "/account/settings/fields/edit",
+              arguments: field,
+            );
+
+            setState(() {
+              fields = [];
+            });
           },
           backgroundColor: getAlterBackgroundColor(),
           textColor: getAlterTextColor(),
@@ -170,5 +213,156 @@ Widget getSampleWidgetByType(FieldType type) {
       {
         return Text("Unknown - Cannot generate sample");
       }
+  }
+}
+
+class EditField extends StatefulWidget {
+  @override
+  State<StatefulWidget> createState() {
+    return _editField();
+  }
+}
+
+class _editField extends State<EditField> {
+  Field? initialField;
+  TextEditingController fieldName = TextEditingController();
+  FieldType fieldType = FieldType.Unknown;
+
+  @override
+  void didChangeDependencies() {
+    // Check if this has already been run
+    if (initialField == null) {
+      initialField = ModalRoute.of(context)!.settings.arguments as Field;
+      fieldType = initialField!.type;
+      fieldName.text = initialField!.name;
+    }
+
+    super.didChangeDependencies();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text("Switchboard"),
+        bottom: PreferredSize(
+          preferredSize: Size.fromHeight(25),
+          child: Column(
+            children: [
+              Text(
+                "EDIT FIELD - ${fieldName.text}",
+                style: TextStyle(fontSize: 22),
+              ),
+              Divider(),
+            ],
+          ),
+        ),
+      ),
+      floatingActionButton: ElevatedButton.icon(
+        onPressed: () async {
+          // Upload the field to the server, and close the editor.
+          FocusManager.instance.primaryFocus?.unfocus();
+
+          initialField!.name = fieldName.text;
+          initialField!.type = fieldType;
+
+          setState(() {});
+          // Upload field
+
+          await NetworkInterface.updateField(initialField!);
+          Navigator.pop(context);
+        },
+        label: Text("S A V E  &  C L O S E"),
+        icon: Icon(Icons.save),
+      ),
+      body: Padding(
+        padding: EdgeInsetsGeometry.all(8),
+        child: SingleChildScrollView(
+          child: initialField == null
+              ? CircularProgressIndicator()
+              : Column(
+                  children: [
+                    FieldWidget(field: initialField!, onTap: () {}),
+
+                    Divider(height: 16),
+                    Container(
+                      alignment: AlignmentDirectional.centerStart,
+                      child: Column(
+                        children: [
+                          ListTile(
+                            title: Text(
+                              "Field ID",
+                              style: TextStyle(fontSize: 22),
+                            ),
+                            subtitle: Text(
+                              "${initialField!.id.toString()}",
+                              style: TextStyle(fontSize: 16),
+                            ),
+                          ),
+                          SizedBox(height: 22),
+                          ListTile(
+                            title: Text(
+                              "Field Name:",
+                              style: TextStyle(fontSize: 22),
+                            ),
+                          ),
+
+                          TextField(
+                            decoration: InputDecoration(
+                              border: OutlineInputBorder(),
+                              hintText: "Name of the Field",
+                            ),
+                            controller: fieldName,
+                          ),
+
+                          SizedBox(height: 22),
+
+                          // If this is a system field, we don't want to even give dropdown access, because the server will refuse to change the field type anyway.
+                          if (initialField!.type.value() < 0)
+                            ListTile(
+                              title: Text("REQUIRED SYSTEM FIELD"),
+                              subtitle: Text(
+                                "This is a required system field. The type cannot be changed.",
+                              ),
+                              tileColor: LibACFlutterConstants.TITLEBAR_COLOR,
+                            ),
+
+                          ListTile(
+                            title: Text(
+                              "Field Type:",
+                              style: TextStyle(fontSize: 22),
+                            ),
+                          ),
+                          FutureBuilder(
+                            future: getFieldMenuEntries(
+                              includeSystem: initialField!.type.value() < 0,
+                            ),
+                            builder: (bldr, snap) {
+                              if (!snap.hasData) {
+                                return CircularProgressIndicator();
+                              } else {
+                                return DropdownMenu(
+                                  dropdownMenuEntries:
+                                      snap.data
+                                          as List<DropdownMenuEntry<FieldType>>,
+                                  enabled: initialField!.type.value() >= 0,
+                                  initialSelection: fieldType,
+                                  expandedInsets: EdgeInsets.zero,
+                                  onSelected: (value) {
+                                    if (value == null) return;
+                                    fieldType = value;
+                                  },
+                                );
+                              }
+                            },
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+        ),
+      ),
+    );
   }
 }

@@ -411,7 +411,7 @@ class _settings extends State<SettingsPage> {
               ListTile(
                 title: Text("L O G  O U T"),
                 subtitle: Text(
-                  "Immediately logs you out of the app. Remember me will also be turned off and invalidated.\ncurrent auth token: ${ms.authenticationToken}",
+                  "Immediately logs you out of the app. Remember me will also be turned off and invalidated.",
                 ),
                 tileColor: LibACFlutterConstants.TITLEBAR_COLOR,
                 onTap: () async {
@@ -425,6 +425,8 @@ class _settings extends State<SettingsPage> {
                   await Navigator.pushReplacementNamed(context, "/");
                 },
               ),
+
+              SizedBox(height: 50),
             ],
           ),
         ),

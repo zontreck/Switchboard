@@ -146,3 +146,17 @@ class FieldWidget extends StatelessWidget {
     );
   }
 }
+
+Future<List<DropdownMenuEntry<FieldType>>> getFieldMenuEntries({
+  bool includeSystem = false,
+}) async {
+  List<DropdownMenuEntry<FieldType>> entries = [];
+  for (var val in FieldType.values) {
+    if (val != FieldType.Unknown) {
+      if (includeSystem || val.value() >= 0)
+        entries.add(DropdownMenuEntry(value: val, label: val.toString()));
+    }
+  }
+
+  return entries;
+}

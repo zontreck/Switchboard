@@ -10,6 +10,7 @@
 - [x] Inadvisable remember me function.
 - [x] Implement `/fields` endpoint, returns all custom fields, and system fields.
 - [x] Implement `/field/uuid` endpoint. Allows fetching one field, deleting fields, and creation of fields.
+- [x] Implement Edit Field page
 
 ## FIX:
 

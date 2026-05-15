@@ -191,6 +191,44 @@ class NetworkInterface {
 
     return sfr;
   }
+
+  static Future<S2CFieldResponse> getField(UUID fieldID) async {
+    Dio dio = Dio();
+    MemoryState ms = MemoryState();
+
+    dio.options.headers["Content-Type"] = "application/json";
+    dio.options.headers["X-SB-Auth"] = ms.authenticationToken;
+
+    var reply = await dio.get(
+      "${getAPIServerURL()}/field/${fieldID.toString()}",
+    );
+
+    S2CFieldResponse sfr = S2CFieldResponse.decode(reply.data);
+
+    return sfr;
+  }
+
+  static Future<S2CFieldResponse> newField(String name) async {
+    Dio dio = Dio();
+    MemoryState ms = MemoryState();
+
+    dio.options.headers["Content-Type"] = "application/json";
+    dio.options.headers["X-SB-Auth"] = ms.authenticationToken;
+
+    Field newField = Field(
+      id: UUID.ZERO,
+      name: name,
+      type: FieldType.Unknown,
+      order: 999,
+    );
+    var reply = await dio.post(
+      "${getAPIServerURL()}/field/new",
+      data: newField.toJson(),
+    );
+
+    S2CFieldResponse sfr = S2CFieldResponse.decode(reply.data);
+    return sfr;
+  }
 }
 
 abstract class ResponsePacket {
@@ -768,7 +806,9 @@ class PartialAlters {
 enum FieldType {
   Description(-1),
   Color(-2),
-  Unknown(-9999);
+  Unknown(-9999),
+  PlainText(0),
+  Markdown(1);
 
   const FieldType(int type) : _type = type;
 
@@ -783,6 +823,22 @@ enum FieldType {
 
   int value() {
     return _type;
+  }
+
+  @override
+  String toString() {
+    switch (this) {
+      case Description:
+        return "Description (Markdown)";
+      case Color:
+        return "Color";
+      case Unknown:
+        return "Unknown Type";
+      case PlainText:
+        return "Plain Text";
+      case Markdown:
+        return "Text (Markdown)";
+    }
   }
 }
 

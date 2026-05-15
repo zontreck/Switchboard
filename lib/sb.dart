@@ -24,6 +24,7 @@ class Switchboard extends StatelessWidget {
         "/account": (ctx) => AccountPage(),
         "/account/settings": (ctx) => SettingsPage(),
         "/account/settings/fields": (ctx) => EditFieldsPage(),
+        "/account/settings/fields/edit": (ctx) => EditField(),
         "/editAlter": (ctx) => EditAlterPage(),
       },
     );
