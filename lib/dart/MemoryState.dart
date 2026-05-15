@@ -36,6 +36,7 @@ class MemoryState {
   bool rememberMe = false;
   String username = "";
   String password = "";
+  String applicationVersion = "";
 
   List<int> AlterBackgroundColor = [255, 90, 90, 90];
   List<int> AlterTextColor = [179, 255, 255, 255];

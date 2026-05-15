@@ -251,7 +251,7 @@ class _settings extends State<SettingsPage> {
               ),
               ListTile(
                 title: Text("Edit Fields"),
-                tileColor: Colors.greenAccent,
+                tileColor: const Color.fromARGB(255, 119, 219, 255),
                 textColor: Colors.black,
                 subtitle: Text(
                   "Edit the fields that show up for each alter.\nYou can also rearrange the order in which they appear.",
@@ -264,11 +264,12 @@ class _settings extends State<SettingsPage> {
               Divider(height: 25),
               ListTile(
                 title: Text("E X P O R T  A P P  T H E M E"),
-                leading: Icon(Icons.download_for_offline),
+                leading: Icon(Icons.download_for_offline, color: Colors.black),
                 subtitle: Text(
                   "Export your app settings for safe-keeping, or to share with others.",
                 ),
-                tileColor: const Color.fromARGB(255, 119, 8, 0),
+                tileColor: const Color.fromARGB(255, 138, 222, 122),
+                textColor: Colors.black,
                 onTap: () async {
                   String data = await NbtIo.writeBase64StringCompressed(
                     ms.serialize(),
@@ -312,7 +313,7 @@ class _settings extends State<SettingsPage> {
                 title: Text("I M P O R T  A P P  T H E M E"),
                 leading: Icon(Icons.install_mobile),
                 subtitle: Text("Import a app theme, and apply it immediately!"),
-                tileColor: const Color.fromARGB(255, 0, 34, 144),
+                tileColor: const Color.fromARGB(255, 0, 148, 99),
                 onTap: () async {
                   // Display a prompt to obtain the base64 encoded settings.
                   await showDialog(
@@ -372,7 +373,7 @@ class _settings extends State<SettingsPage> {
                 title: Text("R E S E T  T O  D E F A U L T S"),
                 leading: Icon(Icons.restore_from_trash),
                 subtitle: Text("Reset all defaults for the app theme"),
-                tileColor: const Color.fromARGB(255, 148, 111, 0),
+                tileColor: const Color.fromARGB(255, 155, 80, 80),
                 onTap: () async {
                   await showDialog(
                     context: context,

@@ -28,6 +28,9 @@ class _loginState extends State<SBLoginPage> {
 
   Future<void> tryAuthToken() async {
     // try to load or refresh the authentication
+    MemoryState ms = MemoryState();
+    ms.applicationVersion = await SwitchboardConsts.getPackageVersion();
+
     getAuthToken().then((S) async {
       if (S == "") {
         // Not logged in, do nothing, just let the user log in.
@@ -122,7 +125,6 @@ class _loginState extends State<SBLoginPage> {
                         }
                       },
                     ),
-                    Text(""),
                   ],
                 ),
               ),
@@ -165,6 +167,19 @@ class _loginState extends State<SBLoginPage> {
               Text(
                 "You must login to Switchboard in order to use this application and service.\n\n* NOTE: Switchboard is not yet in a usable state. If you are currently testing, you will have been given login permissions by the development team. \n\nUntil the app is usable, we are making every effort to make it possible to migrate Ocotocon data as painlessly as possible.\n\n* Interested in joining the team? Message zontreck on Discord.",
               ),
+
+              FutureBuilder(
+                future: NetworkInterface.getServerVersion(),
+                builder: (bldr, snap) {
+                  if (!snap.hasData) {
+                    return CircularProgressIndicator();
+                  } else {
+                    return Text(
+                      "\nServer Version: ${snap.data!.data.product} / v${snap.data!.data.version}\nClient Version: ${ms.applicationVersion}",
+                    );
+                  }
+                },
+              ),
               Divider(),
               TextField(
                 controller: usernameController,
@@ -187,7 +202,7 @@ class _loginState extends State<SBLoginPage> {
                 value: ms.rememberMe,
                 title: Text("Remember Me"),
                 subtitle: Text(
-                  "Remembers your username and password to sign you in automatically.\n(DANGEROUS)",
+                  "Remembers your username and password to sign you in automatically.\n(Caution)",
                 ),
                 onChanged: (B) async {
                   FocusManager.instance.primaryFocus?.unfocus();
@@ -207,7 +222,7 @@ class _loginState extends State<SBLoginPage> {
                         return AlertDialog(
                           title: Text("Are you sure?"),
                           content: Text(
-                            "This action will reduce the security level of the app considerably, as your username will be saved, and so will the password. We strongly advise you not to do this. However, it is your choice.\nNOTE: The app already tries to remember you. It does save your authentication token. The token expires every 24 hours, but if you open the app every 12 hours or so, it is not a issue.\n\n**NOTE: We may add a background service in the future to automatically refresh the token without user interaction.",
+                            "This action will reduce the security level of the app considerably, as your username will be saved, and so will the password. We strongly advise you not to do this. If less privacy may be a security risk for you.\nNOTE: The app already tries to remember you. It does save your authentication token. The token expires every 24 hours, but if you open the app every 12 hours or so, it is not an issue.\n\n**NOTE: We may add a background service in the future to automatically refresh the token without user interaction.",
                           ),
                           actions: [
                             ElevatedButton(
