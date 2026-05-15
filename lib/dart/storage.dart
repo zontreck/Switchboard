@@ -171,6 +171,7 @@ class NetworkInterface {
     dio.options.headers["X-SB-Auth"] = ms.authenticationToken;
 
     var reply = await dio.get("${getAPIServerURL()}/fields");
+    print(reply.data);
     return S2CFieldsResponse.fromJson(reply.data);
   }
 
@@ -218,7 +219,7 @@ class NetworkInterface {
     Field newField = Field(
       id: UUID.ZERO,
       name: name,
-      type: FieldType.Unknown,
+      type: FieldType.PlainText,
       order: 999,
     );
     var reply = await dio.post(
@@ -817,6 +818,8 @@ enum FieldType {
   static FieldType valueOf(int type) {
     if (Description._type == type) return Description;
     if (Color._type == type) return Color;
+    if (PlainText._type == type) return PlainText;
+    if (Markdown._type == type) return Markdown;
 
     return Unknown;
   }

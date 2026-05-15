@@ -335,7 +335,7 @@ class _editField extends State<EditField> {
                           ),
                           FutureBuilder(
                             future: getFieldMenuEntries(
-                              includeSystem: initialField!.type.value() < 0,
+                              includeSystem: initialField!.type.value() <= -1,
                             ),
                             builder: (bldr, snap) {
                               if (!snap.hasData) {
