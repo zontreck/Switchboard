@@ -153,8 +153,9 @@ Future<List<DropdownMenuEntry<FieldType>>> getFieldMenuEntries({
   List<DropdownMenuEntry<FieldType>> entries = [];
   for (var val in FieldType.values) {
     if (val != FieldType.Unknown) {
-      if (includeSystem || val.value() >= 0)
+      if (includeSystem || val.value() >= 0) {
         entries.add(DropdownMenuEntry(value: val, label: val.toString()));
+      }
     }
   }
 

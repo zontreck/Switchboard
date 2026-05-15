@@ -217,6 +217,8 @@ Widget getSampleWidgetByType(FieldType type) {
 }
 
 class EditField extends StatefulWidget {
+  const EditField({super.key});
+
   @override
   State<StatefulWidget> createState() {
     return _editField();
@@ -295,7 +297,7 @@ class _editField extends State<EditField> {
                               style: TextStyle(fontSize: 22),
                             ),
                             subtitle: Text(
-                              "${initialField!.id.toString()}",
+                              initialField!.id.toString(),
                               style: TextStyle(fontSize: 16),
                             ),
                           ),
