@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:switchboard/dart/MemoryState.dart';
 import 'package:switchboard/globalHelpers.dart';
 import 'package:switchboard/pages/aboutPage.dart';
 import 'package:switchboard/pages/accountPage.dart';

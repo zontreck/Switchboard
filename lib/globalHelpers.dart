@@ -1,10 +1,8 @@
 import 'dart:async' show Future;
 import 'dart:convert';
-import 'dart:math';
 import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show FontLoader, rootBundle;
-import 'package:flutter/widgets.dart';
 import 'package:libac_dart/nbt/SnbtIo.dart';
 import 'package:libac_dart/nbt/impl/CompoundTag.dart';
 import 'package:package_info_plus/package_info_plus.dart';
@@ -70,7 +68,7 @@ Future<void> clearApplicationFont() async {
 
 Future<Uint8List> getApplicationFont() async {
   SharedPreferences prefs = await SharedPreferences.getInstance();
-  String? fontStr = await prefs.getString("curFont");
+  String? fontStr = prefs.getString("curFont");
   if (fontStr == null) {
     MemoryState.A.useCustomFont = false;
     MemoryState.A.customFontFamily = "";

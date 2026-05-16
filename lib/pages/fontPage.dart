@@ -8,6 +8,8 @@ import 'package:libacflutter/Constants.dart';
 import 'package:switchboard/globalHelpers.dart';
 
 class FontPage extends StatefulWidget {
+  const FontPage({super.key});
+
   @override
   State<StatefulWidget> createState() {
     return _fontPage();
