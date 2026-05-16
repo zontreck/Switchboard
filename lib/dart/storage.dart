@@ -230,6 +230,20 @@ class NetworkInterface {
     S2CFieldResponse sfr = S2CFieldResponse.decode(reply.data);
     return sfr;
   }
+
+  static Future<S2CLazyResponse> deleteField(UUID id) async {
+    Dio dio = Dio();
+    MemoryState ms = MemoryState();
+
+    dio.options.headers["Content-Type"] = "application/json";
+    dio.options.headers["X-SB-Auth"] = ms.authenticationToken;
+
+    var reply = await dio.delete("${getAPIServerURL()}/field/${id.toString()}");
+
+    print(reply.data);
+
+    return S2CLazyResponse.decode(reply.data);
+  }
 }
 
 abstract class ResponsePacket {

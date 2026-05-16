@@ -358,6 +358,80 @@ class _editField extends State<EditField> {
                               }
                             },
                           ),
+
+                          SizedBox(height: 100),
+                          Divider(),
+                          ListTile(
+                            title: Text("D E L E T E   F I E L D"),
+                            leading: Icon(Icons.delete),
+                            tileColor: LibACFlutterConstants.TITLEBAR_COLOR,
+                            subtitle: Text(
+                              "DELETES THE FIELD ENTIRELY. All alter data using this field will be discarded. This action cannot be undone.",
+                            ),
+                            onTap: () async {
+                              var reply = await showDialog(
+                                context: context,
+                                builder: (bldr) {
+                                  return AlertDialog(
+                                    icon: Icon(Icons.dangerous),
+                                    title: Text("Are you sure?"),
+                                    content: Text(
+                                      "This action will delete the field forever. It cannot be undone. All data assigned to this field will be permanently deleted.",
+                                    ),
+                                    actions: [
+                                      ElevatedButton.icon(
+                                        onPressed: () async {
+                                          Navigator.pop(context, 1);
+                                        },
+                                        icon: Icon(Icons.delete_forever),
+                                        label: Text("DELETE NOW"),
+                                        style: ButtonStyle(
+                                          backgroundColor:
+                                              WidgetStateColor.resolveWith((X) {
+                                                return LibACFlutterConstants
+                                                    .TITLEBAR_COLOR;
+                                              }),
+                                        ),
+                                      ),
+                                      ElevatedButton.icon(
+                                        onPressed: () async {
+                                          Navigator.pop(context);
+                                        },
+                                        label: Text("Abort!"),
+                                        icon: Icon(Icons.cancel),
+                                      ),
+                                    ],
+                                  );
+                                },
+                              );
+
+                              if (reply == null) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text("Aborted field deletion"),
+                                  ),
+                                );
+                              } else {
+                                var deleteReply =
+                                    await NetworkInterface.deleteField(
+                                      initialField!.id,
+                                    );
+
+                                if (deleteReply.success) {
+                                  Navigator.pop(context);
+                                } else {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                      content: Text(
+                                        "FATAL ERROR: The request failed for the following reason: ${deleteReply.reason}\n\nRequest ID: ${deleteReply.id}",
+                                      ),
+                                      duration: Duration(seconds: 15),
+                                    ),
+                                  );
+                                }
+                              }
+                            },
+                          ),
                         ],
                       ),
                     ),

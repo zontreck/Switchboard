@@ -2,7 +2,7 @@
 
 $DEBUG = true;
 
-$VERSION = "0.1.0+0516261157";
+$VERSION = "0.1.0+0516261253";
 
 $DEFAULT_USER_FIELDS = array(
                             array(
@@ -1280,7 +1280,7 @@ switch($route) {
                         $res = $stmt->get_result();
                         $row = $res->fetch_assoc();
 
-                        if($row['FieldType'] <= 0) {
+                        if($row['FieldType'] < 0) {
                             // System Row.
                             $success = false;
                             $reason = "Cannot delete a system field. It is required for proper functionality.";
