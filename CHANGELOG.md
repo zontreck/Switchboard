@@ -14,6 +14,7 @@
 - [x] Add settings page and button for changing the current font.
 - [x] Helper functions for storing, clearing, and retrieving the custom font.
 - [x] New possible TODO item: `/assets` endpoint to store arbitrary files like fonts. Would enable sharing fonts in theme exports.
+- [x] API now includes a `S2CLazyResponse` which all packets are going to be derived from. This is to standardize the serialization and deserialization processes. To reduce redundant actions. Also to make creation of new packets easier.
 
 ## FIX:
 

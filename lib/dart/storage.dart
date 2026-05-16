@@ -372,71 +372,48 @@ class S2CServerVersionPacket extends S2CLazyResponse {
   }
 }
 
-class S2CUserPacket implements ResponsePacket {
-  @override
-  UUID id;
-
-  @override
-  String path;
-
-  @override
-  String? reason;
-
-  @override
-  bool success;
-
-  @override
-  String type;
-
+class S2CUserPacket extends S2CLazyResponse {
   User? data;
 
   S2CUserPacket({
-    required this.id,
-    required this.path,
-    required this.reason,
-    required this.success,
-    required this.type,
     required this.data,
+    required super.id,
+    required super.path,
+    required super.reason,
+    required super.success,
+    required super.type,
   });
 
+  @override
   Map<String, dynamic> encode() {
-    return {
-      "id": id.toString(),
-      "path": path,
-      "reason": reason,
-      "success": success,
-      "type": type,
-      "data": data?.encode(),
-    };
+    Map<String, dynamic> enc = super.encode();
+
+    enc.addAll({"data": data?.encode()});
+
+    return enc;
   }
 
-  factory S2CUserPacket.decode(Map<String, dynamic> js) {
-    UUID id = UUID.ZERO;
-    if (!js.containsKey("success")) {
-      throw InvalidServerResponseException(
-        reason:
-            "The response does not follow the standard Server response packet",
-      );
-    }
+  @override
+  void _decode(Map<String, dynamic> js) {
+    super._decode(js);
 
-    id = UUID.parse(js['id']);
-    String path = js['path'];
-    String? reason = js['reason'];
-    String type = js['type'];
-    bool success = js['success'];
-    User? data;
     if (js['data'] != null) {
       data = User.deserialize(js['data']);
     }
+  }
 
-    return S2CUserPacket(
-      id: id,
-      path: path,
-      reason: reason,
-      success: success,
-      type: type,
-      data: data,
+  factory S2CUserPacket.decode(Map<String, dynamic> js) {
+    S2CUserPacket pkt = S2CUserPacket(
+      data: null,
+      id: UUID.ZERO,
+      path: "path",
+      reason: "reason",
+      success: false,
+      type: "type",
     );
+    pkt._decode(js);
+
+    return pkt;
   }
 }
 
