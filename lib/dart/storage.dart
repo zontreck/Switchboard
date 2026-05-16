@@ -1,6 +1,17 @@
+import 'dart:async';
+import 'dart:convert';
+
 import 'package:dio/dio.dart';
+import 'package:libac_dart/nbt/NbtIo.dart';
+import 'package:libac_dart/nbt/NbtUtils.dart';
+import 'package:libac_dart/nbt/SnbtIo.dart';
+import 'package:libac_dart/nbt/impl/CompoundTag.dart';
+import 'package:libac_dart/nbt/impl/ListTag.dart';
+import 'package:libac_dart/nbt/impl/StringTag.dart';
+import 'package:libac_dart/utils/Converter.dart';
 import 'package:libac_dart/utils/Hashing.dart';
 import 'package:libac_dart/utils/TimeUtils.dart';
+import 'package:libac_dart/utils/uuid/NbtUUID.dart';
 import 'package:libac_dart/utils/uuid/UUID.dart';
 import 'package:switchboard/dart/MemoryState.dart';
 import 'package:switchboard/dart/exceptions.dart';
@@ -923,6 +934,28 @@ class S2CFieldsResponse implements ResponsePacket {
   }
 }
 
+class FieldData {
+  UUID id;
+  CompoundTag data = CompoundTag();
+
+  FieldData({required this.id, required this.data});
+
+  CompoundTag encode() {
+    CompoundTag ct = CompoundTag();
+    ct.put("id", StringTag.valueOf(id.toString()));
+    ct.put("value", data);
+
+    return ct;
+  }
+
+  factory FieldData.decode(CompoundTag ct) {
+    return FieldData(
+      id: UUID.parse(ct.get("id")!.asString()),
+      data: ct.get("value")!.asCompoundTag(),
+    );
+  }
+}
+
 class Alter {
   UUID id;
   UUID user;
@@ -931,6 +964,7 @@ class Alter {
   int subid;
   UUID parent;
   int flags;
+  List<FieldData> fields;
 
   Alter({
     required this.id,
@@ -940,9 +974,16 @@ class Alter {
     required this.subid,
     required this.parent,
     required this.flags,
+    required this.fields,
   });
 
   Map<String, dynamic> encode() {
+    Completer val = Completer<String>();
+
+    encodeFields().then((value) {
+      val.complete(value);
+    });
+
     return {
       "id": id.toString(),
       "user": user.toString(),
@@ -951,6 +992,7 @@ class Alter {
       "subid": subid,
       "parent": parent.toString(),
       "flags": flags,
+      "fields": val.future.toString(),
     };
   }
 
@@ -958,8 +1000,7 @@ class Alter {
     if (!js.containsKey("subid")) {
       throw InvalidServerResponseException(reason: "Not alter formatted data");
     }
-
-    return Alter(
+    var alter = Alter(
       id: UUID.parse(js['id']),
       user: UUID.parse(js['user']),
       name: js['name'],
@@ -967,7 +1008,36 @@ class Alter {
       subid: js['subid'],
       parent: UUID.parse(js['parent']),
       flags: js['flags'],
+      fields: [],
     );
+
+    alter.decodeFields(js['fields']);
+
+    return alter;
+  }
+
+  Future<void> decodeFields(String b64) async {
+    if (b64 == "") return;
+    CompoundTag tag = (await NbtIo.readBase64StringCompressed(
+      b64,
+    )).asCompoundTag();
+    ListTag lst = tag.get("data")! as ListTag;
+    for (var tag in lst.value) {
+      fields.add(FieldData.decode(tag.asCompoundTag()));
+    }
+  }
+
+  Future<String> encodeFields() async {
+    CompoundTag ct = CompoundTag();
+    ListTag lst = ListTag();
+
+    for (var field in fields) {
+      lst.add(field.encode());
+    }
+
+    ct.put("data", lst);
+
+    return await NbtIo.writeBase64StringCompressed(ct);
   }
 
   /// This helper function determines if the proper URL is to the Switchboard CDN, or a external network.
