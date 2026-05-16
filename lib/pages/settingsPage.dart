@@ -250,7 +250,21 @@ class _settings extends State<SettingsPage> {
                 ],
               ),
               ListTile(
-                title: Text("Edit Fields"),
+                title: Text("C H A N G E  F O N T"),
+                subtitle: Text(
+                  "Allows you to change the current font for the entire app.",
+                ),
+                leading: Icon(Icons.font_download, color: Colors.black),
+                tileColor: Color.fromARGB(255, 213, 213, 213),
+                textColor: Colors.black,
+                onTap: () async {
+                  // Open the font selection screen.
+                  await Navigator.pushNamed(context, "/account/settings/font");
+                },
+              ),
+              SizedBox(height: 8),
+              ListTile(
+                title: Text("E D I T  F I E L D S"),
                 tileColor: const Color.fromARGB(255, 119, 219, 255),
                 textColor: Colors.black,
                 subtitle: Text(

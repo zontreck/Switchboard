@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:switchboard/dart/MemoryState.dart';
 import 'package:switchboard/dart/storage.dart';
@@ -30,6 +31,7 @@ class _loginState extends State<SBLoginPage> {
     // try to load or refresh the authentication
     MemoryState ms = MemoryState();
     ms.applicationVersion = await SwitchboardConsts.getPackageVersion();
+    await getApplicationFont();
 
     getAuthToken().then((S) async {
       if (S == "") {

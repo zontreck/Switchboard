@@ -1,11 +1,21 @@
 import 'dart:async' show Future;
-import 'package:flutter/services.dart' show rootBundle;
+import 'dart:convert';
+import 'dart:math';
+import 'dart:typed_data';
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart' show FontLoader, rootBundle;
 import 'package:flutter/widgets.dart';
 import 'package:libac_dart/nbt/SnbtIo.dart';
 import 'package:libac_dart/nbt/impl/CompoundTag.dart';
 import 'package:package_info_plus/package_info_plus.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:switchboard/dart/MemoryState.dart';
+import 'package:switchboard/dart/globalHelpers.dart';
+
+final ValueNotifier<String> customFontNotifier = ValueNotifier(
+  MemoryState.A.customFontFamily,
+);
 
 Future<String> loadAsset(String asset) async {
   return await rootBundle.loadString(asset);
@@ -33,6 +43,94 @@ Future<void> setAuthToken(String authToken) async {
   ms.authenticationToken = authToken;
 
   await setAppSettings(ms.serialize());
+}
+
+Future<void> setApplicationFont(Uint8List binary) async {
+  SharedPreferences prefs = await SharedPreferences.getInstance();
+  await prefs.setString("curFont", base64.encode(binary));
+
+  String fontFamily = generateRandomString(16);
+  FontLoader fl = FontLoader(fontFamily);
+  fl.addFont(Future.value(ByteData.sublistView(binary)));
+  await fl.load();
+
+  MemoryState.A.useCustomFont = true;
+  MemoryState.A.customFontFamily = fontFamily;
+  customFontNotifier.value = fontFamily;
+}
+
+Future<void> clearApplicationFont() async {
+  SharedPreferences prefs = await SharedPreferences.getInstance();
+  await prefs.remove("curFont");
+
+  MemoryState.A.useCustomFont = false;
+  MemoryState.A.customFontFamily = "";
+  customFontNotifier.value = "";
+}
+
+Future<Uint8List> getApplicationFont() async {
+  SharedPreferences prefs = await SharedPreferences.getInstance();
+  String? fontStr = await prefs.getString("curFont");
+  if (fontStr == null) {
+    MemoryState.A.useCustomFont = false;
+    MemoryState.A.customFontFamily = "";
+    return Uint8List(0);
+  }
+
+  Uint8List fontBytes = base64.decode(fontStr);
+
+  if (!MemoryState.A.useCustomFont) {
+    String fontFamily = generateRandomString(16);
+    MemoryState.A.customFontFamily = fontFamily;
+
+    FontLoader fl = FontLoader(fontFamily);
+    fl.addFont(Future.value(ByteData.sublistView(fontBytes)));
+    fl.load();
+  }
+  MemoryState.A.useCustomFont = true;
+
+  return fontBytes;
+}
+
+Future<bool> checkStoragePermissions() async {
+  Permission storage = Permission.manageExternalStorage;
+  if (await storage.isDenied) {
+    await storage.request();
+  }
+
+  return await storage.isGranted;
+}
+
+ThemeData getApplicationTheme() {
+  MemoryState ms = MemoryState();
+
+  return ThemeData(
+    brightness: Brightness.dark,
+    useMaterial3: true,
+    textTheme: ms.useCustomFont
+        ? TextTheme(
+            displayLarge: TextStyle(fontFamily: ms.customFontFamily),
+            displayMedium: TextStyle(fontFamily: ms.customFontFamily),
+            displaySmall: TextStyle(fontFamily: ms.customFontFamily),
+
+            headlineLarge: TextStyle(fontFamily: ms.customFontFamily),
+            headlineMedium: TextStyle(fontFamily: ms.customFontFamily),
+            headlineSmall: TextStyle(fontFamily: ms.customFontFamily),
+
+            titleLarge: TextStyle(fontFamily: ms.customFontFamily),
+            titleMedium: TextStyle(fontFamily: ms.customFontFamily),
+            titleSmall: TextStyle(fontFamily: ms.customFontFamily),
+
+            bodyLarge: TextStyle(fontFamily: ms.customFontFamily),
+            bodyMedium: TextStyle(fontFamily: ms.customFontFamily),
+            bodySmall: TextStyle(fontFamily: ms.customFontFamily),
+
+            labelLarge: TextStyle(fontFamily: ms.customFontFamily),
+            labelMedium: TextStyle(fontFamily: ms.customFontFamily),
+            labelSmall: TextStyle(fontFamily: ms.customFontFamily),
+          )
+        : null,
+  );
 }
 
 Future<String> getAuthToken() async {

@@ -11,6 +11,9 @@
 - [x] Implement `/fields` endpoint, returns all custom fields, and system fields.
 - [x] Implement `/field/uuid` endpoint. Allows fetching one field, deleting fields, and creation of fields.
 - [x] Implement Edit Field page
+- [x] Add settings page and button for changing the current font.
+- [x] Helper functions for storing, clearing, and retrieving the custom font.
+- [x] New possible TODO item: `/assets` endpoint to store arbitrary files like fonts. Would enable sharing fonts in theme exports.
 
 ## FIX:
 
