@@ -509,61 +509,45 @@ class AuthReply {
   }
 }
 
-class S2CAuthenticationResponse implements ResponsePacket {
-  @override
-  UUID id;
-
-  @override
-  String path;
-
-  @override
-  String? reason;
-
-  @override
-  bool success;
-
-  @override
-  String type;
-
+class S2CAuthenticationResponse extends S2CLazyResponse {
   AuthReply data;
 
   S2CAuthenticationResponse({
-    required this.id,
-    required this.path,
-    required this.reason,
-    required this.success,
-    required this.type,
     required this.data,
+    required super.id,
+    required super.path,
+    required super.reason,
+    required super.success,
+    required super.type,
   });
 
+  @override
   Map<String, dynamic> encode() {
-    return {
-      "id": id,
-      "path": path,
-      "reason": reason,
-      "success": success,
-      "type": type,
-      "data": data.encode(),
-    };
+    var enc = super.encode();
+    enc.addAll({"data": data.encode()});
+
+    return enc;
+  }
+
+  @override
+  void _decode(Map<String, dynamic> js) {
+    super._decode(js);
+
+    data = AuthReply.decode(js['data']);
   }
 
   factory S2CAuthenticationResponse.decode(Map<String, dynamic> js) {
-    // Deserialize the input data
-    if (!js.containsKey("success")) {
-      throw InvalidServerResponseException(
-        reason:
-            "The response from the server does not follow the standard response format.",
-      );
-    }
-
-    return S2CAuthenticationResponse(
-      id: UUID.parse(js['id']),
-      path: js['path'],
-      reason: js['reason'],
-      success: js['success'],
-      type: js['type'],
-      data: AuthReply.decode(js['data']),
+    S2CAuthenticationResponse auth = S2CAuthenticationResponse(
+      data: AuthReply(token: "token", username: "username"),
+      id: UUID.ZERO,
+      path: "path",
+      reason: "reason",
+      success: false,
+      type: "type",
     );
+    auth._decode(js);
+
+    return auth;
   }
 }
 
