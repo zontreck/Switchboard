@@ -965,6 +965,7 @@ class Alter {
   UUID parent;
   int flags;
   List<FieldData> fields;
+  bool fieldsLoaded = false;
 
   Alter({
     required this.id,
@@ -1017,7 +1018,10 @@ class Alter {
   }
 
   Future<void> decodeFields(String b64) async {
-    if (b64 == "") return;
+    if (b64 == "") {
+      fieldsLoaded = true;
+      return;
+    }
     CompoundTag tag = (await NbtIo.readBase64StringCompressed(
       b64,
     )).asCompoundTag();
@@ -1025,6 +1029,8 @@ class Alter {
     for (var tag in lst.value) {
       fields.add(FieldData.decode(tag.asCompoundTag()));
     }
+
+    fieldsLoaded = true;
   }
 
   Future<String> encodeFields() async {
