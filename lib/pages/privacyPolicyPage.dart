@@ -8,16 +8,22 @@ class PrivacyPolicyPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text("Switchboard - Privacy Policy")),
+      appBar: AppBar(
+        title: Text("Switchboard - Privacy Policy"),
+        bottom: PreferredSize(
+          preferredSize: Size.fromHeight(50),
+          child: Column(
+            children: [
+              Text("PRIVACY POLICY", style: TextStyle(fontSize: 22)),
+              Divider(),
+            ],
+          ),
+        ),
+      ),
       body: Padding(
         padding: EdgeInsetsGeometry.all(8),
         child: Column(
           children: [
-            Container(
-              alignment: AlignmentGeometry.center,
-              child: Text("PRIVACY POLICY", style: TextStyle(fontSize: 22)),
-            ),
-            Divider(),
             SizedBox(height: 25),
             FutureBuilder(
               future: Policies.privacyPolicy(),

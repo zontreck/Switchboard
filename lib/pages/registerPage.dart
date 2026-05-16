@@ -21,7 +21,18 @@ class _SBRegister extends State<SBRegisterPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text("Switchboard")),
+      appBar: AppBar(
+        title: Text("Switchboard"),
+        bottom: PreferredSize(
+          preferredSize: Size.fromHeight(50),
+          child: Column(
+            children: [
+              Text("REGISTER", style: TextStyle(fontSize: 22)),
+              Divider(),
+            ],
+          ),
+        ),
+      ),
       floatingActionButton:
           (agreeToPrivacy &&
               agreeToTOS &&
@@ -61,11 +72,6 @@ class _SBRegister extends State<SBRegisterPage> {
         child: SingleChildScrollView(
           child: Column(
             children: [
-              Container(
-                alignment: AlignmentGeometry.center,
-                child: Text("REGISTER", style: TextStyle(fontSize: 22)),
-              ),
-              Divider(),
               Text(
                 "NOTE: By registering an account with us, you must agree to both our Terms of Service, as well as our Privacy Policy. We promise, the terms of both are fairly simple, and respect your rights as a user of our product.",
               ),

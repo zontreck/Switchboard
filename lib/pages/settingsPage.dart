@@ -32,14 +32,23 @@ class _settings extends State<SettingsPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text("Switchboard")),
+      appBar: AppBar(
+        title: Text("Switchboard"),
+        bottom: PreferredSize(
+          preferredSize: Size.fromHeight(50),
+          child: Column(
+            children: [
+              Text("SETTINGS", style: TextStyle(fontSize: 22)),
+              Divider(),
+            ],
+          ),
+        ),
+      ),
       body: Padding(
         padding: EdgeInsetsGeometry.all(8),
         child: SingleChildScrollView(
           child: Column(
             children: [
-              Text("SETTINGS", style: TextStyle(fontSize: 22)),
-              Divider(),
               AlterWidget(
                 flush: ms.flushPictures,
                 roundedElement: ms.roundedBorder,

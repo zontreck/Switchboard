@@ -154,17 +154,24 @@ class _loginState extends State<SBLoginPage> {
           ),
         ),
       ),
-      appBar: AppBar(title: Text("Switchboard")),
+      appBar: AppBar(
+        title: Text("Switchboard"),
+        bottom: PreferredSize(
+          preferredSize: Size.fromHeight(50),
+          child: Column(
+            children: [
+              Text("LOGIN", style: TextStyle(fontSize: 22)),
+
+              Divider(thickness: 1),
+            ],
+          ),
+        ),
+      ),
       body: SingleChildScrollView(
         child: Padding(
           padding: EdgeInsetsGeometry.all(8),
           child: Column(
             children: [
-              Container(
-                alignment: AlignmentGeometry.center,
-                child: Text("LOGIN", style: TextStyle(fontSize: 22)),
-              ),
-              Divider(thickness: 1),
               Text(
                 "You must login to Switchboard in order to use this application and service.\n\n* NOTE: Switchboard is not yet in a usable state. If you are currently testing, you will have been given login permissions by the development team. \n\nUntil the app is usable, we are making every effort to make it possible to migrate Ocotocon data as painlessly as possible.\n\n* Interested in joining the team? Message zontreck on Discord.",
               ),

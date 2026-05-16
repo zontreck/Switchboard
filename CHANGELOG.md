@@ -28,6 +28,7 @@
 - [x] `/user` will now return a `fields` object in the response, containing all the user's fields.
 - [x] Simplify development API for Color serialization and deserialization.
 - [x] Fix handling of settings to now check for differences against the default settings.
+- [x] Most or all pages now use the Bottom attribute of the AppBar to show the page's title and a divider line. This is instead of having those be part of the page itself.
 
 # 0.1.0+0419262121
 
