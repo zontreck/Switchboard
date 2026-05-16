@@ -425,6 +425,7 @@ class _settings extends State<SettingsPage> {
               SizedBox(height: 50),
               ListTile(
                 title: Text("L O G  O U T"),
+                leading: Icon(Icons.logout),
                 subtitle: Text(
                   "Immediately logs you out of the app. Remember me will also be turned off and invalidated.",
                 ),
