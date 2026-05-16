@@ -806,10 +806,11 @@ class PartialAlters {
 
 enum FieldType {
   Description(-1),
-  Color(-2),
+  ColorSys(-2),
   Unknown(-9999),
   PlainText(0),
-  Markdown(1);
+  Markdown(1),
+  Color(2);
 
   const FieldType(int type) : _type = type;
 
@@ -817,9 +818,10 @@ enum FieldType {
 
   static FieldType valueOf(int type) {
     if (Description._type == type) return Description;
-    if (Color._type == type) return Color;
+    if (ColorSys._type == type) return ColorSys;
     if (PlainText._type == type) return PlainText;
     if (Markdown._type == type) return Markdown;
+    if (Color._type == type) return Color;
 
     return Unknown;
   }
@@ -832,15 +834,17 @@ enum FieldType {
   String toString() {
     switch (this) {
       case Description:
-        return "Description (Markdown)";
-      case Color:
-        return "Color";
+        return "Description (Markdown, System Field)";
+      case ColorSys:
+        return "Color (System Field)";
       case Unknown:
         return "Unknown Type";
       case PlainText:
         return "Plain Text";
       case Markdown:
         return "Text (Markdown)";
+      case Color:
+        return "Color";
     }
   }
 }

@@ -63,6 +63,19 @@ class _editAlter extends State<EditAlterPage> {
                         border: OutlineInputBorder(),
                       ),
                     ),
+                    FutureBuilder(
+                      future: getFieldList(),
+                      builder: (bldr, snapFields) {
+                        if (!snapFields.hasData) {
+                          return CircularProgressIndicator();
+                        } else {
+                          if (snapFields.data == null) {
+                            return SizedBox();
+                          }
+                          return snapFields.data!;
+                        }
+                      },
+                    ),
                   ],
                 );
               }
@@ -71,6 +84,11 @@ class _editAlter extends State<EditAlterPage> {
         ),
       ),
     );
+  }
+
+  Future<Widget?> getFieldList() async {
+    for (var fieldType in FieldType.values) {}
+    return SizedBox();
   }
 }
 
