@@ -5,6 +5,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show FontLoader, rootBundle;
 import 'package:libac_dart/nbt/SnbtIo.dart';
 import 'package:libac_dart/nbt/impl/CompoundTag.dart';
+import 'package:libac_dart/utils/StringUtils.dart';
+import 'package:libacflutter/utils/colorHelpers.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -47,7 +49,7 @@ Future<void> setApplicationFont(Uint8List binary) async {
   SharedPreferences prefs = await SharedPreferences.getInstance();
   await prefs.setString("curFont", base64.encode(binary));
 
-  String fontFamily = generateRandomString(16);
+  String fontFamily = StringUtils.generateRandomString(16);
   FontLoader fl = FontLoader(fontFamily);
   fl.addFont(Future.value(ByteData.sublistView(binary)));
   await fl.load();
@@ -78,7 +80,7 @@ Future<Uint8List> getApplicationFont() async {
   Uint8List fontBytes = base64.decode(fontStr);
 
   if (!MemoryState.A.useCustomFont) {
-    String fontFamily = generateRandomString(16);
+    String fontFamily = StringUtils.generateRandomString(16);
     MemoryState.A.customFontFamily = fontFamily;
 
     FontLoader fl = FontLoader(fontFamily);
@@ -158,21 +160,6 @@ Future<void> getAppSettings() async {
     prefs.getString("settings") ?? "{}",
   )).asCompoundTag();
   ms.deserialize(ct);
-}
-
-List<int> Color2List(Color b) {
-  List<int> color = [];
-
-  color.add((b.a.clamp(0.0, 1.0) * 255).round());
-  color.add((b.r.clamp(0.0, 1.0) * 255).round());
-  color.add((b.g.clamp(0.0, 1.0) * 255).round());
-  color.add((b.b.clamp(0.0, 1.0) * 255).round());
-
-  return color;
-}
-
-Color ColorFromList(List<int> b) {
-  return Color.fromARGB(b[0], b[1], b[2], b[3]);
 }
 
 Color getAlterBackgroundColor() {

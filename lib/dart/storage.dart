@@ -965,7 +965,6 @@ class Alter {
   UUID parent;
   int flags;
   List<FieldData> fields;
-  bool fieldsLoaded = false;
 
   Alter({
     required this.id,
@@ -979,12 +978,6 @@ class Alter {
   });
 
   Map<String, dynamic> encode() {
-    Completer val = Completer<String>();
-
-    encodeFields().then((value) {
-      val.complete(value);
-    });
-
     return {
       "id": id.toString(),
       "user": user.toString(),
@@ -993,7 +986,7 @@ class Alter {
       "subid": subid,
       "parent": parent.toString(),
       "flags": flags,
-      "fields": val.future.toString(),
+      "fields": encodeFields(),
     };
   }
 
@@ -1009,31 +1002,28 @@ class Alter {
       subid: js['subid'],
       parent: UUID.parse(js['parent']),
       flags: js['flags'],
-      fields: [],
+      fields: decodeFields(js['fields']),
     );
-
-    alter.decodeFields(js['fields']);
 
     return alter;
   }
 
-  Future<void> decodeFields(String b64) async {
+  static List<FieldData> decodeFields(String b64) {
     if (b64 == "") {
-      fieldsLoaded = true;
-      return;
+      return [];
     }
-    CompoundTag tag = (await NbtIo.readBase64StringCompressed(
-      b64,
-    )).asCompoundTag();
+    CompoundTag tag = NbtIo.readBase64StringCompressed(b64).asCompoundTag();
+    List<FieldData> fields = [];
+
     ListTag lst = tag.get("data")! as ListTag;
     for (var tag in lst.value) {
       fields.add(FieldData.decode(tag.asCompoundTag()));
     }
 
-    fieldsLoaded = true;
+    return fields;
   }
 
-  Future<String> encodeFields() async {
+  String encodeFields() {
     CompoundTag ct = CompoundTag();
     ListTag lst = ListTag();
 
@@ -1043,7 +1033,7 @@ class Alter {
 
     ct.put("data", lst);
 
-    return await NbtIo.writeBase64StringCompressed(ct);
+    return NbtIo.writeBase64StringCompressed(ct);
   }
 
   /// This helper function determines if the proper URL is to the Switchboard CDN, or a external network.
