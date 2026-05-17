@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_colorpicker/flutter_colorpicker.dart';
 import 'package:libac_dart/nbt/SnbtIo.dart';
 import 'package:libac_dart/nbt/impl/CompoundTag.dart';
@@ -51,7 +52,10 @@ class _editAlter extends State<EditAlterPage> {
 
           setState(() {});
 
-          await NetworkInterface.updateAlter(alter);
+          var reply = await NetworkInterface.updateAlter(alter);
+          if (reply.success) {
+            Navigator.pop(context);
+          }
         },
         label: Text("Save"),
         icon: Icon(Icons.done_outline_rounded),
@@ -73,7 +77,42 @@ class _editAlter extends State<EditAlterPage> {
                   onTap: () {},
                 ),
               ),
-              Text("ID: ${alter.id}"),
+              ListTile(
+                title: Text("Alter ID"),
+                leading: Icon(Icons.perm_identity),
+                subtitle: Text(
+                  "Click / Tap to reveal the UUID assigned to this alter",
+                ),
+                onTap: () {
+                  showDialog(
+                    context: context,
+                    builder: (builder) {
+                      return AlertDialog(
+                        title: Text("Alter ID"),
+                        content: Text(
+                          "The Alter ID is: ${alter.id.toString()}",
+                        ),
+                        actions: [
+                          ElevatedButton(
+                            onPressed: () {
+                              Clipboard.setData(
+                                ClipboardData(text: alter.id.toString()),
+                              );
+                            },
+                            child: Text("Copy"),
+                          ),
+                          ElevatedButton(
+                            onPressed: () {
+                              Navigator.pop(context);
+                            },
+                            child: Text("Dismiss"),
+                          ),
+                        ],
+                      );
+                    },
+                  );
+                },
+              ),
               SizedBox(height: 25),
               TextField(
                 controller: alterNameController,
@@ -280,7 +319,9 @@ class _alterFieldData extends State<AlterFieldData> {
                       child: SingleChildScrollView(
                         child: MarkdownWidget(
                           data:
-                              (controlHolders[widget.data.id.toString()] as TextEditingController).text,
+                              (controlHolders[widget.data.id.toString()]
+                                      as TextEditingController)
+                                  .text,
                           shrinkWrap: true,
                         ),
                       ),

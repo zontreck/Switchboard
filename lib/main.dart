@@ -5,7 +5,7 @@ import 'package:switchboard/sb.dart';
 Future<void> main() async {
   MemoryState ms = MemoryState();
 
-  ms.applicationVersion = "0.1.0+0517260938";
+  ms.applicationVersion = "0.1.0+0517261258";
 
   runApp(Switchboard());
 }

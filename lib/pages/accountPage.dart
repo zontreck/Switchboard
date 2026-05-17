@@ -207,6 +207,8 @@ class _alters extends State<AltersPage> {
                           instance: alters[index],
                         ),
                       );
+
+                      setState(() {});
                     },
                     child: AlterWidget(
                       flush: ms.flushPictures,

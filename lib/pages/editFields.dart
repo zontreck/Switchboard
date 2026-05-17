@@ -335,6 +335,35 @@ class _editField extends State<EditField> {
                               style: TextStyle(fontSize: 22),
                             ),
                           ),
+                          ListTile(
+                            title: Text(
+                              "Changing a field's type will erase the data within it.",
+                            ),
+                            leading: Icon(Icons.warning),
+                            tileColor: LibACFlutterConstants.TITLEBAR_COLOR,
+                            onTap: () {
+                              showDialog(
+                                context: context,
+                                builder: (bldr) {
+                                  return AlertDialog(
+                                    title: Text("About Field Type"),
+                                    content: Text(
+                                      "Each field type stores the data slightly differently. This is due to the different ways of accessing and formatting the presented information.",
+                                      style: TextStyle(fontSize: 22),
+                                    ),
+                                    actions: [
+                                      ElevatedButton(
+                                        onPressed: () {
+                                          Navigator.pop(context);
+                                        },
+                                        child: Text("Close"),
+                                      ),
+                                    ],
+                                  );
+                                },
+                              );
+                            },
+                          ),
                           FutureBuilder(
                             future: getFieldMenuEntries(
                               includeSystem: initialField!.type.value() <= -1,

@@ -21,6 +21,8 @@ class NetworkInterface {
     dio.options.contentType = "application/json";
     var reply = await dio.get("${getAPIServerURL()}/version");
 
+    print(reply.data);
+
     return S2CServerVersionPacket.decode(reply.data);
   }
 
@@ -35,6 +37,8 @@ class NetworkInterface {
       data: {"auth": Hashing.md5Hash(password)},
     );
 
+    print(reply.data);
+
     // Deserialize the make new user packet
     S2CUserPacket response = S2CUserPacket.decode(reply.data);
 
@@ -45,6 +49,8 @@ class NetworkInterface {
     Dio dio = Dio();
     dio.options.contentType = "application/json";
     var reply = await dio.get("${getAPIServerURL()}/user/$username");
+
+    print(reply.data);
 
     return S2CUserPacket.decode(reply.data);
   }
@@ -61,6 +67,8 @@ class NetworkInterface {
       data: {"username": username, "auth": Hashing.md5Hash(password)},
     );
 
+    print(reply.data);
+
     return S2CAuthenticationResponse.decode(reply.data);
   }
 
@@ -72,6 +80,8 @@ class NetworkInterface {
 
     var reply = await dio.get("${getAPIServerURL()}/auth/check");
 
+    print(reply.data);
+
     return S2CAuthenticationCheckResponse.decode(reply.data);
   }
 
@@ -82,6 +92,8 @@ class NetworkInterface {
     dio.options.headers["X-SB-Auth"] = ms.authenticationToken;
 
     var reply = await dio.get("${getAPIServerURL()}/auth/refresh");
+
+    print(reply.data);
     return S2CAuthenticationRefreshResponse.decode(reply.data);
   }
 
@@ -105,6 +117,8 @@ class NetworkInterface {
       var reply = await dio.get(
         "${getAPIServerURL()}/alters${user == null ? '' : "/${user.toString()}"}",
       );
+
+      print(reply.data);
       // Check for the X-SB-Done header.
       if (reply.headers.value("X-SB-Done") == null) {
         // Increment by X-SB-Count
@@ -156,6 +170,8 @@ class NetworkInterface {
       },
     );
 
+    print(reply.data);
+
     return S2CAlterResponse.decode(reply.data);
   }
 
@@ -167,6 +183,8 @@ class NetworkInterface {
     dio.options.headers["X-SB-Auth"] = ms.authenticationToken;
 
     var reply = await dio.get("${getAPIServerURL()}/alter/${id.toString()}");
+
+    print(reply.data);
     return S2CAlterResponse.decode(reply.data);
   }
 
@@ -195,6 +213,8 @@ class NetworkInterface {
       "${getAPIServerURL()}/field/${field.id.toString()}",
       data: payload,
     );
+
+    print(reply.data);
     S2CFieldResponse sfr = S2CFieldResponse.decode(reply.data);
 
     return sfr;
@@ -211,6 +231,7 @@ class NetworkInterface {
       "${getAPIServerURL()}/field/${fieldID.toString()}",
     );
 
+    print(reply.data);
     S2CFieldResponse sfr = S2CFieldResponse.decode(reply.data);
 
     return sfr;
@@ -234,6 +255,7 @@ class NetworkInterface {
       data: newField.toJson(),
     );
 
+    print(reply.data);
     S2CFieldResponse sfr = S2CFieldResponse.decode(reply.data);
     return sfr;
   }
@@ -1081,7 +1103,7 @@ class Alter {
 
   FieldData getDataByFieldID(UUID id) {
     for (var field in fields) {
-      if (field.id == id) return field;
+      if (field.id.toString() == id.toString()) return field;
     }
 
     return FieldData(id: id, data: CompoundTag());
