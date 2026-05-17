@@ -294,7 +294,7 @@ class _settings extends State<SettingsPage> {
                 tileColor: const Color.fromARGB(255, 138, 222, 122),
                 textColor: Colors.black,
                 onTap: () async {
-                  String data = await NbtIo.writeBase64StringCompressed(
+                  String data = NbtIo.writeBase64StringCompressed(
                     ms.serialize(),
                   );
 
@@ -350,7 +350,7 @@ class _settings extends State<SettingsPage> {
                               // Do apply theme
                               try {
                                 CompoundTag ct =
-                                    (await NbtIo.readBase64StringCompressed(
+                                    (NbtIo.readBase64StringCompressed(
                                       importThemeController.text,
                                     )).asCompoundTag();
                                 ms.deserialize(ct);

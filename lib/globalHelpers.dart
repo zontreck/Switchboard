@@ -11,7 +11,6 @@ import 'package:package_info_plus/package_info_plus.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:switchboard/dart/MemoryState.dart';
-import 'package:switchboard/dart/globalHelpers.dart';
 
 final ValueNotifier<String> customFontNotifier = ValueNotifier(
   MemoryState.A.customFontFamily,
@@ -156,7 +155,7 @@ Future<void> getAppSettings() async {
   MemoryState ms = MemoryState();
   SharedPreferences prefs = await SharedPreferences.getInstance();
 
-  CompoundTag ct = (await SnbtIo.readFromString(
+  CompoundTag ct = (SnbtIo.readFromString(
     prefs.getString("settings") ?? "{}",
   )).asCompoundTag();
   ms.deserialize(ct);
