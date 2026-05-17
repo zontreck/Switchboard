@@ -2,7 +2,7 @@
 
 $DEBUG = true;
 
-$VERSION = "0.1.0+0517260938";
+$VERSION = "0.1.0+0517261014";
 
 $DEFAULT_USER_FIELDS = array(
                             array(
@@ -1164,7 +1164,7 @@ switch($route) {
                     }
                     
                     $stmt = $DB->prepare("REPLACE INTO `Alters` (User, ID, Name, Avatar, Fields, SubID, ParentID, Flags) VALUES (?, ?, ?, ?, ?, ?, ?, ?);");
-                    $stmt->bind_param("sssssbisi", $alterId, $SBAuth->UserID, $alterId, $alter['name'] ?? $row['Name'], $alter['avatar'] ?? $row['Avatar'], $fieldData, $alter['subid'] ?? $row['SubID'], $alter['parent'] ?? $row['ParentID'], $alter['flags'] ?? $row['Flags']);
+                    $stmt->bind_param("ssssbisi", $SBAuth->UserID, $alterId, $alter['name'] ?? $row['Name'], $alter['avatar'] ?? $row['Avatar'], $fieldData, $alter['subid'] ?? $row['SubID'], $alter['parent'] ?? $row['ParentID'], $alter['flags'] ?? $row['Flags']);
                     $stmt->execute();
                     $stmt->close();
 
