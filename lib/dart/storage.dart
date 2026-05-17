@@ -1099,7 +1099,7 @@ class Alter {
       print("Add new fieldData: ${data.id.toString()}");
       fields.add(data);
     } else {
-      print("Update field data at index ${indx}!");
+      print("Update field data at index $indx!");
       fields[indx].data = data.data;
     }
 
