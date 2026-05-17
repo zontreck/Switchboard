@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:dio/dio.dart';
+import 'package:flutter/material.dart';
 import 'package:libac_dart/nbt/NbtIo.dart';
 import 'package:libac_dart/nbt/impl/CompoundTag.dart';
 import 'package:libac_dart/nbt/impl/ListTag.dart';
@@ -245,6 +246,23 @@ class NetworkInterface {
     dio.options.headers["X-SB-Auth"] = ms.authenticationToken;
 
     var reply = await dio.delete("${getAPIServerURL()}/field/${id.toString()}");
+
+    print(reply.data);
+
+    return S2CLazyResponse.decode(reply.data);
+  }
+
+  static Future<S2CLazyResponse> updateAlter(Alter alter) async {
+    Dio dio = Dio();
+    MemoryState ms = MemoryState();
+
+    dio.options.headers["Content-Type"] = "application/json";
+    dio.options.headers["X-SB-Auth"] = ms.authenticationToken;
+
+    var reply = await dio.patch(
+      "${getAPIServerURL()}/alter/${alter.id.toString()}",
+      data: {"alter": alter.encode()},
+    );
 
     print(reply.data);
 
@@ -960,6 +978,9 @@ class Alter {
   UUID parent;
   int flags;
   List<FieldData> fields;
+  ValueNotifier fieldChangeNotifier = ValueNotifier<FieldData>(
+    FieldData(data: CompoundTag(), id: UUID.ZERO),
+  );
 
   Alter({
     required this.id,
@@ -970,7 +991,12 @@ class Alter {
     required this.parent,
     required this.flags,
     required this.fields,
-  });
+  }) {
+    fieldChangeNotifier.addListener(() {
+      FieldData data = fieldChangeNotifier.value as FieldData;
+      addOrUpdateField(data);
+    });
+  }
 
   Map<String, dynamic> encode() {
     return {
@@ -1018,7 +1044,7 @@ class Alter {
     return fields;
   }
 
-  String encodeFields() {
+  CompoundTag encodeTag() {
     CompoundTag ct = CompoundTag();
     ListTag lst = ListTag();
 
@@ -1028,7 +1054,11 @@ class Alter {
 
     ct.put("data", lst);
 
-    return NbtIo.writeBase64StringCompressed(ct);
+    return ct;
+  }
+
+  String encodeFields() {
+    return NbtIo.writeBase64StringCompressed(encodeTag());
   }
 
   /// This helper function determines if the proper URL is to the Switchboard CDN, or a external network.
@@ -1047,6 +1077,48 @@ class Alter {
         : "${getAPIServerURL()}/avatar/$input";
 
     return url;
+  }
+
+  FieldData getDataByFieldID(UUID id) {
+    for (var field in fields) {
+      if (field.id == id) return field;
+    }
+
+    return FieldData(id: id, data: CompoundTag());
+  }
+
+  void addOrUpdateField(FieldData data) {
+    int indx = -1;
+    for (var field in fields) {
+      if (field.id.toString() == data.id.toString()) {
+        indx = fields.indexOf(field);
+      }
+    }
+
+    if (indx == -1) {
+      print("Add new fieldData: ${data.id.toString()}");
+      fields.add(data);
+    } else {
+      print("Update field data at index ${indx}!");
+      fields[indx].data = data.data;
+    }
+
+    sanityCheckFieldData();
+  }
+
+  void sanityCheckFieldData() {
+    Set<String> seenIds = {};
+
+    fields.removeWhere((field) {
+      String id = field.id.toString();
+
+      if (seenIds.contains(id)) {
+        return true; // Remove duplicate
+      }
+
+      seenIds.add(id);
+      return false; // Keep first instance
+    });
   }
 }
 

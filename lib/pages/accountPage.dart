@@ -49,7 +49,10 @@ class _AccountPage extends State<AccountPage> {
           var reply = await Navigator.pushNamed(
             context,
             "/editAlter",
-            arguments: EditAlterArguments(alterId: newAlter.data!.id),
+            arguments: EditAlterArguments(
+              alterId: newAlter.data!.id,
+              instance: newAlter.data!,
+            ),
           );
         },
         label: Text("Alter"),
@@ -201,6 +204,7 @@ class _alters extends State<AltersPage> {
                         "/editAlter",
                         arguments: EditAlterArguments(
                           alterId: alters[index].id,
+                          instance: alters[index],
                         ),
                       );
                     },

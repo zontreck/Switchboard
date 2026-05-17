@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_markdown_plus/flutter_markdown_plus.dart';
+import 'package:markdown_widget/markdown_widget.dart';
 import 'package:switchboard/globalHelpers.dart';
 
 class PrivacyPolicyPage extends StatelessWidget {
@@ -31,7 +31,7 @@ class PrivacyPolicyPage extends StatelessWidget {
                 if (!snapshot.hasData) {
                   return Center(child: CircularProgressIndicator());
                 } else {
-                  return Expanded(child: Markdown(data: snapshot.data!));
+                  return Expanded(child: MarkdownWidget(data: snapshot.data!));
                 }
               },
             ),
