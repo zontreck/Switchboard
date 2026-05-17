@@ -63,6 +63,8 @@ class _editAlter extends State<EditAlterPage> {
                         border: OutlineInputBorder(),
                       ),
                     ),
+                    SizedBox(height: 25),
+                    Divider(),
                     FutureBuilder(
                       future: getFieldList(),
                       builder: (bldr, snapFields) {
@@ -87,8 +89,48 @@ class _editAlter extends State<EditAlterPage> {
   }
 
   Future<Widget?> getFieldList() async {
-    for (var fieldType in FieldType.values) {}
-    return SizedBox();
+    List<Widget> widgets = [];
+    S2CFieldsResponse fields = await NetworkInterface.getDataFields();
+    List<Field> fieldVals = fields.data;
+    fieldVals.sort((F1, F2) {
+      return F1.order.compareTo(F2.order);
+    });
+    S2CAlterResponse alterReply = await NetworkInterface.getAlterByID(alterId);
+    Alter? alter = alterReply.data;
+    if (alter == null) {
+      return SizedBox(); // No alter, means no fields to populate.
+    }
+
+    for (var field in fieldVals) {
+      widgets.add(Text(field.name, style: TextStyle(fontSize: 22)));
+
+      widgets.add(Divider());
+    }
+    return Column(children: widgets);
+  }
+}
+
+class AlterFieldData extends StatefulWidget {
+  FieldData? data;
+  FieldType type;
+
+  AlterFieldData({required this.data, required this.type});
+
+  @override
+  State<StatefulWidget> createState() {
+    return _alterFieldData(data: data, type: type);
+  }
+}
+
+class _alterFieldData extends State<AlterFieldData> {
+  FieldData? data;
+  FieldType type;
+
+  _alterFieldData({required this.data, required this.type});
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(); // Temporary return value
   }
 }
 
