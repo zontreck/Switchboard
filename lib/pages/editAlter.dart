@@ -114,7 +114,7 @@ class AlterFieldData extends StatefulWidget {
   FieldData? data;
   FieldType type;
 
-  AlterFieldData({required this.data, required this.type});
+  AlterFieldData({super.key, required this.data, required this.type});
 
   @override
   State<StatefulWidget> createState() {
