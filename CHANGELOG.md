@@ -1,4 +1,4 @@
-# 0.1.0+042026
+# 0.1.0+051626
 
 ## ADD:
 
@@ -30,6 +30,7 @@
 - [x] Simplify development API for Color serialization and deserialization.
 - [x] Fix handling of settings to now check for differences against the default settings.
 - [x] Most or all pages now use the Bottom attribute of the AppBar to show the page's title and a divider line. This is instead of having those be part of the page itself.
+- [x] Updated the version of LibAC. Moved a few helper functions over to the Library codebase as they are generic enough and useful for other projects.
 
 # 0.1.0+0419262121
 
