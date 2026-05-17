@@ -2,7 +2,7 @@
 
 $DEBUG = true;
 
-$VERSION = "0.1.0+0517261014";
+$VERSION = "0.1.0+0517261056";
 
 $DEFAULT_USER_FIELDS = array(
                             array(
@@ -1155,16 +1155,44 @@ switch($route) {
                 }
 
                 case "PATCH": {
-                    // This endpoint takes parameters and updates the relevant sections in the alter's table. Everything except the user or id fields can be replaced.
                     $alter = $packet['alter'];
-                    if(in_array("fields", $alter)) {
+
+                    if (array_key_exists("fields", $alter)) {
                         $fieldData = base64_decode($alter['fields']);
-                    }else {
+                    } else {
                         $fieldData = $row['Fields'];
                     }
-                    
-                    $stmt = $DB->prepare("REPLACE INTO `Alters` (User, ID, Name, Avatar, Fields, SubID, ParentID, Flags) VALUES (?, ?, ?, ?, ?, ?, ?, ?);");
-                    $stmt->bind_param("ssssbisi", $SBAuth->UserID, $alterId, $alter['name'] ?? $row['Name'], $alter['avatar'] ?? $row['Avatar'], $fieldData, $alter['subid'] ?? $row['SubID'], $alter['parent'] ?? $row['ParentID'], $alter['flags'] ?? $row['Flags']);
+
+                    $name = $alter['name'] ?? $row['Name'];
+                    $avatar = $alter['avatar'] ?? $row['Avatar'];
+                    $subid = $alter['subid'] ?? $row['SubID'];
+                    $parent = $alter['parent'] ?? $row['ParentID'];
+                    $flags = $alter['flags'] ?? $row['Flags'];
+
+                    // Placeholder variable for blob field
+                    $null = null;
+
+                    $stmt = $DB->prepare("
+                        REPLACE INTO `Alters`
+                        (User, ID, Name, Avatar, Fields, SubID, ParentID, Flags)
+                        VALUES (?, ?, ?, ?, ?, ?, ?, ?);
+                    ");
+
+                    $stmt->bind_param(
+                        "ssssbisi",
+                        $SBAuth->UserID,
+                        $alterId,
+                        $name,
+                        $avatar,
+                        $null,
+                        $subid,
+                        $parent,
+                        $flags
+                    );
+
+                    // Index is zero-based
+                    $stmt->send_long_data(4, $fieldData);
+
                     $stmt->execute();
                     $stmt->close();
 
@@ -1174,6 +1202,7 @@ switch($route) {
                     $data = null;
                     break;
                 }
+
                 default: {
                     $data = array();
                     break;
