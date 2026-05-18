@@ -77,13 +77,10 @@ class _editAlter extends State<EditAlterPage> {
                   onTap: () {},
                 ),
               ),
-              ListTile(
-                title: Text("Alter ID"),
-                leading: Icon(Icons.perm_identity),
-                subtitle: Text(
-                  "Click / Tap to reveal the UUID assigned to this alter",
-                ),
-                onTap: () {
+              ElevatedButton.icon(
+                icon: Icon(Icons.perm_identity),
+                label: Text("Show Alter ID"),
+                onPressed: () {
                   showDialog(
                     context: context,
                     builder: (builder) {
