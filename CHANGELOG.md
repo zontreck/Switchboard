@@ -3,6 +3,10 @@
 ## CHANGE:
 
 - [x] Upon request, changed the ListTile in the EditAlter page for revealing the Alter's ID. This is now a small ElevatedButton.
+- [x] Rip out NBT usage from theming
+  - [x] Core Issue: Dart2JS does not support Int64 on the web browser. So, as much as NBT would help with compact theme strings, we cannot use it, if we want to have a fully features Web interface for the app as well.
+- [ ] Rip out NBT from FieldData
+- [ ] Convert FieldData editors to use a JSON codec, and base/inherited classes for serialization purposes.
 
 # 0.1.0+0517261258
 

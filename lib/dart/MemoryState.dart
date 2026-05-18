@@ -1,9 +1,5 @@
 import 'dart:async';
 
-import 'package:libac_dart/nbt/NbtUtils.dart';
-import 'package:libac_dart/nbt/impl/CompoundTag.dart';
-import 'package:libac_dart/nbt/impl/IntArrayTag.dart';
-import 'package:libac_dart/nbt/impl/StringTag.dart';
 import 'package:switchboard/dart/globalHelpers.dart';
 
 class MemoryState {
@@ -45,119 +41,108 @@ class MemoryState {
   List<int> NavSelColor = [255, 0, 183, 255];
   List<int> NavUnSelColor = [255, 105, 105, 205];
 
-  void deserialize(CompoundTag ct) {
-    if (ct.containsKey("flush_avatars")) {
+  void fromJson(Map<String, dynamic> js, {bool theme = false}) {
+    if (js.containsKey("flushPictures")) {
       flushPictures = true;
     } else {
       flushPictures = _defaults.flushPictures;
     }
 
-    if (ct.containsKey("roundedborder")) {
+    if (js.containsKey("rounded")) {
       roundedBorder = false;
     } else {
       roundedBorder = _defaults.roundedBorder;
     }
 
-    if (ct.containsKey("squarePicture")) {
+    if (js.containsKey("squarePics")) {
       squarePicture = true;
     } else {
-      _defaults.squarePicture;
+      squarePicture = _defaults.squarePicture;
     }
 
-    if (ct.containsKey("alterBackground")) {
-      List<int> iat = ct.get("alterBackground")!.asIntArray();
-      AlterBackgroundColor = iat;
+    if (js.containsKey("alterBackground")) {
+      AlterBackgroundColor = js['alterBackground'];
     } else {
       AlterBackgroundColor = _defaults.AlterBackgroundColor;
     }
 
-    if (ct.containsKey("alterText")) {
-      List<int> iat = ct.get("alterText")!.asIntArray();
-      AlterTextColor = iat;
+    if (js.containsKey("alterText")) {
+      AlterTextColor = js['alterText'];
     } else {
       AlterTextColor = _defaults.AlterTextColor;
     }
 
-    if (ct.containsKey("navSelColor")) {
-      List<int> iat = ct.get("navSelColor")!.asIntArray();
-      NavSelColor = iat;
+    if (js.containsKey("navSelColor")) {
+      NavSelColor = js['navSelColor'];
     } else {
       NavSelColor = _defaults.NavSelColor;
     }
 
-    if (ct.containsKey("navUnSelColor")) {
-      List<int> iat = ct.get("navUnSelColor")!.asIntArray();
-      NavUnSelColor = iat;
+    if (js.containsKey("navUnSelColor")) {
+      NavUnSelColor = js['navUnSelColor'];
     } else {
       NavUnSelColor = _defaults.NavUnSelColor;
     }
 
-    if (ct.containsKey("rememberMe")) {
-      rememberMe = NbtUtils.readBoolean(ct, "rememberMe");
+    if (!theme && js.containsKey("rememberMe")) {
+      rememberMe = js['rememberMe'];
       if (rememberMe) {
-        username = ct.get("username")!.asString();
-        password = ct.get("password")!.asString();
+        username = js['username'];
+        password = js['password'];
       }
     } else {
-      username = "";
-      password = "";
-      rememberMe = false;
+      if (!js.containsKey("rememberMe")) {
+        username = "";
+        password = "";
+        rememberMe = false;
+      }
     }
   }
 
-  CompoundTag serialize() {
-    CompoundTag ct = CompoundTag();
+  Map<String, dynamic> toJson({bool theme = true}) {
+    Map<String, dynamic> js = {};
 
     if (flushPictures != _defaults.flushPictures) {
-      NbtUtils.writeBoolean(ct, "flush_avatars", true);
+      js['flushPictures'] = true;
     }
+
     if (roundedBorder != _defaults.roundedBorder) {
-      NbtUtils.writeBoolean(ct, "roundedborder", true);
+      js['rounded'] = true;
     }
+
     if (squarePicture != _defaults.squarePicture) {
-      NbtUtils.writeBoolean(ct, "squarePicture", true);
+      js['squarePics'] = true;
     }
 
     if (!identicalColors(
       AlterBackgroundColor,
       _defaults.AlterBackgroundColor,
     )) {
-      IntArrayTag iat = IntArrayTag.valueOf(AlterBackgroundColor);
-      ct.put("alterBackground", iat);
+      js['alterBackground'] = AlterBackgroundColor;
     }
 
     if (!identicalColors(AlterTextColor, _defaults.AlterTextColor)) {
-      IntArrayTag iat = IntArrayTag.valueOf(AlterTextColor);
-
-      ct.put("alterText", iat);
+      js['alterText'] = AlterTextColor;
     }
 
     if (!identicalColors(NavSelColor, _defaults.NavSelColor)) {
-      IntArrayTag iat = IntArrayTag.valueOf(NavSelColor);
-
-      ct.put("navSelColor", iat);
+      js['navSelColor'] = NavSelColor;
     }
 
     if (!identicalColors(NavUnSelColor, _defaults.NavUnSelColor)) {
-      IntArrayTag iat = IntArrayTag.valueOf(NavUnSelColor);
-
-      ct.put("navUnSelColor", iat);
+      js['navUnSelColor'] = NavUnSelColor;
     }
 
-    NbtUtils.writeBoolean(ct, "rememberMe", rememberMe);
-    if (rememberMe) {
-      ct.put("username", StringTag.valueOf(username));
-      ct.put("password", StringTag.valueOf(password));
+    if (rememberMe && !theme) {
+      js['rememberMe'] = true;
+      js['username'] = username;
+      js['password'] = password;
     }
 
-    return ct;
+    return js;
   }
 
   void reset() {
-    CompoundTag defaults = CompoundTag();
-
-    NbtUtils.writeBoolean(defaults, "roundedborder", true);
-
-    deserialize(defaults);
+    fromJson(_defaults.toJson());
   }
 }

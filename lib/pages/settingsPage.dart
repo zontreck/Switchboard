@@ -1,8 +1,9 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_colorpicker/flutter_colorpicker.dart';
-import 'package:libac_dart/nbt/NbtIo.dart';
-import 'package:libac_dart/nbt/impl/CompoundTag.dart';
+import 'package:libac_dart/utils/Converter.dart';
 import 'package:libac_dart/utils/uuid/UUID.dart';
 import 'package:libacflutter/Constants.dart';
 import 'package:switchboard/dart/MemoryState.dart';
@@ -64,7 +65,7 @@ class _settings extends State<SettingsPage> {
                     value: ms.flushPictures,
                     onChanged: (B) {
                       ms.flushPictures = B ?? true;
-                      setAppSettings(ms.serialize()).then((V) {
+                      setAppSettings().then((V) {
                         setState(() {});
                       });
                     },
@@ -80,7 +81,7 @@ class _settings extends State<SettingsPage> {
                     onChanged: (B) {
                       if (ms.flushPictures) return;
                       ms.squarePicture = B ?? true;
-                      setAppSettings(ms.serialize()).then((V) {
+                      setAppSettings().then((V) {
                         setState(() {});
                       });
                     },
@@ -95,7 +96,7 @@ class _settings extends State<SettingsPage> {
                     value: ms.roundedBorder,
                     onChanged: (B) {
                       ms.roundedBorder = B ?? true;
-                      setAppSettings(ms.serialize()).then((V) {
+                      setAppSettings().then((V) {
                         setState(() {});
                       });
                     },
@@ -294,8 +295,8 @@ class _settings extends State<SettingsPage> {
                 tileColor: const Color.fromARGB(255, 138, 222, 122),
                 textColor: Colors.black,
                 onTap: () async {
-                  String data = NbtIo.writeBase64StringCompressed(
-                    ms.serialize(),
+                  String data = base64Encoder.base64Enc(
+                    json.encode(ms.toJson()),
                   );
 
                   await showDialog(
@@ -349,15 +350,14 @@ class _settings extends State<SettingsPage> {
                             onPressed: () async {
                               // Do apply theme
                               try {
-                                CompoundTag ct =
-                                    (NbtIo.readBase64StringCompressed(
-                                      importThemeController.text,
-                                    )).asCompoundTag();
-                                ms.deserialize(ct);
+                                String data = base64Encoder.base64Dec(
+                                  importThemeController.text,
+                                );
+                                ms.fromJson(json.decode(data), theme: true);
 
                                 setState(() {});
 
-                                setAppSettings(ct);
+                                setAppSettings();
                                 Navigator.pop(context);
                               } catch (E) {
                                 importErrorHint = true;

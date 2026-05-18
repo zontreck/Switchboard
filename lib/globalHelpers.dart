@@ -3,8 +3,6 @@ import 'dart:convert';
 import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show FontLoader, rootBundle;
-import 'package:libac_dart/nbt/SnbtIo.dart';
-import 'package:libac_dart/nbt/impl/CompoundTag.dart';
 import 'package:libac_dart/utils/StringUtils.dart';
 import 'package:libacflutter/utils/colorHelpers.dart';
 import 'package:package_info_plus/package_info_plus.dart';
@@ -41,7 +39,7 @@ Future<void> setAuthToken(String authToken) async {
   MemoryState ms = MemoryState();
   ms.authenticationToken = authToken;
 
-  await setAppSettings(ms.serialize());
+  await setAppSettings();
 }
 
 Future<void> setApplicationFont(Uint8List binary) async {
@@ -140,25 +138,18 @@ Future<String> getAuthToken() async {
   return prefs.getString("token") ?? "";
 }
 
-Future<void> setAppSettings(CompoundTag ct) async {
+Future<void> setAppSettings() async {
   MemoryState ms = MemoryState();
   SharedPreferences prefs = await SharedPreferences.getInstance();
-  String snbt = SnbtIo.writeToString(ct);
 
-  await prefs.setString("settings", snbt);
-  ms.deserialize(ct);
-
-  //print("DEBUG: $snbt");
+  await prefs.setString("settings", json.encode(ms.toJson(theme: false)));
 }
 
 Future<void> getAppSettings() async {
   MemoryState ms = MemoryState();
   SharedPreferences prefs = await SharedPreferences.getInstance();
 
-  CompoundTag ct = (SnbtIo.readFromString(
-    prefs.getString("settings") ?? "{}",
-  )).asCompoundTag();
-  ms.deserialize(ct);
+  ms.fromJson(json.decode(await prefs.getString("settings") ?? "{}"));
 }
 
 Color getAlterBackgroundColor() {
@@ -170,7 +161,7 @@ Future<void> setAlterBackgroundColor(Color b) async {
   MemoryState ms = MemoryState();
   ms.AlterBackgroundColor = Color2List(b);
 
-  await setAppSettings(ms.serialize());
+  await setAppSettings();
 }
 
 Color getAlterTextColor() {
@@ -182,7 +173,7 @@ Future<void> setAlterTextColor(Color b) async {
   MemoryState ms = MemoryState();
   ms.AlterTextColor = Color2List(b);
 
-  await setAppSettings(ms.serialize());
+  await setAppSettings();
 }
 
 Color getNavSelColor() {
@@ -194,7 +185,7 @@ Future<void> setNavSelColor(Color b) async {
   MemoryState ms = MemoryState();
   ms.NavSelColor = Color2List(b);
 
-  await setAppSettings(ms.serialize());
+  await setAppSettings();
 }
 
 Color getNavUnselColor() {
@@ -206,5 +197,5 @@ Future<void> setNavUnselColor(Color b) async {
   MemoryState ms = MemoryState();
   ms.NavUnSelColor = Color2List(b);
 
-  await setAppSettings(ms.serialize());
+  await setAppSettings();
 }

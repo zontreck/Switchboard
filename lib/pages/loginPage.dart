@@ -220,7 +220,7 @@ class _loginState extends State<SBLoginPage> {
                     ms.username = "";
                     ms.password = "";
 
-                    await setAppSettings(ms.serialize());
+                    await setAppSettings();
 
                     setState(() {});
                   } else {
@@ -257,7 +257,7 @@ class _loginState extends State<SBLoginPage> {
                       A = reply as bool;
                     }
                     ms.rememberMe = A;
-                    setAppSettings(ms.serialize());
+                    setAppSettings();
 
                     setState(() {});
                   }
