@@ -1,5 +1,9 @@
 # 0.1.0
 
+## ADD:
+
+- [x] Liquid Glass Shading
+
 ## CHANGE:
 
 - [x] Upon request, changed the ListTile in the EditAlter page for revealing the Alter's ID. This is now a small ElevatedButton.
