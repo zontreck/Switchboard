@@ -151,19 +151,20 @@ Future<void> getAppSettings() async {
   SharedPreferences prefs = await SharedPreferences.getInstance();
 
   bool isNBT = false;
-  String settings = await prefs.getString("settings") ?? "{}";
+  String settings = prefs.getString("settings") ?? "{}";
   try {
     json.decode(settings);
   } catch (E) {
     isNBT = true;
   }
 
-  if (!isNBT)
+  if (!isNBT) {
     ms.fromJson(
-      typeCorrectJsonDecode(await prefs.getString("settings") ?? "{}"),
+      typeCorrectJsonDecode(prefs.getString("settings") ?? "{}"),
     );
-  else
+  } else {
     ms.fromJson({}); // Throw away existing settings.
+  }
 }
 
 Color getAlterBackgroundColor() {

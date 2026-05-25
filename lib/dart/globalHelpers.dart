@@ -45,8 +45,9 @@ dynamic typeCorrect(dynamic value) {
   }
 
   // Handle nulls.
-  if (value is String && value == "")
+  if (value is String && value == "") {
     return null; // Strings that are blank should be null. This allows proper defaults handling.
+  }
 
   // Handle lists
   if (value is List) {

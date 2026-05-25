@@ -200,7 +200,7 @@ abstract class _FieldStorage {
 }
 
 class FieldRegistry {
-  static Map<String, _FieldStorage> _registry = {};
+  static final Map<String, _FieldStorage> _registry = {};
 
   static void fromJson(Map<String, dynamic> js) {}
 }
@@ -209,7 +209,7 @@ enum FieldStorageType {
   Text(0),
   Color(1);
 
-  const FieldStorageType(int id) : this._id = id;
+  const FieldStorageType(int id) : _id = id;
 
   final int _id;
 
