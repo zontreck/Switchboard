@@ -9,6 +9,7 @@ import 'package:package_info_plus/package_info_plus.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:switchboard/dart/MemoryState.dart';
+import 'package:switchboard/dart/globalHelpers.dart';
 
 final ValueNotifier<String> customFontNotifier = ValueNotifier(
   MemoryState.A.customFontFamily,
@@ -149,7 +150,20 @@ Future<void> getAppSettings() async {
   MemoryState ms = MemoryState();
   SharedPreferences prefs = await SharedPreferences.getInstance();
 
-  ms.fromJson(json.decode(await prefs.getString("settings") ?? "{}"));
+  bool isNBT = false;
+  String settings = await prefs.getString("settings") ?? "{}";
+  try {
+    json.decode(settings);
+  } catch (E) {
+    isNBT = true;
+  }
+
+  if (!isNBT)
+    ms.fromJson(
+      typeCorrectJsonDecode(await prefs.getString("settings") ?? "{}"),
+    );
+  else
+    ms.fromJson({}); // Throw away existing settings.
 }
 
 Color getAlterBackgroundColor() {

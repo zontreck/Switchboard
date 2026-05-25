@@ -7,6 +7,7 @@ import 'package:libac_dart/utils/TimeUtils.dart';
 import 'package:libac_dart/utils/uuid/UUID.dart';
 import 'package:switchboard/dart/MemoryState.dart';
 import 'package:switchboard/dart/exceptions.dart';
+import 'package:switchboard/dart/globalHelpers.dart';
 import 'package:switchboard/dart/privacyPolicy.dart';
 
 class NetworkInterface {
@@ -19,7 +20,7 @@ class NetworkInterface {
 
     print(reply.data);
 
-    return S2CServerVersionPacket.decode(reply.data);
+    return S2CServerVersionPacket.decode(typeCorrectJson(reply.data));
   }
 
   static Future<S2CUserPacket> putNewUser(
@@ -36,7 +37,7 @@ class NetworkInterface {
     print(reply.data);
 
     // Deserialize the make new user packet
-    S2CUserPacket response = S2CUserPacket.decode(reply.data);
+    S2CUserPacket response = S2CUserPacket.decode(typeCorrectJson(reply.data));
 
     return response;
   }
@@ -48,7 +49,7 @@ class NetworkInterface {
 
     print(reply.data);
 
-    return S2CUserPacket.decode(reply.data);
+    return S2CUserPacket.decode(typeCorrectJson(reply.data));
   }
 
   static Future<S2CAuthenticationResponse> authenticate(
@@ -65,7 +66,7 @@ class NetworkInterface {
 
     print(reply.data);
 
-    return S2CAuthenticationResponse.decode(reply.data);
+    return S2CAuthenticationResponse.decode(typeCorrectJson(reply.data));
   }
 
   static Future<S2CAuthenticationCheckResponse> checkAuth() async {
@@ -78,7 +79,7 @@ class NetworkInterface {
 
     print(reply.data);
 
-    return S2CAuthenticationCheckResponse.decode(reply.data);
+    return S2CAuthenticationCheckResponse.decode(typeCorrectJson(reply.data));
   }
 
   static Future<S2CAuthenticationRefreshResponse> refreshAuth() async {
@@ -90,7 +91,7 @@ class NetworkInterface {
     var reply = await dio.get("${getAPIServerURL()}/auth/refresh");
 
     print(reply.data);
-    return S2CAuthenticationRefreshResponse.decode(reply.data);
+    return S2CAuthenticationRefreshResponse.decode(typeCorrectJson(reply.data));
   }
 
   static Future<S2CAltersResponse> requestAltersList(UUID? user) async {
@@ -136,7 +137,7 @@ class NetworkInterface {
       }
 
       S2CAltersPartialResponse partialAlters = S2CAltersPartialResponse.decode(
-        reply.data,
+        typeCorrectJson(reply.data),
       );
 
       allAlters.addAll(partialAlters.data.alters);
@@ -168,7 +169,7 @@ class NetworkInterface {
 
     print(reply.data);
 
-    return S2CAlterResponse.decode(reply.data);
+    return S2CAlterResponse.decode(typeCorrectJson(reply.data));
   }
 
   static Future<S2CAlterResponse> getAlterByID(UUID id) async {
@@ -181,7 +182,7 @@ class NetworkInterface {
     var reply = await dio.get("${getAPIServerURL()}/alter/${id.toString()}");
 
     print(reply.data);
-    return S2CAlterResponse.decode(reply.data);
+    return S2CAlterResponse.decode(typeCorrectJson(reply.data));
   }
 
   static Future<S2CFieldsResponse> getDataFields() async {
@@ -193,7 +194,7 @@ class NetworkInterface {
 
     var reply = await dio.get("${getAPIServerURL()}/fields");
     print(reply.data);
-    return S2CFieldsResponse.fromJson(reply.data);
+    return S2CFieldsResponse.fromJson(typeCorrectJson(reply.data));
   }
 
   static Future<S2CFieldResponse> updateField(Field field) async {
@@ -211,7 +212,7 @@ class NetworkInterface {
     );
 
     print(reply.data);
-    S2CFieldResponse sfr = S2CFieldResponse.decode(reply.data);
+    S2CFieldResponse sfr = S2CFieldResponse.decode(typeCorrectJson(reply.data));
 
     return sfr;
   }
@@ -228,7 +229,7 @@ class NetworkInterface {
     );
 
     print(reply.data);
-    S2CFieldResponse sfr = S2CFieldResponse.decode(reply.data);
+    S2CFieldResponse sfr = S2CFieldResponse.decode(typeCorrectJson(reply.data));
 
     return sfr;
   }
@@ -252,7 +253,7 @@ class NetworkInterface {
     );
 
     print(reply.data);
-    S2CFieldResponse sfr = S2CFieldResponse.decode(reply.data);
+    S2CFieldResponse sfr = S2CFieldResponse.decode(typeCorrectJson(reply.data));
     return sfr;
   }
 
@@ -267,7 +268,7 @@ class NetworkInterface {
 
     print(reply.data);
 
-    return S2CLazyResponse.decode(reply.data);
+    return S2CLazyResponse.decode(typeCorrectJson(reply.data));
   }
 
   static Future<S2CLazyResponse> updateAlter(Alter alter) async {
@@ -284,7 +285,7 @@ class NetworkInterface {
 
     print(reply.data);
 
-    return S2CLazyResponse.decode(reply.data);
+    return S2CLazyResponse.decode(typeCorrectJson(reply.data));
   }
 }
 
@@ -1026,6 +1027,10 @@ class Alter {
     if (!js.containsKey("subid")) {
       throw InvalidServerResponseException(reason: "Not alter formatted data");
     }
+    if (js['fields'] is String) {
+      js['fields'] =
+          []; // Replace with a blank array. Throw away the old base64 encoded NBT Data
+    }
     var alter = Alter(
       id: UUID.parse(js['id']),
       user: UUID.parse(js['user']),
@@ -1034,7 +1039,7 @@ class Alter {
       subid: js['subid'],
       parent: UUID.parse(js['parent']),
       flags: js['flags'],
-      fields: decodeFields(js['fields']),
+      fields: decodeFields(js['fields'] ?? {}),
     );
 
     return alter;
