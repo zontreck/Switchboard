@@ -1,10 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_colorpicker/flutter_colorpicker.dart';
-import 'package:libac_dart/nbt/SnbtIo.dart';
-import 'package:libac_dart/nbt/impl/CompoundTag.dart';
-import 'package:libac_dart/nbt/impl/IntArrayTag.dart';
-import 'package:libac_dart/nbt/impl/StringTag.dart';
 import 'package:libac_dart/utils/uuid/UUID.dart';
 import 'package:libacflutter/utils/colorHelpers.dart';
 import 'package:markdown_widget/widget/all.dart';
@@ -46,7 +42,7 @@ class _editAlter extends State<EditAlterPage> {
       floatingActionButton: ElevatedButton.icon(
         onPressed: () async {
           alter.name = alterNameController.text;
-          print(SnbtIo.writeToString(alter.encodeTag()));
+          print(alter.encode());
 
           FocusManager.instance.primaryFocus?.unfocus();
 
@@ -155,6 +151,7 @@ class _editAlter extends State<EditAlterPage> {
           data: alter.getDataByFieldID(field.id),
           type: field.type,
           alter: alter,
+          order: field.order,
         ),
       );
 
@@ -168,17 +165,109 @@ class AlterFieldData extends StatefulWidget {
   FieldData data;
   FieldType type;
   Alter alter;
+  int order;
 
   AlterFieldData({
     super.key,
     required this.data,
     required this.type,
     required this.alter,
+    required this.order,
   });
 
   @override
   State<StatefulWidget> createState() {
     return _alterFieldData();
+  }
+}
+
+abstract class _FieldStorage {
+  Map<String, dynamic> toJson() {
+    return {"type": dataType.id};
+  }
+
+  static _FieldStorage fromJson(Map<String, dynamic> js) {
+    FieldStorageType type = FieldStorageType.valueOf(js['type']);
+    var store = type.init();
+    store.decode(js);
+
+    return store;
+  }
+
+  void decode(Map<String, dynamic> js);
+
+  FieldStorageType get dataType;
+}
+
+class FieldRegistry {
+  static Map<String, _FieldStorage> _registry = {};
+
+  static void fromJson(Map<String, dynamic> js) {}
+}
+
+enum FieldStorageType {
+  Text(0),
+  Color(1);
+
+  const FieldStorageType(int id) : this._id = id;
+
+  final int _id;
+
+  int get id => _id;
+  static FieldStorageType valueOf(int id) {
+    return values.where((x) => x.id == id).firstOrNull ?? FieldStorageType.Text;
+  }
+
+  _FieldStorage init() {
+    if (this == Text) {
+      return TextFieldStorage();
+    } else {
+      return ColorFieldStorage();
+    }
+  }
+}
+
+class TextFieldStorage extends _FieldStorage {
+  String _data = "";
+  TextEditingController controller = TextEditingController();
+  String get data => controller.text;
+
+  @override
+  FieldStorageType get dataType => FieldStorageType.Text;
+
+  @override
+  Map<String, dynamic> toJson() {
+    var m = super.toJson();
+    _data = controller.text;
+    m.addAll({"data": _data});
+
+    return m;
+  }
+
+  @override
+  void decode(Map<String, dynamic> js) {
+    _data = js['data'];
+    controller.text = _data;
+  }
+}
+
+class ColorFieldStorage extends _FieldStorage {
+  Color data = Colors.white;
+
+  @override
+  FieldStorageType get dataType => FieldStorageType.Color;
+
+  @override
+  Map<String, dynamic> toJson() {
+    var m = super.toJson();
+    m.addAll({"data": Color2List(data)});
+
+    return m;
+  }
+
+  @override
+  void decode(Map<String, dynamic> js) {
+    data = ColorFromList(js['data']);
   }
 }
 
@@ -191,39 +280,21 @@ class _alterFieldData extends State<AlterFieldData> {
   void didChangeDependencies() {
     super.didChangeDependencies();
 
-    if (widget.type == FieldType.PlainText) {
-      TextEditingController ptCon = TextEditingController(
-        text:
-            widget.data.data
-                .get("${widget.type.name}-${widget.type.value()}")
-                ?.asString() ??
-            "",
+    if (widget.type == FieldType.PlainText ||
+        widget.type == FieldType.Markdown ||
+        widget.type == FieldType.Description) {
+      _FieldStorage store = _FieldStorage.fromJson(
+        widget.data.data["${widget.data.id}-${widget.type.value()}"],
       );
 
-      controlHolders[widget.data.id.toString()] = ptCon;
+      controlHolders[widget.data.id.toString()] = store;
     } else if (widget.type == FieldType.Color ||
         widget.type == FieldType.ColorSys) {
-      List<int> lst =
-          widget.data.data
-              .get("${widget.type.name}-${widget.type.value()}")
-              ?.asIntArray() ??
-          [255, 255, 255, 255];
-
-      Color color = ColorFromList(lst);
-
-      controlHolders[widget.data.id.toString()] = color;
-    } else if (widget.type == FieldType.Markdown ||
-        widget.type == FieldType.Description) {
-      TextEditingController con = TextEditingController(
-        text:
-            widget.data.data
-                .get("${widget.type.name}-${widget.type.value()}")
-                ?.asString() ??
-            "",
+      _FieldStorage store = _FieldStorage.fromJson(
+        widget.data.data["${widget.data.id}-${widget.type.value()}"],
       );
 
-      controlHolders[widget.data.id.toString()] = con;
-      controlHolders["${widget.data.id.toString()}-prev"] = false;
+      controlHolders[widget.data.id.toString()] = store;
     }
   }
 
@@ -234,23 +305,17 @@ class _alterFieldData extends State<AlterFieldData> {
         {
           return TextField(
             controller:
-                controlHolders[widget.data.id.toString()]
-                    as TextEditingController,
+                (controlHolders[widget.data.id.toString()] as TextFieldStorage)
+                    .controller,
             decoration: InputDecoration(border: OutlineInputBorder()),
             onChanged: (value) {
-              CompoundTag ct = CompoundTag();
-              ct.put(
-                "${widget.type.name}-${widget.type.value()}",
-                StringTag.valueOf(
+              TextFieldStorage tfs =
                   (controlHolders[widget.data.id.toString()]
-                          as TextEditingController)
-                      .text,
-                ),
-              );
+                      as TextFieldStorage);
 
               widget.alter.fieldChangeNotifier.value = FieldData(
                 id: widget.data.id,
-                data: ct,
+                data: tfs.toJson(),
               );
             },
           );
@@ -262,26 +327,25 @@ class _alterFieldData extends State<AlterFieldData> {
           return ListTile(
             leading: Icon(
               Icons.circle,
-              color: controlHolders[widget.data.id.toString()] as Color,
+              color:
+                  (controlHolders[widget.data.id.toString()]
+                          as ColorFieldStorage)
+                      .data,
             ),
             title: Text("Pick A Color"),
             subtitle: Text("Tap here to change the color selection"),
             onTap: () async {
-              Color C = controlHolders[widget.data.id.toString()] as Color;
+              ColorFieldStorage Cfs =
+                  controlHolders[widget.data.id.toString()]
+                      as ColorFieldStorage;
               var a = AlertDialog(
                 title: Text("Pick A Color"),
                 actions: [
                   ElevatedButton(
                     onPressed: () async {
-                      CompoundTag ct = CompoundTag();
-                      List<int> lst = Color2List(C);
-                      controlHolders[widget.data.id.toString()] = C;
-                      IntArrayTag iat = IntArrayTag.valueOf(lst);
-                      ct.put("${widget.type.name}-${widget.type.value()}", iat);
-
                       widget.alter.fieldChangeNotifier.value = FieldData(
                         id: widget.data.id,
-                        data: ct,
+                        data: Cfs.toJson(),
                       );
                       setState(() {});
                       Navigator.of(context).pop();
@@ -291,10 +355,9 @@ class _alterFieldData extends State<AlterFieldData> {
                 ],
                 content: SingleChildScrollView(
                   child: ColorPicker(
-                    pickerColor:
-                        controlHolders[widget.data.id.toString()] as Color,
+                    pickerColor: Cfs.data,
                     onColorChanged: (Cv) {
-                      C = Cv;
+                      Cfs.data = Cv;
 
                       setState(() {});
                     },
@@ -317,8 +380,8 @@ class _alterFieldData extends State<AlterFieldData> {
                         child: MarkdownWidget(
                           data:
                               (controlHolders[widget.data.id.toString()]
-                                      as TextEditingController)
-                                  .text,
+                                      as TextFieldStorage)
+                                  .data,
                           shrinkWrap: true,
                         ),
                       ),
@@ -328,23 +391,18 @@ class _alterFieldData extends State<AlterFieldData> {
                       maxLines: null,
                       minLines: 4,
                       controller:
-                          controlHolders[widget.data.id.toString()]
-                              as TextEditingController,
+                          (controlHolders[widget.data.id.toString()]
+                                  as TextFieldStorage)
+                              .controller,
                       decoration: InputDecoration(border: OutlineInputBorder()),
                       onChanged: (value) {
-                        CompoundTag ct = CompoundTag();
-                        ct.put(
-                          "${widget.type.name}-${widget.type.value()}",
-                          StringTag.valueOf(
+                        var tfs =
                             (controlHolders[widget.data.id.toString()]
-                                    as TextEditingController)
-                                .text,
-                          ),
-                        );
+                                as TextFieldStorage);
 
                         widget.alter.fieldChangeNotifier.value = FieldData(
                           id: widget.data.id,
-                          data: ct,
+                          data: tfs.toJson(),
                         );
                       },
                     ),

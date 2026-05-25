@@ -2,10 +2,6 @@ import 'dart:async';
 
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
-import 'package:libac_dart/nbt/NbtIo.dart';
-import 'package:libac_dart/nbt/impl/CompoundTag.dart';
-import 'package:libac_dart/nbt/impl/ListTag.dart';
-import 'package:libac_dart/nbt/impl/StringTag.dart';
 import 'package:libac_dart/utils/Hashing.dart';
 import 'package:libac_dart/utils/TimeUtils.dart';
 import 'package:libac_dart/utils/uuid/UUID.dart';
@@ -971,23 +967,16 @@ class S2CFieldsResponse implements ResponsePacket {
 
 class FieldData {
   UUID id;
-  CompoundTag data = CompoundTag();
+  Map<String, dynamic> data = {};
 
   FieldData({required this.id, required this.data});
 
-  CompoundTag encode() {
-    CompoundTag ct = CompoundTag();
-    ct.put("id", StringTag.valueOf(id.toString()));
-    ct.put("value", data);
-
-    return ct;
+  Map<String, dynamic> toJson() {
+    return {"id": id.toString(), "value": data};
   }
 
-  factory FieldData.decode(CompoundTag ct) {
-    return FieldData(
-      id: UUID.parse(ct.get("id")!.asString()),
-      data: ct.get("value")!.asCompoundTag(),
-    );
+  factory FieldData.decode(Map<String, dynamic> js) {
+    return FieldData(id: UUID.parse(js['id']), data: js['value']);
   }
 }
 
@@ -1001,7 +990,7 @@ class Alter {
   int flags;
   List<FieldData> fields;
   ValueNotifier fieldChangeNotifier = ValueNotifier<FieldData>(
-    FieldData(data: CompoundTag(), id: UUID.ZERO),
+    FieldData(data: {}, id: UUID.ZERO),
   );
 
   Alter({
@@ -1051,36 +1040,22 @@ class Alter {
     return alter;
   }
 
-  static List<FieldData> decodeFields(String b64) {
-    if (b64 == "") {
-      return [];
-    }
-    CompoundTag tag = NbtIo.readBase64StringCompressed(b64).asCompoundTag();
+  static List<FieldData> decodeFields(List<dynamic> js) {
     List<FieldData> fields = [];
-
-    ListTag lst = tag.get("data")! as ListTag;
-    for (var tag in lst.value) {
-      fields.add(FieldData.decode(tag.asCompoundTag()));
+    for (var entry in js) {
+      fields.add(FieldData.decode(entry));
     }
 
     return fields;
   }
 
-  CompoundTag encodeTag() {
-    CompoundTag ct = CompoundTag();
-    ListTag lst = ListTag();
-
-    for (var field in fields) {
-      lst.add(field.encode());
+  List<Map<String, dynamic>> encodeFields() {
+    List<Map<String, dynamic>> ret = [];
+    for (var entry in fields) {
+      ret.add(entry.toJson());
     }
 
-    ct.put("data", lst);
-
-    return ct;
-  }
-
-  String encodeFields() {
-    return NbtIo.writeBase64StringCompressed(encodeTag());
+    return ret;
   }
 
   /// This helper function determines if the proper URL is to the Switchboard CDN, or a external network.
@@ -1106,7 +1081,7 @@ class Alter {
       if (field.id.toString() == id.toString()) return field;
     }
 
-    return FieldData(id: id, data: CompoundTag());
+    return FieldData(id: id, data: {});
   }
 
   void addOrUpdateField(FieldData data) {
