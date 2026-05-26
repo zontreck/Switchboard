@@ -12,6 +12,8 @@
   - [x] Core Issue: Dart2JS does not support Int64 on the web browser. So, as much as NBT would help with compact theme strings, we cannot use it, if we want to have a fully features Web interface for the app as well.
 - [x] (BREAKING) Rip out NBT from FieldData
 - [x] Convert FieldData editors to use a JSON codec, and base/inherited classes for serialization purposes.
+- [x] NBT -> Json
+  - [x] Internally, if data was previously NBT, it will be reset to defaults. This is anything from FieldData in Alters to the App Settings. Themes will also need to be recreated/exported using the new serializer.
 
 # 0.1.0+0517261258
 
