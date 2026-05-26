@@ -1,8 +1,11 @@
 import 'dart:async';
+import 'dart:convert';
 
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:libac_dart/utils/Converter.dart';
 import 'package:libac_dart/utils/Hashing.dart';
+import 'package:libac_dart/utils/StringUtils.dart';
 import 'package:libac_dart/utils/TimeUtils.dart';
 import 'package:libac_dart/utils/uuid/UUID.dart';
 import 'package:switchboard/dart/MemoryState.dart';
@@ -1019,7 +1022,7 @@ class Alter {
       "subid": subid,
       "parent": parent.toString(),
       "flags": flags,
-      "fields": encodeFields(),
+      "fields": base64Encoder.base64Enc(json.encode({"A": encodeFields()})),
     };
   }
 
@@ -1027,10 +1030,18 @@ class Alter {
     if (!js.containsKey("subid")) {
       throw InvalidServerResponseException(reason: "Not alter formatted data");
     }
-    if (js['fields'] is String) {
-      js['fields'] =
-          []; // Replace with a blank array. Throw away the old base64 encoded NBT Data
-    }
+    List<dynamic> fieldsJs = [];
+    try {
+      var jsA = js['fields'];
+      if (jsA == null) {
+        jsA = "eyJBIjogW119";
+      }
+
+      var jsB = base64Encoder.base64Dec(jsA);
+      var jsC = typeCorrectJsonDecode(jsB);
+      fieldsJs = jsC["A"];
+    } catch (A) {}
+
     var alter = Alter(
       id: UUID.parse(js['id']),
       user: UUID.parse(js['user']),
@@ -1039,7 +1050,7 @@ class Alter {
       subid: js['subid'],
       parent: UUID.parse(js['parent']),
       flags: js['flags'],
-      fields: decodeFields(js['fields'] ?? {}),
+      fields: decodeFields(fieldsJs),
     );
 
     return alter;

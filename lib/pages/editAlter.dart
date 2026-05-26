@@ -232,6 +232,9 @@ class TextFieldStorage extends _FieldStorage {
   TextEditingController controller = TextEditingController();
   String get data => controller.text;
 
+  /// This flag is used for Markdown previewing only.
+  bool preview = false;
+
   @override
   FieldStorageType get dataType => FieldStorageType.Text;
 
@@ -284,14 +287,19 @@ class _alterFieldData extends State<AlterFieldData> {
         widget.type == FieldType.Markdown ||
         widget.type == FieldType.Description) {
       _FieldStorage store = _FieldStorage.fromJson(
-        widget.data.data["${widget.data.id}-${widget.type.value()}"],
+        widget.data.data["${widget.data.id}-${widget.type.value()}"] ??
+            {"type": FieldStorageType.Text.id, "data": ""},
       );
 
       controlHolders[widget.data.id.toString()] = store;
     } else if (widget.type == FieldType.Color ||
         widget.type == FieldType.ColorSys) {
       _FieldStorage store = _FieldStorage.fromJson(
-        widget.data.data["${widget.data.id}-${widget.type.value()}"],
+        widget.data.data["${widget.data.id}-${widget.type.value()}"] ??
+            {
+              "type": FieldStorageType.Color.id,
+              "data": [0, 0, 0, 0],
+            },
       );
 
       controlHolders[widget.data.id.toString()] = store;
@@ -374,7 +382,9 @@ class _alterFieldData extends State<AlterFieldData> {
         {
           return Column(
             children: [
-              (controlHolders["${widget.data.id.toString()}-prev"] as bool)
+              (controlHolders["${widget.data.id.toString()}"]
+                          as TextFieldStorage)
+                      .preview
                   ? Card(
                       child: SingleChildScrollView(
                         child: MarkdownWidget(
@@ -414,9 +424,12 @@ class _alterFieldData extends State<AlterFieldData> {
                   "Enable/Disable editing and render a markdown preview.",
                 ),
                 onTap: () {
-                  controlHolders["${widget.data.id.toString()}-prev"] =
-                      !(controlHolders["${widget.data.id.toString()}-prev"]
-                          as bool);
+                  (controlHolders["${widget.data.id.toString()}"]
+                              as TextFieldStorage)
+                          .preview =
+                      !(controlHolders["${widget.data.id.toString()}"]
+                              as TextFieldStorage)
+                          .preview;
 
                   setState(() {});
                 },
