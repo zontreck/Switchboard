@@ -286,6 +286,10 @@ class _alterFieldData extends State<AlterFieldData> {
     if (widget.type == FieldType.PlainText ||
         widget.type == FieldType.Markdown ||
         widget.type == FieldType.Description) {
+      if (widget.data.data["type"] != FieldStorageType.Text.id) {
+        widget.data.data = {};
+      }
+
       if (widget.data.data.isEmpty) {
         widget.data.data = {"type": FieldStorageType.Text.id, "data": ""};
       }
@@ -294,6 +298,10 @@ class _alterFieldData extends State<AlterFieldData> {
       controlHolders[widget.data.id.toString()] = store;
     } else if (widget.type == FieldType.Color ||
         widget.type == FieldType.ColorSys) {
+      if (widget.data.data["type"] != FieldStorageType.Color.id) {
+        widget.data.data = {};
+      }
+
       if (widget.data.data.isEmpty) {
         widget.data.data = {
           "type": FieldStorageType.Color.id,
