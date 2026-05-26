@@ -286,21 +286,21 @@ class _alterFieldData extends State<AlterFieldData> {
     if (widget.type == FieldType.PlainText ||
         widget.type == FieldType.Markdown ||
         widget.type == FieldType.Description) {
-      _FieldStorage store = _FieldStorage.fromJson(
-        widget.data.data["${widget.data.id}-${widget.type.value()}"] ??
-            {"type": FieldStorageType.Text.id, "data": ""},
-      );
+      if (widget.data.data.isEmpty) {
+        widget.data.data = {"type": FieldStorageType.Text.id, "data": ""};
+      }
+      _FieldStorage store = _FieldStorage.fromJson(widget.data.data);
 
       controlHolders[widget.data.id.toString()] = store;
     } else if (widget.type == FieldType.Color ||
         widget.type == FieldType.ColorSys) {
-      _FieldStorage store = _FieldStorage.fromJson(
-        widget.data.data["${widget.data.id}-${widget.type.value()}"] ??
-            {
-              "type": FieldStorageType.Color.id,
-              "data": [0, 0, 0, 0],
-            },
-      );
+      if (widget.data.data.isEmpty) {
+        widget.data.data = {
+          "type": FieldStorageType.Color.id,
+          "data": [255, 0, 0, 0],
+        };
+      }
+      _FieldStorage store = _FieldStorage.fromJson(widget.data.data);
 
       controlHolders[widget.data.id.toString()] = store;
     }
@@ -364,6 +364,7 @@ class _alterFieldData extends State<AlterFieldData> {
                 content: SingleChildScrollView(
                   child: ColorPicker(
                     pickerColor: Cfs.data,
+                    hexInputBar: true,
                     onColorChanged: (Cv) {
                       Cfs.data = Cv;
 
