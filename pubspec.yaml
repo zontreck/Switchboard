@@ -46,9 +46,6 @@ dependencies:
   mineral: ^4.2.0
   mineral_cache: ^1.2.0
   shared_preferences: ^2.5.5
-  libplayingcards:
-    hosted: https://git.zontreck.com/api/packages/Packages/pub/
-    version: 1.0.40826+2338
   package_info_plus: ^9.0.1
   flutter_colorpicker: ^1.1.0
   file_picker: ^11.0.2
