@@ -44,18 +44,9 @@ dynamic typeCorrect(dynamic value) {
     return corrected;
   }
 
-  // Handle nulls.
-  if (value is String && value == "") {
-    return null; // Strings that are blank should be null. This allows proper defaults handling.
-  }
-
   // Handle lists
   if (value is List) {
     List<dynamic> corrected = value.map(typeCorrect).toList();
-
-    if (corrected.isEmpty) {
-      return null; // Return null for a list object that has no entries. This will allow proper defaults handling.
-    }
 
     Type firstType = corrected.first.runtimeType;
 
