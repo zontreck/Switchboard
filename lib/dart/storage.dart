@@ -289,6 +289,40 @@ class NetworkInterface {
 
     return S2CLazyResponse.decode(typeCorrectJson(reply.data));
   }
+
+  static Future<S2CLazyResponse> deleteAvatar(Alter alter) async {
+    Dio dio = Dio();
+    MemoryState ms = MemoryState();
+
+    dio.options.headers["Content-Type"] = "application/json";
+    dio.options.headers["X-SB-Auth"] = ms.authenticationToken;
+
+    var reply = await dio.delete(
+      "${getAPIServerURL()}/avatar/${alter.id.toString()}",
+    );
+    print(reply.data);
+
+    return S2CLazyResponse.decode(typeCorrectJson(reply.data));
+  }
+
+  static Future<S2CLazyResponse> updateAvatar(
+    Alter alter,
+    String base64EncodedImage,
+  ) async {
+    Dio dio = Dio();
+    MemoryState ms = MemoryState();
+
+    dio.options.headers["Content-Type"] = "plain/text";
+    dio.options.headers["X-SB-Auth"] = ms.authenticationToken;
+
+    var reply = await dio.post(
+      "${getAPIServerURL()}/avatar/${alter.id.toString()}",
+      data: base64EncodedImage,
+    );
+    print(reply.data);
+
+    return S2CLazyResponse.decode(typeCorrectJson(reply.data));
+  }
 }
 
 abstract class ResponsePacket {

@@ -75,6 +75,8 @@ class AlterImage extends StatelessWidget {
       flush: ms.flushPictures,
       alterID: alter.id,
       url: alter.getAvatarURL(),
+      width: width ?? 75,
+      height: height,
     );
   }
 

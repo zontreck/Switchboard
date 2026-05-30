@@ -1,12 +1,19 @@
+import 'dart:convert';
+import 'dart:io';
+
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_colorpicker/flutter_colorpicker.dart';
+import 'package:libac_dart/utils/Converter.dart';
 import 'package:libac_dart/utils/TimeUtils.dart';
 import 'package:libac_dart/utils/uuid/UUID.dart';
+import 'package:libacflutter/Constants.dart';
 import 'package:libacflutter/utils/colorHelpers.dart';
 import 'package:markdown_widget/widget/all.dart';
 import 'package:switchboard/dart/storage.dart';
+import 'package:switchboard/globalHelpers.dart';
 import 'package:switchboard/pages/elements.dart';
 
 class EditAlterPage extends StatefulWidget {
@@ -69,10 +76,123 @@ class _editAlter extends State<EditAlterPage> {
                 child: InkWell(
                   child: AlterImage.defaults(
                     alter: alter,
-                    width: 25,
-                    height: 25,
+                    width: 200,
+                    height: 200,
                   ),
-                  onTap: () {},
+                  onTap: () {
+                    print("Display image customize menu");
+
+                    showCupertinoDialog(
+                      context: context,
+                      builder: (bldr) {
+                        return CupertinoAlertDialog(
+                          title: Text("What would you like to do?"),
+                          actions: [
+                            CupertinoDialogAction(
+                              child: Text(
+                                "Upload Image",
+                                style: TextStyle(fontSize: 22),
+                              ),
+                              onPressed: () async {
+                                var hasPerm = await checkStoragePermissions();
+                                if (!hasPerm) {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                      content: Text(
+                                        "Storage permissions are denied currently. Please grant them before you can proceed.",
+                                      ),
+                                    ),
+                                  );
+                                  return;
+                                }
+                                FilePickerResult? result =
+                                    await FilePicker.pickFiles(
+                                      allowMultiple: false,
+                                      allowedExtensions: [
+                                        "png",
+                                        "jpg",
+                                        "webp",
+                                        "jpeg",
+                                      ],
+                                      type: FileType.custom,
+                                    );
+
+                                if (result != null) {
+                                  File file = File(result.files.single.path!);
+                                  var byteStream = await file.readAsBytes();
+                                  var b64Img = base64Encoder.base64EncBytes(
+                                    byteStream,
+                                  );
+                                  await NetworkInterface.updateAvatar(
+                                    alter,
+                                    b64Img,
+                                  );
+
+                                  setState(() {});
+                                } else {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                      content: Text(
+                                        "Aborting profile upload...",
+                                      ),
+                                    ),
+                                  );
+                                }
+                              },
+                            ),
+                            CupertinoDialogAction(
+                              child: Text(
+                                "Clear Image",
+                                style: TextStyle(fontSize: 22),
+                              ),
+                              onPressed: () async {
+                                var reply = await NetworkInterface.deleteAvatar(
+                                  alter,
+                                );
+                                if (reply.success) {
+                                  setState(() {});
+                                } else {
+                                  if (reply.reason == "No such image found") {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(
+                                        content: Text(
+                                          "There is already no image set.",
+                                        ),
+                                      ),
+                                    );
+                                  } else {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(
+                                        content: Text(
+                                          "FATAL: Could not delete the alter profile image.\nReason: ${reply.reason}\nRequest ID: ${reply.id.toString()}",
+                                        ),
+                                      ),
+                                    );
+                                  }
+
+                                  setState(() {});
+                                }
+
+                                Navigator.pop(context);
+                              },
+                            ),
+                            CupertinoDialogAction(
+                              child: Text(
+                                "Cancel",
+                                style: TextStyle(
+                                  fontSize: 22,
+                                  color: const Color.fromARGB(255, 209, 0, 0),
+                                ),
+                              ),
+                              onPressed: () {
+                                Navigator.pop(context);
+                              },
+                            ),
+                          ],
+                        );
+                      },
+                    );
+                  },
                 ),
               ),
               ElevatedButton.icon(
@@ -449,8 +569,7 @@ class _alterFieldData extends State<AlterFieldData> {
         {
           return Column(
             children: [
-              (controlHolders[widget.data.id.toString()]
-                          as TextFieldStorage)
+              (controlHolders[widget.data.id.toString()] as TextFieldStorage)
                       .preview
                   ? Card(
                       child: SingleChildScrollView(
