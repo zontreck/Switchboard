@@ -1,6 +1,8 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_colorpicker/flutter_colorpicker.dart';
+import 'package:libac_dart/utils/TimeUtils.dart';
 import 'package:libac_dart/utils/uuid/UUID.dart';
 import 'package:libacflutter/utils/colorHelpers.dart';
 import 'package:markdown_widget/widget/all.dart';
@@ -207,7 +209,8 @@ class FieldRegistry {
 
 enum FieldStorageType {
   Text(0),
-  Color(1);
+  Color(1),
+  Date(2);
 
   const FieldStorageType(int id) : _id = id;
 
@@ -221,9 +224,10 @@ enum FieldStorageType {
   _FieldStorage init() {
     if (this == Text) {
       return TextFieldStorage();
-    } else {
+    } else if (this == Color) {
       return ColorFieldStorage();
-    }
+    } else
+      return DateFieldStorage();
   }
 }
 
@@ -251,6 +255,31 @@ class TextFieldStorage extends _FieldStorage {
   void decode(Map<String, dynamic> js) {
     _data = js['data'];
     controller.text = _data;
+  }
+}
+
+class DateFieldStorage extends _FieldStorage {
+  int date = 0;
+  TextEditingController controller = TextEditingController();
+  String get data => controller.text;
+
+  @override
+  FieldStorageType get dataType => FieldStorageType.Date;
+
+  @override
+  void decode(Map<String, dynamic> js) {
+    date = js['data'];
+    DateTime dt = TimeUtils.parseTimestamp(date);
+    controller.text = "${dt.year}-${dt.month}-${dt.day}";
+  }
+
+  @override
+  Map<String, dynamic> toJson() {
+    DateTime dt = DateTime.parse(controller.text);
+    int ret = (dt.millisecondsSinceEpoch / 1000).round();
+    date = ret;
+
+    return {"data": date};
   }
 }
 
@@ -310,6 +339,17 @@ class _alterFieldData extends State<AlterFieldData> {
       }
       _FieldStorage store = _FieldStorage.fromJson(widget.data.data);
 
+      controlHolders[widget.data.id.toString()] = store;
+    } else if (widget.type == FieldType.Date) {
+      if (widget.data.data["type"] != FieldStorageType.Date.id) {
+        widget.data.data = {};
+      }
+
+      if (widget.data.data.isEmpty) {
+        widget.data.data = {"type": FieldStorageType.Date.id, "data": 0};
+      }
+
+      _FieldStorage store = _FieldStorage.fromJson(widget.data.data);
       controlHolders[widget.data.id.toString()] = store;
     }
   }
@@ -441,6 +481,51 @@ class _alterFieldData extends State<AlterFieldData> {
                           .preview;
 
                   setState(() {});
+                },
+              ),
+            ],
+          );
+        }
+      case FieldType.Date:
+        {
+          return Column(
+            children: [
+              ListTile(
+                leading: Icon(Icons.cake),
+                title: Text(
+                  (controlHolders["${widget.data.id.toString()}"]
+                          as DateFieldStorage)
+                      .data,
+                ),
+                onTap: () {
+                  showDialog(
+                    context: context,
+                    builder: (bldr) {
+                      return CupertinoDatePicker(
+                        onDateTimeChanged: (dt) {
+                          var tfs =
+                              (controlHolders[widget.data.id.toString()]
+                                  as DateFieldStorage);
+                          tfs.controller.text =
+                              "${dt.year}-${dt.month}-${dt.day}";
+
+                          widget.alter.fieldChangeNotifier.value = FieldData(
+                            id: widget.data.id,
+                            data: tfs.toJson(),
+                          );
+                        },
+                        maximumDate: DateTime(2500),
+                        mode: CupertinoDatePickerMode.date,
+                        initialDateTime: DateTime.parse(
+                          (controlHolders["${widget.data.id.toString()}"]
+                                  as DateFieldStorage)
+                              .data,
+                        ),
+                      );
+                    },
+                  );
+
+                  return;
                 },
               ),
             ],

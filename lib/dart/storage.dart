@@ -831,7 +831,8 @@ enum FieldType {
   Unknown(-9999),
   PlainText(0),
   Markdown(1),
-  Color(2);
+  Color(2),
+  Date(3);
 
   const FieldType(int type) : _type = type;
 
@@ -843,6 +844,7 @@ enum FieldType {
     if (PlainText._type == type) return PlainText;
     if (Markdown._type == type) return Markdown;
     if (Color._type == type) return Color;
+    if (Date._type == type) return Date;
 
     return Unknown;
   }
@@ -866,6 +868,8 @@ enum FieldType {
         return "Text (Markdown)";
       case Color:
         return "Color";
+      case Date:
+        return "Date";
     }
   }
 }
