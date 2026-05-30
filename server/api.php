@@ -2,7 +2,7 @@
 
 $DEBUG = true;
 
-$VERSION = "0.1.0+0530261339";
+$VERSION = "0.1.0+0530261417";
 
 $DEFAULT_USER_FIELDS = array(
                             array(
@@ -942,7 +942,11 @@ switch($route) {
         switch($request) {
             case "GET": {
                 // Retrieve image from database, return proper content type.
-                $res = $DB->query("SELECT * FROM Avatars WHERE AlterId='$avatarid';");
+                $stmt = $DB->prepare("SELECT * FROM Avatars WHERE AlterId=?;");
+                $stmt->bind_param("s", $avatarid);
+                $stmt->execute();
+                $res = $stmt->get_result();
+
                 if($res->num_rows == 0) {
                     // Unlike images, we want to return a not found placeholder here.
                     if(file_exists("placeholder_avatar.png")) {
@@ -964,7 +968,14 @@ switch($route) {
                     header("Content-Type: text/html", true);
 
                     die("<h2>Content not found</h2>");
+                } else {
+                    $row=$res->fetch_assoc();
+                    $ImgWebP = $row['ImageBinary'];
+                    header("Content-Type: image/webp");
+                    die($ImgWebP);
+
                 }
+                $stmt->close();
                 $success=true;
                 header("Content-Type: image/webp");
 
@@ -1043,7 +1054,7 @@ switch($route) {
                 $row = $res->fetch_assoc();
                 if($row['User'] == $UserID) {
                     // Authorized to delete own resource
-                    $DB->query("DELETE FROM Avatars WHERE AvatarId='$avatarid';");
+                    $DB->query("DELETE FROM Avatars WHERE AlterId='$avatarid';");
                     $success=true;
                     $reason = "Image deleted";
                 } else {

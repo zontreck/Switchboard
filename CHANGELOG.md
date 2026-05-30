@@ -5,6 +5,8 @@
 - [x] Liquid Glass Shading
 - [x] API for type correcting decoded Json to reduce chances of weird and strange errors being thrown. (Attempt to fix Error when loading Alter List)
 - [x] Date field type
+- [x] Ability to upload and clear alter profile images.
+- [x] Return the image from the `avatar` database when it does exist. This code did not previously exist.
 
 ## CHANGE:
 
@@ -15,6 +17,8 @@
 - [x] Convert FieldData editors to use a JSON codec, and base/inherited classes for serialization purposes.
 - [x] NBT -> Json
   - [x] Internally, if data was previously NBT, it will be reset to defaults. This is anything from FieldData in Alters to the App Settings. Themes will also need to be recreated/exported using the new serializer.
+- [x] Fixed the response format for the `/avatar` endpoints, as they were not returning the `reason` entry.
+- [x] Fix the DELETE operation on `/avatar` as it was not using the correct Column name when a image did exist.
 
 # 0.1.0+0517261258
 
