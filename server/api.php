@@ -2,7 +2,7 @@
 
 $DEBUG = true;
 
-$VERSION = "0.1.0+0517261258";
+$VERSION = "0.1.0+0530261339";
 
 $DEFAULT_USER_FIELDS = array(
                             array(
@@ -243,7 +243,13 @@ function logAudit($ID, $Type, $Path, $DBHandle) {
 
     $STMT = $DBHandle->prepare("INSERT INTO Audit (ID, RequestType, RequestPath, RequestData, Timestamp, RequestHeaders) VALUES (?, ?, ?, ?, ?, ?);");
     $STMT->bind_param("ssssis", $ID, $Type, $Path, $payload, time(), json_encode(apache_request_headers()));
-    $STMT->execute();
+    try {
+        $STMT->execute();
+
+    }catch(Exception $E) {
+        $payload="payload too long to cache";
+        $STMT->execute();
+    }
     $STMT->close();
     $DBHandle->commit();
 }
@@ -1054,6 +1060,7 @@ switch($route) {
             "success" => $success,
             "path" => $route,
             "type" => $request,
+            "reason" => $reason,
             "id" => $ID,
             "data" => $data
         )));
