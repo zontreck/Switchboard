@@ -4,6 +4,7 @@
 
 - [x] Liquid Glass Shading
 - [x] API for type correcting decoded Json to reduce chances of weird and strange errors being thrown. (Attempt to fix Error when loading Alter List)
+- [x] Date field type
 
 ## CHANGE:
 

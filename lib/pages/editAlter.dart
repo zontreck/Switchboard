@@ -262,6 +262,16 @@ class DateFieldStorage extends _FieldStorage {
   int date = 0;
   TextEditingController controller = TextEditingController();
   String get data => controller.text;
+  String get formattedDate => _getFormatted();
+
+  String _getFormatted() {
+    List<String> parts = controller.text.split('/');
+
+    String formatted =
+        "${parts[2]}-${parts[0].padLeft(2, '0')}-${parts[1].padLeft(2, '0')}";
+
+    return formatted;
+  }
 
   @override
   FieldStorageType get dataType => FieldStorageType.Date;
@@ -269,17 +279,25 @@ class DateFieldStorage extends _FieldStorage {
   @override
   void decode(Map<String, dynamic> js) {
     date = js['data'];
+
     DateTime dt = TimeUtils.parseTimestamp(date);
-    controller.text = "${dt.year}-${dt.month}-${dt.day}";
+    controller.text = "${dt.month}/${dt.day}/${dt.year}";
+
+    print(js);
   }
 
   @override
   Map<String, dynamic> toJson() {
-    DateTime dt = DateTime.parse(controller.text);
+    var m = super.toJson();
+    String formatted = formattedDate;
+
+    DateTime dt = DateTime.parse(formatted);
     int ret = (dt.millisecondsSinceEpoch / 1000).round();
     date = ret;
 
-    return {"data": date};
+    m.addAll({"data": date});
+
+    return m;
   }
 }
 
@@ -507,7 +525,7 @@ class _alterFieldData extends State<AlterFieldData> {
                               (controlHolders[widget.data.id.toString()]
                                   as DateFieldStorage);
                           tfs.controller.text =
-                              "${dt.year}-${dt.month}-${dt.day}";
+                              "${dt.month}/${dt.day}/${dt.year}";
 
                           widget.alter.fieldChangeNotifier.value = FieldData(
                             id: widget.data.id,
@@ -519,7 +537,7 @@ class _alterFieldData extends State<AlterFieldData> {
                         initialDateTime: DateTime.parse(
                           (controlHolders["${widget.data.id.toString()}"]
                                   as DateFieldStorage)
-                              .data,
+                              .formattedDate,
                         ),
                       );
                     },
