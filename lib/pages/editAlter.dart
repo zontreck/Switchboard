@@ -449,7 +449,7 @@ class _alterFieldData extends State<AlterFieldData> {
         {
           return Column(
             children: [
-              (controlHolders["${widget.data.id.toString()}"]
+              (controlHolders[widget.data.id.toString()]
                           as TextFieldStorage)
                       .preview
                   ? Card(
@@ -491,10 +491,10 @@ class _alterFieldData extends State<AlterFieldData> {
                   "Enable/Disable editing and render a markdown preview.",
                 ),
                 onTap: () {
-                  (controlHolders["${widget.data.id.toString()}"]
+                  (controlHolders[widget.data.id.toString()]
                               as TextFieldStorage)
                           .preview =
-                      !(controlHolders["${widget.data.id.toString()}"]
+                      !(controlHolders[widget.data.id.toString()]
                               as TextFieldStorage)
                           .preview;
 
@@ -511,7 +511,7 @@ class _alterFieldData extends State<AlterFieldData> {
               ListTile(
                 leading: Icon(Icons.cake),
                 title: Text(
-                  (controlHolders["${widget.data.id.toString()}"]
+                  (controlHolders[widget.data.id.toString()]
                           as DateFieldStorage)
                       .data,
                 ),
@@ -535,7 +535,7 @@ class _alterFieldData extends State<AlterFieldData> {
                         maximumDate: DateTime(2500),
                         mode: CupertinoDatePickerMode.date,
                         initialDateTime: DateTime.parse(
-                          (controlHolders["${widget.data.id.toString()}"]
+                          (controlHolders[widget.data.id.toString()]
                                   as DateFieldStorage)
                               .formattedDate,
                         ),

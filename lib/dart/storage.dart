@@ -5,7 +5,6 @@ import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:libac_dart/utils/Converter.dart';
 import 'package:libac_dart/utils/Hashing.dart';
-import 'package:libac_dart/utils/StringUtils.dart';
 import 'package:libac_dart/utils/TimeUtils.dart';
 import 'package:libac_dart/utils/uuid/UUID.dart';
 import 'package:switchboard/dart/MemoryState.dart';
@@ -1037,9 +1036,7 @@ class Alter {
     List<dynamic> fieldsJs = [];
     try {
       var jsA = js['fields'];
-      if (jsA == null) {
-        jsA = "eyJBIjogW119";
-      }
+      jsA ??= "eyJBIjogW119";
 
       var jsB = base64Encoder.base64Dec(jsA);
       var jsC = typeCorrectJsonDecode(jsB);
