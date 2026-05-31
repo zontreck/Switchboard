@@ -312,12 +312,12 @@ class NetworkInterface {
     Dio dio = Dio();
     MemoryState ms = MemoryState();
 
-    dio.options.headers["Content-Type"] = "plain/text";
+    dio.options.headers["Content-Type"] = "application/json";
     dio.options.headers["X-SB-Auth"] = ms.authenticationToken;
 
     var reply = await dio.post(
       "${getAPIServerURL()}/avatar/${alter.id.toString()}",
-      data: base64EncodedImage,
+      data: {"image": base64EncodedImage},
     );
     print(reply.data);
 

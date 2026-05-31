@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:libac_dart/utils/TimeUtils.dart';
 import 'package:libac_dart/utils/uuid/UUID.dart';
 import 'package:switchboard/dart/MemoryState.dart';
 import 'package:switchboard/dart/storage.dart';
@@ -84,7 +85,7 @@ class AlterImage extends StatelessWidget {
   Widget build(BuildContext context) {
     return flush
         ? Image.network(
-            "https://api.systemswitchboard.com/avatar/${alterID.toString()}",
+            "https://api.systemswitchboard.com/avatar/${alterID.toString()}?ts=${TimeUtils.getUnixTimestamp()}",
             width: width,
             height: height,
           )
@@ -95,7 +96,7 @@ class AlterImage extends StatelessWidget {
               shape: squarePics ? BoxBorder.all() : null,
               margin: squarePics ? EdgeInsets.zero : null,
               child: Image.network(
-                "https://api.systemswitchboard.com/avatar/${alterID.toString()}",
+                "https://api.systemswitchboard.com/avatar/${alterID.toString()}?ts=${TimeUtils.getUnixTimestamp()}",
                 width: width,
                 height: height,
               ),
