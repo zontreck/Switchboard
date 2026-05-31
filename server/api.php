@@ -2,7 +2,7 @@
 
 $DEBUG = true;
 
-$VERSION = "0.1.0+0530261417";
+$VERSION = "0.1.0+0531261013";
 
 $DEFAULT_USER_FIELDS = array(
                             array(
@@ -34,6 +34,8 @@ $ID = gen_uuid(); // Session ID, can be used for tracing back errors
 
 header("Content-Type: application/json", true);
 header("Server: Switchboard/v".$VERSION, true);
+header("Expires: 0", true);
+header("Cache-Control: max-age=0, no-store, no-cache, must-revalidate, proxy-revalidate", true);
 
 function MakeSAT($Token, $Expire, $ISS) {
     return base64_encode(json_encode(array(

@@ -84,22 +84,14 @@ class AlterImage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return flush
-        ? Image.network(
-            "https://api.systemswitchboard.com/avatar/${alterID.toString()}?ts=${TimeUtils.getUnixTimestamp()}",
-            width: width,
-            height: height,
-          )
+        ? Image.network(url, width: width, height: height)
         : Padding(
             padding: EdgeInsetsGeometry.all((squarePics && !flush) ? 8 : 2),
             child: Card(
               elevation: 8,
               shape: squarePics ? BoxBorder.all() : null,
               margin: squarePics ? EdgeInsets.zero : null,
-              child: Image.network(
-                "https://api.systemswitchboard.com/avatar/${alterID.toString()}?ts=${TimeUtils.getUnixTimestamp()}",
-                width: width,
-                height: height,
-              ),
+              child: Image.network(url, width: width, height: height),
             ),
           );
   }

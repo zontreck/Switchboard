@@ -8,6 +8,7 @@ import 'package:flutter_colorpicker/flutter_colorpicker.dart';
 import 'package:libac_dart/utils/Converter.dart';
 import 'package:libac_dart/utils/TimeUtils.dart';
 import 'package:libac_dart/utils/uuid/UUID.dart';
+import 'package:libacflutter/Prompt.dart';
 import 'package:libacflutter/utils/colorHelpers.dart';
 import 'package:markdown_widget/widget/all.dart';
 import 'package:switchboard/dart/storage.dart';
@@ -125,6 +126,10 @@ class _editAlter extends State<EditAlterPage> {
                                     alter,
                                     b64Img,
                                   );
+                                  alter.avatarUrl = "${alter.id.toString()}";
+                                  await NetworkInterface.updateAlter(alter);
+
+                                  Navigator.pop(context);
 
                                   setState(() {});
                                 } else {
@@ -140,6 +145,33 @@ class _editAlter extends State<EditAlterPage> {
                             ),
                             CupertinoDialogAction(
                               child: Text(
+                                "Set URL",
+                                style: TextStyle(fontSize: 22),
+                              ),
+                              onPressed: () async {
+                                var reply = await showDialog(
+                                  context: context,
+                                  builder: (bldr) {
+                                    return InputPrompt(
+                                      title: "What is the URL?",
+                                      prompt:
+                                          "Please input the image's direct URL. It needs to be a raw image link.",
+                                      type: InputPromptType.Text,
+                                    );
+                                  },
+                                );
+
+                                var url = reply as String;
+                                // update the alter's preferred image URL!
+                                alter.avatarUrl = url;
+                                await NetworkInterface.updateAlter(alter);
+
+                                Navigator.pop(context);
+                                setState(() {});
+                              },
+                            ),
+                            CupertinoDialogAction(
+                              child: Text(
                                 "Clear Image",
                                 style: TextStyle(fontSize: 22),
                               ),
@@ -148,6 +180,8 @@ class _editAlter extends State<EditAlterPage> {
                                   alter,
                                 );
                                 if (reply.success) {
+                                  alter.avatarUrl = "${UUID.ZERO.toString()}";
+                                  await NetworkInterface.updateAlter(alter);
                                   setState(() {});
                                 } else {
                                   if (reply.reason == "No such image found") {
