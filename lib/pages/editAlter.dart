@@ -126,7 +126,7 @@ class _editAlter extends State<EditAlterPage> {
                                     alter,
                                     b64Img,
                                   );
-                                  alter.avatarUrl = "${alter.id.toString()}";
+                                  alter.avatarUrl = alter.id.toString();
                                   await NetworkInterface.updateAlter(alter);
 
                                   Navigator.pop(context);
@@ -180,7 +180,7 @@ class _editAlter extends State<EditAlterPage> {
                                   alter,
                                 );
                                 if (reply.success) {
-                                  alter.avatarUrl = "${UUID.ZERO.toString()}";
+                                  alter.avatarUrl = UUID.ZERO.toString();
                                   await NetworkInterface.updateAlter(alter);
                                   setState(() {});
                                 } else {
