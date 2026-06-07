@@ -7,6 +7,8 @@
 - [x] Date field type
 - [x] Ability to upload and clear alter profile images.
 - [x] Return the image from the `avatar` database when it does exist. This code did not previously exist.
+- [x] Begin to add a onboarding process
+- [x] Adds optional Ads to the app with a Opt Out feature, which is the default.
 
 ## CHANGE:
 

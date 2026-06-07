@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:switchboard/globalHelpers.dart';
+import 'package:switchboard/pages/FirstRunPage.dart';
 import 'package:switchboard/pages/aboutPage.dart';
 import 'package:switchboard/pages/accountPage.dart';
 import 'package:switchboard/pages/editAlter.dart';
@@ -21,8 +22,11 @@ class Switchboard extends StatelessWidget {
         return MaterialApp(
           title: "Switchboard",
           theme: getApplicationTheme(),
+          initialRoute: "/onboarding/0",
           routes: {
-            "/": (ctx) => SBLoginPage(),
+            "/onboarding/0": (ctx) => FirstRunPage(),
+            "/onboarding/1": (ctx) => TermsOfServicePage(),
+            "/login": (ctx) => SBLoginPage(),
             "/about": (ctx) => SBAboutPage(),
             "/register": (ctx) => SBRegisterPage(),
             "/privacy": (ctx) => PrivacyPolicyPage(),

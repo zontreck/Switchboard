@@ -57,6 +57,38 @@ Future<void> setApplicationFont(Uint8List binary) async {
   customFontNotifier.value = fontFamily;
 }
 
+Future<void> setAdsSupport(bool option) async {
+  SharedPreferences prefs = await SharedPreferences.getInstance();
+  await prefs.setBool("ads", option);
+}
+
+Future<bool?> getAdsOptIn() async {
+  SharedPreferences prefs = await SharedPreferences.getInstance();
+  return prefs.getBool("ads");
+}
+
+Future<void> updateOnboardingPhase(int phase) async {
+  SharedPreferences prefs = await SharedPreferences.getInstance();
+  await prefs.setInt("onboarding", phase);
+  await prefs.setString(
+    "onboard_ver",
+    await SwitchboardConsts.getPackageVersion(),
+  );
+}
+
+Future<bool> needsNewOnboarding() async {
+  SharedPreferences prefs = await SharedPreferences.getInstance();
+  String lastVer = await prefs.getString("onboard_ver") ?? "";
+
+  return lastVer != await SwitchboardConsts.getPackageVersion();
+}
+
+Future<int> getOnboardingPhase() async {
+  SharedPreferences prefs = await SharedPreferences.getInstance();
+
+  return prefs.getInt("onboarding") ?? 0;
+}
+
 Future<void> clearApplicationFont() async {
   SharedPreferences prefs = await SharedPreferences.getInstance();
   await prefs.remove("curFont");
@@ -159,9 +191,7 @@ Future<void> getAppSettings() async {
   }
 
   if (!isNBT) {
-    ms.fromJson(
-      typeCorrectJsonDecode(prefs.getString("settings") ?? "{}"),
-    );
+    ms.fromJson(typeCorrectJsonDecode(prefs.getString("settings") ?? "{}"));
   } else {
     ms.fromJson({}); // Throw away existing settings.
   }
