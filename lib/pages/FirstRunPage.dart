@@ -4,6 +4,8 @@ import 'package:markdown_widget/widget/all.dart';
 import 'package:switchboard/globalHelpers.dart';
 
 class FirstRunPage extends StatefulWidget {
+  const FirstRunPage({super.key});
+
   @override
   State<StatefulWidget> createState() {
     // TODO: implement createState
@@ -123,6 +125,8 @@ class _firstRun extends State<FirstRunPage> {
 }
 
 class TermsOfServicePage extends StatefulWidget {
+  const TermsOfServicePage({super.key});
+
   @override
   State<StatefulWidget> createState() {
     return _tosPage();

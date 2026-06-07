@@ -78,7 +78,7 @@ Future<void> updateOnboardingPhase(int phase) async {
 
 Future<bool> needsNewOnboarding() async {
   SharedPreferences prefs = await SharedPreferences.getInstance();
-  String lastVer = await prefs.getString("onboard_ver") ?? "";
+  String lastVer = prefs.getString("onboard_ver") ?? "";
 
   return lastVer != await SwitchboardConsts.getPackageVersion();
 }
