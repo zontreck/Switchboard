@@ -87,7 +87,7 @@ class AlterImage extends StatelessWidget {
   Widget build(BuildContext context) {
     return flush
         ? Image.network(
-            "${url}?tx=${TimeUtils.getNanoTime()}",
+            "$url?tx=${TimeUtils.getNanoTime()}",
             width: width,
             height: height,
           )
@@ -98,7 +98,7 @@ class AlterImage extends StatelessWidget {
               shape: squarePics ? BoxBorder.all() : null,
               margin: squarePics ? EdgeInsets.zero : null,
               child: Image.network(
-                "${url}?tx=${TimeUtils.getNanoTime()}",
+                "$url?tx=${TimeUtils.getNanoTime()}",
                 width: width,
                 height: height,
               ),
