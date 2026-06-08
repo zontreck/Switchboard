@@ -9,7 +9,7 @@ class PrivacyPolicyPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("Switchboard - Privacy Policy"),
+        title: Text("Switchboard"),
         bottom: PreferredSize(
           preferredSize: Size.fromHeight(50),
           child: Column(

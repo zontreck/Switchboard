@@ -2,7 +2,6 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:dio/dio.dart';
-import 'package:flutter/material.dart';
 import 'package:libac_dart/utils/Converter.dart';
 import 'package:libac_dart/utils/Hashing.dart';
 import 'package:libac_dart/utils/TimeUtils.dart';
@@ -1021,6 +1020,20 @@ class FieldData {
   }
 }
 
+class ChangeNotifier {
+  Function action = () {};
+  dynamic _data;
+
+  set data(dynamic value) {
+    _data = value;
+  }
+
+  ChangeNotifier(dynamic defaults) {
+    _data = defaults;
+    action.call();
+  }
+}
+
 class Alter {
   UUID id;
   UUID user;
@@ -1030,7 +1043,7 @@ class Alter {
   UUID parent;
   int flags;
   List<FieldData> fields;
-  ValueNotifier fieldChangeNotifier = ValueNotifier<FieldData>(
+  ChangeNotifier fieldChangeNotifier = ChangeNotifier(
     FieldData(data: {}, id: UUID.ZERO),
   );
 
@@ -1044,10 +1057,10 @@ class Alter {
     required this.flags,
     required this.fields,
   }) {
-    fieldChangeNotifier.addListener(() {
-      FieldData data = fieldChangeNotifier.value as FieldData;
+    fieldChangeNotifier.action = () {
+      FieldData data = fieldChangeNotifier._data as FieldData;
       addOrUpdateField(data);
-    });
+    };
   }
 
   Map<String, dynamic> encode() {

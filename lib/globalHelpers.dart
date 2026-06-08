@@ -21,7 +21,11 @@ Future<String> loadAsset(String asset) async {
 
 class Policies {
   static Future<String> privacyPolicy() async {
-    return await loadAsset("privacypolicy.md");
+    return await loadAsset("assets/privacypolicy.md");
+  }
+
+  static Future<String> tos() async {
+    return await loadAsset("assets/tos.md");
   }
 }
 
@@ -74,6 +78,10 @@ Future<void> updateOnboardingPhase(int phase) async {
     "onboard_ver",
     await SwitchboardConsts.getPackageVersion(),
   );
+
+  if (phase == 0) {
+    await prefs.remove("ads");
+  }
 }
 
 Future<bool> needsNewOnboarding() async {

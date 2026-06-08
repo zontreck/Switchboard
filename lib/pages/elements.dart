@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:libac_dart/utils/TimeUtils.dart';
 import 'package:libac_dart/utils/uuid/UUID.dart';
 import 'package:switchboard/dart/MemoryState.dart';
 import 'package:switchboard/dart/storage.dart';
@@ -11,11 +12,13 @@ class AlterWidget extends StatelessWidget {
   Color textColor;
   UUID alterID;
   String alterName;
+  String url;
 
   AlterWidget({
     super.key,
     required this.alterID,
     required this.alterName,
+    required this.url,
     this.flush = true,
     this.roundedElement = true,
     this.squarePics = false,
@@ -37,7 +40,7 @@ class AlterWidget extends StatelessWidget {
             squarePics: squarePics,
             flush: flush,
             alterID: alterID,
-            url: Alter.makeAvatarURL("null"),
+            url: Alter.makeAvatarURL(url),
           ),
           SizedBox(width: 8),
           Text(alterName, style: TextStyle(fontSize: 22, color: textColor)),
@@ -83,14 +86,22 @@ class AlterImage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return flush
-        ? Image.network(url, width: width, height: height)
+        ? Image.network(
+            "${url}?tx=${TimeUtils.getNanoTime()}",
+            width: width,
+            height: height,
+          )
         : Padding(
             padding: EdgeInsetsGeometry.all((squarePics && !flush) ? 8 : 2),
             child: Card(
               elevation: 8,
               shape: squarePics ? BoxBorder.all() : null,
               margin: squarePics ? EdgeInsets.zero : null,
-              child: Image.network(url, width: width, height: height),
+              child: Image.network(
+                "${url}?tx=${TimeUtils.getNanoTime()}",
+                width: width,
+                height: height,
+              ),
             ),
           );
   }

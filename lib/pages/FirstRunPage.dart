@@ -1,5 +1,8 @@
+import 'dart:io';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:markdown_widget/config/all.dart';
 import 'package:markdown_widget/widget/all.dart';
 import 'package:switchboard/globalHelpers.dart';
 
@@ -22,7 +25,7 @@ class _firstRun extends State<FirstRunPage> {
   }
 
   Future<void> _runChecks() async {
-    bool? hasSeenPage = await getAdsOptIn();
+    // This is page 0
     int phase = await getOnboardingPhase();
 
     if (phase == -1) {
@@ -35,10 +38,6 @@ class _firstRun extends State<FirstRunPage> {
 
     if (phase == 2) {
       Navigator.pushReplacementNamed(context, "/onboarding/2");
-    }
-
-    if (hasSeenPage != null) {
-      Navigator.pushReplacementNamed(context, "/onboarding/1");
     }
   }
 
@@ -147,6 +146,111 @@ class _tosPage extends State<TermsOfServicePage> {
               Divider(),
             ],
           ),
+        ),
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            FutureBuilder(
+              future: Policies.tos(),
+              builder: (bldr, snap) {
+                if (!snap.hasData) {
+                  return CircularProgressIndicator();
+                } else {
+                  return Expanded(child: MarkdownWidget(data: snap.data!));
+                }
+              },
+            ),
+
+            Divider(),
+            Text(
+              "To use the official servers, you must accept the privacy policy and the terms of service.",
+              style: TextStyle(fontSize: 22),
+            ),
+            ListTile(
+              title: Text("A C C E P T"),
+              tileColor: const Color.fromARGB(255, 0, 103, 3),
+              onTap: () async {
+                await updateOnboardingPhase(2);
+                Navigator.pushReplacementNamed(context, "/onboarding/2");
+              },
+            ),
+            Divider(),
+            ListTile(
+              title: Text("D E C L I N E"),
+              tileColor: const Color.fromARGB(255, 103, 0, 0),
+              onTap: () async {
+                await updateOnboardingPhase(0);
+                exit(0);
+              },
+            ),
+            SizedBox.fromSize(size: Size.fromHeight(50)),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class OnboardingPrivacyPolicyPage extends StatelessWidget {
+  const OnboardingPrivacyPolicyPage({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text("Switchboard > Onboarding"),
+        bottom: PreferredSize(
+          preferredSize: Size.fromHeight(50),
+          child: Column(
+            children: [
+              Text("PRIVACY POLICY", style: TextStyle(fontSize: 22)),
+              Divider(),
+            ],
+          ),
+        ),
+      ),
+      body: Padding(
+        padding: EdgeInsetsGeometry.all(8),
+        child: Column(
+          children: [
+            SizedBox(height: 25),
+            FutureBuilder(
+              future: Policies.privacyPolicy(),
+              builder: (BCTX, AsyncSnapshot<String> snapshot) {
+                if (!snapshot.hasData) {
+                  return Center(child: CircularProgressIndicator());
+                } else {
+                  return Expanded(child: MarkdownWidget(data: snapshot.data!));
+                }
+              },
+            ),
+            Divider(),
+            Text(
+              "To use the official server, you must agree to the Terms of Service and our Privacy Policy.",
+              style: TextStyle(fontSize: 22),
+            ),
+            ListTile(
+              title: Text("A C C E P T"),
+              tileColor: Color.fromARGB(255, 0, 105, 0),
+              onTap: () async {
+                await updateOnboardingPhase(-1);
+                Navigator.pushReplacementNamed(context, "/login");
+              },
+            ),
+            Divider(),
+            ListTile(
+              title: Text("D E C L I N E"),
+              tileColor: Color.fromARGB(255, 105, 0, 0),
+              onTap: () async {
+                await updateOnboardingPhase(0);
+                exit(0);
+              },
+            ),
+            SizedBox.fromSize(size: Size.fromHeight(50)),
+          ],
         ),
       ),
     );

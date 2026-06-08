@@ -2,7 +2,7 @@
 
 $DEBUG = true;
 
-$VERSION = "0.1.0+0531261013";
+$VERSION = "0.1.0+0608261628";
 
 $DEFAULT_USER_FIELDS = array(
                             array(
@@ -995,8 +995,12 @@ switch($route) {
                     $UserID = $AuthReply->UserID;
                 }
 
+                $stmt = $DB->prepare("SELECT * FROM Alters WHERE ID=? AND User=?;");
+                $stmt->bind_param("ss", $avatarid, $UserID);
+                $stmt->execute();
+                $qres = $stmt->get_result();
+                $stmt->close();
 
-                $qres = $DB->query("SELECT * FROM Alters WHERE ID='$avatarid' AND User='$UserID';");
                 if($qres->num_rows == 0) {
                     $success=false;
                     $reason = "Unauthorized action";
@@ -1035,6 +1039,11 @@ switch($route) {
                 $DB->commit();
 
                 $success=true;
+
+                $stmt = $DB->prepare("UPDATE `Alters` SET `Avatar` = ? WHERE ID = ?;");
+                $stmt->bind_param("ss", $avatarid, $avatarid);
+                $stmt->execute();
+                $stmt->close();
 
                 
                 break;

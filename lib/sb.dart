@@ -26,6 +26,7 @@ class Switchboard extends StatelessWidget {
           routes: {
             "/onboarding/0": (ctx) => FirstRunPage(),
             "/onboarding/1": (ctx) => TermsOfServicePage(),
+            "/onboarding/2": (ctx) => OnboardingPrivacyPolicyPage(),
             "/login": (ctx) => SBLoginPage(),
             "/about": (ctx) => SBAboutPage(),
             "/register": (ctx) => SBRegisterPage(),

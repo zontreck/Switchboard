@@ -218,6 +218,9 @@ class _alters extends State<AltersPage> {
                       textColor: getAlterTextColor(),
                       alterID: alters[index].id,
                       alterName: alters[index].name,
+                      url: alters[index].avatarUrl.isNotEmpty
+                          ? alters[index].avatarUrl
+                          : "null",
                     ),
                   );
                 },

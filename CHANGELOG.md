@@ -21,6 +21,7 @@
   - [x] Internally, if data was previously NBT, it will be reset to defaults. This is anything from FieldData in Alters to the App Settings. Themes will also need to be recreated/exported using the new serializer.
 - [x] Fixed the response format for the `/avatar` endpoints, as they were not returning the `reason` entry.
 - [x] Fix the DELETE operation on `/avatar` as it was not using the correct Column name when a image did exist.
+- [x] Fix a small oversight with `/avatar` `POST` which would result in the Avatar field not ever getting properly updated. This would cause a disconnect with the Edit page, which called the `Alter#makeAvatarURL` method, and supports custom URLs.
 
 # 0.1.0+0517261258
 

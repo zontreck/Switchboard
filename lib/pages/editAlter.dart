@@ -539,7 +539,7 @@ class _alterFieldData extends State<AlterFieldData> {
                   (controlHolders[widget.data.id.toString()]
                       as TextFieldStorage);
 
-              widget.alter.fieldChangeNotifier.value = FieldData(
+              widget.alter.fieldChangeNotifier.data = FieldData(
                 id: widget.data.id,
                 data: tfs.toJson(),
               );
@@ -569,7 +569,7 @@ class _alterFieldData extends State<AlterFieldData> {
                 actions: [
                   ElevatedButton(
                     onPressed: () async {
-                      widget.alter.fieldChangeNotifier.value = FieldData(
+                      widget.alter.fieldChangeNotifier.data = FieldData(
                         id: widget.data.id,
                         data: Cfs.toJson(),
                       );
@@ -628,7 +628,7 @@ class _alterFieldData extends State<AlterFieldData> {
                             (controlHolders[widget.data.id.toString()]
                                 as TextFieldStorage);
 
-                        widget.alter.fieldChangeNotifier.value = FieldData(
+                        widget.alter.fieldChangeNotifier.data = FieldData(
                           id: widget.data.id,
                           data: tfs.toJson(),
                         );
@@ -678,7 +678,7 @@ class _alterFieldData extends State<AlterFieldData> {
                           tfs.controller.text =
                               "${dt.month}/${dt.day}/${dt.year}";
 
-                          widget.alter.fieldChangeNotifier.value = FieldData(
+                          widget.alter.fieldChangeNotifier.data = FieldData(
                             id: widget.data.id,
                             data: tfs.toJson(),
                           );

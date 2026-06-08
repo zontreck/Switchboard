@@ -58,6 +58,7 @@ class _settings extends State<SettingsPage> {
                 textColor: getAlterTextColor(),
                 alterID: UUID.ZERO,
                 alterName: "Sample Alter",
+                url: "null",
               ),
               Row(
                 children: [
