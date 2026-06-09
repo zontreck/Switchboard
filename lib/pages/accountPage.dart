@@ -123,7 +123,7 @@ class _AccountPage extends State<AccountPage> {
   }
 
   Future<void> updateAdHeight() async {
-    double adHeight = await ms.getAdHeight();
+    double adHeight = await getAdHeight();
     this.adHeight = adHeight;
 
     setState(() {});

@@ -71,6 +71,11 @@ Future<bool?> getAdsOptIn() async {
   return prefs.getBool("ads");
 }
 
+Future<double> getAdHeight() async {
+  bool optIn = (await getAdsOptIn()) ?? false;
+  return optIn ? 50 : 0;
+}
+
 Future<void> updateOnboardingPhase(int phase) async {
   SharedPreferences prefs = await SharedPreferences.getInstance();
   await prefs.setInt("onboarding", phase);
