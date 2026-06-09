@@ -41,3 +41,50 @@ class PrivacyPolicyPage extends StatelessWidget {
     );
   }
 }
+
+class TermsOfServicePage extends StatefulWidget {
+  const TermsOfServicePage({super.key});
+
+  @override
+  State<StatefulWidget> createState() {
+    return _tosPage();
+  }
+}
+
+class _tosPage extends State<TermsOfServicePage> {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text("Switchboard"),
+        bottom: PreferredSize(
+          preferredSize: Size.fromHeight(25),
+          child: Column(
+            children: [
+              Text("TERMS OF SERVICE", style: TextStyle(fontSize: 22)),
+              Divider(),
+            ],
+          ),
+        ),
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            FutureBuilder(
+              future: Policies.tos(),
+              builder: (bldr, snap) {
+                if (!snap.hasData) {
+                  return CircularProgressIndicator();
+                } else {
+                  return Expanded(child: MarkdownWidget(data: snap.data!));
+                }
+              },
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}

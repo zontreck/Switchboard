@@ -60,6 +60,27 @@ class _settings extends State<SettingsPage> {
                 alterName: "Sample Alter",
                 url: "null",
               ),
+              FutureBuilder(
+                future: getAdsOptIn(),
+                builder: (bldr, snap) {
+                  if (!snap.hasData) {
+                    return CircularProgressIndicator();
+                  } else {
+                    return CheckboxListTile(
+                      value: snap.data!,
+                      title: Text("Enable Ads"),
+                      subtitle: Text(
+                        "Whether or not to support the development of the app via Ads",
+                      ),
+                      onChanged: (B) async {
+                        await setAdsSupport(B ?? false);
+
+                        setState(() {});
+                      },
+                    );
+                  }
+                },
+              ),
               Row(
                 children: [
                   Checkbox(

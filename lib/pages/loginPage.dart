@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:switchboard/dart/MemoryState.dart';
 import 'package:switchboard/dart/storage.dart';
 import 'package:switchboard/globalHelpers.dart';
@@ -31,6 +32,7 @@ class _loginState extends State<SBLoginPage> {
     MemoryState ms = MemoryState();
     ms.applicationVersion = await SwitchboardConsts.getPackageVersion();
     await getApplicationFont();
+    await MobileAds.instance.initialize();
 
     getAuthToken().then((S) async {
       if (S == "") {

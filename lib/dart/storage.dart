@@ -1020,15 +1020,17 @@ class FieldData {
   }
 }
 
-class ChangeNotifier {
+class ChangeDetector {
   Function action = () {};
   dynamic _data;
+
+  dynamic get value => _data;
 
   set data(dynamic value) {
     _data = value;
   }
 
-  ChangeNotifier(dynamic defaults) {
+  ChangeDetector(dynamic defaults) {
     _data = defaults;
     action.call();
   }
@@ -1043,7 +1045,7 @@ class Alter {
   UUID parent;
   int flags;
   List<FieldData> fields;
-  ChangeNotifier fieldChangeNotifier = ChangeNotifier(
+  ChangeDetector fieldChangeNotifier = ChangeDetector(
     FieldData(data: {}, id: UUID.ZERO),
   );
 

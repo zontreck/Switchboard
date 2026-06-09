@@ -9,6 +9,8 @@
 - [x] Return the image from the `avatar` database when it does exist. This code did not previously exist.
 - [x] Begin to add a onboarding process
 - [x] Adds optional Ads to the app with a Opt Out feature, which is the default.
+- [x] Links to Privacy Policy, TOS, and Patreon directly on the Sandwich menu
+- [x] Toggleable Banner ad on the main page only for now. This is meant to gather some feedback on placement, and the optional nature of the ads.
 
 ## CHANGE:
 

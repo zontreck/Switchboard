@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:switchboard/dart/globalHelpers.dart';
+import 'package:switchboard/globalHelpers.dart';
 
 class MemoryState {
   static final MemoryState _state = MemoryState._init();
@@ -40,6 +41,11 @@ class MemoryState {
   List<int> AlterTextColor = [179, 255, 255, 255];
   List<int> NavSelColor = [255, 0, 183, 255];
   List<int> NavUnSelColor = [255, 105, 105, 205];
+
+  Future<double> getAdHeight() async {
+    bool optIn = (await getAdsOptIn()) ?? false;
+    return optIn ? 50 : 0;
+  }
 
   void fromJson(Map<String, dynamic> js, {bool theme = false}) {
     if (js.containsKey("flushPictures")) {

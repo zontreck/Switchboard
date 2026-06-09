@@ -122,8 +122,8 @@ class _firstRun extends State<FirstRunPage> {
   }
 }
 
-class TermsOfServicePage extends StatefulWidget {
-  const TermsOfServicePage({super.key});
+class OnboardingTermsOfServicePage extends StatefulWidget {
+  const OnboardingTermsOfServicePage({super.key});
 
   @override
   State<StatefulWidget> createState() {
@@ -131,7 +131,7 @@ class TermsOfServicePage extends StatefulWidget {
   }
 }
 
-class _tosPage extends State<TermsOfServicePage> {
+class _tosPage extends State<OnboardingTermsOfServicePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(

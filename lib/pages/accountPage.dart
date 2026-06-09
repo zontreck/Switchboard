@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:switchboard/dart/MemoryState.dart';
 import 'package:switchboard/dart/storage.dart';
 import 'package:switchboard/globalHelpers.dart';
 import 'package:switchboard/pages/editAlter.dart';
 import 'package:switchboard/pages/elements.dart';
+import 'package:url_launcher/url_launcher.dart';
+import 'package:url_launcher/url_launcher_string.dart';
 
 class AccountPage extends StatefulWidget {
   const AccountPage({super.key});
@@ -17,6 +20,8 @@ class AccountPage extends StatefulWidget {
 class _AccountPage extends State<AccountPage> {
   int _index = 0;
   MemoryState ms = MemoryState();
+  BannerAd? _bannerAd;
+  double adHeight = 0;
 
   Widget getPageForIndex() {
     switch (_index) {
@@ -63,6 +68,47 @@ class _AccountPage extends State<AccountPage> {
     return null;
   }
 
+  Future<BannerAd?> _loadAd() async {
+    // Get an AnchoredAdaptiveBannerAdSize before loading the ad.
+    final size = await AdSize.getLargeAnchoredAdaptiveBannerAdSize(
+      MediaQuery.sizeOf(context).width.truncate(),
+    );
+
+    if (size == null) {
+      // Unable to get width of anchored banner.
+      return null;
+    }
+
+    bool optIn = (await getAdsOptIn())!;
+    if (!optIn) {
+      throw Exception("Opt Out");
+    }
+
+    if (_bannerAd != null) return _bannerAd;
+
+    var b = BannerAd(
+      adUnitId: "ca-app-pub-3401801111605896/3640268235",
+      request: const AdRequest(nonPersonalizedAds: true),
+      size: size,
+      listener: BannerAdListener(
+        onAdLoaded: (ad) {
+          // Called when an ad is successfully received.
+          debugPrint("Ad was loaded.");
+          setState(() {
+            _bannerAd = ad as BannerAd;
+          });
+        },
+        onAdFailedToLoad: (ad, err) {
+          // Called when an ad request failed.
+          debugPrint("Ad failed to load with error: $err");
+          ad.dispose();
+        },
+      ),
+    );
+    await b.load();
+    return b;
+  }
+
   @override
   void initState() {
     getAppSettings();
@@ -71,9 +117,46 @@ class _AccountPage extends State<AccountPage> {
   }
 
   @override
+  void didChangeDependencies() {
+    updateAdHeight();
+
+    super.didChangeDependencies();
+  }
+
+  Future<void> updateAdHeight() async {
+    double adHeight = await ms.getAdHeight();
+    this.adHeight = adHeight;
+
+    setState(() {});
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text("Switchboard")),
+      appBar: AppBar(
+        title: Text("Switchboard"),
+        bottom: PreferredSize(
+          preferredSize: Size.fromHeight(adHeight),
+          child: FutureBuilder(
+            future: _loadAd(),
+            builder: (bldr, snap) {
+              updateAdHeight();
+              if (snap.hasError) {
+                return SizedBox();
+              }
+              if (!snap.hasData) {
+                return CircularProgressIndicator();
+              } else {
+                if (snap.data == null) {
+                  return SizedBox();
+                } else {
+                  return Expanded(child: AdWidget(ad: snap.data!));
+                }
+              }
+            },
+          ),
+        ),
+      ),
       drawer: Drawer(
         child: Column(
           children: [
@@ -108,6 +191,30 @@ class _AccountPage extends State<AccountPage> {
               onTap: () async {
                 await Navigator.pushNamed(context, "/account/settings");
                 setState(() {});
+              },
+            ),
+            ListTile(
+              title: Text("P R I V A C Y  P O L I C Y"),
+              subtitle: Text("View the Privacy Policy"),
+              leading: Icon(Icons.privacy_tip),
+              onTap: () {
+                Navigator.pushNamed(context, "/privacy");
+              },
+            ),
+            ListTile(
+              title: Text("T E R M S  O F  S E R V I C E"),
+              subtitle: Text("View the Terms of Service"),
+              leading: Icon(Icons.label_important),
+              onTap: () {
+                Navigator.pushNamed(context, "/tos");
+              },
+            ),
+            ListTile(
+              title: Text("P A T R E O N"),
+              subtitle: Text("Open our Patreon in your browser"),
+              leading: Icon(Icons.monetization_on),
+              onTap: () {
+                launchUrlString("https://patreon.com/astaracreations");
               },
             ),
           ],
@@ -149,7 +256,7 @@ class _AccountPage extends State<AccountPage> {
 }
 
 class AltersPage extends StatefulWidget {
-  const AltersPage({super.key});
+  AltersPage({super.key});
 
   @override
   State<StatefulWidget> createState() {
@@ -158,77 +265,99 @@ class AltersPage extends StatefulWidget {
 }
 
 class _alters extends State<AltersPage> {
+  List<Alter>? altersList;
+
+  Future<void> markListDirty() async {
+    altersList = null;
+  }
+
+  Future<List<Alter>> pollList() async {
+    if (altersList != null) return altersList!;
+    altersList = [];
+    altersList = (await NetworkInterface.requestAltersList(null)).alters;
+
+    return altersList!;
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        FutureBuilder(
-          future: NetworkInterface.requestAltersList(null),
-          builder: (bldr, AsyncSnapshot<S2CAltersResponse> snapshot) {
-            if (snapshot.hasError) {
-              return Column(
-                children: [
-                  Icon(Icons.error, size: 120),
-                  Text(
-                    "FATAL ERROR: Could not load alters from the server.\nRequest ID: ${MemoryState.A.lastErrorRay}",
-                    style: TextStyle(fontSize: 22),
-                  ),
-                ],
-              );
-            }
-
-            if (!snapshot.hasData) {
-              return Column(
-                children: [
-                  CircularProgressIndicator(),
-                  Center(
-                    child: Text(
-                      "Loading Alters from Server...",
+    return RefreshIndicator(
+      onRefresh: () {
+        return Future.delayed(Duration(seconds: 1), () {
+          altersList = null;
+          setState(() {});
+        });
+      },
+      child: Column(
+        children: [
+          FutureBuilder(
+            future: pollList(),
+            builder: (bldr, AsyncSnapshot<List<Alter>> snapshot) {
+              if (snapshot.hasError) {
+                return Column(
+                  children: [
+                    Icon(Icons.error, size: 120),
+                    Text(
+                      "FATAL ERROR: Could not load alters from the server.\nRequest ID: ${MemoryState.A.lastErrorRay}",
                       style: TextStyle(fontSize: 22),
                     ),
-                  ),
-                ],
-              );
-            } else {
-              List<Alter> alters = snapshot.data!.alters;
-              MemoryState ms = MemoryState();
+                  ],
+                );
+              }
 
-              return ListView.builder(
-                itemCount: alters.length,
-                shrinkWrap: true,
-                itemBuilder: (bctx, index) {
-                  return InkWell(
-                    onTap: () async {
-                      var reply = await Navigator.pushNamed(
-                        context,
-                        "/editAlter",
-                        arguments: EditAlterArguments(
-                          alterId: alters[index].id,
-                          instance: alters[index],
-                        ),
-                      );
-
-                      setState(() {});
-                    },
-                    child: AlterWidget(
-                      flush: ms.flushPictures,
-                      roundedElement: ms.roundedBorder,
-                      squarePics: ms.squarePicture,
-                      backgroundColor: getAlterBackgroundColor(),
-                      textColor: getAlterTextColor(),
-                      alterID: alters[index].id,
-                      alterName: alters[index].name,
-                      url: alters[index].avatarUrl.isNotEmpty
-                          ? alters[index].avatarUrl
-                          : "null",
+              if (!snapshot.hasData) {
+                return Column(
+                  children: [
+                    CircularProgressIndicator(),
+                    Center(
+                      child: Text(
+                        "Loading Alters from Server...",
+                        style: TextStyle(fontSize: 22),
+                      ),
                     ),
-                  );
-                },
-              );
-            }
-          },
-        ),
-      ],
+                  ],
+                );
+              } else {
+                List<Alter> alters = snapshot.data!;
+                MemoryState ms = MemoryState();
+
+                return ListView.builder(
+                  itemCount: alters.length,
+                  shrinkWrap: true,
+                  itemBuilder: (bctx, index) {
+                    return InkWell(
+                      onTap: () async {
+                        var reply = await Navigator.pushNamed(
+                          context,
+                          "/editAlter",
+                          arguments: EditAlterArguments(
+                            alterId: alters[index].id,
+                            instance: alters[index],
+                          ),
+                        );
+
+                        setState(() {});
+                      },
+                      child: AlterWidget(
+                        flush: ms.flushPictures,
+                        roundedElement: ms.roundedBorder,
+                        squarePics: ms.squarePicture,
+                        backgroundColor: getAlterBackgroundColor(),
+                        textColor: getAlterTextColor(),
+                        alterID: alters[index].id,
+                        alterName: alters[index].name,
+                        url: alters[index].avatarUrl.isNotEmpty
+                            ? alters[index].avatarUrl
+                            : "null",
+                      ),
+                    );
+                  },
+                );
+              }
+            },
+          ),
+        ],
+      ),
     );
   }
 }
