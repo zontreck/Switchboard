@@ -5,6 +5,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_colorpicker/flutter_colorpicker.dart';
+import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:libac_dart/utils/Converter.dart';
 import 'package:libac_dart/utils/TimeUtils.dart';
 import 'package:libac_dart/utils/uuid/UUID.dart';
@@ -37,6 +38,65 @@ class _editAlter extends State<EditAlterPage> {
     fields: [],
   );
   TextEditingController alterNameController = TextEditingController();
+  BannerAd? _bannerAd;
+  double adHeight = 0;
+
+  Future<BannerAd?> _loadAd() async {
+    // Get an AnchoredAdaptiveBannerAdSize before loading the ad.
+    final size = await AdSize.getLargeAnchoredAdaptiveBannerAdSize(
+      MediaQuery.sizeOf(context).width.truncate(),
+    );
+
+    if (size == null) {
+      // Unable to get width of anchored banner.
+      _bannerAd = null;
+      return null;
+    }
+
+    bool optIn = (await getAdsOptIn())!;
+    if (!optIn) {
+      _bannerAd = null;
+      throw Exception("Opt Out");
+    }
+
+    if (_bannerAd != null) return _bannerAd;
+
+    var b = BannerAd(
+      adUnitId: "ca-app-pub-3401801111605896/3640268235",
+      request: const AdRequest(nonPersonalizedAds: true),
+      size: size,
+      listener: BannerAdListener(
+        onAdLoaded: (ad) {
+          // Called when an ad is successfully received.
+          debugPrint("Ad was loaded.");
+          setState(() {
+            _bannerAd = ad as BannerAd;
+          });
+        },
+        onAdFailedToLoad: (ad, err) {
+          // Called when an ad request failed.
+          debugPrint("Ad failed to load with error: $err");
+          ad.dispose();
+        },
+      ),
+    );
+    await b.load();
+    return b;
+  }
+
+  @override
+  void didChangeDependencies() {
+    updateAdHeight();
+
+    super.didChangeDependencies();
+  }
+
+  Future<void> updateAdHeight() async {
+    double adHeight = await getAdHeight();
+    this.adHeight = adHeight;
+
+    setState(() {});
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -46,7 +106,30 @@ class _editAlter extends State<EditAlterPage> {
     alterNameController.text = alter.name;
 
     return Scaffold(
-      appBar: AppBar(title: Text("Switchboard - Edit Alter")),
+      appBar: AppBar(
+        title: Text("Switchboard - Edit Alter"),
+        bottom: PreferredSize(
+          preferredSize: Size.fromHeight(adHeight + 0),
+          child: FutureBuilder(
+            future: _loadAd(),
+            builder: (bldr, snap) {
+              updateAdHeight();
+              if (snap.hasError) {
+                return SizedBox();
+              }
+              if (!snap.hasData) {
+                return CircularProgressIndicator();
+              } else {
+                if (snap.data == null) {
+                  return SizedBox();
+                } else {
+                  return Expanded(child: AdWidget(ad: snap.data!));
+                }
+              }
+            },
+          ),
+        ),
+      ),
       floatingActionButton: ElevatedButton.icon(
         onPressed: () async {
           alter.name = alterNameController.text;

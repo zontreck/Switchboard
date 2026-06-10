@@ -75,11 +75,13 @@ class _AccountPage extends State<AccountPage> {
 
     if (size == null) {
       // Unable to get width of anchored banner.
+      _bannerAd = null;
       return null;
     }
 
     bool optIn = (await getAdsOptIn())!;
     if (!optIn) {
+      _bannerAd = null;
       throw Exception("Opt Out");
     }
 
@@ -109,13 +111,6 @@ class _AccountPage extends State<AccountPage> {
   }
 
   @override
-  void initState() {
-    getAppSettings();
-
-    super.initState();
-  }
-
-  @override
   void didChangeDependencies() {
     updateAdHeight();
 
@@ -127,6 +122,13 @@ class _AccountPage extends State<AccountPage> {
     this.adHeight = adHeight;
 
     setState(() {});
+  }
+
+  @override
+  void initState() {
+    getAppSettings();
+
+    super.initState();
   }
 
   @override
