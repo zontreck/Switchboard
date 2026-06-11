@@ -373,10 +373,25 @@ class _editAlter extends State<EditAlterPage> {
     );
   }
 
+  S2CFieldsResponse? fields;
+
   Future<Widget?> getFieldList(Alter alter) async {
     List<Widget> widgets = [];
-    S2CFieldsResponse fields = await NetworkInterface.getDataFields();
-    List<Field> fieldVals = fields.data;
+    fields ??= S2CFieldsResponse(
+      id: UUID.ZERO,
+      path: "/",
+      reason: "reason",
+      success: false,
+      type: "",
+      data: [],
+    );
+
+    if (fields!.reason == "reason") {
+      fields!.reason = "NUL";
+      fields = await NetworkInterface.getDataFields();
+    }
+
+    List<Field> fieldVals = fields!.data;
     fieldVals.sort((F1, F2) {
       return F1.order.compareTo(F2.order);
     });
