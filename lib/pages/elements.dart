@@ -1,7 +1,10 @@
+import 'dart:typed_data';
+
 import 'package:flutter/material.dart';
 import 'package:libac_dart/utils/TimeUtils.dart';
 import 'package:libac_dart/utils/uuid/UUID.dart';
 import 'package:switchboard/dart/MemoryState.dart';
+import 'package:switchboard/dart/globalHelpers.dart';
 import 'package:switchboard/dart/storage.dart';
 
 class AlterWidget extends StatelessWidget {
@@ -65,7 +68,7 @@ class AlterImage extends StatelessWidget {
     required this.alterID,
     required this.url,
     this.width = 75,
-    this.height,
+    this.height = 75,
   });
   factory AlterImage.defaults({
     double? height,
@@ -79,35 +82,60 @@ class AlterImage extends StatelessWidget {
       alterID: alter.id,
       url: alter.getAvatarURL(),
       width: width ?? 75,
-      height: height,
+      height: height ?? 75,
     );
   }
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      width: width,
-      height: height,
-      child: flush
-          ? Image.network(
-              "$url?tx=${TimeUtils.getNanoTime()}",
-              width: width,
-              height: height,
-            )
-          : Padding(
-              padding: EdgeInsetsGeometry.all((squarePics && !flush) ? 8 : 2),
-              child: Card(
-                elevation: 8,
-                shape: squarePics ? BoxBorder.all() : null,
-                margin: squarePics ? EdgeInsets.zero : null,
-                child: Image.network(
-                  "$url?tx=${TimeUtils.getNanoTime()}",
-                  width: width,
-                  height: height,
-                ),
+    return flush
+        ? Image.network(url, width: width, height: height, fit: BoxFit.contain)
+        : Padding(
+            padding: EdgeInsetsGeometry.all((squarePics && !flush) ? 8 : 2),
+            child: Card(
+              elevation: 8,
+              clipBehavior: Clip.none,
+              shape: squarePics ? BoxBorder.all() : null,
+              margin: squarePics ? EdgeInsets.zero : null,
+              child: Image.network(
+                url,
+                width: width,
+                height: height,
+                fit: BoxFit.contain,
               ),
             ),
-    );
+          );
+  }
+}
+
+class NetImage extends StatelessWidget {
+  final String url;
+  final double? width;
+  final double? height;
+  final BoxFit? fit;
+  Uint8List theData = Uint8List(0);
+  NetImage({required this.url, this.width, this.height, this.fit});
+
+  @override
+  Widget build(BuildContext context) {
+    return (theData.isEmpty)
+        ? FutureBuilder(
+            future: loadBytes(url),
+            builder: (bldr, snap) {
+              if (!snap.hasData) {
+                return CircularProgressIndicator();
+              } else {
+                theData = snap.data!;
+                return Image.memory(
+                  theData,
+                  fit: fit,
+                  width: width,
+                  height: height,
+                );
+              }
+            },
+          )
+        : Image.memory(theData, fit: fit, width: width, height: height);
   }
 }
 

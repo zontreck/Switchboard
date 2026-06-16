@@ -148,6 +148,7 @@ class _editAlter extends State<EditAlterPage> {
 
           var reply = await NetworkInterface.updateAlter(alter);
           if (reply.success) {
+            flushImageCaches();
             Navigator.pop(context);
             fields = null;
           }
@@ -220,6 +221,7 @@ class _editAlter extends State<EditAlterPage> {
                                   alter.avatarUrl = alter.id.toString();
                                   await NetworkInterface.updateAlter(alter);
 
+                                  flushImageCaches();
                                   Navigator.pop(context);
 
                                   setState(() {});
@@ -258,6 +260,7 @@ class _editAlter extends State<EditAlterPage> {
                                 await NetworkInterface.updateAlter(alter);
 
                                 Navigator.pop(context);
+                                flushImageCaches();
                                 setState(() {});
                               },
                             ),
@@ -273,6 +276,7 @@ class _editAlter extends State<EditAlterPage> {
                                 if (reply.success) {
                                   alter.avatarUrl = UUID.ZERO.toString();
                                   await NetworkInterface.updateAlter(alter);
+                                  flushImageCaches();
                                   setState(() {});
                                 } else {
                                   if (reply.reason == "No such image found") {

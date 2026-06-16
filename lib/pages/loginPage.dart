@@ -39,6 +39,7 @@ class _loginState extends State<SBLoginPage> {
         // Not logged in, do nothing, just let the user log in.
 
         await getAppSettings();
+        flushImageCaches(); // Just to quickly get it out of the way.
         setState(() {});
 
         if (ms.rememberMe) {
@@ -83,6 +84,7 @@ class _loginState extends State<SBLoginPage> {
       } else {
         usernameController.text = "******";
         passwordController.text = "************";
+        flushImageCaches(); // Just to quickly get it out of the way.
         setState(() {});
 
         await getAppSettings();

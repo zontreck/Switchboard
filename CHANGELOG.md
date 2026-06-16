@@ -27,6 +27,8 @@
 - [x] Fixed the response format for the `/avatar` endpoints, as they were not returning the `reason` entry.
 - [x] Fix the DELETE operation on `/avatar` as it was not using the correct Column name when a image did exist.
 - [x] Fix a small oversight with `/avatar` `POST` which would result in the Avatar field not ever getting properly updated. This would cause a disconnect with the Edit page, which called the `Alter#makeAvatarURL` method, and supports custom URLs.
+- [x] Fixes image constraints, where a image with an alpha'd top or bottom would be cropped.
+- [x] Fixes image caching without the use of cachebusting. Saving or updating image data will now flush the cache. When the Login screen loads, it will also flush the caches now.
 
 # 0.1.0+0517261258
 

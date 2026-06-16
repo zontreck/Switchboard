@@ -257,3 +257,8 @@ Future<void> setNavUnselColor(Color b) async {
 
   await setAppSettings();
 }
+
+void flushImageCaches() {
+  PaintingBinding.instance.imageCache.clear();
+  PaintingBinding.instance.imageCache.clearLiveImages();
+}
