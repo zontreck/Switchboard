@@ -13,6 +13,8 @@
 - [x] Links to Privacy Policy, TOS, and Patreon directly on the Sandwich menu
 - [x] Toggleable Banner ad on the main page only for now. This is meant to gather some feedback on placement, and the optional nature of the ads.
 - [x] Number field type
+- [x] Feedback HUB for users to send feedback, bug reports, or feature requests.
+  - [x] This feature will have some integration with Patreon or Ko-Fi, where supporters will be able to receive responses from the development team directly, to see the status on their feedback ticket.
 
 ## CHANGE:
 
@@ -29,6 +31,7 @@
 - [x] Fix a small oversight with `/avatar` `POST` which would result in the Avatar field not ever getting properly updated. This would cause a disconnect with the Edit page, which called the `Alter#makeAvatarURL` method, and supports custom URLs.
 - [x] Fixes image constraints, where a image with an alpha'd top or bottom would be cropped.
 - [x] Fixes image caching without the use of cachebusting. Saving or updating image data will now flush the cache. When the Login screen loads, it will also flush the caches now.
+- [x] Part way through development, around version code 0616261000, we made the decision to remove banner ads, and instead use Interstitial ads, but give the user control over the frequency and trigger settings.
 
 # 0.1.0+0517261258
 

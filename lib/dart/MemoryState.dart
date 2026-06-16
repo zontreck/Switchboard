@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:switchboard/dart/globalHelpers.dart';
+import 'package:switchboard/globalHelpers.dart';
 
 class MemoryState {
   static final MemoryState _state = MemoryState._init();
@@ -35,6 +36,7 @@ class MemoryState {
   String applicationVersion = "";
   bool useCustomFont = false;
   String customFontFamily = "";
+  AdSettings adSettings = AdSettings(onNavigate: false);
 
   List<int> AlterBackgroundColor = [255, 90, 90, 90];
   List<int> AlterTextColor = [179, 255, 255, 255];
@@ -58,6 +60,12 @@ class MemoryState {
       squarePicture = true;
     } else {
       squarePicture = _defaults.squarePicture;
+    }
+
+    if (js.containsKey("ads")) {
+      adSettings = AdSettings.decode(js['ads']);
+    } else {
+      adSettings = AdSettings(onNavigate: false);
     }
 
     if (js.containsKey("alterBackground")) {
@@ -139,10 +147,78 @@ class MemoryState {
       js['password'] = password;
     }
 
+    js['ads'] = adSettings.toJson();
+
     return js;
   }
 
   void reset() {
     fromJson(_defaults.toJson());
+  }
+}
+
+class AdSettings {
+  bool onNavigate = false;
+  int navCount = 4;
+  int _pageViews = 0;
+
+  Map<String, dynamic> toJson() {
+    return {"nav": onNavigate, "navCount": navCount, "view": _pageViews};
+  }
+
+  factory AdSettings.decode(Map<String, dynamic> js) {
+    return AdSettings(
+      onNavigate: js['nav'],
+      navCount: js['navCount'],
+      pageViews: js['view'],
+    );
+  }
+
+  AdSettings({required this.onNavigate, this.navCount = 4, int pageViews = 0})
+    : _pageViews = pageViews;
+
+  bool shouldShowAd() {
+    if (!onNavigate) {
+      _pageViews = 0;
+      return false;
+    }
+
+    if (_pageViews >= navCount) {
+      return true;
+    }
+
+    return false;
+  }
+
+  bool willShowAd() {
+    if (!onNavigate) {
+      _pageViews = 0;
+      setAppSettings();
+      return false;
+    }
+
+    if (_pageViews + 1 >= navCount) {
+      return true;
+    }
+
+    return false;
+  }
+
+  int getPageViews() {
+    return _pageViews;
+  }
+
+  void resetPageCounter() {
+    _pageViews = 0;
+    setAppSettings();
+  }
+
+  void navigated() {
+    if (!onNavigate) {
+      _pageViews = 0;
+      return;
+    }
+    _pageViews++;
+    setAppSettings();
   }
 }

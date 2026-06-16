@@ -81,6 +81,35 @@ class _settings extends State<SettingsPage> {
                   }
                 },
               ),
+              FutureBuilder(
+                future: getAdsOptIn(),
+                builder: (bldr, snap) {
+                  if (!snap.hasData) {
+                    return CircularProgressIndicator();
+                  } else {
+                    if (snap.data!) {
+                      return ListTile(
+                        title: Text("Ads Settings"),
+                        leading: Icon(Icons.settings),
+                        subtitle: Text(
+                          "Open and configure the settings for ads.",
+                        ),
+                        onTap: () async {
+                          pageChanged();
+                          await Navigator.pushNamed(
+                            context,
+                            "/account/settings/ads",
+                          );
+
+                          pageChanged();
+                        },
+                      );
+                    } else {
+                      return SizedBox();
+                    }
+                  }
+                },
+              ),
               Row(
                 children: [
                   Checkbox(
@@ -474,6 +503,122 @@ class _settings extends State<SettingsPage> {
               ),
 
               SizedBox(height: 50),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class AdSettingsPage extends StatefulWidget {
+  @override
+  State<StatefulWidget> createState() {
+    return _adSettings();
+  }
+}
+
+class _adSettings extends State<AdSettingsPage> {
+  TextEditingController navCountController = TextEditingController();
+
+  void updateAdCount() {
+    if (navCountController.text.isEmpty) {
+      navCountController.text = "0";
+    }
+
+    int sanitized = int.parse(navCountController.text);
+    navCountController.text = "$sanitized";
+
+    MemoryState.A.adSettings.navCount = sanitized;
+
+    setState(() {});
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+
+    navCountController.text = "${MemoryState.A.adSettings.navCount}";
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text("Switchboard"),
+        bottom: PreferredSize(
+          preferredSize: Size.fromHeight(25),
+          child: Column(
+            children: [
+              Text("Ad Settings", style: TextStyle(fontSize: 22)),
+              Divider(),
+            ],
+          ),
+        ),
+      ),
+      body: Padding(
+        padding: EdgeInsetsGeometry.all(8),
+        child: SingleChildScrollView(
+          child: Column(
+            children: [
+              CheckboxListTile(
+                title: Text("Ads on Navigation"),
+                subtitle: Text(
+                  "Turning this on will display an ad after [X] number of page navigations. This frequency can be customized.",
+                ),
+                value: MemoryState.A.adSettings.onNavigate,
+                onChanged: (V) {
+                  MemoryState.A.adSettings.onNavigate = V ?? false;
+
+                  setState(() {});
+                },
+              ),
+              Text(
+                "NOTE: Ads cannot be played more frequently than 10 times every 2 minutes. This is intentional, so that the app itself does not become so unpleasant to use, despite the optional nature of these settings.",
+                style: TextStyle(fontSize: 20),
+              ),
+              TextField(
+                controller: navCountController,
+                onTapOutside: (event) {
+                  FocusManager.instance.primaryFocus?.unfocus();
+
+                  updateAdCount();
+                },
+                decoration: InputDecoration(
+                  border: OutlineInputBorder(),
+                  hintText: "Page Nav count before an ad plays",
+                ),
+                keyboardType: TextInputType.number,
+                onChanged: (value) {
+                  updateAdCount();
+                },
+              ),
+              SizedBox(height: 25),
+              Text(
+                "Pages Navigated: ${MemoryState.A.adSettings.getPageViews()}\nWill play on next navigation? ${MemoryState.A.adSettings.willShowAd()}",
+                style: TextStyle(fontSize: 18),
+              ),
+
+              Divider(),
+              ListTile(
+                title: Text("Play an Ad"),
+                subtitle: Text(
+                  "Immediately request to play a full screen ad.\nYou can use this if you do not want automatic ads, but still want to support the app.",
+                ),
+                leading: Icon(Icons.movie),
+                onTap: () async {
+                  await requestAd(
+                    (ad) {
+                      ad.show();
+                    },
+                    () {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text("Failed to load ad")),
+                      );
+                    },
+                  );
+                },
+              ),
             ],
           ),
         ),

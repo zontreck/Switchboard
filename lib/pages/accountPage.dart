@@ -19,8 +19,6 @@ class AccountPage extends StatefulWidget {
 class _AccountPage extends State<AccountPage> {
   int _index = 0;
   MemoryState ms = MemoryState();
-  BannerAd? _bannerAd;
-  double adHeight = 0;
 
   Widget getPageForIndex() {
     switch (_index) {
@@ -67,63 +65,6 @@ class _AccountPage extends State<AccountPage> {
     return null;
   }
 
-  Future<BannerAd?> _loadAd() async {
-    // Get an AnchoredAdaptiveBannerAdSize before loading the ad.
-    final size = await AdSize.getLargeAnchoredAdaptiveBannerAdSize(
-      MediaQuery.sizeOf(context).width.truncate(),
-    );
-
-    if (size == null) {
-      // Unable to get width of anchored banner.
-      _bannerAd = null;
-      return null;
-    }
-
-    bool optIn = (await getAdsOptIn())!;
-    if (!optIn) {
-      _bannerAd = null;
-      throw Exception("Opt Out");
-    }
-
-    if (_bannerAd != null) return _bannerAd;
-
-    var b = BannerAd(
-      adUnitId: "ca-app-pub-3401801111605896/3640268235",
-      request: const AdRequest(nonPersonalizedAds: true),
-      size: size,
-      listener: BannerAdListener(
-        onAdLoaded: (ad) {
-          // Called when an ad is successfully received.
-          debugPrint("Ad was loaded.");
-          setState(() {
-            _bannerAd = ad as BannerAd;
-          });
-        },
-        onAdFailedToLoad: (ad, err) {
-          // Called when an ad request failed.
-          debugPrint("Ad failed to load with error: $err");
-          ad.dispose();
-        },
-      ),
-    );
-    await b.load();
-    return b;
-  }
-
-  @override
-  void didChangeDependencies() {
-    updateAdHeight();
-
-    super.didChangeDependencies();
-  }
-
-  Future<void> updateAdHeight() async {
-    double adHeight = await getAdHeight();
-    this.adHeight = adHeight;
-
-    setState(() {});
-  }
-
   @override
   void initState() {
     getAppSettings();
@@ -134,30 +75,7 @@ class _AccountPage extends State<AccountPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text("Switchboard"),
-        bottom: PreferredSize(
-          preferredSize: Size.fromHeight(adHeight),
-          child: FutureBuilder(
-            future: _loadAd(),
-            builder: (bldr, snap) {
-              updateAdHeight();
-              if (snap.hasError) {
-                return SizedBox();
-              }
-              if (!snap.hasData) {
-                return CircularProgressIndicator();
-              } else {
-                if (snap.data == null) {
-                  return SizedBox();
-                } else {
-                  return Expanded(child: AdWidget(ad: snap.data!));
-                }
-              }
-            },
-          ),
-        ),
-      ),
+      appBar: AppBar(title: Text("Switchboard")),
       drawer: Drawer(
         child: Column(
           children: [
@@ -181,8 +99,10 @@ class _AccountPage extends State<AccountPage> {
             ListTile(
               title: Text("A B O U T"),
               leading: Icon(Icons.info_rounded),
-              onTap: () {
-                Navigator.pushNamed(context, "/about");
+              onTap: () async {
+                pageChanged();
+                await Navigator.pushNamed(context, "/about");
+                pageChanged();
               },
             ),
             ListTile(
@@ -190,7 +110,9 @@ class _AccountPage extends State<AccountPage> {
               subtitle: Text("Manage app settings"),
               leading: Icon(Icons.settings),
               onTap: () async {
+                pageChanged();
                 await Navigator.pushNamed(context, "/account/settings");
+                pageChanged();
                 setState(() {});
               },
             ),
@@ -198,24 +120,40 @@ class _AccountPage extends State<AccountPage> {
               title: Text("P R I V A C Y  P O L I C Y"),
               subtitle: Text("View the Privacy Policy"),
               leading: Icon(Icons.privacy_tip),
-              onTap: () {
-                Navigator.pushNamed(context, "/privacy");
+              onTap: () async {
+                pageChanged();
+                await Navigator.pushNamed(context, "/privacy");
+                pageChanged();
               },
             ),
             ListTile(
               title: Text("T E R M S  O F  S E R V I C E"),
               subtitle: Text("View the Terms of Service"),
               leading: Icon(Icons.label_important),
-              onTap: () {
-                Navigator.pushNamed(context, "/tos");
+              onTap: () async {
+                pageChanged();
+                await Navigator.pushNamed(context, "/tos");
+                pageChanged();
               },
             ),
             ListTile(
               title: Text("P A T R E O N"),
               subtitle: Text("Open our Patreon in your browser"),
               leading: Icon(Icons.monetization_on),
-              onTap: () {
+              onTap: () async {
                 launchUrlString("https://patreon.com/astaracreations");
+              },
+            ),
+            ListTile(
+              title: Text("F E E D B A C K"),
+              subtitle: Text(
+                "Feedback HUB. Submit requests, feedback, and bug reports.",
+              ),
+              leading: Icon(Icons.feedback),
+              onTap: () async {
+                pageChanged();
+                await Navigator.pushNamed(context, "/feedback");
+                pageChanged();
               },
             ),
           ],
@@ -328,6 +266,7 @@ class _alters extends State<AltersPage> {
                   itemBuilder: (bctx, index) {
                     return InkWell(
                       onTap: () async {
+                        pageChanged();
                         var reply = await Navigator.pushNamed(
                           context,
                           "/editAlter",
@@ -337,6 +276,7 @@ class _alters extends State<AltersPage> {
                           ),
                         );
 
+                        pageChanged();
                         setState(() {
                           altersList = null;
                         });

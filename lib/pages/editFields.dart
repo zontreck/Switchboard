@@ -85,11 +85,13 @@ class _editFields extends State<EditFieldsPage> {
                     await save();
                     fields.add(newField.data);
 
+                    pageChanged();
                     await Navigator.pushNamed(
                       context,
                       "/account/settings/fields/edit",
                       arguments: newField.data,
                     );
+                    pageChanged();
                     setState(() {
                       fields = [];
                     });
@@ -140,12 +142,14 @@ class _editFields extends State<EditFieldsPage> {
               await save();
             }
 
+            pageChanged();
             await Navigator.pushNamed(
               context,
               "/account/settings/fields/edit",
               arguments: field,
             );
 
+            pageChanged();
             setState(() {
               fields = [];
             });

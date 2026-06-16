@@ -5,6 +5,7 @@ import 'package:switchboard/pages/aboutPage.dart';
 import 'package:switchboard/pages/accountPage.dart';
 import 'package:switchboard/pages/editAlter.dart';
 import 'package:switchboard/pages/editFields.dart';
+import 'package:switchboard/pages/feedbackHUB.dart';
 import 'package:switchboard/pages/fontPage.dart';
 import 'package:switchboard/pages/loginPage.dart';
 import 'package:switchboard/pages/privacyPolicyPage.dart';
@@ -34,10 +35,12 @@ class Switchboard extends StatelessWidget {
             "/tos": (ctx) => TermsOfServicePage(),
             "/account": (ctx) => AccountPage(),
             "/account/settings": (ctx) => SettingsPage(),
+            "/account/settings/ads": (ctx) => AdSettingsPage(),
             "/account/settings/font": (ctx) => FontPage(),
             "/account/settings/fields": (ctx) => EditFieldsPage(),
             "/account/settings/fields/edit": (ctx) => EditField(),
             "/editAlter": (ctx) => EditAlterPage(),
+            "/feedback": (ctx) => FeedbackHUB(),
           },
         );
       },

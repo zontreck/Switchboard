@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show FontLoader, rootBundle;
+import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:libac_dart/utils/StringUtils.dart';
 import 'package:libacflutter/utils/colorHelpers.dart';
 import 'package:package_info_plus/package_info_plus.dart';
@@ -261,4 +262,40 @@ Future<void> setNavUnselColor(Color b) async {
 void flushImageCaches() {
   PaintingBinding.instance.imageCache.clear();
   PaintingBinding.instance.imageCache.clearLiveImages();
+}
+
+Future<void> requestAd(
+  Function(InterstitialAd) callback,
+  Function() errorCallback,
+) async {
+  await InterstitialAd.load(
+    adUnitId: "ca-app-pub-3401801111605896/5698618617",
+    request: const AdRequest(),
+    adLoadCallback: InterstitialAdLoadCallback(
+      onAdLoaded: (InterstitialAd ad) {
+        // Called when an ad is successfully received.
+        debugPrint('Ad was loaded.');
+        // Keep a reference to the ad so you can show it later.
+        callback(ad);
+      },
+      onAdFailedToLoad: (LoadAdError error) {
+        // Called when an ad request failed.
+        debugPrint('Ad failed to load with error: $error');
+
+        errorCallback();
+      },
+    ),
+  );
+}
+
+void pageChanged() {
+  MemoryState.A.adSettings.navigated();
+
+  if (MemoryState.A.adSettings.shouldShowAd()) {
+    requestAd((A) {
+      A.show();
+    }, () {});
+
+    MemoryState.A.adSettings.resetPageCounter();
+  }
 }
