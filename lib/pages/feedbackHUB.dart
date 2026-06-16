@@ -1,7 +1,8 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 class FeedbackHUB extends StatefulWidget {
+  const FeedbackHUB({super.key});
+
   @override
   State<StatefulWidget> createState() {
     return _feedback();

@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:switchboard/dart/MemoryState.dart';
 import 'package:switchboard/dart/storage.dart';
 import 'package:switchboard/globalHelpers.dart';

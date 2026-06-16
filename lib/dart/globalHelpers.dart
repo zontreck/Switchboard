@@ -7,7 +7,7 @@ import 'package:switchboard/dart/MemoryState.dart';
 /// Runs a get request against a URL, supplying the Switchboard authentication header. Returns the response as a stream of bytes, overriding any content type.
 Future<Uint8List> loadBytes(String url) async {
   Dio dio = Dio();
-  print("Sending http get call to ${url}");
+  print("Sending http get call to $url");
   var reply = await dio.get(
     url,
     options: Options(

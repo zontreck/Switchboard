@@ -1,7 +1,6 @@
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
-import 'package:libac_dart/utils/TimeUtils.dart';
 import 'package:libac_dart/utils/uuid/UUID.dart';
 import 'package:switchboard/dart/MemoryState.dart';
 import 'package:switchboard/dart/globalHelpers.dart';
@@ -114,7 +113,7 @@ class NetImage extends StatelessWidget {
   final double? height;
   final BoxFit? fit;
   Uint8List theData = Uint8List(0);
-  NetImage({required this.url, this.width, this.height, this.fit});
+  NetImage({super.key, required this.url, this.width, this.height, this.fit});
 
   @override
   Widget build(BuildContext context) {

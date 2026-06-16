@@ -512,6 +512,8 @@ class _settings extends State<SettingsPage> {
 }
 
 class AdSettingsPage extends StatefulWidget {
+  const AdSettingsPage({super.key});
+
   @override
   State<StatefulWidget> createState() {
     return _adSettings();
