@@ -3,6 +3,7 @@
 ## ADD:
 
 - [x] Liquid Glass Shading
+  - [x] Not everything will have liquid glass right away. We'll get stuff converted over time.
 - [x] API for type correcting decoded Json to reduce chances of weird and strange errors being thrown. (Attempt to fix Error when loading Alter List)
 - [x] Date field type
 - [x] Ability to upload and clear alter profile images.
@@ -11,12 +12,14 @@
 - [x] Adds optional Ads to the app with a Opt Out feature, which is the default.
 - [x] Links to Privacy Policy, TOS, and Patreon directly on the Sandwich menu
 - [x] Toggleable Banner ad on the main page only for now. This is meant to gather some feedback on placement, and the optional nature of the ads.
+- [x] Number field type
 
 ## CHANGE:
 
 - [x] Upon request, changed the ListTile in the EditAlter page for revealing the Alter's ID. This is now a small ElevatedButton.
 - [x] (BREAKING) Rip out NBT usage from theming
-  - [x] Core Issue: Dart2JS does not support Int64 on the web browser. So, as much as NBT would help with compact theme strings, we cannot use it, if we want to have a fully features Web interface for the app as well.
+  - [x] Core Issue: Dart2JS does not support Int64 on the web browser. So, as much as NBT would help with compact theme strings, we cannot use it, if we want to have a fully featured Web interface for the app as well.
+  - [x] May go back to NBT once the iOS app can be compiled.
 - [x] (BREAKING) Rip out NBT from FieldData
 - [x] Convert FieldData editors to use a JSON codec, and base/inherited classes for serialization purposes.
 - [x] NBT -> Json

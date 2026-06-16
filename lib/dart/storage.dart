@@ -864,7 +864,8 @@ enum FieldType {
   PlainText(0),
   Markdown(1),
   Color(2),
-  Date(3);
+  Date(3),
+  Number(4);
 
   const FieldType(int type) : _type = type;
 
@@ -877,6 +878,7 @@ enum FieldType {
     if (Markdown._type == type) return Markdown;
     if (Color._type == type) return Color;
     if (Date._type == type) return Date;
+    if (Number._type == type) return Number;
 
     return Unknown;
   }
@@ -902,6 +904,8 @@ enum FieldType {
         return "Color";
       case Date:
         return "Date";
+      case Number:
+        return "Number";
     }
   }
 }
@@ -1045,9 +1049,10 @@ class Alter {
   UUID parent;
   int flags;
   List<FieldData> fields;
-  ChangeDetector fieldChangeNotifier = ChangeDetector(
-    FieldData(data: {}, id: UUID.ZERO),
-  );
+
+  void onNewFieldData(FieldData data) {
+    addOrUpdateField(data);
+  }
 
   Alter({
     required this.id,
@@ -1058,12 +1063,7 @@ class Alter {
     required this.parent,
     required this.flags,
     required this.fields,
-  }) {
-    fieldChangeNotifier.action = () {
-      FieldData data = fieldChangeNotifier._data as FieldData;
-      addOrUpdateField(data);
-    };
-  }
+  });
 
   Map<String, dynamic> encode() {
     return {

@@ -337,7 +337,9 @@ class _alters extends State<AltersPage> {
                           ),
                         );
 
-                        setState(() {});
+                        setState(() {
+                          altersList = null;
+                        });
                       },
                       child: AlterWidget(
                         flush: ms.flushPictures,

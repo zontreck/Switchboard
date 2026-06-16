@@ -85,25 +85,29 @@ class AlterImage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return flush
-        ? Image.network(
-            "$url?tx=${TimeUtils.getNanoTime()}",
-            width: width,
-            height: height,
-          )
-        : Padding(
-            padding: EdgeInsetsGeometry.all((squarePics && !flush) ? 8 : 2),
-            child: Card(
-              elevation: 8,
-              shape: squarePics ? BoxBorder.all() : null,
-              margin: squarePics ? EdgeInsets.zero : null,
-              child: Image.network(
-                "$url?tx=${TimeUtils.getNanoTime()}",
-                width: width,
-                height: height,
+    return Container(
+      width: width,
+      height: height,
+      child: flush
+          ? Image.network(
+              "$url?tx=${TimeUtils.getNanoTime()}",
+              width: width,
+              height: height,
+            )
+          : Padding(
+              padding: EdgeInsetsGeometry.all((squarePics && !flush) ? 8 : 2),
+              child: Card(
+                elevation: 8,
+                shape: squarePics ? BoxBorder.all() : null,
+                margin: squarePics ? EdgeInsets.zero : null,
+                child: Image.network(
+                  "$url?tx=${TimeUtils.getNanoTime()}",
+                  width: width,
+                  height: height,
+                ),
               ),
             ),
-          );
+    );
   }
 }
 

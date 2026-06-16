@@ -41,6 +41,13 @@ class _editAlter extends State<EditAlterPage> {
   BannerAd? _bannerAd;
   double adHeight = 0;
 
+  @override
+  void deactivate() {
+    super.deactivate();
+    fields = null;
+    print("Deactivated the Edit Alter page");
+  }
+
   Future<BannerAd?> _loadAd() async {
     // Get an AnchoredAdaptiveBannerAdSize before loading the ad.
     final size = await AdSize.getLargeAnchoredAdaptiveBannerAdSize(
@@ -142,6 +149,7 @@ class _editAlter extends State<EditAlterPage> {
           var reply = await NetworkInterface.updateAlter(alter);
           if (reply.success) {
             Navigator.pop(context);
+            fields = null;
           }
         },
         label: Text("Save"),
@@ -366,6 +374,7 @@ class _editAlter extends State<EditAlterPage> {
                   }
                 },
               ),
+              SizedBox(height: 150),
             ],
           ),
         ),
@@ -460,7 +469,8 @@ class FieldRegistry {
 enum FieldStorageType {
   Text(0),
   Color(1),
-  Date(2);
+  Date(2),
+  Number(3);
 
   const FieldStorageType(int id) : _id = id;
 
@@ -476,8 +486,11 @@ enum FieldStorageType {
       return TextFieldStorage();
     } else if (this == Color) {
       return ColorFieldStorage();
-    } else
+    } else if (this == Date) {
       return DateFieldStorage();
+    } else {
+      return NumberFieldStorage();
+    }
   }
 }
 
@@ -551,6 +564,28 @@ class DateFieldStorage extends _FieldStorage {
   }
 }
 
+class NumberFieldStorage extends _FieldStorage {
+  TextEditingController controller = TextEditingController();
+  String get text => controller.text;
+  int get data => int.parse(text);
+
+  @override
+  FieldStorageType get dataType => FieldStorageType.Number;
+
+  @override
+  void decode(Map<String, dynamic> js) {
+    controller.text = "${js['data'] ?? 0}";
+  }
+
+  @override
+  Map<String, dynamic> toJson() {
+    var m = super.toJson();
+    m.addAll({"data": data});
+
+    return m;
+  }
+}
+
 class ColorFieldStorage extends _FieldStorage {
   Color data = Colors.white;
 
@@ -619,6 +654,17 @@ class _alterFieldData extends State<AlterFieldData> {
 
       _FieldStorage store = _FieldStorage.fromJson(widget.data.data);
       controlHolders[widget.data.id.toString()] = store;
+    } else if (widget.type == FieldType.Number) {
+      if (widget.data.data["type"] != FieldStorageType.Number.id) {
+        widget.data.data = {};
+      }
+
+      if (widget.data.data.isEmpty) {
+        widget.data.data = {"type": FieldStorageType.Number.id, "data": 0};
+      }
+
+      _FieldStorage store = _FieldStorage.fromJson(widget.data.data);
+      controlHolders[widget.data.id.toString()] = store;
     }
   }
 
@@ -637,10 +683,12 @@ class _alterFieldData extends State<AlterFieldData> {
                   (controlHolders[widget.data.id.toString()]
                       as TextFieldStorage);
 
-              widget.alter.fieldChangeNotifier.data = FieldData(
-                id: widget.data.id,
-                data: tfs.toJson(),
+              widget.alter.addOrUpdateField(
+                FieldData(id: widget.data.id, data: tfs.toJson()),
               );
+            },
+            onTapOutside: (event) {
+              FocusManager.instance.primaryFocus?.unfocus();
             },
           );
         }
@@ -667,9 +715,8 @@ class _alterFieldData extends State<AlterFieldData> {
                 actions: [
                   ElevatedButton(
                     onPressed: () async {
-                      widget.alter.fieldChangeNotifier.data = FieldData(
-                        id: widget.data.id,
-                        data: Cfs.toJson(),
+                      widget.alter.addOrUpdateField(
+                        FieldData(id: widget.data.id, data: Cfs.toJson()),
                       );
                       setState(() {});
                       Navigator.of(context).pop();
@@ -716,6 +763,9 @@ class _alterFieldData extends State<AlterFieldData> {
                       keyboardType: TextInputType.multiline,
                       maxLines: null,
                       minLines: 4,
+                      onTapOutside: (event) {
+                        FocusManager.instance.primaryFocus?.unfocus();
+                      },
                       controller:
                           (controlHolders[widget.data.id.toString()]
                                   as TextFieldStorage)
@@ -726,9 +776,8 @@ class _alterFieldData extends State<AlterFieldData> {
                             (controlHolders[widget.data.id.toString()]
                                 as TextFieldStorage);
 
-                        widget.alter.fieldChangeNotifier.data = FieldData(
-                          id: widget.data.id,
-                          data: tfs.toJson(),
+                        widget.alter.addOrUpdateField(
+                          FieldData(id: widget.data.id, data: tfs.toJson()),
                         );
                       },
                     ),
@@ -776,9 +825,8 @@ class _alterFieldData extends State<AlterFieldData> {
                           tfs.controller.text =
                               "${dt.month}/${dt.day}/${dt.year}";
 
-                          widget.alter.fieldChangeNotifier.data = FieldData(
-                            id: widget.data.id,
-                            data: tfs.toJson(),
+                          widget.alter.addOrUpdateField(
+                            FieldData(id: widget.data.id, data: tfs.toJson()),
                           );
                         },
                         maximumDate: DateTime(2500),
@@ -796,6 +844,38 @@ class _alterFieldData extends State<AlterFieldData> {
                 },
               ),
             ],
+          );
+        }
+      case FieldType.Number:
+        {
+          return TextField(
+            controller:
+                (controlHolders[widget.data.id.toString()]
+                        as NumberFieldStorage)
+                    .controller,
+            decoration: InputDecoration(border: OutlineInputBorder()),
+            keyboardType: TextInputType.number,
+            onTapOutside: (event) {
+              FocusManager.instance.primaryFocus?.unfocus();
+              NumberFieldStorage store =
+                  controlHolders[widget.data.id.toString()]
+                      as NumberFieldStorage;
+              store.controller.text = "${store.data}";
+            },
+            onChanged: (value) {
+              NumberFieldStorage store =
+                  controlHolders[widget.data.id.toString()]
+                      as NumberFieldStorage;
+              store.controller.text = "${store.data}";
+
+              NumberFieldStorage tfs =
+                  (controlHolders[widget.data.id.toString()]
+                      as NumberFieldStorage);
+
+              widget.alter.addOrUpdateField(
+                FieldData(id: widget.data.id, data: tfs.toJson()),
+              );
+            },
           );
         }
       default:
