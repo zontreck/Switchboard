@@ -2,14 +2,9 @@
 
 ## ADD:
 
-- [x] Update the API implementation sheet.
-  - [x] We're now going to be planning to have several new endpoints. All existing ones have been marked as verified if they were not already. New endpoints are for the following: `fronting`, `feedback`
-
 ## CHANGE:
 
-- [x] Update CI/CD scripts to point to AstaraCreations as the org owner for Switchboard.
-
-# 0.1.0+0617260807
+# 0.1.0+0617260921
 
 ## ADD:
 
@@ -26,6 +21,8 @@
 - [x] Number field type
 - [x] Feedback HUB for users to send feedback, bug reports, or feature requests.
   - [x] This feature will have some integration with Patreon or Ko-Fi, where supporters will be able to receive responses from the development team directly, to see the status on their feedback ticket.
+- [x] Update the API implementation sheet.
+  - [x] We're now going to be planning to have several new endpoints. All existing ones have been marked as verified if they were not already. New endpoints are for the following: `fronting`, `feedback`
 
 ## CHANGE:
 
@@ -43,6 +40,8 @@
 - [x] Fixes image constraints, where a image with an alpha'd top or bottom would be cropped.
 - [x] Fixes image caching without the use of cachebusting. Saving or updating image data will now flush the cache. When the Login screen loads, it will also flush the caches now.
 - [x] Part way through development, around version code 0616261000, we made the decision to remove banner ads, and instead use Interstitial ads, but give the user control over the frequency and trigger settings.
+- [x] Update CI/CD scripts to point to AstaraCreations as the org owner for Switchboard.
+- [x] Includes AD_ID permission in the manifest file now.
 
 # 0.1.0+0517261258
 

@@ -4,7 +4,8 @@ WORKDIR /app
 RUN git clone https://git.zontreck.com/AstaraCreations/Switchboard.git
 
 WORKDIR /app/Switchboard
-RUN chmod +x localbuild.sh && ./localbuild.sh
+RUN mkdir outputs
+RUN dart compile exe -o outputs/server-x86_64-linux bin/server.dart
 
 
 FROM git.zontreck.com/packages/flutter:arch
