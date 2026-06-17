@@ -1,3 +1,14 @@
+# 0.1.0
+
+## ADD:
+
+- [x] Update the API implementation sheet.
+  - [x] We're now going to be planning to have several new endpoints. All existing ones have been marked as verified if they were not already. New endpoints are for the following: `fronting`, `feedback`
+
+## CHANGE:
+
+- [x] Update CI/CD scripts to point to AstaraCreations as the org owner for Switchboard.
+
 # 0.1.0+0617260807
 
 ## ADD:
