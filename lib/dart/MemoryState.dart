@@ -1,7 +1,6 @@
 import 'dart:async';
 
 import 'package:switchboard/dart/globalHelpers.dart';
-import 'package:switchboard/globalHelpers.dart';
 
 class MemoryState {
   static final MemoryState _state = MemoryState._init();
@@ -193,7 +192,6 @@ class AdSettings {
   bool willShowAd() {
     if (!onNavigate) {
       _pageViews = 0;
-      setAppSettings();
       return false;
     }
 
@@ -210,7 +208,6 @@ class AdSettings {
 
   void resetPageCounter() {
     _pageViews = 0;
-    setAppSettings();
   }
 
   void navigated() {
@@ -219,6 +216,5 @@ class AdSettings {
       return;
     }
     _pageViews++;
-    setAppSettings();
   }
 }
