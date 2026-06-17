@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:markdown_widget/widget/all.dart';
+import 'package:switchboard/dart/MemoryState.dart';
 import 'package:switchboard/globalHelpers.dart';
 
 class FirstRunPage extends StatefulWidget {
@@ -62,7 +63,7 @@ class _firstRun extends State<FirstRunPage> {
             children: [
               MarkdownBlock(
                 data:
-                    "# Welcome\n\n(This page can be scrolled!)\nThis is the Switchboard App. I want you to know that this application is a passion and hobby project at the moment. Both me and my partner needed an app that worked and would never go away. So, I created this, and decided to open source, and share it with the world.\n\n# Financial\n\nThe difficult truth is that we are both disabled. So, any support you can give us means a lot. \n\n# Your Choice\n\n## Ads or No Ads\n\nIf you want, you can permanently disable ads in the settings for the app, or turn them back on at any given time. My pledge to you, is that the only ads you will ever see when this is turned on, are the banner ads at the top of the screen, or the bottom of the screen. Video ads can be triggered manually at will from the Ads settings page.\n\n## Patreon\n\nIf you opt out of ads, and are able, please donate to Patreon or to Ko-fi. It genuinely helps a lot, and if you support us for longer than a month, we will add your name to the app's credits/about screen.\n\n# Why this matters to us\n\nMaking a survivable income allows us to continue development of the app. Providing support means we can make this into a full time job, not just a hobby.",
+                    "# Welcome\n\n(This page can be scrolled!)\nThis is the Switchboard App. I want you to know that this application is a passion and hobby project at the moment. Both me and my partner needed an app that worked and would never go away. So, I created this, and decided to open source, and share it with the world.\n\n# Financial\n\nThe difficult truth is that we are both disabled. So, any support you can give us means a lot. \n\n# Ads or No Ads\n\nIf you want, you can permanently disable ads in the settings for the app, or turn them back on at any given time. You will have full control over the frequency at which ads get displayed. By default, this is every 4 page navigations. Video ads can be triggered manually at will from the Ads settings page.\n\n## Patreon\n\nIf you opt out of ads, and are able, please donate to Patreon or to Ko-fi. It genuinely helps a lot, and if you support us for longer than a month, we will add your name to the app's credits/about screen. Additionally, you will get priority access to the Feedback HUB, where you can communicate directly with the developer and have your ideas, or bug reports seen before anybody else's.\n\n# Why this matters to us\n\nMaking a survivable income allows us to continue development of the app. Providing support means we can make this into a full time job, not just a hobby.",
               ),
               SizedBox(height: 25),
               Divider(),
@@ -70,7 +71,7 @@ class _firstRun extends State<FirstRunPage> {
               ListTile(
                 title: Text("Would you like to enable ads?"),
                 subtitle: Text(
-                  "Ads will only be banner ads on the top or bottom of the screen, as non-invasive as we can make it.",
+                  "We can't just do banner ads, as they mess with the app too much. Video ads are the default, and you can turn it off later, or change the frequency of the ads.",
                 ),
                 leading: Icon(Icons.ads_click),
                 tileColor: const Color.fromARGB(255, 0, 68, 123),
@@ -86,9 +87,13 @@ class _firstRun extends State<FirstRunPage> {
                         actions: [
                           CupertinoButton(
                             child: Text("Yes"),
-                            onPressed: () {
+                            onPressed: () async {
                               // enable ads
                               setAdsSupport(true);
+                              await getAppSettings();
+                              MemoryState.A.adSettings.onNavigate = true;
+                              setAppSettings();
+
                               Navigator.pop(context);
                               Navigator.pushReplacementNamed(
                                 context,
@@ -98,8 +103,12 @@ class _firstRun extends State<FirstRunPage> {
                           ),
                           CupertinoButton(
                             child: Text("No"),
-                            onPressed: () {
+                            onPressed: () async {
                               setAdsSupport(false);
+                              await getAppSettings();
+                              MemoryState.A.adSettings.onNavigate = false;
+                              setAppSettings();
+
                               Navigator.pop(context);
                               Navigator.pushReplacementNamed(
                                 context,

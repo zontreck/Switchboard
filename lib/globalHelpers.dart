@@ -100,6 +100,8 @@ Future<bool> needsNewOnboarding() async {
 Future<int> getOnboardingPhase() async {
   SharedPreferences prefs = await SharedPreferences.getInstance();
 
+  if (await needsNewOnboarding()) return 0;
+
   return prefs.getInt("onboarding") ?? 0;
 }
 

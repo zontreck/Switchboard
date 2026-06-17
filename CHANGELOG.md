@@ -4,6 +4,9 @@
 
 ## CHANGE:
 
+- [x] Update the text on onboarding phase 0 (Ad opt in request page)
+- [x] Agreeing to ads on the Onboarding page will now enable Ads on navigation by default. By default, this is every 4 page changes.
+
 # 0.1.0+0617260921
 
 ## ADD:
