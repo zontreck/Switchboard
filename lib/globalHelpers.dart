@@ -298,4 +298,6 @@ void pageChanged() {
 
     MemoryState.A.adSettings.resetPageCounter();
   }
+
+  setAppSettings();
 }
