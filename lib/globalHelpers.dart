@@ -1,16 +1,19 @@
 import 'dart:async' show Future;
 import 'dart:convert';
 import 'dart:typed_data';
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show FontLoader, rootBundle;
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:libac_dart/utils/StringUtils.dart';
+import 'package:libac_dart/utils/uuid/UUID.dart';
 import 'package:libacflutter/utils/colorHelpers.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:switchboard/dart/MemoryState.dart';
 import 'package:switchboard/dart/globalHelpers.dart';
+import 'package:switchboard/dart/storage.dart';
 
 final ValueNotifier<String> customFontNotifier = ValueNotifier(
   MemoryState.A.customFontFamily,
@@ -270,6 +273,9 @@ Future<void> requestAd(
   Function(InterstitialAd) callback,
   Function() errorCallback,
 ) async {
+  bool optIn = await getAdsOptIn() ?? false;
+  if (!optIn) return; // block ads entirely if not enabled globally.
+
   await InterstitialAd.load(
     adUnitId: "ca-app-pub-3401801111605896/5698618617",
     request: const AdRequest(),
@@ -294,7 +300,7 @@ void pageChanged() {
   MemoryState.A.adSettings.navigated();
 
   if (MemoryState.A.adSettings.shouldShowAd()) {
-    requestAd((A) {
+    requestAd((A) async {
       A.show();
     }, () {});
 

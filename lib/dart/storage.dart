@@ -4,8 +4,10 @@ import 'dart:convert';
 import 'package:dio/dio.dart';
 import 'package:libac_dart/utils/Converter.dart';
 import 'package:libac_dart/utils/Hashing.dart';
+import 'package:libac_dart/utils/StringUtils.dart';
 import 'package:libac_dart/utils/TimeUtils.dart';
 import 'package:libac_dart/utils/uuid/UUID.dart';
+import 'package:libacflutter/Constants.dart';
 import 'package:switchboard/dart/MemoryState.dart';
 import 'package:switchboard/dart/exceptions.dart';
 import 'package:switchboard/dart/globalHelpers.dart';
@@ -321,6 +323,21 @@ class NetworkInterface {
     print(reply.data);
 
     return S2CLazyResponse.decode(typeCorrectJson(reply.data));
+  }
+
+  static Future<bool> migrateAvatar(String url, UUID alterID) async {
+    Dio dio = Dio();
+    dio.options.responseType = ResponseType.bytes;
+    var reply = await dio.get(url);
+
+    var alterReply = await NetworkInterface.getAlterByID(alterID);
+
+    var updateReply = await NetworkInterface.updateAvatar(
+      alterReply.data!,
+      base64Encoder.base64EncBytes(reply.data),
+    );
+
+    return updateReply.success;
   }
 }
 

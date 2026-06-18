@@ -181,8 +181,16 @@ class _editAlter extends State<EditAlterPage> {
                                 );
 
                                 var url = reply as String;
+
+                                var success =
+                                    await NetworkInterface.migrateAvatar(
+                                      url,
+                                      alter.id,
+                                    );
+                                if (success) {
+                                  alter.avatarUrl = "${alter.id.toString()}";
+                                }
                                 // update the alter's preferred image URL!
-                                alter.avatarUrl = url;
                                 await NetworkInterface.updateAlter(alter);
 
                                 Navigator.pop(context);
