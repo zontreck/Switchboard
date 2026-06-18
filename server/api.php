@@ -2,7 +2,7 @@
 
 $DEBUG = true;
 
-$VERSION = "0.1.0+0608261628";
+$VERSION = "0.1.0+0617261739";
 
 $DEFAULT_USER_FIELDS = array(
                             array(
