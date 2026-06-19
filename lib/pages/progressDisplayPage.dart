@@ -1,15 +1,14 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:libacflutter/Constants.dart';
 import 'package:liquid_glass_widgets/widgets/feedback/glass_progress_indicator.dart';
 import 'package:switchboard/dart/octocon_format.dart';
 import 'package:switchboard/dart/privacyPolicy.dart';
 import 'package:switchboard/dart/storage.dart';
 import 'package:switchboard/globalHelpers.dart';
 import 'package:switchboard/pages/editAlter.dart';
-import 'package:switchboard/pages/elements.dart';
 
 class OctoconMigrationProgressPage extends StatefulWidget {
+  const OctoconMigrationProgressPage({super.key});
+
   @override
   State<StatefulWidget> createState() {
     return _action();
@@ -189,7 +188,7 @@ class _action extends State<OctoconMigrationProgressPage> {
               GlassProgressIndicator.linear(value: getProgress()),
             if (cur >= 0 && cur < max)
               Text(
-                "${cur} / ${max} - ${getPercent()}%",
+                "$cur / $max - ${getPercent()}%",
                 style: TextStyle(fontSize: 22),
               ),
             SizedBox(height: 50),

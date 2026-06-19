@@ -1,17 +1,17 @@
 import 'dart:io';
 
 import 'package:file_picker/file_picker.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:libacflutter/Constants.dart';
 import 'package:markdown_widget/widget/markdown_block.dart';
 import 'package:switchboard/dart/octocon_format.dart';
 import 'package:switchboard/dart/storage.dart';
 import 'package:switchboard/globalHelpers.dart';
-import 'package:switchboard/pages/editAlter.dart';
 import 'package:switchboard/pages/progressDisplayPage.dart';
 
 class OctoconImport extends StatefulWidget {
+  const OctoconImport({super.key});
+
   @override
   State<StatefulWidget> createState() {
     return _octocon();

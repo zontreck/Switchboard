@@ -10,7 +10,6 @@ import 'package:switchboard/dart/MemoryState.dart';
 import 'package:switchboard/dart/exceptions.dart';
 import 'package:switchboard/dart/globalHelpers.dart';
 import 'package:switchboard/dart/privacyPolicy.dart';
-import 'package:switchboard/globalHelpers.dart';
 
 class NetworkInterface {
   // Here, we will have a packet system to send and receive data.

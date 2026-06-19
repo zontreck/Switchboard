@@ -94,7 +94,7 @@ class AlterImage extends StatelessWidget {
   Widget build(BuildContext context) {
     return flush
         ? Image.network(
-            useCacheBusting ? "${url}?ts=${TimeUtils.getUnixTimestamp()}" : url,
+            useCacheBusting ? "$url?ts=${TimeUtils.getUnixTimestamp()}" : url,
             width: width,
             height: height,
             fit: BoxFit.contain,
@@ -108,7 +108,7 @@ class AlterImage extends StatelessWidget {
               margin: squarePics ? EdgeInsets.zero : null,
               child: Image.network(
                 useCacheBusting
-                    ? "${url}?ts=${TimeUtils.getUnixTimestamp()}"
+                    ? "$url?ts=${TimeUtils.getUnixTimestamp()}"
                     : url,
                 width: width,
                 height: height,
