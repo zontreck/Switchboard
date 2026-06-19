@@ -7,6 +7,7 @@ import 'package:libac_dart/utils/Converter.dart';
 import 'package:libac_dart/utils/uuid/UUID.dart';
 import 'package:libacflutter/Constants.dart';
 import 'package:switchboard/dart/MemoryState.dart';
+import 'package:switchboard/dart/storage.dart';
 import 'package:switchboard/globalHelpers.dart';
 import 'package:switchboard/pages/elements.dart';
 
@@ -492,6 +493,20 @@ class _settings extends State<SettingsPage> {
                 leading: Icon(Icons.import_contacts),
                 onTap: () {
                   Navigator.pushNamed(context, "/account/settings/octocon");
+                },
+              ),
+              Divider(),
+
+              ListTile(
+                title: Text("DEBUG: Wipe Account"),
+                subtitle: Text(
+                  "This debug option will wipe all data from your account. It is not reversible.",
+                ),
+                tileColor: LibACFlutterConstants.TITLEBAR_COLOR,
+                onTap: () async {
+                  await NetworkInterface.wipeAccount();
+
+                  setState(() {});
                 },
               ),
 

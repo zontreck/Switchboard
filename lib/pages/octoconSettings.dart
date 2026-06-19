@@ -9,6 +9,7 @@ import 'package:switchboard/dart/octocon_format.dart';
 import 'package:switchboard/dart/storage.dart';
 import 'package:switchboard/globalHelpers.dart';
 import 'package:switchboard/pages/editAlter.dart';
+import 'package:switchboard/pages/progressDisplayPage.dart';
 
 class OctoconImport extends StatefulWidget {
   @override
@@ -21,48 +22,16 @@ class _octocon extends State<OctoconImport> {
   String _selectedFile = "";
 
   Future<void> runMigration() async {
-    var reply = await NetworkInterface.wipeAccount();
-    if (reply.success) {
-      // Start importing OctoconData
-      File octo = File(_selectedFile);
-      String octoData = octo.readAsStringSync();
-      var allFields = await NetworkInterface.getDataFields();
-      List<Field> fields = allFields.data;
+    // Start importing OctoconData
+    File octo = File(_selectedFile);
+    String octoData = octo.readAsStringSync();
+    OctoconData octoconData = OctoconData.fromJson(octoData);
 
-      OctoconData octoconData = OctoconData.fromJson(octoData);
-      for (var alter in octoconData.alters) {
-        // Create an alter
-        var nAlter = await NetworkInterface.makeNewAlter(alter.name);
-        Alter newAlter = nAlter.data!;
-
-        if (alter.avatarURL.isNotEmpty) {
-          await NetworkInterface.migrateAvatar(alter.avatarURL, newAlter.id);
-          newAlter.avatarUrl = newAlter.id.toString();
-          for (var field in fields) {
-            if (field.type == FieldType.Description) {
-              TextFieldStorage TFS = TextFieldStorage();
-              TFS.controller.text = alter.description;
-
-              newAlter.addOrUpdateField(
-                FieldData(id: field.id, data: TFS.toJson()),
-              );
-            }
-            if (field.type == FieldType.ColorSys) {
-              ColorFieldStorage CFS = ColorFieldStorage();
-              CFS.data = htmlColorToFlutter(alter.color);
-
-              newAlter.addOrUpdateField(
-                FieldData(id: field.id, data: CFS.toJson()),
-              );
-            }
-          }
-
-          await NetworkInterface.updateAlter(newAlter);
-        }
-
-        sleep(Duration(seconds: 1));
-      }
-    }
+    await Navigator.pushNamed(
+      context,
+      "/account/settings/octocon/migrate",
+      arguments: OctoconMigrationArguments(data: octoconData),
+    );
   }
 
   @override
@@ -154,7 +123,10 @@ class _octocon extends State<OctoconImport> {
                   );
 
                   // return;
-                  runMigration();
+                  var reply = await NetworkInterface.wipeAccount();
+                  if (reply.success) {
+                    runMigration();
+                  }
                 },
               ),
               SizedBox(height: 25),

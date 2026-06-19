@@ -226,79 +226,75 @@ class _alters extends State<AltersPage> {
           setState(() {});
         });
       },
-      child: Column(
-        children: [
-          FutureBuilder(
-            future: pollList(),
-            builder: (bldr, AsyncSnapshot<List<Alter>> snapshot) {
-              if (snapshot.hasError) {
-                return Column(
-                  children: [
-                    Icon(Icons.error, size: 120),
-                    Text(
-                      "FATAL ERROR: Could not load alters from the server.\nRequest ID: ${MemoryState.A.lastErrorRay}",
-                      style: TextStyle(fontSize: 22),
-                    ),
-                  ],
-                );
-              }
+      child: FutureBuilder(
+        future: pollList(),
+        builder: (bldr, AsyncSnapshot<List<Alter>> snapshot) {
+          if (snapshot.hasError) {
+            return Column(
+              children: [
+                Icon(Icons.error, size: 120),
+                Text(
+                  "FATAL ERROR: Could not load alters from the server.\nRequest ID: ${MemoryState.A.lastErrorRay}",
+                  style: TextStyle(fontSize: 22),
+                ),
+              ],
+            );
+          }
 
-              if (!snapshot.hasData) {
-                return Column(
-                  children: [
-                    CircularProgressIndicator(),
-                    Center(
-                      child: Text(
-                        "Loading Alters from Server...",
-                        style: TextStyle(fontSize: 22),
-                      ),
-                    ),
-                  ],
-                );
-              } else {
-                List<Alter> alters = snapshot.data!;
-                MemoryState ms = MemoryState();
+          if (!snapshot.hasData) {
+            return Column(
+              children: [
+                CircularProgressIndicator(),
+                Center(
+                  child: Text(
+                    "Loading Alters from Server...",
+                    style: TextStyle(fontSize: 22),
+                  ),
+                ),
+              ],
+            );
+          } else {
+            List<Alter> alters = snapshot.data!;
+            MemoryState ms = MemoryState();
 
-                return ListView.builder(
-                  itemCount: alters.length,
-                  shrinkWrap: true,
-                  itemBuilder: (bctx, index) {
-                    return InkWell(
-                      onTap: () async {
-                        pageChanged();
-                        var reply = await Navigator.pushNamed(
-                          context,
-                          "/editAlter",
-                          arguments: EditAlterArguments(
-                            alterId: alters[index].id,
-                            instance: alters[index],
-                          ),
-                        );
-
-                        pageChanged();
-                        setState(() {
-                          altersList = null;
-                        });
-                      },
-                      child: AlterWidget(
-                        flush: ms.flushPictures,
-                        roundedElement: ms.roundedBorder,
-                        squarePics: ms.squarePicture,
-                        backgroundColor: getAlterBackgroundColor(),
-                        textColor: getAlterTextColor(),
-                        alterID: alters[index].id,
-                        alterName: alters[index].name,
-                        url: alters[index].avatarUrl.isNotEmpty
-                            ? alters[index].avatarUrl
-                            : "null",
+            return ListView.builder(
+              itemCount: alters.length,
+              shrinkWrap: true,
+              itemBuilder: (bctx, index) {
+                return InkWell(
+                  onTap: () async {
+                    pageChanged();
+                    var reply = await Navigator.pushNamed(
+                      context,
+                      "/editAlter",
+                      arguments: EditAlterArguments(
+                        alterId: alters[index].id,
+                        instance: alters[index],
                       ),
                     );
+
+                    pageChanged();
+                    setState(() {
+                      altersList = null;
+                    });
                   },
+                  child: AlterWidget(
+                    flush: ms.flushPictures,
+                    roundedElement: ms.roundedBorder,
+                    squarePics: ms.squarePicture,
+                    backgroundColor: getAlterBackgroundColor(),
+                    textColor: getAlterTextColor(),
+                    alterID: alters[index].id,
+                    alterName: alters[index].name,
+                    url: alters[index].avatarUrl.isNotEmpty
+                        ? alters[index].avatarUrl
+                        : "null",
+                  ),
                 );
-              }
-            },
-          ),
-        ],
+              },
+            );
+          }
+        },
       ),
     );
   }

@@ -267,6 +267,9 @@ void flushImageCaches() {
 }
 
 Color htmlColorToFlutter(String hex) {
+  if (hex.isEmpty) {
+    return Colors.black;
+  }
   hex = hex.replaceAll('#', '');
 
   // If no alpha is provided, assume fully opaque.
@@ -275,6 +278,12 @@ Color htmlColorToFlutter(String hex) {
   }
 
   return Color(int.parse(hex, radix: 16));
+}
+
+void popUntil(String name, BuildContext context) {
+  Navigator.popUntil(context, (rt) {
+    return rt.isFirst || rt.settings.name == name;
+  });
 }
 
 Future<void> requestAd(

@@ -10,6 +10,7 @@ import 'package:switchboard/pages/fontPage.dart';
 import 'package:switchboard/pages/loginPage.dart';
 import 'package:switchboard/pages/octoconSettings.dart';
 import 'package:switchboard/pages/privacyPolicyPage.dart';
+import 'package:switchboard/pages/progressDisplayPage.dart';
 import 'package:switchboard/pages/registerPage.dart';
 import 'package:switchboard/pages/settingsPage.dart';
 
@@ -43,6 +44,8 @@ class Switchboard extends StatelessWidget {
             "/account/settings/fields/edit": (ctx) => EditField(),
             "/editAlter": (ctx) => EditAlterPage(),
             "/feedback": (ctx) => FeedbackHUB(),
+            "/account/settings/octocon/migrate": (ctx) =>
+                OctoconMigrationProgressPage(),
           },
         );
       },
