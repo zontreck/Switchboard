@@ -2,6 +2,8 @@
 
 ## ADD:
 
+- [x] New endpoint: `/wipe`. This endpoint is designed to erase all user data. It's only intended to ever be called from a Import function, or somewhere that makes it VERY clear that the action is irreversible.
+
 ## CHANGE:
 
 - [x] Update the text on onboarding phase 0 (Ad opt in request page)

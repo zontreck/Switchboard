@@ -337,6 +337,18 @@ class NetworkInterface {
 
     return updateReply.success;
   }
+
+  static Future<S2CLazyResponse> wipeAccount() async {
+    Dio dio = Dio();
+    MemoryState ms = MemoryState();
+
+    dio.options.headers["Content-Type"] = "application/json";
+    dio.options.headers["X-SB-Auth"] = ms.authenticationToken;
+
+    var reply = await dio.get("${getAPIServerURL()}/wipe");
+
+    return S2CLazyResponse.decode(typeCorrectJson(reply.data));
+  }
 }
 
 abstract class ResponsePacket {

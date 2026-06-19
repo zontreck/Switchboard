@@ -1,8 +1,8 @@
 <?php
 
-$DEBUG = true;
+$DEBUG = false;
 
-$VERSION = "0.1.0+0617261739";
+$VERSION = "0.1.0+0618262029";
 
 $DEFAULT_USER_FIELDS = array(
                             array(
@@ -1426,6 +1426,66 @@ switch($route) {
             "type" => $request,
             "data" => $data
         )));
+        break;
+    }
+
+    case "/wipe": {
+        // Immediately wipe the logged in user's account.
+        // Verify login status now
+        
+        $success = false;
+        $reason = "not logged in";
+        $packet = json_decode(file_get_contents("php://input"), true);
+
+        $DB = get_DB("switchboard");
+        
+        $AuthHeader = get_Authorization();
+        $reply = ValidateSAT($AuthHeader);
+        
+        if($reply->Success)
+        {
+            $reason = "wiped";
+            $success = true;
+
+            $uid = $reply->UserID;
+
+            // Alters
+            $stmt = $DB->prepare("DELETE FROM Alters WHERE User=?");
+            $stmt->bind_param("s", $uid);
+            $stmt->execute();
+            $stmt->close();
+
+            // Avatars
+            $stmt = $DB->prepare("DELETE FROM Avatars WHERE User=?");
+            $stmt->bind_param("s", $uid);
+            $stmt->execute();
+            $stmt->close();
+
+            // Fields
+            $stmt = $DB->prepare(
+                "DELETE FROM Fields WHERE User=? AND FieldType >= 0"
+            );
+            $stmt->bind_param("s", $uid);
+            $stmt->execute();
+            $stmt->close();
+
+            // Images
+            $stmt = $DB->prepare("DELETE FROM Images WHERE OwnerID=?");
+            $stmt->bind_param("s", $uid);
+            $stmt->execute();
+            $stmt->close();
+        }
+
+
+
+        die(json_encode(array(
+            "success" => $success,
+            "reason" => $reason,
+            "id" => $ID,
+            "path" => $route,
+            "type" => $request
+        )));
+
         break;
     }
 
