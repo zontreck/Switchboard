@@ -8,6 +8,7 @@
 - [x] Agreeing to ads on the Onboarding page will now enable Ads on navigation by default. By default, this is every 4 page changes.
 - [x] Fix a bug in the server's SQL tables, where a image binary could potentially be too long to commit to the database.
 - [x] Automatically migrate images being saved with `Set URL` to the `/avatar/` endpoint.
+- [x] Fixes the anti-cachebusting feature that was preventing image updates on the edit alter page
 
 # 0.1.0+0617260921
 

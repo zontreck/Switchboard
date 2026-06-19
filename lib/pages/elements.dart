@@ -1,6 +1,7 @@
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
+import 'package:libac_dart/utils/TimeUtils.dart';
 import 'package:libac_dart/utils/uuid/UUID.dart';
 import 'package:switchboard/dart/MemoryState.dart';
 import 'package:switchboard/dart/globalHelpers.dart';
@@ -59,6 +60,7 @@ class AlterImage extends StatelessWidget {
   double? width;
   double? height;
   String url;
+  bool useCacheBusting = false;
 
   AlterImage({
     super.key,
@@ -68,10 +70,12 @@ class AlterImage extends StatelessWidget {
     required this.url,
     this.width = 75,
     this.height = 75,
+    this.useCacheBusting = false,
   });
   factory AlterImage.defaults({
     double? height,
     double? width,
+    bool useCacheBusting = false,
     required Alter alter,
   }) {
     MemoryState ms = MemoryState();
@@ -82,13 +86,19 @@ class AlterImage extends StatelessWidget {
       url: alter.getAvatarURL(),
       width: width ?? 75,
       height: height ?? 75,
+      useCacheBusting: useCacheBusting,
     );
   }
 
   @override
   Widget build(BuildContext context) {
     return flush
-        ? Image.network(url, width: width, height: height, fit: BoxFit.contain)
+        ? Image.network(
+            useCacheBusting ? "${url}?ts=${TimeUtils.getUnixTimestamp()}" : url,
+            width: width,
+            height: height,
+            fit: BoxFit.contain,
+          )
         : Padding(
             padding: EdgeInsetsGeometry.all((squarePics && !flush) ? 8 : 2),
             child: Card(
@@ -97,7 +107,9 @@ class AlterImage extends StatelessWidget {
               shape: squarePics ? BoxBorder.all() : null,
               margin: squarePics ? EdgeInsets.zero : null,
               child: Image.network(
-                url,
+                useCacheBusting
+                    ? "${url}?ts=${TimeUtils.getUnixTimestamp()}"
+                    : url,
                 width: width,
                 height: height,
                 fit: BoxFit.contain,

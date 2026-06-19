@@ -4,10 +4,8 @@ import 'dart:convert';
 import 'package:dio/dio.dart';
 import 'package:libac_dart/utils/Converter.dart';
 import 'package:libac_dart/utils/Hashing.dart';
-import 'package:libac_dart/utils/StringUtils.dart';
 import 'package:libac_dart/utils/TimeUtils.dart';
 import 'package:libac_dart/utils/uuid/UUID.dart';
-import 'package:libacflutter/Constants.dart';
 import 'package:switchboard/dart/MemoryState.dart';
 import 'package:switchboard/dart/exceptions.dart';
 import 'package:switchboard/dart/globalHelpers.dart';
@@ -1066,6 +1064,29 @@ class Alter {
   UUID parent;
   int flags;
   List<FieldData> fields;
+  bool _stale = false;
+
+  void markStale() {
+    _stale = true;
+  }
+
+  bool get stale => _stale;
+
+  Future<void> pullUpdates() async {
+    var reply = await NetworkInterface.getAlterByID(id);
+    if (reply.success) {
+      Alter alter = reply.data!;
+      id = alter.id;
+      user = alter.user;
+      _stale = false;
+      name = alter.name;
+      avatarUrl = alter.avatarUrl;
+      subid = alter.subid;
+      parent = alter.parent;
+      flags = alter.flags;
+      fields = alter.fields;
+    }
+  }
 
   void onNewFieldData(FieldData data) {
     addOrUpdateField(data);

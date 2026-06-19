@@ -47,10 +47,13 @@ class _editAlter extends State<EditAlterPage> {
 
   @override
   Widget build(BuildContext context) {
-    var args = ModalRoute.of(context)!.settings.arguments as EditAlterArguments;
-    alterId = args.alterId;
-    alter = args.instance;
-    alterNameController.text = alter.name;
+    if (alter.id.toString() == UUID.ZERO.toString()) {
+      var args =
+          ModalRoute.of(context)!.settings.arguments as EditAlterArguments;
+      alterId = args.alterId;
+      alter = args.instance;
+      alterNameController.text = alter.name;
+    }
 
     return Scaffold(
       appBar: AppBar(
@@ -95,11 +98,12 @@ class _editAlter extends State<EditAlterPage> {
                     alter: alter,
                     width: 200,
                     height: 200,
+                    useCacheBusting: true,
                   ),
-                  onTap: () {
+                  onTap: () async {
                     print("Display image customize menu");
 
-                    showCupertinoDialog(
+                    await showCupertinoDialog(
                       context: context,
                       builder: (bldr) {
                         return CupertinoAlertDialog(
@@ -188,7 +192,7 @@ class _editAlter extends State<EditAlterPage> {
                                       alter.id,
                                     );
                                 if (success) {
-                                  alter.avatarUrl = "${alter.id.toString()}";
+                                  alter.avatarUrl = alter.id.toString();
                                 }
                                 // update the alter's preferred image URL!
                                 await NetworkInterface.updateAlter(alter);
@@ -253,6 +257,11 @@ class _editAlter extends State<EditAlterPage> {
                         );
                       },
                     );
+
+                    flushImageCaches();
+                    await alter.pullUpdates();
+
+                    setState(() {});
                   },
                 ),
               ),
