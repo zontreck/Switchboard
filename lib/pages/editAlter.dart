@@ -389,12 +389,12 @@ class AlterFieldData extends StatefulWidget {
   }
 }
 
-abstract class _FieldStorage {
+abstract class FieldStorage {
   Map<String, dynamic> toJson() {
     return {"type": dataType.id};
   }
 
-  static _FieldStorage fromJson(Map<String, dynamic> js) {
+  static FieldStorage fromJson(Map<String, dynamic> js) {
     FieldStorageType type = FieldStorageType.valueOf(js['type']);
     var store = type.init();
     store.decode(js);
@@ -408,7 +408,7 @@ abstract class _FieldStorage {
 }
 
 class FieldRegistry {
-  static final Map<String, _FieldStorage> _registry = {};
+  static final Map<String, FieldStorage> _registry = {};
 
   static void fromJson(Map<String, dynamic> js) {}
 }
@@ -428,7 +428,7 @@ enum FieldStorageType {
     return values.where((x) => x.id == id).firstOrNull ?? FieldStorageType.Text;
   }
 
-  _FieldStorage init() {
+  FieldStorage init() {
     if (this == Text) {
       return TextFieldStorage();
     } else if (this == Color) {
@@ -441,7 +441,7 @@ enum FieldStorageType {
   }
 }
 
-class TextFieldStorage extends _FieldStorage {
+class TextFieldStorage extends FieldStorage {
   String _data = "";
   TextEditingController controller = TextEditingController();
   String get data => controller.text;
@@ -468,7 +468,7 @@ class TextFieldStorage extends _FieldStorage {
   }
 }
 
-class DateFieldStorage extends _FieldStorage {
+class DateFieldStorage extends FieldStorage {
   int date = 0;
   TextEditingController controller = TextEditingController();
   String get data => controller.text;
@@ -511,7 +511,7 @@ class DateFieldStorage extends _FieldStorage {
   }
 }
 
-class NumberFieldStorage extends _FieldStorage {
+class NumberFieldStorage extends FieldStorage {
   TextEditingController controller = TextEditingController();
   String get text => controller.text;
   int get data => int.parse(text);
@@ -533,7 +533,7 @@ class NumberFieldStorage extends _FieldStorage {
   }
 }
 
-class ColorFieldStorage extends _FieldStorage {
+class ColorFieldStorage extends FieldStorage {
   Color data = Colors.white;
 
   @override
@@ -572,7 +572,7 @@ class _alterFieldData extends State<AlterFieldData> {
       if (widget.data.data.isEmpty) {
         widget.data.data = {"type": FieldStorageType.Text.id, "data": ""};
       }
-      _FieldStorage store = _FieldStorage.fromJson(widget.data.data);
+      FieldStorage store = FieldStorage.fromJson(widget.data.data);
 
       controlHolders[widget.data.id.toString()] = store;
     } else if (widget.type == FieldType.Color ||
@@ -587,7 +587,7 @@ class _alterFieldData extends State<AlterFieldData> {
           "data": [255, 0, 0, 0],
         };
       }
-      _FieldStorage store = _FieldStorage.fromJson(widget.data.data);
+      FieldStorage store = FieldStorage.fromJson(widget.data.data);
 
       controlHolders[widget.data.id.toString()] = store;
     } else if (widget.type == FieldType.Date) {
@@ -599,7 +599,7 @@ class _alterFieldData extends State<AlterFieldData> {
         widget.data.data = {"type": FieldStorageType.Date.id, "data": 0};
       }
 
-      _FieldStorage store = _FieldStorage.fromJson(widget.data.data);
+      FieldStorage store = FieldStorage.fromJson(widget.data.data);
       controlHolders[widget.data.id.toString()] = store;
     } else if (widget.type == FieldType.Number) {
       if (widget.data.data["type"] != FieldStorageType.Number.id) {
@@ -610,7 +610,7 @@ class _alterFieldData extends State<AlterFieldData> {
         widget.data.data = {"type": FieldStorageType.Number.id, "data": 0};
       }
 
-      _FieldStorage store = _FieldStorage.fromJson(widget.data.data);
+      FieldStorage store = FieldStorage.fromJson(widget.data.data);
       controlHolders[widget.data.id.toString()] = store;
     }
   }

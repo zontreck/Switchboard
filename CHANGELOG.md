@@ -3,6 +3,7 @@
 ## ADD:
 
 - [x] New endpoint: `/wipe`. This endpoint is designed to erase all user data. It's only intended to ever be called from a Import function, or somewhere that makes it VERY clear that the action is irreversible.
+- [x] Begin to add the automated Octocon data migration functions
 
 ## CHANGE:
 

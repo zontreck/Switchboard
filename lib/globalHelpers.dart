@@ -266,6 +266,17 @@ void flushImageCaches() {
   PaintingBinding.instance.imageCache.clearLiveImages();
 }
 
+Color htmlColorToFlutter(String hex) {
+  hex = hex.replaceAll('#', '');
+
+  // If no alpha is provided, assume fully opaque.
+  if (hex.length == 6) {
+    hex = 'FF$hex';
+  }
+
+  return Color(int.parse(hex, radix: 16));
+}
+
 Future<void> requestAd(
   Function(InterstitialAd) callback,
   Function() errorCallback,

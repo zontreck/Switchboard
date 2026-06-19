@@ -1,9 +1,14 @@
+import 'dart:io';
+
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:libacflutter/Constants.dart';
 import 'package:markdown_widget/widget/markdown_block.dart';
+import 'package:switchboard/dart/octocon_format.dart';
+import 'package:switchboard/dart/storage.dart';
 import 'package:switchboard/globalHelpers.dart';
+import 'package:switchboard/pages/editAlter.dart';
 
 class OctoconImport extends StatefulWidget {
   @override
@@ -14,6 +19,51 @@ class OctoconImport extends StatefulWidget {
 
 class _octocon extends State<OctoconImport> {
   String _selectedFile = "";
+
+  Future<void> runMigration() async {
+    var reply = await NetworkInterface.wipeAccount();
+    if (reply.success) {
+      // Start importing OctoconData
+      File octo = File(_selectedFile);
+      String octoData = octo.readAsStringSync();
+      var allFields = await NetworkInterface.getDataFields();
+      List<Field> fields = allFields.data;
+
+      OctoconData octoconData = OctoconData.fromJson(octoData);
+      for (var alter in octoconData.alters) {
+        // Create an alter
+        var nAlter = await NetworkInterface.makeNewAlter(alter.name);
+        Alter newAlter = nAlter.data!;
+
+        if (alter.avatarURL.isNotEmpty) {
+          await NetworkInterface.migrateAvatar(alter.avatarURL, newAlter.id);
+          newAlter.avatarUrl = newAlter.id.toString();
+          for (var field in fields) {
+            if (field.type == FieldType.Description) {
+              TextFieldStorage TFS = TextFieldStorage();
+              TFS.controller.text = alter.description;
+
+              newAlter.addOrUpdateField(
+                FieldData(id: field.id, data: TFS.toJson()),
+              );
+            }
+            if (field.type == FieldType.ColorSys) {
+              ColorFieldStorage CFS = ColorFieldStorage();
+              CFS.data = htmlColorToFlutter(alter.color);
+
+              newAlter.addOrUpdateField(
+                FieldData(id: field.id, data: CFS.toJson()),
+              );
+            }
+          }
+
+          await NetworkInterface.updateAlter(newAlter);
+        }
+
+        sleep(Duration(seconds: 1));
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -85,7 +135,7 @@ class _octocon extends State<OctoconImport> {
                 ),
                 leading: Icon(Icons.import_contacts),
                 tileColor: LibACFlutterConstants.TITLEBAR_COLOR,
-                onTap: () {
+                onTap: () async {
                   if (_selectedFile.isEmpty) {
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(
@@ -94,6 +144,7 @@ class _octocon extends State<OctoconImport> {
                     );
                     return;
                   }
+
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(
                       content: Text(
@@ -101,6 +152,9 @@ class _octocon extends State<OctoconImport> {
                       ),
                     ),
                   );
+
+                  // return;
+                  runMigration();
                 },
               ),
               SizedBox(height: 25),
@@ -125,6 +179,9 @@ class _octocon extends State<OctoconImport> {
                       ),
                     ),
                   );
+
+                  // return;
+                  runMigration();
                 },
               ),
               SizedBox(height: 100),
