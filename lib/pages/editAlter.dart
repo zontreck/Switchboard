@@ -564,7 +564,8 @@ class _alterFieldData extends State<AlterFieldData> {
 
     if (widget.type == FieldType.PlainText ||
         widget.type == FieldType.Markdown ||
-        widget.type == FieldType.Description) {
+        widget.type == FieldType.Description ||
+        widget.type == FieldType.Pronouns) {
       if (widget.data.data["type"] != FieldStorageType.Text.id) {
         widget.data.data = {};
       }
@@ -618,6 +619,7 @@ class _alterFieldData extends State<AlterFieldData> {
   @override
   Widget build(BuildContext context) {
     switch (widget.type) {
+      case FieldType.Pronouns:
       case FieldType.PlainText:
         {
           return TextField(

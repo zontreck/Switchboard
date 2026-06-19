@@ -2,7 +2,7 @@
 
 $DEBUG = false;
 
-$VERSION = "0.1.0+0619260021";
+$VERSION = "0.1.0+0619260115";
 
 $DEFAULT_USER_FIELDS = array(
                             array(
@@ -14,6 +14,11 @@ $DEFAULT_USER_FIELDS = array(
                                 "Name" => "Color",
                                 "Type" => -2,
                                 "Order" => 1
+                            ),
+                            array(
+                                "Name" => "Pronouns",
+                                "Type" => -3,
+                                "Order" => 2
                             )
                         );
 

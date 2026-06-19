@@ -4,6 +4,8 @@
 
 - [x] New endpoint: `/wipe`. This endpoint is designed to erase all user data. It's only intended to ever be called from a Import function, or somewhere that makes it VERY clear that the action is irreversible.
 - [x] Begin to add the automated Octocon data migration functions
+- [x] New system field: `Pronouns`. This is just a basic plain text field. Migration ID `0020`
+- [x] Add new migration for backend: `0018`, which addresses a bug in which the database would only allow one avatar to be posted for a user at a time. This attempts to address that issue, by making both user and image ID unique keys.
 
 ## CHANGE:
 
@@ -12,7 +14,7 @@
 - [x] Fix a bug in the server's SQL tables, where a image binary could potentially be too long to commit to the database.
 - [x] Automatically migrate images being saved with `Set URL` to the `/avatar/` endpoint.
 - [x] Fixes the anti-cachebusting feature that was preventing image updates on the edit alter page
-- [x] Add new migration for backend: `0018`, which addresses a bug in which the database would only allow one avatar to be posted for a user at a time. This attempts to address that issue, by making both user and image ID unique keys.
+- [x] Fully fixes the image bug with migration `0019`.
 
 # 0.1.0+0617260921
 

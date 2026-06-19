@@ -54,6 +54,12 @@ class _action extends State<OctoconMigrationProgressPage> {
 
         newAlter.addOrUpdateField(FieldData(id: field.id, data: CFS.toJson()));
       }
+      if (field.type == FieldType.Pronouns) {
+        TextFieldStorage TFS = TextFieldStorage();
+        TFS.controller.text = alter.pronouns;
+
+        newAlter.addOrUpdateField(FieldData(id: field.id, data: TFS.toJson()));
+      }
     }
 
     statusMessage = "";

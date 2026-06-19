@@ -896,6 +896,7 @@ class PartialAlters {
 enum FieldType {
   Description(-1),
   ColorSys(-2),
+  Pronouns(-3),
   Unknown(-9999),
   PlainText(0),
   Markdown(1),
@@ -910,6 +911,7 @@ enum FieldType {
   static FieldType valueOf(int type) {
     if (Description._type == type) return Description;
     if (ColorSys._type == type) return ColorSys;
+    if (Pronouns._type == type) return Pronouns;
     if (PlainText._type == type) return PlainText;
     if (Markdown._type == type) return Markdown;
     if (Color._type == type) return Color;
@@ -930,6 +932,8 @@ enum FieldType {
         return "Description (Markdown, System Field)";
       case ColorSys:
         return "Color (System Field)";
+      case Pronouns:
+        return "Pronouns (Plain Text, System Field)";
       case Unknown:
         return "Unknown Type";
       case PlainText:
