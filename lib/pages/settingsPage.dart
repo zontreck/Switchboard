@@ -482,6 +482,21 @@ class _settings extends State<SettingsPage> {
                 },
               ),
 
+              Divider(),
+              ListTile(
+                title: Text("I M P O R T  F R O M  O C T O C O N"),
+                subtitle: Text(
+                  "Import all data from an Octocon full JSON export.\n(DISCLAIMER) This feature will only be available as long as the Octocon servers remain operational. This feature will continue working indefinitely, however there is a ticking clock on the import function due to the Profile Pictures being hosted by Octocon's CDN. This feature will migrate all images to our own in-house CDN. ",
+                ),
+                tileColor: LibACFlutterConstants.TITLEBAR_COLOR,
+                leading: Icon(Icons.import_contacts),
+                onTap: () {
+                  Navigator.pushNamed(context, "/account/settings/octocon");
+                },
+              ),
+
+              Divider(),
+
               SizedBox(height: 50),
               ListTile(
                 title: Text("L O G  O U T"),

@@ -8,6 +8,7 @@ import 'package:switchboard/pages/editFields.dart';
 import 'package:switchboard/pages/feedbackHUB.dart';
 import 'package:switchboard/pages/fontPage.dart';
 import 'package:switchboard/pages/loginPage.dart';
+import 'package:switchboard/pages/octoconSettings.dart';
 import 'package:switchboard/pages/privacyPolicyPage.dart';
 import 'package:switchboard/pages/registerPage.dart';
 import 'package:switchboard/pages/settingsPage.dart';
@@ -37,6 +38,7 @@ class Switchboard extends StatelessWidget {
             "/account/settings": (ctx) => SettingsPage(),
             "/account/settings/ads": (ctx) => AdSettingsPage(),
             "/account/settings/font": (ctx) => FontPage(),
+            "/account/settings/octocon": (ctx) => OctoconImport(),
             "/account/settings/fields": (ctx) => EditFieldsPage(),
             "/account/settings/fields/edit": (ctx) => EditField(),
             "/editAlter": (ctx) => EditAlterPage(),
