@@ -6,6 +6,7 @@
 - [x] Begin to add the automated Octocon data migration functions
 - [x] New system field: `Pronouns`. This is just a basic plain text field. Migration ID `0020`
 - [x] Add new migration for backend: `0018`, which addresses a bug in which the database would only allow one avatar to be posted for a user at a time. This attempts to address that issue, by making both user and image ID unique keys.
+- [x] Start implementing the feedback database table
 
 ## CHANGE:
 
