@@ -2,7 +2,7 @@
 
 $DEBUG = false;
 
-$VERSION = "0.1.0+0620260837";
+$VERSION = "0.1.0+0620260911";
 
 $DEFAULT_USER_FIELDS = array(
                             array(
@@ -1479,6 +1479,12 @@ switch($route) {
             $stmt->bind_param("s", $uid);
             $stmt->execute();
             $stmt->close();
+
+            // Fronting
+            $stmt = $DB->prepare("DELETE FROM Fronting WHERE User=?");
+            $stmt->bind_param("s", $uid);
+            $stmt->execute();
+            $stmt->close();
         }
 
 
@@ -1524,6 +1530,8 @@ switch($route) {
 
     case "/fronting": {
         // Requires active authorization
+        $parameters = json_decode(file_get_contents("php://input"));
+
         $data = array();
         $success = false;
         $reason = "not logged in";
@@ -1536,6 +1544,157 @@ switch($route) {
 
             // Depending on the request type, and everything, we'll further verify proper authorization.
             switch($request) {
+                case "GET": {
+                    $all = $parameters['history'];
+
+                    if($all == true) {
+                        // We are to return the entire history.
+                        $reason = "history";
+
+                        $Q = $DB->prepare("SELECT * FROM `Fronting` WHERE `User`=?;");
+                        $Q->bind_param("s", $SAT->UserID);
+                        $Q->execute();
+                        $res = $Q->get_result();
+                        while($row = $res->fetch_assoc()) {
+                            array_push($data, array(
+                                "id" => $row['ID'],
+                                "alter" => $row['Alter'],
+                                "start" => $row['StartTime'],
+                                "end" => $row['EndTime']
+                            ));
+                        }
+                    } else {
+                        // We are only to return the current fronters.
+                        $reason = "fronters";
+                        $Q = $DB->prepare("SELECT * FROM `Fronting` WHERE `User`=? AND `EndTime` = 0;");
+                        $Q->bind_param("s", $SAT->UserID);
+                        $Q->execute();
+                        $res = $Q->get_result();
+                        while($row = $res->fetch_assoc()) {
+                            array_push($data, array(
+                                "id" => $row['ID'],
+                                "alter" => $row['Alter'],
+                                "start" => $row['StartTime'],
+                                "end" => 0
+                            ));
+                        }
+                    }
+                    break;
+                }
+                case "POST": {
+                    $reason = "front status set"
+                    $alter = $parameters['alter'];
+                    $Q = $DB->prepare("SELECT * FROM `Fronting` WHERE `User`=? AND `EndTime`=0 AND `Alter`=?;");
+                    $Q->bind_param("ss", $SAT->UserID, $alter);
+                    $Q->execute();
+                    $R = $Q->get_result();
+                    $Q2 = $DB->prepare("INSERT INTO `Fronting` (`ID`, `User`, `Alter`, `StartTime`, `EndTime`) VALUES(?, ?, ?, ?, ?);");
+                    if($R->num_rows() > 0) {
+                        $reason = "already fronting";
+                        $success=false;
+                    } else {
+                        $FrontID = gen_uuid();
+                        $frontTime = time();
+                        $Q2->bind_param("sssii", $FrontID, $SAT->UserID, $alter, $frontTime, 0);
+                        $data = array(
+                            "id" => $FrontID,
+                            "alter" => $alter,
+                            "start" => $frontTime
+                        );
+                        $Q2->execute();
+                        $Q2->commit();
+
+                    }
+                    $Q->close();
+                    $Q2->close();
+                    break;
+                }
+
+                case "PUT": {
+                    $alter = $parameters['alter'];
+                    $start = $parameters['start'];
+                    $end = $parameters['end'];
+                    $frontId = gen_uuid();
+                    $user = $SAT->UserID;
+
+                    $reason = "front history object inserted";
+                    $success=true;
+
+                    $stmt = $DB->prepare("INSERT INTO `Fronting` (`ID`, `User`, `Alter`, `StartTime`, `EndTime`) VALUES (?, ?, ?, ?, ?);");
+                    $stmt->bind_param("sssii", $frontId, $user, $alter, $start, $end);
+                    $stmt->execute();
+                    $stmt->commit();
+                    $stmt->close();
+
+                    $data = array(
+                        "id" => $frontId,
+                        "alter" => $alter,
+                        "start" => $start,
+                        "end" => $end
+                    );
+                    break;
+                }
+                case "DELETE": {
+                    $frontId = $parameters['id'];
+                    // Verify that the ID belongs to the currently authenticated user.
+                    $stmt = $DB->prepare("SELECT * FROM `Fronting` WHERE `User`=? AND `ID`=?;");
+                    $stmt->bind_param("ss", $SAT->UserID, $frontId);
+                    $stmt->execute();
+                    $res = $stmt->get_result();
+
+                    if($res->num_rows() == 0) {
+                        $success=false;
+                        $reason = "0x01647-No Front Object";
+                    } else {
+                        $st = $DB->prepare("DELETE FROM `Fronting` WHERE `ID`=?;");
+                        $st->bind_params("s", $frontId);
+                        $st->execute();
+                        $st->commit();
+                        $st->close();
+
+                        $reason = "deleted";
+                        $success=true;
+                    }
+                    $stmt->close();
+
+                    break;
+                }
+                case "PATCH": {
+                    // Remove someone from front. This endpoint only updates the EndTime value.
+
+                    $frontId = $parameters['id'];
+                    // Verify that the ID belongs to the currently authenticated user.
+                    $stmt = $DB->prepare("SELECT * FROM `Fronting` WHERE `User`=? AND `ID`=?;");
+                    $stmt->bind_param("ss", $SAT->UserID, $frontId);
+                    $stmt->execute();
+                    $res = $stmt->get_result();
+
+                    if($res->num_rows() == 0) {
+                        $success=false;
+                        $reason = "0x01674-No Front Object";
+                    } else {
+                        $st = $DB->prepare("UPDATE `Fronting` SET `EndTime` = ? WHERE `User`=? AND `ID` = ?;");
+                        $endTime = time();
+                        $st->bind_params("iss", $endTime, $SAT->UserID, $frontId);
+                        $st->execute();
+                        $st->commit();
+                        $st->close();
+
+                        $row = $res->fetch_assoc();
+
+                        $reason = "removed from front";
+                        $success=true;
+                        $data = array(
+                            "id" => $frontId,
+                            "end" => $endTime,
+                            "alter" => $row['Alter'],
+                            "start" => $row['StartTime']
+                        );
+                    }
+                    $stmt->close();
+
+                    break;
+                }
                 default: {
                     $success=false;
                     $reason = "0x01541-Unknown RequestType";

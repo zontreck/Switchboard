@@ -10,6 +10,12 @@
 - [x] Add status column to the feedback table (`0022`)
 - [x] Add a new table for comments on feedback items (`0022`)
 - [x] Adds initial fronting table (`0023`)
+- [x] Implements the `/fronting` endpoint.
+  - [x] GET will retrieve one of two things. If the parameter json parameters `history` is set to TRUE, it will return all fronting history, including current fronters. Otherwise it only returns current fronters.
+  - [x] POST will add someone to front.
+  - [x] PUT will insert a StartTime and Endtime as specified by the payload. This is primarily to be used by Import functions.
+  - [x] DELETE will delete the fronting object.
+  - [x] PATCH will remove someone from front, updating only the EndTime value.
 
 ## CHANGE:
 
