@@ -2,7 +2,7 @@
 
 $DEBUG = false;
 
-$VERSION = "0.1.0+0620260911";
+$VERSION = "0.1.0+0620260919";
 
 $DEFAULT_USER_FIELDS = array(
                             array(
@@ -1584,11 +1584,11 @@ switch($route) {
                 case "POST": {
                     $reason = "front status set"
                     $alter = $parameters['alter'];
-                    $Q = $DB->prepare("SELECT * FROM `Fronting` WHERE `User`=? AND `EndTime`=0 AND `Alter`=?;");
+                    $Q = $DB->prepare("SELECT * FROM `Fronting` WHERE `User`=? AND `EndTime`=0 AND `AlterID`=?;");
                     $Q->bind_param("ss", $SAT->UserID, $alter);
                     $Q->execute();
                     $R = $Q->get_result();
-                    $Q2 = $DB->prepare("INSERT INTO `Fronting` (`ID`, `User`, `Alter`, `StartTime`, `EndTime`) VALUES(?, ?, ?, ?, ?);");
+                    $Q2 = $DB->prepare("INSERT INTO `Fronting` (`ID`, `User`, `AlterID`, `StartTime`, `EndTime`) VALUES(?, ?, ?, ?, ?);");
                     if($R->num_rows() > 0) {
                         $reason = "already fronting";
                         $success=false;
@@ -1620,7 +1620,7 @@ switch($route) {
                     $reason = "front history object inserted";
                     $success=true;
 
-                    $stmt = $DB->prepare("INSERT INTO `Fronting` (`ID`, `User`, `Alter`, `StartTime`, `EndTime`) VALUES (?, ?, ?, ?, ?);");
+                    $stmt = $DB->prepare("INSERT INTO `Fronting` (`ID`, `User`, `AlterID`, `StartTime`, `EndTime`) VALUES (?, ?, ?, ?, ?);");
                     $stmt->bind_param("sssii", $frontId, $user, $alter, $start, $end);
                     $stmt->execute();
                     $stmt->commit();
@@ -1687,7 +1687,7 @@ switch($route) {
                         $data = array(
                             "id" => $frontId,
                             "end" => $endTime,
-                            "alter" => $row['Alter'],
+                            "alter" => $row['AlterID'],
                             "start" => $row['StartTime']
                         );
                     }
