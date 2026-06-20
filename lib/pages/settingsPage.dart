@@ -53,6 +53,7 @@ class _settings extends State<SettingsPage> {
             children: [
               AlterWidget(
                 flush: ms.flushPictures,
+                withFronterElement: false,
                 roundedElement: ms.roundedBorder,
                 squarePics: ms.squarePicture,
                 backgroundColor: getAlterBackgroundColor(),

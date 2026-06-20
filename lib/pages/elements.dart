@@ -16,12 +16,14 @@ class AlterWidget extends StatelessWidget {
   UUID alterID;
   String alterName;
   String url;
+  bool withFronterElement;
 
   AlterWidget({
     super.key,
     required this.alterID,
     required this.alterName,
     required this.url,
+    required this.withFronterElement,
     this.flush = true,
     this.roundedElement = true,
     this.squarePics = false,

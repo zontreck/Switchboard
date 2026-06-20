@@ -358,6 +358,96 @@ class NetworkInterface {
 
     return S2CLazyResponse.decode(typeCorrectJson(reply.data));
   }
+
+  /// Retrieve all fronters from the database.
+  ///
+  /// [history] Whether to obtain all history or only current fronters
+  static Future<S2CFrontHistoryResponse> getFronters(bool history) async {
+    Dio dio = Dio();
+    MemoryState ms = MemoryState();
+
+    dio.options.headers["Content-Type"] = "application/json";
+    dio.options.headers["X-SB-Auth"] = ms.authenticationToken;
+
+    var reply = await dio.get(
+      "${getAPIServerURL()}/fronters",
+      data: {"history": history},
+    );
+
+    return S2CFrontHistoryResponse.fromJson(typeCorrectJson(reply.data));
+  }
+
+  /// Set an alter as currently fronting
+  ///
+  /// [alterID] The ID of the alter you wish to set as fronting
+  static Future<S2CFrontResponse> setFronting(UUID alterID) async {
+    Dio dio = Dio();
+    MemoryState ms = MemoryState();
+
+    dio.options.headers["Content-Type"] = "application/json";
+    dio.options.headers["X-SB-Auth"] = ms.authenticationToken;
+
+    var reply = await dio.post(
+      "${getAPIServerURL()}/fronters",
+      data: {"alter": alterID.toString()},
+    );
+
+    return S2CFrontResponse.fromJson(typeCorrectJson(reply.data));
+  }
+
+  /// Inserts a fronter, usually from a data import
+  ///
+  /// [front] Contains the data to be inserted into the database.
+  static Future<S2CLazyResponse> insertFronter(Front front) async {
+    Dio dio = Dio();
+    MemoryState ms = MemoryState();
+
+    dio.options.headers["Content-Type"] = "application/json";
+    dio.options.headers["X-SB-Auth"] = ms.authenticationToken;
+
+    var reply = await dio.put(
+      "${getAPIServerURL()}/fronters",
+      data: front.toJson(),
+    );
+
+    return S2CLazyResponse.decode(typeCorrectJson(reply.data));
+  }
+
+  /// Deletes a fronter
+  ///
+  /// [front] Fronter ID to be deleted
+  static Future<S2CLazyResponse> deleteFronter(UUID front) async {
+    Dio dio = Dio();
+    MemoryState ms = MemoryState();
+
+    dio.options.headers["Content-Type"] = "application/json";
+    dio.options.headers["X-SB-Auth"] = ms.authenticationToken;
+
+    var reply = await dio.delete(
+      "${getAPIServerURL()}/fronters",
+      data: {"id": front.toString()},
+    );
+
+    return S2CLazyResponse.decode(typeCorrectJson(reply.data));
+  }
+
+  /// Remove a fronter from current front status
+  ///
+  /// [front] Fronter ID to update the end time for.
+  static Future<S2CLazyResponse> unFrontFronter(UUID front) async {
+    Dio dio = Dio();
+    MemoryState ms = MemoryState();
+
+    dio.options.headers["Content-Type"] = "application/json";
+    dio.options.headers["X-SB-Auth"] = ms.authenticationToken;
+
+    var reply = await dio.patch(
+      "${getAPIServerURL()}/fronters",
+      data: {"id": front.toString()},
+    );
+
+    return S2CLazyResponse.decode(typeCorrectJson(reply.data));
+  }
 }
 
 abstract class ResponsePacket {
@@ -1350,5 +1440,140 @@ class S2CFieldResponse extends S2CLazyResponse {
     sfr._decode(js);
 
     return sfr;
+  }
+}
+
+class Front {
+  UUID id;
+  int start;
+  int end;
+
+  Front({required this.id, required this.start, required this.end});
+
+  Map<String, dynamic> toJson() {
+    return {"alter": id.toString(), "start": start, "end": end};
+  }
+
+  factory Front.fromJson(Map<String, dynamic> js) {
+    return Front(
+      id: UUID.parse(js['alter'] ?? UUID.ZERO.toString()),
+      start: js['start'] ?? 0,
+      end: js['end'] ?? 0, // Might be null at times
+    );
+  }
+
+  bool get currentFronter => end == 0;
+}
+
+class Fronter {
+  UUID id;
+  Front front;
+
+  Fronter({required this.id, required this.front});
+
+  Map<String, dynamic> toJson() {
+    var M = front.toJson();
+    M["id"] = id.toString();
+
+    return M;
+  }
+
+  factory Fronter.fromJson(Map<String, dynamic> js) {
+    return Fronter(id: UUID.parse(js['id']), front: Front.fromJson(js));
+  }
+}
+
+class S2CFrontResponse extends S2CLazyResponse {
+  Fronter data;
+  S2CFrontResponse({
+    required super.id,
+    required super.path,
+    required super.reason,
+    required super.success,
+    required super.type,
+    required this.data,
+  });
+
+  @override
+  Map<String, dynamic> encode() {
+    var m = super.encode();
+    m["data"] = data.toJson();
+
+    return m;
+  }
+
+  @override
+  void _decode(Map<String, dynamic> js) {
+    super._decode(js);
+
+    if (js.containsKey("data")) {
+      data = Fronter.fromJson(js["data"]);
+    }
+  }
+
+  factory S2CFrontResponse.fromJson(Map<String, dynamic> js) {
+    S2CFrontResponse front = S2CFrontResponse(
+      id: UUID.ZERO,
+      path: "path",
+      reason: "reason",
+      success: false,
+      type: "type",
+      data: Fronter(
+        id: UUID.ZERO,
+        front: Front(id: UUID.ZERO, start: 0, end: 0),
+      ),
+    );
+
+    front._decode(js);
+    return front;
+  }
+}
+
+class S2CFrontHistoryResponse extends S2CLazyResponse {
+  List<Fronter> data;
+  S2CFrontHistoryResponse({
+    required super.id,
+    required super.path,
+    required super.reason,
+    required super.success,
+    required super.type,
+    required this.data,
+  });
+
+  @override
+  Map<String, dynamic> encode() {
+    var m = super.encode();
+    List<Map<String, dynamic>> dat = [];
+    for (var fronter in data) {
+      dat.add(fronter.toJson());
+    }
+    m["data"] = dat;
+
+    return m;
+  }
+
+  @override
+  void _decode(Map<String, dynamic> js) {
+    super._decode(js);
+    List<Map<String, dynamic>> datLst = js['data'];
+
+    data = [];
+    for (var entry in datLst) {
+      data.add(Fronter.fromJson(entry));
+    }
+  }
+
+  factory S2CFrontHistoryResponse.fromJson(Map<String, dynamic> js) {
+    S2CFrontHistoryResponse front = S2CFrontHistoryResponse(
+      id: UUID.ZERO,
+      path: "path",
+      reason: "reason",
+      success: false,
+      type: "type",
+      data: [],
+    );
+
+    front._decode(js);
+    return front;
   }
 }

@@ -279,6 +279,7 @@ class _alters extends State<AltersPage> {
                     });
                   },
                   child: AlterWidget(
+                    withFronterElement: true,
                     flush: ms.flushPictures,
                     roundedElement: ms.roundedBorder,
                     squarePics: ms.squarePicture,

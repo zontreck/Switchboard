@@ -16,6 +16,7 @@
   - [x] PUT will insert a StartTime and Endtime as specified by the payload. This is primarily to be used by Import functions.
   - [x] DELETE will delete the fronting object.
   - [x] PATCH will remove someone from front, updating only the EndTime value.
+- [x] API bindings for the `NetworkInterface` to interact with the `/fronters` endpoint.
 
 ## CHANGE:
 
