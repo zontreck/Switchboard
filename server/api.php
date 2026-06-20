@@ -2,7 +2,7 @@
 
 $DEBUG = false;
 
-$VERSION = "0.1.0+0620260735";
+$VERSION = "0.1.0+0620260837";
 
 $DEFAULT_USER_FIELDS = array(
                             array(
@@ -1507,6 +1507,41 @@ switch($route) {
             $reason = "";
 
             // Depending on the request type, and everything, we'll further verify proper authorization.
+        }
+
+
+        die(json_encode(array(
+            "success" => $success,
+            "reason" => $reason,
+            "id" => $ID,
+            "path" => $route,
+            "type" => $request,
+            "data" => $data
+        )));
+
+        break;
+    }
+
+    case "/fronting": {
+        // Requires active authorization
+        $data = array();
+        $success = false;
+        $reason = "not logged in";
+
+        $SAT = ValidateSAT(get_Authorization());
+
+        if($SAT->Success) {
+            $success=true;
+            $reason = "";
+
+            // Depending on the request type, and everything, we'll further verify proper authorization.
+            switch($request) {
+                default: {
+                    $success=false;
+                    $reason = "0x01541-Unknown RequestType";
+                    break;
+                }
+            }
         }
 
 

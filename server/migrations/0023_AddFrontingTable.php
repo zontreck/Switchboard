@@ -1,7 +1,7 @@
 <?php
 
 return function($conn) {
-    $conn->query("CREATE TABLE IF NOT EXISTS `Fronting` (ID VARCHAR(64) NOT NULL, User VARCHAR(64) NOT NULL, Alter VARCHAR(64) NOT NULL, Start INT(11) NOT NULL DEFAULT 0, End INT(11) NOT NULL DEFAULT 0);");
+    $conn->query("CREATE TABLE IF NOT EXISTS `Fronting` (ID VARCHAR(64) NOT NULL, User VARCHAR(64) NOT NULL, Alter VARCHAR(64) NOT NULL, StartTime INT(11) NOT NULL DEFAULT 0, EndTime INT(11) NOT NULL DEFAULT 0);");
 
 
     $conn->query("ALTER TABLE `Fronting` ADD PRIMARY KEY (`ID`);");
