@@ -15,7 +15,7 @@ return function($conn) {
 
             $fieldID = gen_uuid();
             $dfStmt = $conn->prepare("INSERT INTO Fields (User, ID, FieldName, FieldType, SortOrder) VALUES (?, ?,?,?, ?);");
-            $dfStmt->bind_param("sssi", $row['ID'], $fieldID, $k["Name"], $k['Type'], $k['Order']);
+            $dfStmt->bind_param("sssii", $row['ID'], $fieldID, $k["Name"], $k['Type'], $k['Order']);
             $dfStmt->execute();
             $dfStmt->close();
 
