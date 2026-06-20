@@ -2,7 +2,7 @@
 
 $DEBUG = false;
 
-$VERSION = "0.1.0+0620260919";
+$VERSION = "0.1.0+0620261058";
 
 $DEFAULT_USER_FIELDS = array(
                             array(
@@ -1582,7 +1582,7 @@ switch($route) {
                     break;
                 }
                 case "POST": {
-                    $reason = "front status set"
+                    $reason = "front status set";
                     $alter = $parameters['alter'];
                     $Q = $DB->prepare("SELECT * FROM `Fronting` WHERE `User`=? AND `EndTime`=0 AND `AlterID`=?;");
                     $Q->bind_param("ss", $SAT->UserID, $alter);
