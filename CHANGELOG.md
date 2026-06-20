@@ -9,6 +9,7 @@
 - [x] Start implementing the feedback database table (Migration `0021`, `0022`)
 - [x] Add status column to the feedback table (`0022`)
 - [x] Add a new table for comments on feedback items (`0022`)
+- [x] Adds initial fronting table (`0023`)
 
 ## CHANGE:
 
