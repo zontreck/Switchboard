@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_colorpicker/flutter_colorpicker.dart';
@@ -10,6 +11,7 @@ import 'package:switchboard/dart/MemoryState.dart';
 import 'package:switchboard/dart/storage.dart';
 import 'package:switchboard/globalHelpers.dart';
 import 'package:switchboard/pages/elements.dart';
+import 'package:switchboard/sb.dart';
 
 class SettingsPage extends StatefulWidget {
   const SettingsPage({super.key});
@@ -339,6 +341,19 @@ class _settings extends State<SettingsPage> {
                 leading: Icon(Icons.edit_attributes, color: Colors.black),
                 onTap: () async {
                   Navigator.pushNamed(context, "/account/settings/fields");
+                },
+              ),
+              SizedBox(height: 8),
+              ListTile(
+                title: Text("G L O W  S E T T I N G S"),
+                subtitle: Text("Edit the glow settings!"),
+                leading: Icon(CupertinoIcons.circle_fill),
+                tileColor: Colors.indigo,
+                onTap: () async {
+                  // Open the glow settings page
+                  await Navigator.pushNamed(context, "/account/settings/glow");
+                  Switchboard.rebuild();
+                  await setAppSettings();
                 },
               ),
               Divider(height: 25),
