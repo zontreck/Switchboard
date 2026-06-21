@@ -18,6 +18,7 @@ class AlterWidget extends StatelessWidget {
   String alterName;
   String url;
   bool withFronterElement;
+  bool fronting;
 
   AlterWidget({
     super.key,
@@ -28,32 +29,33 @@ class AlterWidget extends StatelessWidget {
     this.flush = true,
     this.roundedElement = true,
     this.squarePics = false,
+    this.fronting = false,
     this.backgroundColor = Colors.grey,
     this.textColor = Colors.white70,
   });
 
-  Widget getCard() {
-    return GlowContainer(
-      gradientColors: [Color.fromARGB(255, 0, 192, 192), backgroundColor],
-      glowRadius: 8,
-      child: Card(
-        elevation: 8,
-        shape: roundedElement ? null : BoxBorder.all(),
-        margin: roundedElement ? null : EdgeInsetsGeometry.zero,
-        color: backgroundColor,
+  Widget getGlow(Widget child, List<Color> colors) {
+    return GlowContainer(gradientColors: colors, child: child, glowRadius: 8);
+  }
 
-        child: Row(
-          children: [
-            AlterImage(
-              squarePics: squarePics,
-              flush: flush,
-              alterID: alterID,
-              url: Alter.makeAvatarURL(url),
-            ),
-            SizedBox(width: 8),
-            Text(alterName, style: TextStyle(fontSize: 22, color: textColor)),
-          ],
-        ),
+  Widget getCard() {
+    return Card(
+      elevation: 8,
+      shape: roundedElement ? null : BoxBorder.all(),
+      margin: roundedElement ? null : EdgeInsetsGeometry.zero,
+      color: backgroundColor,
+
+      child: Row(
+        children: [
+          AlterImage(
+            squarePics: squarePics,
+            flush: flush,
+            alterID: alterID,
+            url: Alter.makeAvatarURL(url),
+          ),
+          SizedBox(width: 8),
+          Text(alterName, style: TextStyle(fontSize: 22, color: textColor)),
+        ],
       ),
     );
   }
@@ -63,7 +65,12 @@ class AlterWidget extends StatelessWidget {
     if (withFronterElement) {
       return Dismissible(
         key: UniqueKey(),
-        child: getCard(),
+        child: fronting
+            ? getGlow(getCard(), [
+                Color.fromARGB(255, 0, 192, 192),
+                backgroundColor,
+              ])
+            : getCard(),
         background: Card(
           elevation: 1,
           shape: roundedElement ? null : BoxBorder.all(),

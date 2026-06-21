@@ -10,6 +10,7 @@ import 'package:switchboard/dart/MemoryState.dart';
 import 'package:switchboard/dart/exceptions.dart';
 import 'package:switchboard/dart/globalHelpers.dart';
 import 'package:switchboard/dart/privacyPolicy.dart';
+import 'package:synchronized/synchronized.dart';
 
 class NetworkCache {
   String path;
@@ -29,7 +30,6 @@ class NetworkCache {
 
 class NetworkCaches {
   static Map<String, NetworkCache> registry = {};
-  static Map<String, Future<dynamic>> inFlight = {};
 
   /// To be used by any methods that would change server-side data, to force refresh on next call.
   static void invalidate() {
@@ -40,6 +40,8 @@ class NetworkCaches {
 /// Here, we will have a packet system to send and receive data.
 /// If a packet has been tested using a testsuite, and it worked, it will have been turned into a Packet here.
 class NetworkInterface {
+  static final lock = Lock();
+
   /// Retrieval of a cache object, if present.
   ///
   /// [fn] The function's name by which the object would be stored.
@@ -67,497 +69,555 @@ class NetworkInterface {
   }
 
   static Future<S2CServerVersionPacket> getServerVersion() async {
-    var cached = getCache("getServerVersion");
-    if (cached != null) {
-      return S2CServerVersionPacket.decode(
-        typeCorrectJson(cached.responseData),
-      );
-    }
-    Dio dio = Dio();
-    dio.options.contentType = "application/json";
-    var reply = await dio.get("${getAPIServerURL()}/version");
+    return await lock.synchronized(() async {
+      var cached = getCache("getServerVersion");
+      if (cached != null) {
+        return S2CServerVersionPacket.decode(
+          typeCorrectJson(cached.responseData),
+        );
+      }
+      Dio dio = Dio();
+      dio.options.contentType = "application/json";
+      var reply = await dio.get("${getAPIServerURL()}/version");
 
-    print(reply.data);
-    setCache("getServerVersion", reply.data);
+      print(reply.data);
+      setCache("getServerVersion", reply.data);
 
-    return S2CServerVersionPacket.decode(typeCorrectJson(reply.data));
+      return S2CServerVersionPacket.decode(typeCorrectJson(reply.data));
+    });
   }
 
   static Future<S2CUserPacket> putNewUser(
     String username,
     String password,
   ) async {
-    Dio dio = Dio();
-    dio.options.contentType = "application/json";
-    var reply = await dio.put(
-      "${getAPIServerURL()}/user/$username",
-      data: {"auth": Hashing.md5Hash(password)},
-    );
+    return await lock.synchronized(() async {
+      Dio dio = Dio();
+      dio.options.contentType = "application/json";
+      var reply = await dio.put(
+        "${getAPIServerURL()}/user/$username",
+        data: {"auth": Hashing.md5Hash(password)},
+      );
 
-    print(reply.data);
+      print(reply.data);
 
-    // Deserialize the make new user packet
-    S2CUserPacket response = S2CUserPacket.decode(typeCorrectJson(reply.data));
-    NetworkCaches.invalidate();
+      // Deserialize the make new user packet
+      S2CUserPacket response = S2CUserPacket.decode(
+        typeCorrectJson(reply.data),
+      );
+      NetworkCaches.invalidate();
 
-    return response;
+      return response;
+    });
   }
 
   static Future<S2CUserPacket> getUser(String username) async {
-    var cached = getCache("getUser${username}");
-    if (cached != null) {
-      return S2CUserPacket.decode(cached.responseData);
-    }
-    Dio dio = Dio();
-    dio.options.contentType = "application/json";
-    var reply = await dio.get("${getAPIServerURL()}/user/$username");
+    return await lock.synchronized(() async {
+      var cached = getCache("getUser${username}");
+      if (cached != null) {
+        return S2CUserPacket.decode(cached.responseData);
+      }
+      Dio dio = Dio();
+      dio.options.contentType = "application/json";
+      var reply = await dio.get("${getAPIServerURL()}/user/$username");
 
-    print(reply.data);
-    setCache("getUser$username", reply.data);
+      print(reply.data);
+      setCache("getUser$username", reply.data);
 
-    return S2CUserPacket.decode(typeCorrectJson(reply.data));
+      return S2CUserPacket.decode(typeCorrectJson(reply.data));
+    });
   }
 
   static Future<S2CAuthenticationResponse> authenticate(
     String username,
     String password,
   ) async {
-    Dio dio = Dio();
-    dio.options.headers["Content-Type"] = "application/json";
+    return await lock.synchronized(() async {
+      Dio dio = Dio();
+      dio.options.headers["Content-Type"] = "application/json";
 
-    var reply = await dio.post(
-      "${getAPIServerURL()}/auth/login",
-      data: {"username": username, "auth": Hashing.md5Hash(password)},
-    );
-
-    print(reply.data);
-
-    return S2CAuthenticationResponse.decode(typeCorrectJson(reply.data));
-  }
-
-  static Future<S2CAuthenticationCheckResponse> checkAuth() async {
-    MemoryState ms = MemoryState();
-    Dio dio = Dio();
-    dio.options.headers["Content-Type"] = "application/json";
-    dio.options.headers["X-SB-Auth"] = ms.authenticationToken;
-
-    var reply = await dio.get("${getAPIServerURL()}/auth/check");
-
-    print(reply.data);
-
-    return S2CAuthenticationCheckResponse.decode(typeCorrectJson(reply.data));
-  }
-
-  static Future<S2CAuthenticationRefreshResponse> refreshAuth() async {
-    MemoryState ms = MemoryState();
-    Dio dio = Dio();
-    dio.options.headers["Content-Type"] = "application/json";
-    dio.options.headers["X-SB-Auth"] = ms.authenticationToken;
-
-    var reply = await dio.get("${getAPIServerURL()}/auth/refresh");
-
-    print(reply.data);
-    return S2CAuthenticationRefreshResponse.decode(typeCorrectJson(reply.data));
-  }
-
-  static Future<S2CAltersResponse> requestAltersList(UUID? user) async {
-    var cached = getCache("requestAltersList");
-    if (cached != null) {
-      return S2CAltersResponse(alters: cached.responseData);
-    }
-
-    MemoryState ms = MemoryState();
-    Dio dio = Dio();
-    dio.options.headers["Content-Type"] = "application/json";
-    dio.options.headers["X-SB-Auth"] = ms.authenticationToken;
-
-    bool keepRequesting = true;
-
-    int skip = 0;
-    int request = 50;
-
-    List<Alter> allAlters = [];
-
-    while (keepRequesting) {
-      dio.options.headers["X-SB-Skip"] = "$skip";
-      dio.options.headers["X-SB-Count"] = "$request";
-
-      var reply = await dio.get(
-        "${getAPIServerURL()}/alters${user == null ? '' : "/${user.toString()}"}",
+      var reply = await dio.post(
+        "${getAPIServerURL()}/auth/login",
+        data: {"username": username, "auth": Hashing.md5Hash(password)},
       );
 
       print(reply.data);
-      // Check for the X-SB-Done header.
-      if (reply.headers.value("X-SB-Done") == null) {
-        // Increment by X-SB-Count
-        skip += int.parse(reply.headers.value("X-SB-Count") ?? "0");
-      } else {
-        // This is the final iteration
-        keepRequesting = false;
-      }
 
-      if (reply.data['success'] == false &&
-          reply.data['reason'] == "Not Logged In") {
-        // Login expired!
-        // This should not be possible..
-        // Throw a exception!
-        ms.lastErrorRay = reply.data['id'];
-        keepRequesting = false;
-        print("Raw response: ${reply.data}");
-        throw NotLoggedInException();
-      }
+      return S2CAuthenticationResponse.decode(typeCorrectJson(reply.data));
+    });
+  }
 
-      S2CAltersPartialResponse partialAlters = S2CAltersPartialResponse.decode(
+  static Future<S2CAuthenticationCheckResponse> checkAuth() async {
+    return await lock.synchronized(() async {
+      MemoryState ms = MemoryState();
+      Dio dio = Dio();
+      dio.options.headers["Content-Type"] = "application/json";
+      dio.options.headers["X-SB-Auth"] = ms.authenticationToken;
+
+      var reply = await dio.get("${getAPIServerURL()}/auth/check");
+
+      print(reply.data);
+
+      return S2CAuthenticationCheckResponse.decode(typeCorrectJson(reply.data));
+    });
+  }
+
+  static Future<S2CAuthenticationRefreshResponse> refreshAuth() async {
+    return await lock.synchronized(() async {
+      MemoryState ms = MemoryState();
+      Dio dio = Dio();
+      dio.options.headers["Content-Type"] = "application/json";
+      dio.options.headers["X-SB-Auth"] = ms.authenticationToken;
+
+      var reply = await dio.get("${getAPIServerURL()}/auth/refresh");
+
+      print(reply.data);
+      return S2CAuthenticationRefreshResponse.decode(
         typeCorrectJson(reply.data),
       );
+    });
+  }
 
-      allAlters.addAll(partialAlters.data.alters);
-    }
+  static Future<S2CAltersResponse> requestAltersList(UUID? user) async {
+    return await lock.synchronized(() async {
+      var cached = getCache("requestAltersList");
+      if (cached != null) {
+        return S2CAltersResponse(alters: cached.responseData);
+      }
+      MemoryState ms = MemoryState();
+      Dio dio = Dio();
+      dio.options.headers["Content-Type"] = "application/json";
+      dio.options.headers["X-SB-Auth"] = ms.authenticationToken;
 
-    setCache("requestAltersList", allAlters);
+      bool keepRequesting = true;
 
-    return S2CAltersResponse(alters: allAlters);
+      int skip = 0;
+      int request = 50;
+
+      List<Alter> allAlters = [];
+
+      while (keepRequesting) {
+        dio.options.headers["X-SB-Skip"] = "$skip";
+        dio.options.headers["X-SB-Count"] = "$request";
+
+        var reply = await dio.get(
+          "${getAPIServerURL()}/alters${user == null ? '' : "/${user.toString()}"}",
+        );
+
+        print(reply.data);
+        // Check for the X-SB-Done header.
+        if (reply.headers.value("X-SB-Done") == null) {
+          // Increment by X-SB-Count
+          skip += int.parse(reply.headers.value("X-SB-Count") ?? "0");
+        } else {
+          // This is the final iteration
+          keepRequesting = false;
+        }
+
+        if (reply.data['success'] == false &&
+            reply.data['reason'] == "Not Logged In") {
+          // Login expired!
+          // This should not be possible..
+          // Throw a exception!
+          ms.lastErrorRay = reply.data['id'];
+          keepRequesting = false;
+          print("Raw response: ${reply.data}");
+          throw NotLoggedInException();
+        }
+
+        S2CAltersPartialResponse partialAlters =
+            S2CAltersPartialResponse.decode(typeCorrectJson(reply.data));
+
+        allAlters.addAll(partialAlters.data.alters);
+      }
+
+      setCache("requestAltersList", allAlters);
+
+      return S2CAltersResponse(alters: allAlters);
+    });
   }
 
   // TODO: Make it possible to set a parent folder once folders are implemented.
   static Future<S2CAlterResponse> makeNewAlter(String name) async {
-    Dio dio = Dio();
-    MemoryState ms = MemoryState();
+    return await lock.synchronized(() async {
+      Dio dio = Dio();
+      MemoryState ms = MemoryState();
 
-    dio.options.headers["Content-Type"] = "application/json";
-    dio.options.headers["X-SB-Auth"] = ms.authenticationToken;
+      dio.options.headers["Content-Type"] = "application/json";
+      dio.options.headers["X-SB-Auth"] = ms.authenticationToken;
 
-    // Send the creation packet!
-    var reply = await dio.put(
-      "${getAPIServerURL()}/alter/new",
-      data: {
-        "alter": {
-          "name": name,
-          "parent": UUID.ZERO.toString(),
-          "subid": 0,
-          "avatar": UUID.ZERO.toString(),
+      // Send the creation packet!
+      var reply = await dio.put(
+        "${getAPIServerURL()}/alter/new",
+        data: {
+          "alter": {
+            "name": name,
+            "parent": UUID.ZERO.toString(),
+            "subid": 0,
+            "avatar": UUID.ZERO.toString(),
+          },
         },
-      },
-    );
+      );
 
-    print(reply.data);
-    NetworkCaches.invalidate();
+      print(reply.data);
+      NetworkCaches.invalidate();
 
-    return S2CAlterResponse.decode(typeCorrectJson(reply.data));
+      return S2CAlterResponse.decode(typeCorrectJson(reply.data));
+    });
   }
 
   static Future<S2CAlterResponse> getAlterByID(UUID id) async {
-    var cached = getCache("getAlter${id.toString()}");
-    if (cached != null) {
-      return S2CAlterResponse.decode(typeCorrectJson(cached.responseData));
-    }
-    Dio dio = Dio();
-    MemoryState ms = MemoryState();
+    return await lock.synchronized(() async {
+      var cached = getCache("getAlter${id.toString()}");
+      if (cached != null) {
+        return S2CAlterResponse.decode(typeCorrectJson(cached.responseData));
+      }
+      Dio dio = Dio();
+      MemoryState ms = MemoryState();
 
-    dio.options.headers["Content-Type"] = "application/json";
-    dio.options.headers["X-SB-Auth"] = ms.authenticationToken;
+      dio.options.headers["Content-Type"] = "application/json";
+      dio.options.headers["X-SB-Auth"] = ms.authenticationToken;
 
-    var reply = await dio.get("${getAPIServerURL()}/alter/${id.toString()}");
+      var reply = await dio.get("${getAPIServerURL()}/alter/${id.toString()}");
 
-    print(reply.data);
-    setCache("getAlter${id.toString()}", reply.data);
+      print(reply.data);
+      setCache("getAlter${id.toString()}", reply.data);
 
-    return S2CAlterResponse.decode(typeCorrectJson(reply.data));
+      return S2CAlterResponse.decode(typeCorrectJson(reply.data));
+    });
   }
 
   static Future<S2CFieldsResponse> getDataFields() async {
-    var cached = getCache("getDataFields");
-    if (cached != null) {
-      return S2CFieldsResponse.fromJson(typeCorrectJson(cached.responseData));
-    }
+    return await lock.synchronized(() async {
+      var cached = getCache("getDataFields");
+      if (cached != null) {
+        return S2CFieldsResponse.fromJson(typeCorrectJson(cached.responseData));
+      }
+      Dio dio = Dio();
+      MemoryState ms = MemoryState();
 
-    Dio dio = Dio();
-    MemoryState ms = MemoryState();
+      dio.options.headers["Content-Type"] = "application/json";
+      dio.options.headers["X-SB-Auth"] = ms.authenticationToken;
 
-    dio.options.headers["Content-Type"] = "application/json";
-    dio.options.headers["X-SB-Auth"] = ms.authenticationToken;
+      var reply = await dio.get("${getAPIServerURL()}/fields");
+      print(reply.data);
+      setCache("getDataFields", reply.data);
 
-    var reply = await dio.get("${getAPIServerURL()}/fields");
-    print(reply.data);
-    setCache("getDataFields", reply.data);
-
-    return S2CFieldsResponse.fromJson(typeCorrectJson(reply.data));
+      return S2CFieldsResponse.fromJson(typeCorrectJson(reply.data));
+    });
   }
 
   static Future<S2CFieldResponse> updateField(Field field) async {
-    // Construct a packet to update the field!
-    Map<String, dynamic> payload = field.toJson();
-    Dio dio = Dio();
-    MemoryState ms = MemoryState();
+    return await lock.synchronized(() async {
+      // Construct a packet to update the field!
+      Map<String, dynamic> payload = field.toJson();
+      Dio dio = Dio();
+      MemoryState ms = MemoryState();
 
-    dio.options.headers["Content-Type"] = "application/json";
-    dio.options.headers["X-SB-Auth"] = ms.authenticationToken;
+      dio.options.headers["Content-Type"] = "application/json";
+      dio.options.headers["X-SB-Auth"] = ms.authenticationToken;
 
-    var reply = await dio.post(
-      "${getAPIServerURL()}/field/${field.id.toString()}",
-      data: payload,
-    );
+      var reply = await dio.post(
+        "${getAPIServerURL()}/field/${field.id.toString()}",
+        data: payload,
+      );
 
-    print(reply.data);
-    S2CFieldResponse sfr = S2CFieldResponse.decode(typeCorrectJson(reply.data));
-    NetworkCaches.invalidate();
+      print(reply.data);
+      S2CFieldResponse sfr = S2CFieldResponse.decode(
+        typeCorrectJson(reply.data),
+      );
+      NetworkCaches.invalidate();
 
-    return sfr;
+      return sfr;
+    });
   }
 
   static Future<S2CFieldResponse> getField(UUID fieldID) async {
-    var cached = getCache("getField${fieldID.toString()}");
-    if (cached != null) {
-      return S2CFieldResponse.decode(typeCorrectJson(cached.responseData));
-    }
-    Dio dio = Dio();
-    MemoryState ms = MemoryState();
+    return await lock.synchronized(() async {
+      var cached = getCache("getField${fieldID.toString()}");
+      if (cached != null) {
+        return S2CFieldResponse.decode(typeCorrectJson(cached.responseData));
+      }
+      Dio dio = Dio();
+      MemoryState ms = MemoryState();
 
-    dio.options.headers["Content-Type"] = "application/json";
-    dio.options.headers["X-SB-Auth"] = ms.authenticationToken;
+      dio.options.headers["Content-Type"] = "application/json";
+      dio.options.headers["X-SB-Auth"] = ms.authenticationToken;
 
-    var reply = await dio.get(
-      "${getAPIServerURL()}/field/${fieldID.toString()}",
-    );
+      var reply = await dio.get(
+        "${getAPIServerURL()}/field/${fieldID.toString()}",
+      );
 
-    print(reply.data);
-    S2CFieldResponse sfr = S2CFieldResponse.decode(typeCorrectJson(reply.data));
-    setCache("getField${fieldID.toString()}", reply.data);
+      print(reply.data);
+      S2CFieldResponse sfr = S2CFieldResponse.decode(
+        typeCorrectJson(reply.data),
+      );
+      setCache("getField${fieldID.toString()}", reply.data);
 
-    return sfr;
+      return sfr;
+    });
   }
 
   static Future<S2CFieldResponse> newField(String name) async {
-    Dio dio = Dio();
-    MemoryState ms = MemoryState();
+    return await lock.synchronized(() async {
+      Dio dio = Dio();
+      MemoryState ms = MemoryState();
 
-    dio.options.headers["Content-Type"] = "application/json";
-    dio.options.headers["X-SB-Auth"] = ms.authenticationToken;
+      dio.options.headers["Content-Type"] = "application/json";
+      dio.options.headers["X-SB-Auth"] = ms.authenticationToken;
 
-    Field newField = Field(
-      id: UUID.ZERO,
-      name: name,
-      type: FieldType.PlainText,
-      order: 999,
-    );
-    var reply = await dio.post(
-      "${getAPIServerURL()}/field/new",
-      data: newField.toJson(),
-    );
+      Field newField = Field(
+        id: UUID.ZERO,
+        name: name,
+        type: FieldType.PlainText,
+        order: 999,
+      );
+      var reply = await dio.post(
+        "${getAPIServerURL()}/field/new",
+        data: newField.toJson(),
+      );
 
-    print(reply.data);
-    NetworkCaches.invalidate();
-    S2CFieldResponse sfr = S2CFieldResponse.decode(typeCorrectJson(reply.data));
+      print(reply.data);
+      NetworkCaches.invalidate();
+      S2CFieldResponse sfr = S2CFieldResponse.decode(
+        typeCorrectJson(reply.data),
+      );
 
-    return sfr;
+      return sfr;
+    });
   }
 
   static Future<S2CLazyResponse> deleteField(UUID id) async {
-    Dio dio = Dio();
-    MemoryState ms = MemoryState();
+    return await lock.synchronized(() async {
+      Dio dio = Dio();
+      MemoryState ms = MemoryState();
 
-    dio.options.headers["Content-Type"] = "application/json";
-    dio.options.headers["X-SB-Auth"] = ms.authenticationToken;
+      dio.options.headers["Content-Type"] = "application/json";
+      dio.options.headers["X-SB-Auth"] = ms.authenticationToken;
 
-    var reply = await dio.delete("${getAPIServerURL()}/field/${id.toString()}");
-    NetworkCaches.invalidate();
+      var reply = await dio.delete(
+        "${getAPIServerURL()}/field/${id.toString()}",
+      );
+      NetworkCaches.invalidate();
 
-    print(reply.data);
+      print(reply.data);
 
-    return S2CLazyResponse.decode(typeCorrectJson(reply.data));
+      return S2CLazyResponse.decode(typeCorrectJson(reply.data));
+    });
   }
 
   static Future<S2CLazyResponse> updateAlter(Alter alter) async {
-    Dio dio = Dio();
-    MemoryState ms = MemoryState();
+    return await lock.synchronized(() async {
+      Dio dio = Dio();
+      MemoryState ms = MemoryState();
 
-    dio.options.headers["Content-Type"] = "application/json";
-    dio.options.headers["X-SB-Auth"] = ms.authenticationToken;
+      dio.options.headers["Content-Type"] = "application/json";
+      dio.options.headers["X-SB-Auth"] = ms.authenticationToken;
 
-    var reply = await dio.patch(
-      "${getAPIServerURL()}/alter/${alter.id.toString()}",
-      data: {"alter": alter.encode()},
-    );
-    NetworkCaches.invalidate();
+      var reply = await dio.patch(
+        "${getAPIServerURL()}/alter/${alter.id.toString()}",
+        data: {"alter": alter.encode()},
+      );
+      NetworkCaches.invalidate();
 
-    print(reply.data);
+      print(reply.data);
 
-    return S2CLazyResponse.decode(typeCorrectJson(reply.data));
+      return S2CLazyResponse.decode(typeCorrectJson(reply.data));
+    });
   }
 
   static Future<S2CLazyResponse> deleteAvatar(Alter alter) async {
-    Dio dio = Dio();
-    MemoryState ms = MemoryState();
+    return await lock.synchronized(() async {
+      Dio dio = Dio();
+      MemoryState ms = MemoryState();
 
-    dio.options.headers["Content-Type"] = "application/json";
-    dio.options.headers["X-SB-Auth"] = ms.authenticationToken;
+      dio.options.headers["Content-Type"] = "application/json";
+      dio.options.headers["X-SB-Auth"] = ms.authenticationToken;
 
-    var reply = await dio.delete(
-      "${getAPIServerURL()}/avatar/${alter.id.toString()}",
-    );
-    print(reply.data);
-    NetworkCaches.invalidate();
+      var reply = await dio.delete(
+        "${getAPIServerURL()}/avatar/${alter.id.toString()}",
+      );
+      print(reply.data);
+      NetworkCaches.invalidate();
 
-    return S2CLazyResponse.decode(typeCorrectJson(reply.data));
+      return S2CLazyResponse.decode(typeCorrectJson(reply.data));
+    });
   }
 
   static Future<S2CLazyResponse> updateAvatar(
     Alter alter,
     String base64EncodedImage,
   ) async {
-    Dio dio = Dio();
-    MemoryState ms = MemoryState();
+    return await lock.synchronized(() async {
+      Dio dio = Dio();
+      MemoryState ms = MemoryState();
 
-    dio.options.headers["Content-Type"] = "application/json";
-    dio.options.headers["X-SB-Auth"] = ms.authenticationToken;
+      dio.options.headers["Content-Type"] = "application/json";
+      dio.options.headers["X-SB-Auth"] = ms.authenticationToken;
 
-    var reply = await dio.post(
-      "${getAPIServerURL()}/avatar/${alter.id.toString()}",
-      data: {"image": base64EncodedImage},
-    );
-    print(reply.data);
-    NetworkCaches.invalidate();
+      var reply = await dio.post(
+        "${getAPIServerURL()}/avatar/${alter.id.toString()}",
+        data: {"image": base64EncodedImage},
+      );
+      print(reply.data);
+      NetworkCaches.invalidate();
 
-    return S2CLazyResponse.decode(typeCorrectJson(reply.data));
+      return S2CLazyResponse.decode(typeCorrectJson(reply.data));
+    });
   }
 
   static Future<bool> migrateAvatar(String url, UUID alterID) async {
-    Dio dio = Dio();
-    dio.options.responseType = ResponseType.bytes;
+    return await lock.synchronized(() async {
+      Dio dio = Dio();
+      dio.options.responseType = ResponseType.bytes;
 
-    var reply = await dio.get(
-      url,
-      options: Options(
-        headers: {
-          "User-Agent":
-              "Switchboard/v${MemoryState.A.applicationVersion} client",
-        },
-      ),
-    );
+      var reply = await dio.get(
+        url,
+        options: Options(
+          headers: {
+            "User-Agent":
+                "Switchboard/v${MemoryState.A.applicationVersion} client",
+          },
+        ),
+      );
 
-    var alterReply = await NetworkInterface.getAlterByID(alterID);
+      var alterReply = await NetworkInterface.getAlterByID(alterID);
 
-    var updateReply = await NetworkInterface.updateAvatar(
-      alterReply.data!,
-      base64Encoder.base64EncBytes(reply.data),
-    );
-    NetworkCaches.invalidate();
+      var updateReply = await NetworkInterface.updateAvatar(
+        alterReply.data!,
+        base64Encoder.base64EncBytes(reply.data),
+      );
+      NetworkCaches.invalidate();
 
-    return updateReply.success;
+      return updateReply.success;
+    });
   }
 
   static Future<S2CLazyResponse> wipeAccount() async {
-    Dio dio = Dio();
-    MemoryState ms = MemoryState();
+    return await lock.synchronized(() async {
+      Dio dio = Dio();
+      MemoryState ms = MemoryState();
 
-    dio.options.headers["Content-Type"] = "application/json";
-    dio.options.headers["X-SB-Auth"] = ms.authenticationToken;
+      dio.options.headers["Content-Type"] = "application/json";
+      dio.options.headers["X-SB-Auth"] = ms.authenticationToken;
 
-    var reply = await dio.get("${getAPIServerURL()}/wipe");
-    NetworkCaches.invalidate();
+      var reply = await dio.get("${getAPIServerURL()}/wipe");
+      NetworkCaches.invalidate();
 
-    return S2CLazyResponse.decode(typeCorrectJson(reply.data));
+      return S2CLazyResponse.decode(typeCorrectJson(reply.data));
+    });
   }
 
   /// Retrieve all fronters from the database.
   ///
   /// [history] Whether to obtain all history or only current fronters
   static Future<S2CFrontHistoryResponse> getFronters(bool history) async {
-    var cached = getCache("getFronters${history ? "history" : "active"}");
-    if (cached != null) {
-      return S2CFrontHistoryResponse.fromJson(
-        typeCorrectJson(cached.responseData),
+    return await lock.synchronized(() async {
+      var cached = getCache("getFronters${history ? "history" : "active"}");
+      if (cached != null) {
+        return S2CFrontHistoryResponse.fromJson(
+          typeCorrectJson(cached.responseData),
+        );
+      }
+      Dio dio = Dio();
+      MemoryState ms = MemoryState();
+
+      dio.options.headers["Content-Type"] = "application/json";
+      dio.options.headers["X-SB-Auth"] = ms.authenticationToken;
+
+      var reply = await dio.get(
+        "${getAPIServerURL()}/fronting",
+        data: {"history": history},
       );
-    }
-    Dio dio = Dio();
-    MemoryState ms = MemoryState();
+      setCache("getFronters${history ? "history" : "active"}", reply.data);
+      print(reply.data);
 
-    dio.options.headers["Content-Type"] = "application/json";
-    dio.options.headers["X-SB-Auth"] = ms.authenticationToken;
-
-    var reply = await dio.get(
-      "${getAPIServerURL()}/fronters",
-      data: {"history": history},
-    );
-    setCache("getFronters${history ? "history" : "active"}", reply.data);
-
-    return S2CFrontHistoryResponse.fromJson(typeCorrectJson(reply.data));
+      return S2CFrontHistoryResponse.fromJson(typeCorrectJson(reply.data));
+    });
   }
 
   /// Set an alter as currently fronting
   ///
   /// [alterID] The ID of the alter you wish to set as fronting
   static Future<S2CFrontResponse> setFronting(UUID alterID) async {
-    Dio dio = Dio();
-    MemoryState ms = MemoryState();
+    return await lock.synchronized(() async {
+      Dio dio = Dio();
+      MemoryState ms = MemoryState();
 
-    dio.options.headers["Content-Type"] = "application/json";
-    dio.options.headers["X-SB-Auth"] = ms.authenticationToken;
+      dio.options.headers["Content-Type"] = "application/json";
+      dio.options.headers["X-SB-Auth"] = ms.authenticationToken;
 
-    var reply = await dio.post(
-      "${getAPIServerURL()}/fronters",
-      data: {"alter": alterID.toString()},
-    );
-    NetworkCaches.invalidate();
+      var reply = await dio.post(
+        "${getAPIServerURL()}/fronting",
+        data: {"alter": alterID.toString()},
+      );
+      NetworkCaches.invalidate();
 
-    return S2CFrontResponse.fromJson(typeCorrectJson(reply.data));
+      return S2CFrontResponse.fromJson(typeCorrectJson(reply.data));
+    });
   }
 
   /// Inserts a fronter, usually from a data import
   ///
   /// [front] Contains the data to be inserted into the database.
   static Future<S2CLazyResponse> insertFronter(Front front) async {
-    Dio dio = Dio();
-    MemoryState ms = MemoryState();
+    return await lock.synchronized(() async {
+      Dio dio = Dio();
+      MemoryState ms = MemoryState();
 
-    dio.options.headers["Content-Type"] = "application/json";
-    dio.options.headers["X-SB-Auth"] = ms.authenticationToken;
+      dio.options.headers["Content-Type"] = "application/json";
+      dio.options.headers["X-SB-Auth"] = ms.authenticationToken;
 
-    var reply = await dio.put(
-      "${getAPIServerURL()}/fronters",
-      data: front.toJson(),
-    );
-    NetworkCaches.invalidate();
+      var reply = await dio.put(
+        "${getAPIServerURL()}/fronting",
+        data: front.toJson(),
+      );
+      NetworkCaches.invalidate();
 
-    return S2CLazyResponse.decode(typeCorrectJson(reply.data));
+      return S2CLazyResponse.decode(typeCorrectJson(reply.data));
+    });
   }
 
   /// Deletes a fronter
   ///
   /// [front] Fronter ID to be deleted
   static Future<S2CLazyResponse> deleteFronter(UUID front) async {
-    Dio dio = Dio();
-    MemoryState ms = MemoryState();
+    return await lock.synchronized(() async {
+      Dio dio = Dio();
+      MemoryState ms = MemoryState();
 
-    dio.options.headers["Content-Type"] = "application/json";
-    dio.options.headers["X-SB-Auth"] = ms.authenticationToken;
+      dio.options.headers["Content-Type"] = "application/json";
+      dio.options.headers["X-SB-Auth"] = ms.authenticationToken;
 
-    var reply = await dio.delete(
-      "${getAPIServerURL()}/fronters",
-      data: {"id": front.toString()},
-    );
-    NetworkCaches.invalidate();
+      var reply = await dio.delete(
+        "${getAPIServerURL()}/fronting",
+        data: {"id": front.toString()},
+      );
+      NetworkCaches.invalidate();
 
-    return S2CLazyResponse.decode(typeCorrectJson(reply.data));
+      return S2CLazyResponse.decode(typeCorrectJson(reply.data));
+    });
   }
 
   /// Remove a fronter from current front status
   ///
   /// [front] Fronter ID to update the end time for.
   static Future<S2CLazyResponse> unfrontFronter(UUID front) async {
-    Dio dio = Dio();
-    MemoryState ms = MemoryState();
+    return await lock.synchronized(() async {
+      Dio dio = Dio();
+      MemoryState ms = MemoryState();
 
-    dio.options.headers["Content-Type"] = "application/json";
-    dio.options.headers["X-SB-Auth"] = ms.authenticationToken;
+      dio.options.headers["Content-Type"] = "application/json";
+      dio.options.headers["X-SB-Auth"] = ms.authenticationToken;
 
-    var reply = await dio.patch(
-      "${getAPIServerURL()}/fronters",
-      data: {"id": front.toString()},
-    );
-    NetworkCaches.invalidate();
+      var reply = await dio.patch(
+        "${getAPIServerURL()}/fronting",
+        data: {"id": front.toString()},
+      );
+      NetworkCaches.invalidate();
 
-    return S2CLazyResponse.decode(typeCorrectJson(reply.data));
+      return S2CLazyResponse.decode(typeCorrectJson(reply.data));
+    });
   }
 }
 
@@ -1470,6 +1530,17 @@ class Alter {
     }
 
     return [];
+  }
+
+  Future<bool> isFronting() async {
+    var fronts = await NetworkInterface.getFronters(false);
+    for (var fronter in fronts.data) {
+      if (fronter.front.id.toString() == id.toString()) {
+        return true;
+      }
+    }
+
+    return false;
   }
 }
 
