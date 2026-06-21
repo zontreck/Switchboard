@@ -2,7 +2,7 @@
 
 $DEBUG = false;
 
-$VERSION = "0.1.0+0620261058";
+$VERSION = "0.1.0+0620262249";
 
 $DEFAULT_USER_FIELDS = array(
                             array(
@@ -1530,7 +1530,7 @@ switch($route) {
 
     case "/fronting": {
         // Requires active authorization
-        $parameters = json_decode(file_get_contents("php://input"));
+        $parameters = json_decode(file_get_contents("php://input"), true);
 
         $data = array();
         $success = false;
