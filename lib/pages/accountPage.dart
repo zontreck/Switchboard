@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:libacflutter/utils/colorHelpers.dart';
 import 'package:switchboard/dart/MemoryState.dart';
 import 'package:switchboard/dart/storage.dart';
 import 'package:switchboard/globalHelpers.dart';
@@ -203,18 +204,8 @@ class AltersPage extends StatefulWidget {
 }
 
 class _alters extends State<AltersPage> {
-  List<Alter>? altersList;
-
-  Future<void> markListDirty() async {
-    altersList = null;
-  }
-
   Future<List<Alter>> pollList() async {
-    if (altersList != null) return altersList!;
-    altersList = [];
-    altersList = (await NetworkInterface.requestAltersList(null)).alters;
-
-    return altersList!;
+    return (await NetworkInterface.requestAltersList(null)).alters;
   }
 
   @override
@@ -222,7 +213,7 @@ class _alters extends State<AltersPage> {
     return RefreshIndicator(
       onRefresh: () {
         return Future.delayed(Duration(seconds: 1), () {
-          altersList = null;
+          NetworkCaches.invalidate();
           setState(() {});
         });
       },
@@ -274,22 +265,35 @@ class _alters extends State<AltersPage> {
                     );
 
                     pageChanged();
-                    setState(() {
-                      altersList = null;
-                    });
+                    setState(() {});
                   },
-                  child: AlterWidget(
-                    withFronterElement: true,
-                    flush: ms.flushPictures,
-                    roundedElement: ms.roundedBorder,
-                    squarePics: ms.squarePicture,
-                    backgroundColor: getAlterBackgroundColor(),
-                    textColor: getAlterTextColor(),
-                    alterID: alters[index].id,
-                    alterName: alters[index].name,
-                    url: alters[index].avatarUrl.isNotEmpty
-                        ? alters[index].avatarUrl
-                        : "null",
+                  child: FutureBuilder(
+                    future: alters[index].getAlterColor(),
+                    builder: (Bldr, Snapshot) {
+                      Color backgroundColor = getAlterBackgroundColor();
+                      if (Snapshot.hasData) {
+                        if (Snapshot.data!.isNotEmpty) {
+                          backgroundColor = ColorFromList(Snapshot.data!);
+                        }
+                      }
+
+                      return AlterWidget(
+                        withFronterElement: true,
+                        flush: ms.flushPictures,
+                        roundedElement: ms.roundedBorder,
+                        squarePics: ms.squarePicture,
+                        backgroundColor: backgroundColor,
+                        textColor: getReadableTextColor(
+                          backgroundColor,
+                          getAlterTextColor(),
+                        ),
+                        alterID: alters[index].id,
+                        alterName: alters[index].name,
+                        url: alters[index].avatarUrl.isNotEmpty
+                            ? alters[index].avatarUrl
+                            : "null",
+                      );
+                    },
                   ),
                 );
               },

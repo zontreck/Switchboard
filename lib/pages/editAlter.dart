@@ -41,7 +41,6 @@ class _editAlter extends State<EditAlterPage> {
   @override
   void deactivate() {
     super.deactivate();
-    fields = null;
     print("Deactivated the Edit Alter page");
   }
 
@@ -81,7 +80,6 @@ class _editAlter extends State<EditAlterPage> {
           if (reply.success) {
             flushImageCaches();
             Navigator.pop(context);
-            fields = null;
           }
         },
         label: Text("Save"),
@@ -329,11 +327,9 @@ class _editAlter extends State<EditAlterPage> {
     );
   }
 
-  S2CFieldsResponse? fields;
-
   Future<Widget?> getFieldList(Alter alter) async {
     List<Widget> widgets = [];
-    fields ??= S2CFieldsResponse(
+    var fields = S2CFieldsResponse(
       id: UUID.ZERO,
       path: "/",
       reason: "reason",
@@ -342,8 +338,8 @@ class _editAlter extends State<EditAlterPage> {
       data: [],
     );
 
-    if (fields!.reason == "reason") {
-      fields!.reason = "NUL";
+    if (fields.reason == "reason") {
+      fields.reason = "NUL";
       fields = await NetworkInterface.getDataFields();
     }
 

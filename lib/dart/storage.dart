@@ -11,15 +11,73 @@ import 'package:switchboard/dart/exceptions.dart';
 import 'package:switchboard/dart/globalHelpers.dart';
 import 'package:switchboard/dart/privacyPolicy.dart';
 
+class NetworkCache {
+  String path;
+  DateTime requestTime;
+  dynamic responseData;
+
+  bool isStale() {
+    return DateTime.now().difference(requestTime).inMinutes > 5;
+  }
+
+  NetworkCache({
+    required this.path,
+    required this.requestTime,
+    required this.responseData,
+  });
+}
+
+class NetworkCaches {
+  static Map<String, NetworkCache> registry = {};
+
+  /// To be used by any methods that would change server-side data, to force refresh on next call.
+  static void invalidate() {
+    registry.clear();
+  }
+}
+
+/// Here, we will have a packet system to send and receive data.
+/// If a packet has been tested using a testsuite, and it worked, it will have been turned into a Packet here.
 class NetworkInterface {
-  // Here, we will have a packet system to send and receive data.
-  // If a packet has been tested using a testsuite, and it worked, it will have been turned into a Packet here.
+  /// Retrieval of a cache object, if present.
+  ///
+  /// [fn] The function's name by which the object would be stored.
+  static NetworkCache? getCache(String fn) {
+    if (NetworkCaches.registry.containsKey(fn)) {
+      NetworkCache fnCache = NetworkCaches.registry[fn]!;
+      if (fnCache.isStale()) {
+        NetworkCaches.registry.remove(fn);
+      } else {
+        print("Cache hit for ${fn}");
+        return fnCache;
+      }
+    }
+
+    return null;
+  }
+
+  /// Insert a cache object, which caches a server's response.
+  static void setCache(String fn, dynamic response) {
+    NetworkCaches.registry[fn] = NetworkCache(
+      path: fn,
+      requestTime: DateTime.now(),
+      responseData: response,
+    );
+  }
+
   static Future<S2CServerVersionPacket> getServerVersion() async {
+    var cached = getCache("getServerVersion");
+    if (cached != null) {
+      return S2CServerVersionPacket.decode(
+        typeCorrectJson(cached.responseData),
+      );
+    }
     Dio dio = Dio();
     dio.options.contentType = "application/json";
     var reply = await dio.get("${getAPIServerURL()}/version");
 
     print(reply.data);
+    setCache("getServerVersion", reply.data);
 
     return S2CServerVersionPacket.decode(typeCorrectJson(reply.data));
   }
@@ -39,16 +97,22 @@ class NetworkInterface {
 
     // Deserialize the make new user packet
     S2CUserPacket response = S2CUserPacket.decode(typeCorrectJson(reply.data));
+    NetworkCaches.invalidate();
 
     return response;
   }
 
   static Future<S2CUserPacket> getUser(String username) async {
+    var cached = getCache("getUser${username}");
+    if (cached != null) {
+      return S2CUserPacket.decode(cached.responseData);
+    }
     Dio dio = Dio();
     dio.options.contentType = "application/json";
     var reply = await dio.get("${getAPIServerURL()}/user/$username");
 
     print(reply.data);
+    setCache("getUser$username", reply.data);
 
     return S2CUserPacket.decode(typeCorrectJson(reply.data));
   }
@@ -96,6 +160,11 @@ class NetworkInterface {
   }
 
   static Future<S2CAltersResponse> requestAltersList(UUID? user) async {
+    var cached = getCache("requestAltersList");
+    if (cached != null) {
+      return S2CAltersResponse(alters: cached.responseData);
+    }
+
     MemoryState ms = MemoryState();
     Dio dio = Dio();
     dio.options.headers["Content-Type"] = "application/json";
@@ -144,6 +213,8 @@ class NetworkInterface {
       allAlters.addAll(partialAlters.data.alters);
     }
 
+    setCache("requestAltersList", allAlters);
+
     return S2CAltersResponse(alters: allAlters);
   }
 
@@ -169,11 +240,16 @@ class NetworkInterface {
     );
 
     print(reply.data);
+    NetworkCaches.invalidate();
 
     return S2CAlterResponse.decode(typeCorrectJson(reply.data));
   }
 
   static Future<S2CAlterResponse> getAlterByID(UUID id) async {
+    var cached = getCache("getAlter${id.toString()}");
+    if (cached != null) {
+      return S2CAlterResponse.decode(typeCorrectJson(cached.responseData));
+    }
     Dio dio = Dio();
     MemoryState ms = MemoryState();
 
@@ -183,10 +259,17 @@ class NetworkInterface {
     var reply = await dio.get("${getAPIServerURL()}/alter/${id.toString()}");
 
     print(reply.data);
+    setCache("getAlter${id.toString()}", reply.data);
+
     return S2CAlterResponse.decode(typeCorrectJson(reply.data));
   }
 
   static Future<S2CFieldsResponse> getDataFields() async {
+    var cached = getCache("getDataFields");
+    if (cached != null) {
+      return S2CFieldsResponse.fromJson(typeCorrectJson(cached.responseData));
+    }
+
     Dio dio = Dio();
     MemoryState ms = MemoryState();
 
@@ -195,6 +278,8 @@ class NetworkInterface {
 
     var reply = await dio.get("${getAPIServerURL()}/fields");
     print(reply.data);
+    setCache("getDataFields", reply.data);
+
     return S2CFieldsResponse.fromJson(typeCorrectJson(reply.data));
   }
 
@@ -214,11 +299,16 @@ class NetworkInterface {
 
     print(reply.data);
     S2CFieldResponse sfr = S2CFieldResponse.decode(typeCorrectJson(reply.data));
+    NetworkCaches.invalidate();
 
     return sfr;
   }
 
   static Future<S2CFieldResponse> getField(UUID fieldID) async {
+    var cached = getCache("getField${fieldID.toString()}");
+    if (cached != null) {
+      return S2CFieldResponse.decode(typeCorrectJson(cached.responseData));
+    }
     Dio dio = Dio();
     MemoryState ms = MemoryState();
 
@@ -231,6 +321,7 @@ class NetworkInterface {
 
     print(reply.data);
     S2CFieldResponse sfr = S2CFieldResponse.decode(typeCorrectJson(reply.data));
+    setCache("getField${fieldID.toString()}", reply.data);
 
     return sfr;
   }
@@ -254,7 +345,9 @@ class NetworkInterface {
     );
 
     print(reply.data);
+    NetworkCaches.invalidate();
     S2CFieldResponse sfr = S2CFieldResponse.decode(typeCorrectJson(reply.data));
+
     return sfr;
   }
 
@@ -266,6 +359,7 @@ class NetworkInterface {
     dio.options.headers["X-SB-Auth"] = ms.authenticationToken;
 
     var reply = await dio.delete("${getAPIServerURL()}/field/${id.toString()}");
+    NetworkCaches.invalidate();
 
     print(reply.data);
 
@@ -283,6 +377,7 @@ class NetworkInterface {
       "${getAPIServerURL()}/alter/${alter.id.toString()}",
       data: {"alter": alter.encode()},
     );
+    NetworkCaches.invalidate();
 
     print(reply.data);
 
@@ -300,6 +395,7 @@ class NetworkInterface {
       "${getAPIServerURL()}/avatar/${alter.id.toString()}",
     );
     print(reply.data);
+    NetworkCaches.invalidate();
 
     return S2CLazyResponse.decode(typeCorrectJson(reply.data));
   }
@@ -319,6 +415,7 @@ class NetworkInterface {
       data: {"image": base64EncodedImage},
     );
     print(reply.data);
+    NetworkCaches.invalidate();
 
     return S2CLazyResponse.decode(typeCorrectJson(reply.data));
   }
@@ -343,6 +440,7 @@ class NetworkInterface {
       alterReply.data!,
       base64Encoder.base64EncBytes(reply.data),
     );
+    NetworkCaches.invalidate();
 
     return updateReply.success;
   }
@@ -355,6 +453,7 @@ class NetworkInterface {
     dio.options.headers["X-SB-Auth"] = ms.authenticationToken;
 
     var reply = await dio.get("${getAPIServerURL()}/wipe");
+    NetworkCaches.invalidate();
 
     return S2CLazyResponse.decode(typeCorrectJson(reply.data));
   }
@@ -363,6 +462,12 @@ class NetworkInterface {
   ///
   /// [history] Whether to obtain all history or only current fronters
   static Future<S2CFrontHistoryResponse> getFronters(bool history) async {
+    var cached = getCache("getFronters${history ? "history" : "active"}");
+    if (cached != null) {
+      return S2CFrontHistoryResponse.fromJson(
+        typeCorrectJson(cached.responseData),
+      );
+    }
     Dio dio = Dio();
     MemoryState ms = MemoryState();
 
@@ -373,6 +478,7 @@ class NetworkInterface {
       "${getAPIServerURL()}/fronters",
       data: {"history": history},
     );
+    setCache("getFronters${history ? "history" : "active"}", reply.data);
 
     return S2CFrontHistoryResponse.fromJson(typeCorrectJson(reply.data));
   }
@@ -391,6 +497,7 @@ class NetworkInterface {
       "${getAPIServerURL()}/fronters",
       data: {"alter": alterID.toString()},
     );
+    NetworkCaches.invalidate();
 
     return S2CFrontResponse.fromJson(typeCorrectJson(reply.data));
   }
@@ -409,6 +516,7 @@ class NetworkInterface {
       "${getAPIServerURL()}/fronters",
       data: front.toJson(),
     );
+    NetworkCaches.invalidate();
 
     return S2CLazyResponse.decode(typeCorrectJson(reply.data));
   }
@@ -427,6 +535,7 @@ class NetworkInterface {
       "${getAPIServerURL()}/fronters",
       data: {"id": front.toString()},
     );
+    NetworkCaches.invalidate();
 
     return S2CLazyResponse.decode(typeCorrectJson(reply.data));
   }
@@ -434,7 +543,7 @@ class NetworkInterface {
   /// Remove a fronter from current front status
   ///
   /// [front] Fronter ID to update the end time for.
-  static Future<S2CLazyResponse> unFrontFronter(UUID front) async {
+  static Future<S2CLazyResponse> unfrontFronter(UUID front) async {
     Dio dio = Dio();
     MemoryState ms = MemoryState();
 
@@ -445,6 +554,7 @@ class NetworkInterface {
       "${getAPIServerURL()}/fronters",
       data: {"id": front.toString()},
     );
+    NetworkCaches.invalidate();
 
     return S2CLazyResponse.decode(typeCorrectJson(reply.data));
   }
@@ -1335,6 +1445,29 @@ class Alter {
       seenIds.add(id);
       return false; // Keep first instance
     });
+  }
+
+  Future<List<int>> getAlterColor() async {
+    // Download all fields so we have the ID codes
+    var reply = await NetworkInterface.getDataFields();
+    List<Field> srvFields = reply.data;
+
+    late Field targetField;
+
+    for (var field in srvFields) {
+      if (field.type == FieldType.ColorSys) {
+        targetField = field;
+      }
+    }
+
+    // Enumerate the data to find the field
+    for (var data in fields) {
+      if (data.id.toString() == targetField.id.toString()) {
+        return data.data["data"];
+      }
+    }
+
+    return [];
   }
 }
 
