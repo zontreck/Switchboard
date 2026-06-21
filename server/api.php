@@ -2,7 +2,7 @@
 
 $DEBUG = false;
 
-$VERSION = "0.1.0+0621260134";
+$VERSION = "0.1.0+0621261103";
 
 $DEFAULT_USER_FIELDS = array(
                             array(
@@ -1647,7 +1647,7 @@ switch($route) {
 
                     if($res->num_rows == 0) {
                         $success=false;
-                        $reason = "0x01647-No Front Object";
+                        $reason = "0x01650-No Front Object";
                     } else {
                         $st = $DB->prepare("DELETE FROM `Fronting` WHERE `ID`=?;");
                         $st->bind_params("s", $frontId);
@@ -1674,11 +1674,11 @@ switch($route) {
 
                     if($res->num_rows == 0) {
                         $success=false;
-                        $reason = "0x01674-No Front Object";
+                        $reason = "0x01677-No Front Object,$frontId,$SAT->UserID";
                     } else {
                         $st = $DB->prepare("UPDATE `Fronting` SET `EndTime` = ? WHERE `User`=? AND `ID` = ?;");
                         $endTime = time();
-                        $st->bind_params("iss", $endTime, $SAT->UserID, $frontId);
+                        $st->bind_param("iss", $endTime, $SAT->UserID, $frontId);
                         $st->execute();
                         $DB->commit();
                         $st->close();
