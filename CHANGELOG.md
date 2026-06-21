@@ -16,7 +16,9 @@
   - [x] PUT will insert a StartTime and Endtime as specified by the payload. This is primarily to be used by Import functions.
   - [x] DELETE will delete the fronting object.
   - [x] PATCH will remove someone from front, updating only the EndTime value.
-- [x] API bindings for the `NetworkInterface` to interact with the `/fronters` endpoint.
+- [x] API bindings for the `NetworkInterface` to interact with the `/fronting` endpoint.
+- [x] Added a glow effect and additional spacing for active fronters in the primary alters list
+- [x] Made it possible to swipe to "dismiss" alters. This will be used instead to set front, or remove from front.
 
 ## CHANGE:
 
@@ -26,6 +28,7 @@
 - [x] Automatically migrate images being saved with `Set URL` to the `/avatar/` endpoint.
 - [x] Fixes the anti-cachebusting feature that was preventing image updates on the edit alter page
 - [x] Fully fixes the image bug with migration `0019`.
+- [x] Alter background color is now pulled from the alter's system color field data.
 
 # 0.1.0+0617260921
 
