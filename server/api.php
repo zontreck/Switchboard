@@ -2,7 +2,7 @@
 
 $DEBUG = false;
 
-$VERSION = "0.1.0+0621260115";
+$VERSION = "0.1.0+0621260134";
 
 $DEFAULT_USER_FIELDS = array(
                             array(
@@ -1560,7 +1560,7 @@ switch($route) {
                         while($row = $res->fetch_assoc()) {
                             array_push($data, array(
                                 "id" => $row['ID'],
-                                "alter" => $row['Alter'],
+                                "alter" => $row['AlterID'],
                                 "start" => $row['StartTime'],
                                 "end" => $row['EndTime']
                             ));
@@ -1575,7 +1575,7 @@ switch($route) {
                         while($row = $res->fetch_assoc()) {
                             array_push($data, array(
                                 "id" => $row['ID'],
-                                "alter" => $row['Alter'],
+                                "alter" => $row['AlterID'],
                                 "start" => $row['StartTime'],
                                 "end" => 0
                             ));
