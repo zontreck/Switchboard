@@ -54,7 +54,7 @@ class NetworkInterface {
       if (fnCache.isStale()) {
         NetworkCaches.registry.remove(fn);
       } else {
-        print("Cache hit for ${fn}");
+        print("Cache hit for $fn");
         return fnCache;
       }
     }
@@ -116,7 +116,7 @@ class NetworkInterface {
 
   static Future<S2CUserPacket> getUser(String username) async {
     return await lock.synchronized(() async {
-      var cached = getCache("getUser${username}");
+      var cached = getCache("getUser$username");
       if (cached != null) {
         return S2CUserPacket.decode(cached.responseData);
       }

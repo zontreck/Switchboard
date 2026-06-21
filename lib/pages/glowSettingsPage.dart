@@ -10,6 +10,8 @@ import 'package:switchboard/pages/elements.dart';
 import 'package:switchboard/sb.dart';
 
 class GlowSettingsPage extends StatefulWidget {
+  const GlowSettingsPage({super.key});
+
   @override
   State<StatefulWidget> createState() {
     return _glowSettings();

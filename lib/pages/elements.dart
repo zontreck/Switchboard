@@ -8,7 +8,6 @@ import 'package:switchboard/dart/MemoryState.dart';
 import 'package:switchboard/dart/globalHelpers.dart';
 import 'package:switchboard/dart/storage.dart';
 import 'package:switchboard/globalHelpers.dart';
-import 'package:switchboard/sb.dart';
 
 class AlterWidget extends StatefulWidget {
   bool flush = false;
@@ -31,7 +30,7 @@ class AlterWidget extends StatefulWidget {
     required this.url,
     required this.withFronterElement,
     required this.frontID,
-    this.alter = null,
+    this.alter,
     this.flush = true,
     this.roundedElement = true,
     this.squarePics = false,
@@ -48,7 +47,7 @@ class AlterWidget extends StatefulWidget {
 
 class _widget extends State<AlterWidget> {
   Widget getGlow(Widget child, List<Color> colors) {
-    return GlowContainer(gradientColors: colors, child: child, glowRadius: 8);
+    return GlowContainer(gradientColors: colors, glowRadius: 8, child: child);
   }
 
   Widget getCard() {
@@ -81,12 +80,6 @@ class _widget extends State<AlterWidget> {
     if (widget.withFronterElement) {
       return Dismissible(
         key: UniqueKey(),
-        child: widget.fronting
-            ? getGlow(
-                getCard(),
-                getCustomGlow(alterPreferedColor: widget.backgroundColor),
-              )
-            : getCard(),
         background: Card(
           elevation: 1,
           shape: widget.roundedElement ? null : BoxBorder.all(),
@@ -136,6 +129,12 @@ class _widget extends State<AlterWidget> {
 
           return false;
         },
+        child: widget.fronting
+            ? getGlow(
+                getCard(),
+                getCustomGlow(alterPreferedColor: widget.backgroundColor),
+              )
+            : getCard(),
       );
     } else {
       if (widget.fronting) {

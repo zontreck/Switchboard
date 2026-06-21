@@ -343,7 +343,7 @@ class _editAlter extends State<EditAlterPage> {
       fields = await NetworkInterface.getDataFields();
     }
 
-    List<Field> fieldVals = fields!.data;
+    List<Field> fieldVals = fields.data;
     fieldVals.sort((F1, F2) {
       return F1.order.compareTo(F2.order);
     });

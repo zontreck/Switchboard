@@ -486,7 +486,7 @@ List<Color> getGlowColors() {
   return colors;
 }
 
-List<Color> getCustomGlow({Color? alterPreferedColor = null}) {
+List<Color> getCustomGlow({Color? alterPreferedColor}) {
   if (MemoryState.A.prideGlow) {
     return getPrideColors();
   } else if (MemoryState.A.transGlow) {

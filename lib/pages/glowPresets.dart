@@ -1,4 +1,3 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:glow_container/glow_container.dart';
 import 'package:libac_dart/utils/uuid/UUID.dart';
@@ -8,6 +7,8 @@ import 'package:switchboard/globalHelpers.dart';
 import 'package:switchboard/pages/elements.dart';
 
 class GlowPresets extends StatefulWidget {
+  const GlowPresets({super.key});
+
   @override
   State<StatefulWidget> createState() {
     return _presets();
@@ -384,7 +385,7 @@ class _Preset {
   void Function() deselect;
 
   Widget getImage() {
-    return Image.asset("assets/${assetName}.png", width: 175, height: 110);
+    return Image.asset("assets/$assetName.png", width: 175, height: 110);
   }
 
   _Preset({
