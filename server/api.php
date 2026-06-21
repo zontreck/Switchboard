@@ -2,7 +2,7 @@
 
 $DEBUG = false;
 
-$VERSION = "0.1.0+0621261103";
+$VERSION = "0.1.0+0621261141";
 
 $DEFAULT_USER_FIELDS = array(
                             array(
@@ -1553,7 +1553,7 @@ switch($route) {
                         // We are to return the entire history.
                         $reason = "history";
 
-                        $Q = $DB->prepare("SELECT * FROM `Fronting` WHERE `User`=?;");
+                        $Q = $DB->prepare("SELECT * FROM `Fronting` WHERE User=?;");
                         $Q->bind_param("s", $SAT->UserID);
                         $Q->execute();
                         $res = $Q->get_result();
@@ -1568,7 +1568,7 @@ switch($route) {
                     } else {
                         // We are only to return the current fronters.
                         $reason = "fronters";
-                        $Q = $DB->prepare("SELECT * FROM `Fronting` WHERE `User`=? AND `EndTime` = 0;");
+                        $Q = $DB->prepare("SELECT * FROM `Fronting` WHERE User=? AND EndTime = 0;");
                         $Q->bind_param("s", $SAT->UserID);
                         $Q->execute();
                         $res = $Q->get_result();
@@ -1586,11 +1586,11 @@ switch($route) {
                 case "POST": {
                     $reason = "front status set";
                     $alter = $parameters['alter'];
-                    $Q = $DB->prepare("SELECT * FROM `Fronting` WHERE `User`=? AND `EndTime`=0 AND `AlterID`=?;");
+                    $Q = $DB->prepare("SELECT * FROM `Fronting` WHERE User=? AND EndTime=0 AND AlterID=?;");
                     $Q->bind_param("ss", $SAT->UserID, $alter);
                     $Q->execute();
                     $R = $Q->get_result();
-                    $Q2 = $DB->prepare("INSERT INTO `Fronting` (`ID`, `User`, `AlterID`, `StartTime`, `EndTime`) VALUES(?, ?, ?, ?, ?);");
+                    $Q2 = $DB->prepare("INSERT INTO `Fronting` (ID, User, AlterID, StartTime, EndTime) VALUES(?, ?, ?, ?, ?);");
                     if($R->num_rows > 0) {
                         $reason = "already fronting";
                         $success=false;
@@ -1623,7 +1623,7 @@ switch($route) {
                     $reason = "front history object inserted";
                     $success=true;
 
-                    $stmt = $DB->prepare("INSERT INTO `Fronting` (`ID`, `User`, `AlterID`, `StartTime`, `EndTime`) VALUES (?, ?, ?, ?, ?);");
+                    $stmt = $DB->prepare("INSERT INTO `Fronting` (ID, User, AlterID, StartTime, EndTime) VALUES (?, ?, ?, ?, ?);");
                     $stmt->bind_param("sssii", $frontId, $user, $alter, $start, $end);
                     $stmt->execute();
                     $DB->commit();
@@ -1640,7 +1640,7 @@ switch($route) {
                 case "DELETE": {
                     $frontId = $parameters['id'];
                     // Verify that the ID belongs to the currently authenticated user.
-                    $stmt = $DB->prepare("SELECT * FROM `Fronting` WHERE `User`=? AND `ID`=?;");
+                    $stmt = $DB->prepare("SELECT * FROM `Fronting` WHERE User=? AND ID=?;");
                     $stmt->bind_param("ss", $SAT->UserID, $frontId);
                     $stmt->execute();
                     $res = $stmt->get_result();
@@ -1649,7 +1649,7 @@ switch($route) {
                         $success=false;
                         $reason = "0x01650-No Front Object";
                     } else {
-                        $st = $DB->prepare("DELETE FROM `Fronting` WHERE `ID`=?;");
+                        $st = $DB->prepare("DELETE FROM `Fronting` WHERE ID=?;");
                         $st->bind_params("s", $frontId);
                         $st->execute();
                         $DB->commit();
@@ -1667,7 +1667,7 @@ switch($route) {
 
                     $frontId = $parameters['id'];
                     // Verify that the ID belongs to the currently authenticated user.
-                    $stmt = $DB->prepare("SELECT * FROM `Fronting` WHERE `User`=? AND `ID`=?;");
+                    $stmt = $DB->prepare("SELECT * FROM `Fronting` WHERE User=? AND ID=?;");
                     $stmt->bind_param("ss", $SAT->UserID, $frontId);
                     $stmt->execute();
                     $res = $stmt->get_result();
@@ -1676,7 +1676,7 @@ switch($route) {
                         $success=false;
                         $reason = "0x01677-No Front Object,$frontId,$SAT->UserID";
                     } else {
-                        $st = $DB->prepare("UPDATE `Fronting` SET `EndTime` = ? WHERE `User`=? AND `ID` = ?;");
+                        $st = $DB->prepare("UPDATE `Fronting` SET EndTime = ? WHERE User=? AND ID = ?;");
                         $endTime = time();
                         $st->bind_param("iss", $endTime, $SAT->UserID, $frontId);
                         $st->execute();
