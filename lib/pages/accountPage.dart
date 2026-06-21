@@ -251,50 +251,59 @@ class _alters extends State<AltersPage> {
             return ListView.builder(
               itemCount: alters.length,
               shrinkWrap: true,
+              padding: EdgeInsets.all(8),
               itemBuilder: (bctx, index) {
-                return InkWell(
-                  onTap: () async {
-                    pageChanged();
-                    var reply = await Navigator.pushNamed(
-                      context,
-                      "/editAlter",
-                      arguments: EditAlterArguments(
-                        alterId: alters[index].id,
-                        instance: alters[index],
+                return Column(
+                  children: [
+                    InkWell(
+                      onTap: () async {
+                        pageChanged();
+                        var reply = await Navigator.pushNamed(
+                          context,
+                          "/editAlter",
+                          arguments: EditAlterArguments(
+                            alterId: alters[index].id,
+                            instance: alters[index],
+                          ),
+                        );
+
+                        pageChanged();
+                        setState(() {});
+                      },
+                      child: FutureBuilder(
+                        future: alters[index].getAlterColor(),
+                        builder: (Bldr, Snapshot) {
+                          Color backgroundColor = getAlterBackgroundColor();
+                          if (Snapshot.hasData) {
+                            if (Snapshot.data!.isNotEmpty) {
+                              backgroundColor = ColorFromList(Snapshot.data!);
+                            }
+                          }
+                          if (backgroundColor == Color.fromARGB(0, 0, 0, 0)) {
+                            backgroundColor = getAlterBackgroundColor();
+                          }
+
+                          return AlterWidget(
+                            withFronterElement: true,
+                            flush: ms.flushPictures,
+                            roundedElement: ms.roundedBorder,
+                            squarePics: ms.squarePicture,
+                            backgroundColor: backgroundColor,
+                            textColor: getReadableTextColor(
+                              backgroundColor,
+                              getAlterTextColor(),
+                            ),
+                            alterID: alters[index].id,
+                            alterName: alters[index].name,
+                            url: alters[index].avatarUrl.isNotEmpty
+                                ? alters[index].avatarUrl
+                                : "null",
+                          );
+                        },
                       ),
-                    );
-
-                    pageChanged();
-                    setState(() {});
-                  },
-                  child: FutureBuilder(
-                    future: alters[index].getAlterColor(),
-                    builder: (Bldr, Snapshot) {
-                      Color backgroundColor = getAlterBackgroundColor();
-                      if (Snapshot.hasData) {
-                        if (Snapshot.data!.isNotEmpty) {
-                          backgroundColor = ColorFromList(Snapshot.data!);
-                        }
-                      }
-
-                      return AlterWidget(
-                        withFronterElement: true,
-                        flush: ms.flushPictures,
-                        roundedElement: ms.roundedBorder,
-                        squarePics: ms.squarePicture,
-                        backgroundColor: backgroundColor,
-                        textColor: getReadableTextColor(
-                          backgroundColor,
-                          getAlterTextColor(),
-                        ),
-                        alterID: alters[index].id,
-                        alterName: alters[index].name,
-                        url: alters[index].avatarUrl.isNotEmpty
-                            ? alters[index].avatarUrl
-                            : "null",
-                      );
-                    },
-                  ),
+                    ),
+                    SizedBox(height: 18),
+                  ],
                 );
               },
             );

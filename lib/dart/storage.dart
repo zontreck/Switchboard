@@ -29,6 +29,7 @@ class NetworkCache {
 
 class NetworkCaches {
   static Map<String, NetworkCache> registry = {};
+  static Map<String, Future<dynamic>> inFlight = {};
 
   /// To be used by any methods that would change server-side data, to force refresh on next call.
   static void invalidate() {
@@ -1463,6 +1464,7 @@ class Alter {
     // Enumerate the data to find the field
     for (var data in fields) {
       if (data.id.toString() == targetField.id.toString()) {
+        if (data.data["data"] == [0, 0, 0, 0]) return [];
         return data.data["data"];
       }
     }

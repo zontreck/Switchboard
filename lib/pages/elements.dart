@@ -1,6 +1,7 @@
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
+import 'package:glow_container/glow_container.dart';
 import 'package:libac_dart/utils/TimeUtils.dart';
 import 'package:libac_dart/utils/uuid/UUID.dart';
 import 'package:switchboard/dart/MemoryState.dart';
@@ -31,27 +32,52 @@ class AlterWidget extends StatelessWidget {
     this.textColor = Colors.white70,
   });
 
-  @override
-  Widget build(BuildContext context) {
-    return Card(
-      elevation: 8,
-      shape: roundedElement ? null : BoxBorder.all(),
-      margin: roundedElement ? null : EdgeInsetsGeometry.zero,
-      color: backgroundColor,
+  Widget getCard() {
+    return GlowContainer(
+      gradientColors: [Color.fromARGB(255, 0, 192, 192), backgroundColor],
+      glowRadius: 8,
+      child: Card(
+        elevation: 8,
+        shape: roundedElement ? null : BoxBorder.all(),
+        margin: roundedElement ? null : EdgeInsetsGeometry.zero,
+        color: backgroundColor,
 
-      child: Row(
-        children: [
-          AlterImage(
-            squarePics: squarePics,
-            flush: flush,
-            alterID: alterID,
-            url: Alter.makeAvatarURL(url),
-          ),
-          SizedBox(width: 8),
-          Text(alterName, style: TextStyle(fontSize: 22, color: textColor)),
-        ],
+        child: Row(
+          children: [
+            AlterImage(
+              squarePics: squarePics,
+              flush: flush,
+              alterID: alterID,
+              url: Alter.makeAvatarURL(url),
+            ),
+            SizedBox(width: 8),
+            Text(alterName, style: TextStyle(fontSize: 22, color: textColor)),
+          ],
+        ),
       ),
     );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (withFronterElement) {
+      return Dismissible(
+        key: UniqueKey(),
+        child: getCard(),
+        background: Card(
+          elevation: 1,
+          shape: roundedElement ? null : BoxBorder.all(),
+          margin: roundedElement ? null : EdgeInsetsGeometry.zero,
+          color: Colors.blueGrey,
+          child: ListTile(
+            leading: Icon(Icons.download),
+            trailing: Icon(Icons.upload),
+          ),
+        ),
+      );
+    } else {
+      return getCard();
+    }
   }
 }
 

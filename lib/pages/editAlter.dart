@@ -530,7 +530,7 @@ class NumberFieldStorage extends FieldStorage {
 }
 
 class ColorFieldStorage extends FieldStorage {
-  Color data = Colors.white;
+  Color data = Color.fromARGB(0, 0, 0, 0);
 
   @override
   FieldStorageType get dataType => FieldStorageType.Color;
