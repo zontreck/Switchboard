@@ -2,7 +2,7 @@
 
 $DEBUG = false;
 
-$VERSION = "0.1.0+0620262249";
+$VERSION = "0.1.0+0620262353";
 
 $DEFAULT_USER_FIELDS = array(
                             array(
@@ -1505,6 +1505,7 @@ switch($route) {
         $data = array();
         $success = false;
         $reason = "not logged in";
+        $DB = get_DB("switchboard");
 
         $SAT = ValidateSAT(get_Authorization());
 
@@ -1535,6 +1536,7 @@ switch($route) {
         $data = array();
         $success = false;
         $reason = "not logged in";
+        $DB = get_DB("switchboard");
 
         $SAT = ValidateSAT(get_Authorization());
 
