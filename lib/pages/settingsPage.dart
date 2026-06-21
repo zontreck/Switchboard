@@ -54,6 +54,8 @@ class _settings extends State<SettingsPage> {
               AlterWidget(
                 flush: ms.flushPictures,
                 withFronterElement: false,
+                fronting: false,
+                frontID: UUID.ZERO,
                 roundedElement: ms.roundedBorder,
                 squarePics: ms.squarePicture,
                 backgroundColor: getAlterBackgroundColor(),
@@ -61,6 +63,7 @@ class _settings extends State<SettingsPage> {
                 alterID: UUID.ZERO,
                 alterName: "Sample Alter",
                 url: "null",
+                alter: null,
               ),
               FutureBuilder(
                 future: getAdsOptIn(),

@@ -256,9 +256,15 @@ class _alters extends State<AltersPage> {
                 return FutureBuilder(
                   future: alters[index].isFronting(),
                   builder: (frontingBuilder, frontingSnapshot) {
-                    if (!frontingSnapshot.hasData) {
+                    if (!frontingSnapshot.hasData &&
+                        !frontingSnapshot.hasError) {
                       return CircularProgressIndicator();
                     } else {
+                      if (frontingSnapshot.hasError) {
+                        print(
+                          "Fronting snapshot threw an error: ${frontingSnapshot.error}",
+                        );
+                      }
                       bool fronting = frontingSnapshot.data ?? false;
 
                       return Column(
@@ -310,6 +316,9 @@ class _alters extends State<AltersPage> {
                                   url: alters[index].avatarUrl.isNotEmpty
                                       ? alters[index].avatarUrl
                                       : "null",
+                                  fronting: fronting,
+                                  frontID: alters[index].fronterID,
+                                  alter: alters[index],
                                 );
                               },
                             ),

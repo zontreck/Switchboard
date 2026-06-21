@@ -8,7 +8,7 @@ import 'package:switchboard/dart/MemoryState.dart';
 import 'package:switchboard/dart/globalHelpers.dart';
 import 'package:switchboard/dart/storage.dart';
 
-class AlterWidget extends StatelessWidget {
+class AlterWidget extends StatefulWidget {
   bool flush = false;
   bool roundedElement = true;
   bool squarePics = false;
@@ -19,6 +19,8 @@ class AlterWidget extends StatelessWidget {
   String url;
   bool withFronterElement;
   bool fronting;
+  UUID frontID;
+  Alter? alter;
 
   AlterWidget({
     super.key,
@@ -26,6 +28,8 @@ class AlterWidget extends StatelessWidget {
     required this.alterName,
     required this.url,
     required this.withFronterElement,
+    required this.frontID,
+    this.alter = null,
     this.flush = true,
     this.roundedElement = true,
     this.squarePics = false,
@@ -34,6 +38,13 @@ class AlterWidget extends StatelessWidget {
     this.textColor = Colors.white70,
   });
 
+  @override
+  State<StatefulWidget> createState() {
+    return _widget();
+  }
+}
+
+class _widget extends State<AlterWidget> {
   Widget getGlow(Widget child, List<Color> colors) {
     return GlowContainer(gradientColors: colors, child: child, glowRadius: 8);
   }
@@ -41,20 +52,23 @@ class AlterWidget extends StatelessWidget {
   Widget getCard() {
     return Card(
       elevation: 8,
-      shape: roundedElement ? null : BoxBorder.all(),
-      margin: roundedElement ? null : EdgeInsetsGeometry.zero,
-      color: backgroundColor,
+      shape: widget.roundedElement ? null : BoxBorder.all(),
+      margin: widget.roundedElement ? null : EdgeInsetsGeometry.zero,
+      color: widget.backgroundColor,
 
       child: Row(
         children: [
           AlterImage(
-            squarePics: squarePics,
-            flush: flush,
-            alterID: alterID,
-            url: Alter.makeAvatarURL(url),
+            squarePics: widget.squarePics,
+            flush: widget.flush,
+            alterID: widget.alterID,
+            url: Alter.makeAvatarURL(widget.url),
           ),
           SizedBox(width: 8),
-          Text(alterName, style: TextStyle(fontSize: 22, color: textColor)),
+          Text(
+            widget.alterName,
+            style: TextStyle(fontSize: 22, color: widget.textColor),
+          ),
         ],
       ),
     );
@@ -62,25 +76,48 @@ class AlterWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (withFronterElement) {
+    if (widget.withFronterElement) {
       return Dismissible(
         key: UniqueKey(),
-        child: fronting
+        child: widget.fronting
             ? getGlow(getCard(), [
                 Color.fromARGB(255, 0, 192, 192),
-                backgroundColor,
+                widget.backgroundColor,
               ])
             : getCard(),
         background: Card(
           elevation: 1,
-          shape: roundedElement ? null : BoxBorder.all(),
-          margin: roundedElement ? null : EdgeInsetsGeometry.zero,
+          shape: widget.roundedElement ? null : BoxBorder.all(),
+          margin: widget.roundedElement ? null : EdgeInsetsGeometry.zero,
           color: Colors.blueGrey,
           child: ListTile(
-            leading: Icon(Icons.download),
-            trailing: Icon(Icons.upload),
+            leading: widget.fronting ? Icon(Icons.download) : null,
+            trailing: widget.fronting ? null : Icon(Icons.upload),
           ),
         ),
+        confirmDismiss: (direction) async {
+          if (direction == DismissDirection.startToEnd) {
+            // Left to right: Remove from front
+            if (widget.fronting) {
+              await NetworkInterface.unfrontFronter(widget.frontID);
+              widget.fronting = false;
+
+              setState(() {});
+            }
+          } else if (direction == DismissDirection.endToStart) {
+            // Right to left: Set front
+            if (!widget.fronting) {
+              await NetworkInterface.setFronting(widget.alterID);
+              widget.fronting = true;
+
+              setState(() {});
+            }
+          } else {
+            // Invalid direction. Cancel the action
+          }
+
+          return false;
+        },
       );
     } else {
       return getCard();

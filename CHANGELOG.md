@@ -19,6 +19,7 @@
 - [x] API bindings for the `NetworkInterface` to interact with the `/fronting` endpoint.
 - [x] Added a glow effect and additional spacing for active fronters in the primary alters list
 - [x] Made it possible to swipe to "dismiss" alters. This will be used instead to set front, or remove from front.
+- [x] Implement set front gesture
 
 ## CHANGE:
 

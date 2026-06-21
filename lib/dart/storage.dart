@@ -615,6 +615,7 @@ class NetworkInterface {
         data: {"id": front.toString()},
       );
       NetworkCaches.invalidate();
+      print(reply.data);
 
       return S2CLazyResponse.decode(typeCorrectJson(reply.data));
     });
@@ -1351,6 +1352,7 @@ class Alter {
   int flags;
   List<FieldData> fields;
   bool _stale = false;
+  UUID fronterID = UUID.ZERO;
 
   void markStale() {
     _stale = true;
@@ -1536,6 +1538,7 @@ class Alter {
     var fronts = await NetworkInterface.getFronters(false);
     for (var fronter in fronts.data) {
       if (fronter.front.id.toString() == id.toString()) {
+        fronterID = fronter.front.id;
         return true;
       }
     }
@@ -1712,7 +1715,7 @@ class S2CFrontResponse extends S2CLazyResponse {
   void _decode(Map<String, dynamic> js) {
     super._decode(js);
 
-    if (js.containsKey("data")) {
+    if (js.containsKey("data") && js['data'] != null) {
       data = Fronter.fromJson(js["data"]);
     }
   }
@@ -1761,7 +1764,7 @@ class S2CFrontHistoryResponse extends S2CLazyResponse {
   @override
   void _decode(Map<String, dynamic> js) {
     super._decode(js);
-    List<Map<String, dynamic>> datLst = js['data'];
+    List<Map<String, dynamic>> datLst = js['data'] ?? [];
 
     data = [];
     for (var entry in datLst) {
