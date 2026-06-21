@@ -2,7 +2,7 @@
 
 $DEBUG = false;
 
-$VERSION = "0.1.0+0621260057";
+$VERSION = "0.1.0+0621260115";
 
 $DEFAULT_USER_FIELDS = array(
                             array(
@@ -1605,7 +1605,7 @@ switch($route) {
                             "start" => $frontTime
                         );
                         $Q2->execute();
-                        $Q2->commit();
+                        $DB->commit();
 
                     }
                     $Q->close();
@@ -1626,7 +1626,7 @@ switch($route) {
                     $stmt = $DB->prepare("INSERT INTO `Fronting` (`ID`, `User`, `AlterID`, `StartTime`, `EndTime`) VALUES (?, ?, ?, ?, ?);");
                     $stmt->bind_param("sssii", $frontId, $user, $alter, $start, $end);
                     $stmt->execute();
-                    $stmt->commit();
+                    $DB->commit();
                     $stmt->close();
 
                     $data = array(
@@ -1652,7 +1652,7 @@ switch($route) {
                         $st = $DB->prepare("DELETE FROM `Fronting` WHERE `ID`=?;");
                         $st->bind_params("s", $frontId);
                         $st->execute();
-                        $st->commit();
+                        $DB->commit();
                         $st->close();
 
                         $reason = "deleted";
@@ -1680,7 +1680,7 @@ switch($route) {
                         $endTime = time();
                         $st->bind_params("iss", $endTime, $SAT->UserID, $frontId);
                         $st->execute();
-                        $st->commit();
+                        $DB->commit();
                         $st->close();
 
                         $row = $res->fetch_assoc();
