@@ -2,7 +2,7 @@
 
 $DEBUG = false;
 
-$VERSION = "0.1.0+0621260038";
+$VERSION = "0.1.0+0621260057";
 
 $DEFAULT_USER_FIELDS = array(
                             array(
@@ -1597,7 +1597,8 @@ switch($route) {
                     } else {
                         $FrontID = gen_uuid();
                         $frontTime = time();
-                        $Q2->bind_param("sssii", $FrontID, $SAT->UserID, $alter, $frontTime, 0);
+                        $endTime = 0;
+                        $Q2->bind_param("sssii", $FrontID, $SAT->UserID, $alter, $frontTime, $endTime);
                         $data = array(
                             "id" => $FrontID,
                             "alter" => $alter,
