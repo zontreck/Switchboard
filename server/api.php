@@ -1706,6 +1706,9 @@ switch($route) {
             }
         }
 
+        if(count($data) == 0) {
+            $data = null; // Make it null, save issues down the line.
+        }
 
         die(json_encode(array(
             "success" => $success,
