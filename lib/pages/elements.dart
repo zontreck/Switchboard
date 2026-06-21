@@ -7,6 +7,8 @@ import 'package:libac_dart/utils/uuid/UUID.dart';
 import 'package:switchboard/dart/MemoryState.dart';
 import 'package:switchboard/dart/globalHelpers.dart';
 import 'package:switchboard/dart/storage.dart';
+import 'package:switchboard/globalHelpers.dart';
+import 'package:switchboard/sb.dart';
 
 class AlterWidget extends StatefulWidget {
   bool flush = false;
@@ -80,10 +82,10 @@ class _widget extends State<AlterWidget> {
       return Dismissible(
         key: UniqueKey(),
         child: widget.fronting
-            ? getGlow(getCard(), [
-                Color.fromARGB(255, 0, 192, 192),
-                widget.backgroundColor,
-              ])
+            ? getGlow(
+                getCard(),
+                getCustomGlow(alterPreferedColor: widget.backgroundColor),
+              )
             : getCard(),
         background: Card(
           elevation: 1,
@@ -99,18 +101,34 @@ class _widget extends State<AlterWidget> {
           if (direction == DismissDirection.startToEnd) {
             // Left to right: Remove from front
             if (widget.fronting) {
-              await NetworkInterface.unfrontFronter(widget.frontID);
+              var rep = await NetworkInterface.unfrontFronter(widget.frontID);
               widget.fronting = false;
 
-              setState(() {});
+              if (!rep.success) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text(
+                      "FATAL: Fronter could not be removed [${rep.reason}]\nRequest ID: ${rep.id.toString()}",
+                    ),
+                  ),
+                );
+              }
             }
           } else if (direction == DismissDirection.endToStart) {
             // Right to left: Set front
             if (!widget.fronting) {
-              await NetworkInterface.setFronting(widget.alterID);
+              var rep = await NetworkInterface.setFronting(widget.alterID);
               widget.fronting = true;
 
-              setState(() {});
+              if (!rep.success) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text(
+                      "FATAL: Fronter could not be set [${rep.reason}]\nRequest ID: ${rep.id.toString()}",
+                    ),
+                  ),
+                );
+              }
             }
           } else {
             // Invalid direction. Cancel the action
@@ -120,7 +138,14 @@ class _widget extends State<AlterWidget> {
         },
       );
     } else {
-      return getCard();
+      if (widget.fronting) {
+        return getGlow(
+          getCard(),
+          getCustomGlow(alterPreferedColor: widget.backgroundColor),
+        );
+      } else {
+        return getCard();
+      }
     }
   }
 }

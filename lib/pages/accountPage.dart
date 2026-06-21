@@ -269,6 +269,7 @@ class _alters extends State<AltersPage> {
 
                       return Column(
                         children: [
+                          if (fronting) SizedBox(height: 12),
                           InkWell(
                             onTap: () async {
                               pageChanged();
@@ -323,7 +324,7 @@ class _alters extends State<AltersPage> {
                               },
                             ),
                           ),
-                          if (fronting) SizedBox(height: 18),
+                          if (fronting) SizedBox(height: 12),
                         ],
                       );
                     }

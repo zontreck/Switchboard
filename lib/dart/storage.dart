@@ -31,9 +31,12 @@ class NetworkCache {
 class NetworkCaches {
   static Map<String, NetworkCache> registry = {};
 
+  static void Function() onInvalidate = () {};
+
   /// To be used by any methods that would change server-side data, to force refresh on next call.
   static void invalidate() {
     registry.clear();
+    onInvalidate();
   }
 }
 
