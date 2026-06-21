@@ -213,6 +213,20 @@ Future<void> getAppSettings() async {
   }
 }
 
+Color getReadableTextColor(Color backgroundColor, Color defaultColor) {
+  Color colorWhite = Colors.white;
+  Color colorBlack = Colors.black;
+  double defLum = defaultColor.computeLuminance();
+  double bgLum = backgroundColor.computeLuminance();
+  if (defLum > 0.8) {
+    colorWhite = defaultColor;
+  } else {
+    colorBlack = defaultColor;
+  }
+
+  return bgLum > 0.4 ? colorBlack : colorWhite;
+}
+
 Color getAlterBackgroundColor() {
   MemoryState ms = MemoryState();
   return ColorFromList(ms.AlterBackgroundColor);
