@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:libac_dart/utils/TimeUtils.dart';
+import 'package:libac_dart/utils/uuid/UUID.dart';
 import 'package:liquid_glass_widgets/widgets/feedback/glass_progress_indicator.dart';
 import 'package:switchboard/dart/octocon_format.dart';
 import 'package:switchboard/dart/privacyPolicy.dart';
@@ -26,6 +28,8 @@ class _action extends State<OctoconMigrationProgressPage> {
   String errorMessage =
       "*ERROR*: There was a problem with upload of the profile picture. ";
   bool scheduled = false;
+  Map<int, UUID> alterIDMap = {};
+  int phase = 0;
 
   Future<void> doMigrate() async {
     if (cur == -1) {
@@ -38,6 +42,7 @@ class _action extends State<OctoconMigrationProgressPage> {
     setState(() {});
     var nAlter = await NetworkInterface.makeNewAlter(alter.name);
     Alter newAlter = nAlter.data!;
+    alterIDMap[alter.id] = newAlter.id;
 
     statusMessage = "Copying over field data...";
     setState(() {});
@@ -62,7 +67,6 @@ class _action extends State<OctoconMigrationProgressPage> {
       }
     }
 
-    statusMessage = "";
     await NetworkInterface.updateAlter(newAlter);
 
     statusMessage = "Check for avatar";
@@ -80,6 +84,34 @@ class _action extends State<OctoconMigrationProgressPage> {
     }
 
     setState(() {});
+  }
+
+  Future<void> migrateFrontHistory() async {
+    List<OctoconFront> fronts = args.data.fronts;
+    OctoconFront front = fronts[cur];
+
+    UUID translatedID = alterIDMap[front.alterId] ?? UUID.ZERO;
+    if (translatedID.toString() == UUID.ZERO.toString()) {
+      errorMessage =
+          "*FATAL*\nThe process unexpectedly could not find the correct alter";
+      statusMessage = "";
+      setState(() {});
+      return;
+    } else {
+      errorMessage = "";
+    }
+
+    DateTime start = front.timeStart;
+    int asTimestamp = (start.millisecondsSinceEpoch / 1000).round();
+    DateTime end = front.timeEnd ?? start;
+    int endStamp = (end.millisecondsSinceEpoch / 1000).round();
+
+    Front newFront = Front(id: translatedID, start: asTimestamp, end: endStamp);
+    var rep = await NetworkInterface.insertFronter(newFront);
+    if (rep.success) {
+      statusMessage = "Uploaded fronter";
+      setState(() {});
+    }
   }
 
   @override
@@ -119,7 +151,33 @@ class _action extends State<OctoconMigrationProgressPage> {
         scheduled = false;
         scheduleTask();
       } else {
+        scheduled = false;
+        cur = 0;
+        max = args.data.fronts.length;
+        phase = 1;
+        statusMessage = "Migrating fronting history";
+        setState(() {});
+        scheduleFronts();
+      }
+
+      setState(() {});
+    });
+  }
+
+  void scheduleFronts() {
+    if (scheduled) {
+      return;
+    }
+    scheduled = true;
+    Future.delayed(Duration(seconds: 1), () async {
+      await migrateFrontHistory();
+      cur += 1;
+      if (cur < max) {
+        scheduled = false;
+        scheduleFronts();
+      } else {
         flushImageCaches();
+        phase = 2;
         Future.delayed(Duration(seconds: 5), () {
           popUntil("/account", context);
         });
@@ -163,7 +221,7 @@ class _action extends State<OctoconMigrationProgressPage> {
         padding: EdgeInsetsGeometry.all(8),
         child: Column(
           children: [
-            if (cur < max)
+            if (cur < max && phase < 2)
               Text(
                 "We're working on your data migration...",
                 style: TextStyle(fontSize: 22),
@@ -174,18 +232,23 @@ class _action extends State<OctoconMigrationProgressPage> {
                 "Migration Completed!\n\nWe'll take you back to the main screen in a moment. Please be aware that this feature is still experimental, and there may be some errors.",
                 style: TextStyle(fontSize: 22),
               ),
-            if (cur >= 0 && cur < max)
+            if (cur >= 0 && cur < max && phase == 0)
               Text(
                 "Currently Migrating: ${args.data.alters[cur].name}",
                 style: TextStyle(fontSize: 22),
               ),
-            if (cur >= 0 && cur < max)
+            if (cur >= 0 && cur < max && phase == 0)
               Image.network(
                 args.data.alters[cur].avatarURL.isNotEmpty
                     ? args.data.alters[cur].avatarURL
                     : "${getAPIServerURL()}/avatar/null",
                 width: 175,
                 height: 175,
+              ),
+            if (phase == 1)
+              Text(
+                "Your front history is being uploaded... Please be patient",
+                style: TextStyle(fontSize: 22),
               ),
             Divider(),
             SizedBox(height: 25),
