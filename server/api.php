@@ -2,7 +2,7 @@
 
 $DEBUG = false;
 
-$VERSION = "0.1.0+0621261141";
+$VERSION = "0.1.0+0621261707";
 
 $DEFAULT_USER_FIELDS = array(
                             array(
@@ -1665,20 +1665,22 @@ switch($route) {
                 case "PATCH": {
                     // Remove someone from front. This endpoint only updates the EndTime value.
 
-                    $frontId = $parameters['id'];
+                    $alterId = $parameters['id'];
+
                     // Verify that the ID belongs to the currently authenticated user.
-                    $stmt = $DB->prepare("SELECT * FROM `Fronting` WHERE User=? AND ID=?;");
-                    $stmt->bind_param("ss", $SAT->UserID, $frontId);
+                    $stmt = $DB->prepare("SELECT * FROM `Fronting` WHERE User=? AND AlterID=? AND EndTime=0;");
+                    $stmt->bind_param("ss", $SAT->UserID, $alterId);
                     $stmt->execute();
                     $res = $stmt->get_result();
+                    $row = $res->fetch_assoc();
 
                     if($res->num_rows == 0) {
                         $success=false;
                         $reason = "0x01677-No Front Object,$frontId,$SAT->UserID";
                     } else {
-                        $st = $DB->prepare("UPDATE `Fronting` SET EndTime = ? WHERE User=? AND ID = ?;");
+                        $st = $DB->prepare("UPDATE `Fronting` SET EndTime = ? WHERE ID = ? ;");
                         $endTime = time();
-                        $st->bind_param("iss", $endTime, $SAT->UserID, $frontId);
+                        $st->bind_param("is", $endTime, $row['ID']);
                         $st->execute();
                         $DB->commit();
                         $st->close();
