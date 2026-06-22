@@ -2,7 +2,7 @@
 
 $DEBUG = false;
 
-$VERSION = "0.1.0+0621261707";
+$VERSION = "0.1.0+0621261946";
 
 $DEFAULT_USER_FIELDS = array(
                             array(
@@ -1553,7 +1553,7 @@ switch($route) {
                         // We are to return the entire history.
                         $reason = "history";
 
-                        $Q = $DB->prepare("SELECT * FROM `Fronting` WHERE User=?;");
+                        $Q = $DB->prepare("SELECT * FROM `Fronting` WHERE User=? ORDER BY StartTime DESC;");
                         $Q->bind_param("s", $SAT->UserID);
                         $Q->execute();
                         $res = $Q->get_result();
@@ -1568,7 +1568,7 @@ switch($route) {
                     } else {
                         // We are only to return the current fronters.
                         $reason = "fronters";
-                        $Q = $DB->prepare("SELECT * FROM `Fronting` WHERE User=? AND EndTime = 0;");
+                        $Q = $DB->prepare("SELECT * FROM `Fronting` WHERE User=? AND EndTime = 0 ORDER BY StartTime DESC;");
                         $Q->bind_param("s", $SAT->UserID);
                         $Q->execute();
                         $res = $Q->get_result();
