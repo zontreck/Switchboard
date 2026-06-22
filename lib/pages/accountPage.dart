@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:libac_dart/utils/uuid/UUID.dart';
 import 'package:libacflutter/utils/colorHelpers.dart';
 import 'package:switchboard/dart/MemoryState.dart';
 import 'package:switchboard/dart/storage.dart';
@@ -351,7 +352,71 @@ class FrontingPage extends StatefulWidget {
 class _fronting extends State<FrontingPage> {
   @override
   Widget build(BuildContext context) {
-    return Container();
+    return FutureBuilder(
+      future: NetworkInterface.getFronters(false),
+      builder: (bldr, snap) {
+        if (!snap.hasData) {
+          return CircularProgressIndicator();
+        }
+
+        var response = snap.data!;
+        return ListView.builder(
+          itemBuilder: (itbldr, index) {
+            return FutureBuilder(
+              future: NetworkInterface.getAlterByID(
+                response.data[index].front.id,
+              ),
+              builder: (alterBuilder, alterSnap) {
+                if (!alterSnap.hasData) {
+                  return CircularProgressIndicator();
+                } else {
+                  Alter alter = alterSnap.data!.data!;
+                  MemoryState ms = MemoryState();
+                  return FutureBuilder(
+                    future: alter.getAlterColor(),
+                    builder: (Bldr, Snapshot) {
+                      Color backgroundColor = getAlterBackgroundColor();
+                      if (Snapshot.hasData) {
+                        if (Snapshot.data!.isNotEmpty) {
+                          backgroundColor = ColorFromList(Snapshot.data!);
+                        }
+                      }
+                      if (backgroundColor == Color.fromARGB(0, 0, 0, 0)) {
+                        backgroundColor = getAlterBackgroundColor();
+                      }
+
+                      return AlterWidget(
+                        withFronterElement: true,
+                        flush: ms.flushPictures,
+                        roundedElement: ms.roundedBorder,
+                        squarePics: ms.squarePicture,
+                        backgroundColor: backgroundColor,
+                        textColor: getReadableTextColor(
+                          backgroundColor,
+                          getAlterTextColor(),
+                        ),
+                        alterID: alter.id,
+                        alterName: alter.name,
+                        url: alter.avatarUrl.isNotEmpty
+                            ? alter.avatarUrl
+                            : "null",
+                        fronting: true,
+                        frontID: alter.fronterID,
+                        alter: alter,
+                        showFrontingTime: true,
+                        frontEndTime: 0,
+                        frontStartTime: response.data[index].front.start,
+                      );
+                    },
+                  );
+                }
+              },
+            );
+          },
+          itemCount: response.data.length,
+        );
+      },
+    );
   }
 }
 
@@ -367,6 +432,80 @@ class FrontHistoryPage extends StatefulWidget {
 class _history extends State<FrontHistoryPage> {
   @override
   Widget build(BuildContext context) {
-    return Container();
+    return FutureBuilder(
+      future: NetworkInterface.getFronters(true),
+      builder: (bldr, snap) {
+        if (!snap.hasData) {
+          return CircularProgressIndicator();
+        }
+
+        var response = snap.data!;
+        return ListView.builder(
+          itemBuilder: (itbldr, index) {
+            return FutureBuilder(
+              future: NetworkInterface.getAlterByID(
+                response.data[index].front.id,
+              ),
+              builder: (alterBuilder, alterSnap) {
+                if (!alterSnap.hasData) {
+                  return CircularProgressIndicator();
+                } else {
+                  Alter alter = alterSnap.data!.data!;
+                  MemoryState ms = MemoryState();
+                  return FutureBuilder(
+                    future: alter.getAlterColor(),
+                    builder: (Bldr, Snapshot) {
+                      Color backgroundColor = getAlterBackgroundColor();
+                      if (Snapshot.hasData) {
+                        if (Snapshot.data!.isNotEmpty) {
+                          backgroundColor = ColorFromList(Snapshot.data!);
+                        }
+                      }
+                      if (backgroundColor == Color.fromARGB(0, 0, 0, 0)) {
+                        backgroundColor = getAlterBackgroundColor();
+                      }
+
+                      return FutureBuilder(
+                        future: alter.isFronting(),
+                        builder: (frontingBldr, frontingSnap) {
+                          if (!frontingSnap.hasData) {
+                            return CircularProgressIndicator();
+                          } else {
+                            bool fronting = frontingSnap.data ?? false;
+                            return AlterWidget(
+                              withFronterElement: false,
+                              flush: ms.flushPictures,
+                              roundedElement: ms.roundedBorder,
+                              squarePics: ms.squarePicture,
+                              backgroundColor: backgroundColor,
+                              textColor: getReadableTextColor(
+                                backgroundColor,
+                                getAlterTextColor(),
+                              ),
+                              alterID: alter.id,
+                              alterName: alter.name,
+                              url: alter.avatarUrl.isNotEmpty
+                                  ? alter.avatarUrl
+                                  : "null",
+                              fronting: fronting,
+                              frontID: alter.fronterID,
+                              alter: alter,
+                              showFrontingTime: true,
+                              frontEndTime: response.data[index].front.end,
+                              frontStartTime: response.data[index].front.start,
+                            );
+                          }
+                        },
+                      );
+                    },
+                  );
+                }
+              },
+            );
+          },
+          itemCount: response.data.length,
+        );
+      },
+    );
   }
 }

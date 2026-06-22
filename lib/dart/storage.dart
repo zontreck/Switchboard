@@ -604,8 +604,8 @@ class NetworkInterface {
 
   /// Remove a fronter from current front status
   ///
-  /// [front] Fronter ID to update the end time for.
-  static Future<S2CLazyResponse> unfrontFronter(UUID front) async {
+  /// [alter] Fronter ID to update the end time for.
+  static Future<S2CLazyResponse> unfrontFronter(UUID alter) async {
     return await lock.synchronized(() async {
       Dio dio = Dio();
       MemoryState ms = MemoryState();
@@ -615,7 +615,7 @@ class NetworkInterface {
 
       var reply = await dio.patch(
         "${getAPIServerURL()}/fronting",
-        data: {"id": front.toString()},
+        data: {"id": alter.toString()},
       );
       NetworkCaches.invalidate();
       print(reply.data);

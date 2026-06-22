@@ -1690,9 +1690,9 @@ switch($route) {
                         $reason = "removed from front";
                         $success=true;
                         $data = array(
-                            "id" => $frontId,
+                            "id" => $row['ID'],
                             "end" => $endTime,
-                            "alter" => $row['AlterID'],
+                            "alter" => $alterId,
                             "start" => $row['StartTime']
                         );
                     }

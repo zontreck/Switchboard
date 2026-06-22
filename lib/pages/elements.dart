@@ -2,6 +2,7 @@ import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 import 'package:glow_container/glow_container.dart';
+import 'package:libac_dart/nbt/Stream.dart';
 import 'package:libac_dart/utils/TimeUtils.dart';
 import 'package:libac_dart/utils/uuid/UUID.dart';
 import 'package:switchboard/dart/MemoryState.dart';
@@ -22,6 +23,9 @@ class AlterWidget extends StatefulWidget {
   bool fronting;
   UUID frontID;
   Alter? alter;
+  bool showFrontingTime;
+  int frontStartTime;
+  int frontEndTime;
 
   AlterWidget({
     super.key,
@@ -37,6 +41,9 @@ class AlterWidget extends StatefulWidget {
     this.fronting = false,
     this.backgroundColor = Colors.grey,
     this.textColor = Colors.white70,
+    this.showFrontingTime = false,
+    this.frontStartTime = 0,
+    this.frontEndTime = 0,
   });
 
   @override
@@ -48,6 +55,56 @@ class AlterWidget extends StatefulWidget {
 class _widget extends State<AlterWidget> {
   Widget getGlow(Widget child, List<Color> colors) {
     return GlowContainer(gradientColors: colors, glowRadius: 8, child: child);
+  }
+
+  String calculateFrontingTime() {
+    DateTime now = DateTime.now();
+    if (!widget.fronting) now = TimeUtils.parseTimestamp(widget.frontEndTime);
+    DateTime then = TimeUtils.parseTimestamp(widget.frontStartTime);
+    Duration span = now.difference(then);
+
+    int ONE_MINUTE = 60;
+    int ONE_HOUR = ONE_MINUTE * 60;
+    int ONE_DAY = ONE_HOUR * 24;
+    int ONE_WEEK = ONE_DAY * 7;
+
+    int seconds = span.inSeconds;
+    int weeks = (seconds / ONE_WEEK).floor();
+    seconds = seconds - (weeks * ONE_WEEK);
+    int days = (seconds / ONE_DAY).floor();
+    seconds = seconds - (days * ONE_DAY);
+    int hours = (seconds / ONE_HOUR).floor();
+    seconds = seconds - (hours * ONE_HOUR);
+    int minutes = (seconds / ONE_MINUTE).floor();
+    seconds = seconds - (minutes * ONE_MINUTE);
+
+    StringBuilder str = StringBuilder();
+    if (weeks > 0) str.append("${weeks}w ");
+    if (days > 0) str.append("${days}d ");
+    if (hours > 0) str.append("${hours}h ");
+    if (minutes > 0) str.append("${minutes}m ");
+    if (seconds > 0) str.append("${seconds}s");
+
+    return str.toString();
+  }
+
+  String getDateRange() {
+    DateTime start = TimeUtils.parseTimestamp(widget.frontStartTime);
+    DateTime end = DateTime.now();
+
+    if (widget.frontEndTime != 0) {
+      end = TimeUtils.parseTimestamp(widget.frontEndTime);
+    }
+
+    StringBuilder bldr = StringBuilder();
+    bldr.append("${start.month}/${start.day}/${start.year} - ");
+    if (widget.frontEndTime == 0) {
+      bldr.append("Present");
+    } else {
+      bldr.append("${end.month}/${end.day}/${end.year}");
+    }
+
+    return bldr.toString();
   }
 
   Widget getCard() {
@@ -66,9 +123,23 @@ class _widget extends State<AlterWidget> {
             url: Alter.makeAvatarURL(widget.url),
           ),
           SizedBox(width: 8),
-          Text(
-            widget.alterName,
-            style: TextStyle(fontSize: 22, color: widget.textColor),
+          Column(
+            children: [
+              Text(
+                widget.alterName,
+                style: TextStyle(fontSize: 22, color: widget.textColor),
+              ),
+              if (widget.showFrontingTime && widget.fronting)
+                Text(
+                  "Fronting for: \n${calculateFrontingTime()}",
+                  style: TextStyle(fontSize: 20, color: widget.textColor),
+                ),
+              if (!widget.fronting && widget.showFrontingTime)
+                Text(
+                  "${calculateFrontingTime()}\n${getDateRange()}",
+                  style: TextStyle(color: widget.textColor, fontSize: 18),
+                ),
+            ],
           ),
         ],
       ),
@@ -94,8 +165,9 @@ class _widget extends State<AlterWidget> {
           if (direction == DismissDirection.startToEnd) {
             // Left to right: Remove from front
             if (widget.fronting) {
-              var rep = await NetworkInterface.unfrontFronter(widget.frontID);
+              var rep = await NetworkInterface.unfrontFronter(widget.alterID);
               widget.fronting = false;
+              widget.frontID = UUID.ZERO;
 
               if (!rep.success) {
                 ScaffoldMessenger.of(context).showSnackBar(
