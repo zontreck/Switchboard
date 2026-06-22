@@ -43,7 +43,30 @@ class NetworkCaches {
 /// Here, we will have a packet system to send and receive data.
 /// If a packet has been tested using a testsuite, and it worked, it will have been turned into a Packet here.
 class NetworkInterface {
-  static final lock = Lock();
+  static final _lGetServerVersion = Lock();
+  static final _lPutNewUser = Lock();
+  static final _lGetUser = Lock();
+  static final _lAuthenticate = Lock();
+  static final _lCheckAuth = Lock();
+  static final _lRefreshAuth = Lock();
+  static final _lRequestAltersList = Lock();
+  static final _lMakeNewAlter = Lock();
+  static final _lGetAlterByID = Lock();
+  static final _lGetDataFields = Lock();
+  static final _lUpdateField = Lock();
+  static final _lGetField = Lock();
+  static final _lNewField = Lock();
+  static final _lDeleteField = Lock();
+  static final _lUpdateAlter = Lock();
+  static final _lDeleteAvatar = Lock();
+  static final _lUpdateAvatar = Lock();
+  static final _lMigrateAvatar = Lock();
+  static final _lWipeAccount = Lock();
+  static final _lGetFronters = Lock();
+  static final _lSetFronting = Lock();
+  static final _lInsertFronter = Lock();
+  static final _lDeleteFronter = Lock();
+  static final _lUnfrontFronter = Lock();
 
   /// Retrieval of a cache object, if present.
   ///
@@ -72,7 +95,7 @@ class NetworkInterface {
   }
 
   static Future<S2CServerVersionPacket> getServerVersion() async {
-    return await lock.synchronized(() async {
+    return await _lGetServerVersion.synchronized(() async {
       var cached = getCache("getServerVersion");
       if (cached != null) {
         return S2CServerVersionPacket.decode(
@@ -94,7 +117,7 @@ class NetworkInterface {
     String username,
     String password,
   ) async {
-    return await lock.synchronized(() async {
+    return await _lPutNewUser.synchronized(() async {
       Dio dio = Dio();
       dio.options.contentType = "application/json";
       var reply = await dio.put(
@@ -115,7 +138,7 @@ class NetworkInterface {
   }
 
   static Future<S2CUserPacket> getUser(String username) async {
-    return await lock.synchronized(() async {
+    return await _lGetUser.synchronized(() async {
       var cached = getCache("getUser$username");
       if (cached != null) {
         return S2CUserPacket.decode(cached.responseData);
@@ -135,7 +158,7 @@ class NetworkInterface {
     String username,
     String password,
   ) async {
-    return await lock.synchronized(() async {
+    return await _lAuthenticate.synchronized(() async {
       Dio dio = Dio();
       dio.options.headers["Content-Type"] = "application/json";
 
@@ -151,7 +174,7 @@ class NetworkInterface {
   }
 
   static Future<S2CAuthenticationCheckResponse> checkAuth() async {
-    return await lock.synchronized(() async {
+    return await _lCheckAuth.synchronized(() async {
       MemoryState ms = MemoryState();
       Dio dio = Dio();
       dio.options.headers["Content-Type"] = "application/json";
@@ -166,7 +189,7 @@ class NetworkInterface {
   }
 
   static Future<S2CAuthenticationRefreshResponse> refreshAuth() async {
-    return await lock.synchronized(() async {
+    return await _lRefreshAuth.synchronized(() async {
       MemoryState ms = MemoryState();
       Dio dio = Dio();
       dio.options.headers["Content-Type"] = "application/json";
@@ -182,7 +205,7 @@ class NetworkInterface {
   }
 
   static Future<S2CAltersResponse> requestAltersList(UUID? user) async {
-    return await lock.synchronized(() async {
+    return await _lRequestAltersList.synchronized(() async {
       var cached = getCache("requestAltersList");
       if (cached != null) {
         return S2CAltersResponse(alters: cached.responseData);
@@ -242,7 +265,7 @@ class NetworkInterface {
 
   // TODO: Make it possible to set a parent folder once folders are implemented.
   static Future<S2CAlterResponse> makeNewAlter(String name) async {
-    return await lock.synchronized(() async {
+    return await _lMakeNewAlter.synchronized(() async {
       Dio dio = Dio();
       MemoryState ms = MemoryState();
 
@@ -270,7 +293,7 @@ class NetworkInterface {
   }
 
   static Future<S2CAlterResponse> getAlterByID(UUID id) async {
-    return await lock.synchronized(() async {
+    return await _lGetAlterByID.synchronized(() async {
       var cached = getCache("getAlter${id.toString()}");
       if (cached != null) {
         return S2CAlterResponse.decode(typeCorrectJson(cached.responseData));
@@ -291,7 +314,7 @@ class NetworkInterface {
   }
 
   static Future<S2CFieldsResponse> getDataFields() async {
-    return await lock.synchronized(() async {
+    return await _lGetDataFields.synchronized(() async {
       var cached = getCache("getDataFields");
       if (cached != null) {
         return S2CFieldsResponse.fromJson(typeCorrectJson(cached.responseData));
@@ -311,7 +334,7 @@ class NetworkInterface {
   }
 
   static Future<S2CFieldResponse> updateField(Field field) async {
-    return await lock.synchronized(() async {
+    return await _lUpdateField.synchronized(() async {
       // Construct a packet to update the field!
       Map<String, dynamic> payload = field.toJson();
       Dio dio = Dio();
@@ -336,7 +359,7 @@ class NetworkInterface {
   }
 
   static Future<S2CFieldResponse> getField(UUID fieldID) async {
-    return await lock.synchronized(() async {
+    return await _lGetField.synchronized(() async {
       var cached = getCache("getField${fieldID.toString()}");
       if (cached != null) {
         return S2CFieldResponse.decode(typeCorrectJson(cached.responseData));
@@ -362,7 +385,7 @@ class NetworkInterface {
   }
 
   static Future<S2CFieldResponse> newField(String name) async {
-    return await lock.synchronized(() async {
+    return await _lNewField.synchronized(() async {
       Dio dio = Dio();
       MemoryState ms = MemoryState();
 
@@ -391,7 +414,7 @@ class NetworkInterface {
   }
 
   static Future<S2CLazyResponse> deleteField(UUID id) async {
-    return await lock.synchronized(() async {
+    return await _lDeleteField.synchronized(() async {
       Dio dio = Dio();
       MemoryState ms = MemoryState();
 
@@ -410,7 +433,7 @@ class NetworkInterface {
   }
 
   static Future<S2CLazyResponse> updateAlter(Alter alter) async {
-    return await lock.synchronized(() async {
+    return await _lUpdateAlter.synchronized(() async {
       Dio dio = Dio();
       MemoryState ms = MemoryState();
 
@@ -430,7 +453,7 @@ class NetworkInterface {
   }
 
   static Future<S2CLazyResponse> deleteAvatar(Alter alter) async {
-    return await lock.synchronized(() async {
+    return await _lDeleteAvatar.synchronized(() async {
       Dio dio = Dio();
       MemoryState ms = MemoryState();
 
@@ -451,7 +474,7 @@ class NetworkInterface {
     Alter alter,
     String base64EncodedImage,
   ) async {
-    return await lock.synchronized(() async {
+    return await _lUpdateAvatar.synchronized(() async {
       Dio dio = Dio();
       MemoryState ms = MemoryState();
 
@@ -470,7 +493,7 @@ class NetworkInterface {
   }
 
   static Future<bool> migrateAvatar(String url, UUID alterID) async {
-    return await lock.synchronized(() async {
+    return await _lMigrateAvatar.synchronized(() async {
       Dio dio = Dio();
       dio.options.responseType = ResponseType.bytes;
 
@@ -497,7 +520,7 @@ class NetworkInterface {
   }
 
   static Future<S2CLazyResponse> wipeAccount() async {
-    return await lock.synchronized(() async {
+    return await _lWipeAccount.synchronized(() async {
       Dio dio = Dio();
       MemoryState ms = MemoryState();
 
@@ -515,7 +538,7 @@ class NetworkInterface {
   ///
   /// [history] Whether to obtain all history or only current fronters
   static Future<S2CFrontHistoryResponse> getFronters(bool history) async {
-    return await lock.synchronized(() async {
+    return await _lGetFronters.synchronized(() async {
       var cached = getCache("getFronters${history ? "history" : "active"}");
       if (cached != null) {
         return S2CFrontHistoryResponse.fromJson(
@@ -543,7 +566,7 @@ class NetworkInterface {
   ///
   /// [alterID] The ID of the alter you wish to set as fronting
   static Future<S2CFrontResponse> setFronting(UUID alterID) async {
-    return await lock.synchronized(() async {
+    return await _lSetFronting.synchronized(() async {
       Dio dio = Dio();
       MemoryState ms = MemoryState();
 
@@ -564,7 +587,7 @@ class NetworkInterface {
   ///
   /// [front] Contains the data to be inserted into the database.
   static Future<S2CLazyResponse> insertFronter(Front front) async {
-    return await lock.synchronized(() async {
+    return await _lInsertFronter.synchronized(() async {
       Dio dio = Dio();
       MemoryState ms = MemoryState();
 
@@ -585,7 +608,7 @@ class NetworkInterface {
   ///
   /// [front] Fronter ID to be deleted
   static Future<S2CLazyResponse> deleteFronter(UUID front) async {
-    return await lock.synchronized(() async {
+    return await _lDeleteFronter.synchronized(() async {
       Dio dio = Dio();
       MemoryState ms = MemoryState();
 
@@ -606,7 +629,7 @@ class NetworkInterface {
   ///
   /// [alter] Fronter ID to update the end time for.
   static Future<S2CLazyResponse> unfrontFronter(UUID alter) async {
-    return await lock.synchronized(() async {
+    return await _lUnfrontFronter.synchronized(() async {
       Dio dio = Dio();
       MemoryState ms = MemoryState();
 
