@@ -2,7 +2,7 @@
 
 $DEBUG = false;
 
-$VERSION = "0.1.0+0621261946";
+$VERSION = "0.2.0+0623260007";
 
 $DEFAULT_USER_FIELDS = array(
                             array(
@@ -1208,21 +1208,26 @@ switch($route) {
                     $null = null;
 
                     $stmt = $DB->prepare("
-                        REPLACE INTO `Alters`
-                        (User, ID, Name, Avatar, Fields, SubID, ParentID, Flags)
-                        VALUES (?, ?, ?, ?, ?, ?, ?, ?);
+                        UPDATE `Alters` SET
+                            'Name'=?,
+                            'Avatar'=?,
+                            'Fields'=?,
+                            'SubID'=?,
+                            'ParentID'=?,
+                            'Flags'=?
+                        WHERE 'User'=? AND 'ID'=?;
                     ");
 
                     $stmt->bind_param(
-                        "ssssbisi",
-                        $SBAuth->UserID,
-                        $alterId,
+                        "ssbisiss",
                         $name,
                         $avatar,
                         $null,
                         $subid,
                         $parent,
-                        $flags
+                        $flags,
+                        $SBAuth->UserID,
+                        $alterId,
                     );
 
                     // Index is zero-based
