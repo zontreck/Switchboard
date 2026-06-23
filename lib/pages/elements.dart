@@ -89,11 +89,11 @@ class _widget extends State<AlterWidget> {
   }
 
   String getDateRange() {
-    DateTime start = TimeUtils.parseTimestamp(widget.frontStartTime);
+    DateTime start = TimeUtils.parseTimestamp(widget.frontStartTime).toLocal();
     DateTime end = DateTime.now();
 
     if (widget.frontEndTime != 0) {
-      end = TimeUtils.parseTimestamp(widget.frontEndTime);
+      end = TimeUtils.parseTimestamp(widget.frontEndTime).toLocal();
     }
 
     StringBuilder bldr = StringBuilder();
@@ -102,6 +102,17 @@ class _widget extends State<AlterWidget> {
       bldr.append("Present");
     } else {
       bldr.append("${end.month}/${end.day}/${end.year}");
+    }
+    bldr.append(
+      "\n${start.hour > 12 ? (start.hour - 12) : start.hour}:${start.minute.toString().padLeft(2, '0')}  ${start.hour >= 12 ? "PM" : "AM"}  - ",
+    );
+
+    if (widget.frontEndTime == 0) {
+      bldr.append("Now");
+    } else {
+      bldr.append(
+        "${end.hour > 12 ? (end.hour - 12) : end.hour}:${end.minute.toString().padLeft(2, '0')}  ${end.hour >= 12 ? "PM" : "AM"}",
+      );
     }
 
     return bldr.toString();

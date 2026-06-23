@@ -75,7 +75,17 @@ class _AccountPage extends State<AccountPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text("Switchboard")),
+      appBar: AppBar(
+        title: Text("Switchboard"),
+        actions: [
+          if (_index == 2)
+            ElevatedButton.icon(
+              onPressed: () {},
+              label: Text("Toggle View"),
+              icon: Icon(Icons.history),
+            ),
+        ],
+      ),
       drawer: Drawer(
         child: Column(
           children: [
@@ -141,7 +151,15 @@ class _AccountPage extends State<AccountPage> {
               subtitle: Text("Open our Patreon in your browser"),
               leading: Icon(Icons.monetization_on),
               onTap: () async {
-                launchUrlString("https://patreon.com/astaracreations");
+                launchUrlString("https://patreon.com/astarastudios");
+              },
+            ),
+            ListTile(
+              title: Text("K O - F I"),
+              subtitle: Text("Open our Ko-Fi in your browser"),
+              leading: Icon(Icons.monetization_on),
+              onTap: () async {
+                launchUrlString("https://ko-fi.com/zontreck");
               },
             ),
             ListTile(
@@ -154,6 +172,14 @@ class _AccountPage extends State<AccountPage> {
                 pageChanged();
                 await Navigator.pushNamed(context, "/feedback");
                 pageChanged();
+              },
+            ),
+            ListTile(
+              title: Text("S O U R C E  C O D E"),
+              subtitle: Text("View our code! (And possibly contribute?)"),
+              leading: Icon(Icons.code),
+              onTap: () {
+                launchUrlString("https://git.zontreck.com/Astara/Switchboard");
               },
             ),
           ],
@@ -439,70 +465,81 @@ class _history extends State<FrontHistoryPage> {
         }
 
         var response = snap.data!;
-        return ListView.builder(
-          itemBuilder: (itbldr, index) {
-            return FutureBuilder(
-              future: NetworkInterface.getAlterByID(
-                response.data[index].front.id,
-              ),
-              builder: (alterBuilder, alterSnap) {
-                if (!alterSnap.hasData) {
-                  return CircularProgressIndicator();
-                } else {
-                  Alter alter = alterSnap.data!.data!;
-                  MemoryState ms = MemoryState();
+        return SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              ListView.builder(
+                shrinkWrap: true,
+                physics: NeverScrollableScrollPhysics(),
+                itemBuilder: (itbldr, index) {
                   return FutureBuilder(
-                    future: alter.getAlterColor(),
-                    builder: (Bldr, Snapshot) {
-                      Color backgroundColor = getAlterBackgroundColor();
-                      if (Snapshot.hasData) {
-                        if (Snapshot.data!.isNotEmpty) {
-                          backgroundColor = ColorFromList(Snapshot.data!);
-                        }
-                      }
-                      if (backgroundColor == Color.fromARGB(0, 0, 0, 0)) {
-                        backgroundColor = getAlterBackgroundColor();
-                      }
+                    future: NetworkInterface.getAlterByID(
+                      response.data[index].front.id,
+                    ),
+                    builder: (alterBuilder, alterSnap) {
+                      if (!alterSnap.hasData) {
+                        return CircularProgressIndicator();
+                      } else {
+                        Alter alter = alterSnap.data!.data!;
+                        MemoryState ms = MemoryState();
+                        return FutureBuilder(
+                          future: alter.getAlterColor(),
+                          builder: (Bldr, Snapshot) {
+                            Color backgroundColor = getAlterBackgroundColor();
+                            if (Snapshot.hasData) {
+                              if (Snapshot.data!.isNotEmpty) {
+                                backgroundColor = ColorFromList(Snapshot.data!);
+                              }
+                            }
+                            if (backgroundColor == Color.fromARGB(0, 0, 0, 0)) {
+                              backgroundColor = getAlterBackgroundColor();
+                            }
 
-                      return FutureBuilder(
-                        future: alter.isFronting(),
-                        builder: (frontingBldr, frontingSnap) {
-                          if (!frontingSnap.hasData) {
-                            return CircularProgressIndicator();
-                          } else {
-                            bool fronting = frontingSnap.data ?? false;
-                            return AlterWidget(
-                              withFronterElement: false,
-                              flush: ms.flushPictures,
-                              roundedElement: ms.roundedBorder,
-                              squarePics: ms.squarePicture,
-                              backgroundColor: backgroundColor,
-                              textColor: getReadableTextColor(
-                                backgroundColor,
-                                getAlterTextColor(),
-                              ),
-                              alterID: alter.id,
-                              alterName: alter.name,
-                              url: alter.avatarUrl.isNotEmpty
-                                  ? alter.avatarUrl
-                                  : "null",
-                              fronting: fronting,
-                              frontID: alter.fronterID,
-                              alter: alter,
-                              showFrontingTime: true,
-                              frontEndTime: response.data[index].front.end,
-                              frontStartTime: response.data[index].front.start,
+                            return FutureBuilder(
+                              future: alter.isFronting(),
+                              builder: (frontingBldr, frontingSnap) {
+                                if (!frontingSnap.hasData) {
+                                  return CircularProgressIndicator();
+                                } else {
+                                  bool fronting = frontingSnap.data ?? false;
+                                  return AlterWidget(
+                                    withFronterElement: false,
+                                    flush: ms.flushPictures,
+                                    roundedElement: ms.roundedBorder,
+                                    squarePics: ms.squarePicture,
+                                    backgroundColor: backgroundColor,
+                                    textColor: getReadableTextColor(
+                                      backgroundColor,
+                                      getAlterTextColor(),
+                                    ),
+                                    alterID: alter.id,
+                                    alterName: alter.name,
+                                    url: alter.avatarUrl.isNotEmpty
+                                        ? alter.avatarUrl
+                                        : "null",
+                                    fronting: fronting,
+                                    frontID: alter.fronterID,
+                                    alter: alter,
+                                    showFrontingTime: true,
+                                    frontEndTime:
+                                        response.data[index].front.end,
+                                    frontStartTime:
+                                        response.data[index].front.start,
+                                  );
+                                }
+                              },
                             );
-                          }
-                        },
-                      );
+                          },
+                        );
+                      }
                     },
                   );
-                }
-              },
-            );
-          },
-          itemCount: response.data.length,
+                },
+                itemCount: response.data.length,
+              ),
+            ],
+          ),
         );
       },
     );
