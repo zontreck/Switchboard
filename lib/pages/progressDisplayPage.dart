@@ -145,6 +145,7 @@ class _mav extends State<MigrateAltersView> {
         newAlter.addOrUpdateField(FieldData(id: field.id, data: TFS.toJson()));
       }
     }
+    newAlter.subid = alter.id;
 
     await NetworkInterface.updateAlter(newAlter);
 
@@ -196,11 +197,17 @@ class _mav extends State<MigrateAltersView> {
       NetworkCaches.suspendRefresh();
       int tries = 0;
       while (tries <= 4) {
+        if (!mounted) {
+          return;
+        }
         try {
           await doMigrate();
           _mem.errorMessage = "";
           break;
         } catch (E) {
+          if (!mounted) {
+            return;
+          }
           tries++;
 
           _mem.errorMessage = "The request failed, retry: $tries/4";
@@ -336,6 +343,9 @@ class _migrateFronting extends State<MigrateFrontingView> {
     Front newFront = Front(id: translatedID, start: asTimestamp, end: endStamp);
     int tries = 0;
     while (tries <= 4) {
+      if (!mounted) {
+        return;
+      }
       try {
         var rep = await NetworkInterface.insertFronter(newFront);
         if (rep.success) {
@@ -634,7 +644,7 @@ class _mfdv extends State<MigrateFieldDataView> {
         } else if (fieldType == "boolean") {
           store = BooleanFieldStorage();
           var storebfs = store as BooleanFieldStorage;
-          storebfs.data = field.value;
+          storebfs.data = bool.parse(field.value);
         }
 
         myAlter.addOrUpdateField(FieldData(id: newField, data: store.toJson()));
@@ -651,6 +661,9 @@ class _mfdv extends State<MigrateFieldDataView> {
     _mem.lock.synchronized(() async {
       int tries = 0;
       while (tries <= 4) {
+        if (!mounted) {
+          return;
+        }
         try {
           await migrateFieldData();
           break;
@@ -698,7 +711,7 @@ class _mfdv extends State<MigrateFieldDataView> {
       appBar: AppBar(
         title: Text("Switchboard"),
         bottom: PreferredSize(
-          preferredSize: Size.fromHeight(25),
+          preferredSize: Size.fromHeight(50),
           child: Column(
             children: [
               Text(

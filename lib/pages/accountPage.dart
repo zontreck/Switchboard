@@ -18,6 +18,7 @@ class AccountPage extends StatefulWidget {
 
 class _AccountPage extends State<AccountPage> {
   int _index = 0;
+  bool listMode = true;
   MemoryState ms = MemoryState();
 
   Widget getPageForIndex() {
@@ -80,8 +81,11 @@ class _AccountPage extends State<AccountPage> {
         actions: [
           if (_index == 2)
             ElevatedButton.icon(
-              onPressed: () {},
-              label: Text("Toggle View"),
+              onPressed: () {
+                listMode = !listMode;
+                setState(() {});
+              },
+              label: Text(listMode ? "Timeline View" : "List View"),
               icon: Icon(Icons.history),
             ),
         ],
