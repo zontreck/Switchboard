@@ -12,7 +12,7 @@ import 'package:switchboard/sb.dart';
 import 'package:synchronized/synchronized.dart';
 
 class OctoconMigrationProgressPage extends StatefulWidget {
-  OctoconMigrationProgressPage({super.key});
+  const OctoconMigrationProgressPage({super.key});
 
   @override
   State<StatefulWidget> createState() {
@@ -90,6 +90,8 @@ class _migrate extends State<OctoconMigrationProgressPage> {
 }
 
 class MigrateAltersView extends StatefulWidget {
+  const MigrateAltersView({super.key});
+
   @override
   State<StatefulWidget> createState() {
     return _mav();
@@ -201,7 +203,7 @@ class _mav extends State<MigrateAltersView> {
         } catch (E) {
           tries++;
 
-          _mem.errorMessage = "The request failed, retry: ${tries}/4";
+          _mem.errorMessage = "The request failed, retry: $tries/4";
           setState(() {});
           sleep(Duration(seconds: 1));
         }
@@ -300,6 +302,8 @@ class _mav extends State<MigrateAltersView> {
 }
 
 class MigrateFrontingView extends StatefulWidget {
+  const MigrateFrontingView({super.key});
+
   @override
   State<StatefulWidget> createState() {
     return _migrateFronting();
@@ -448,6 +452,8 @@ class _migrateFronting extends State<MigrateFrontingView> {
 }
 
 class MigrateFieldsView extends StatefulWidget {
+  const MigrateFieldsView({super.key});
+
   @override
   State<StatefulWidget> createState() {
     return _mfv();
@@ -584,6 +590,8 @@ class _mfv extends State<MigrateFieldsView> {
 }
 
 class MigrateFieldDataView extends StatefulWidget {
+  const MigrateFieldDataView({super.key});
+
   @override
   State<StatefulWidget> createState() {
     return _mfdv();
@@ -758,6 +766,8 @@ class _mfdv extends State<MigrateFieldDataView> {
 
 class MigrateCompleteView extends StatelessWidget {
   bool firstRun = true;
+
+  MigrateCompleteView({super.key});
   @override
   Widget build(BuildContext context) {
     if (firstRun) {

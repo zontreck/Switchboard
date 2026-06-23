@@ -63,20 +63,20 @@ class _widget extends State<AlterWidget> {
     DateTime then = TimeUtils.parseTimestamp(widget.frontStartTime);
     Duration span = now.difference(then);
 
-    int ONE_MINUTE = 60;
-    int ONE_HOUR = ONE_MINUTE * 60;
-    int ONE_DAY = ONE_HOUR * 24;
-    int ONE_WEEK = ONE_DAY * 7;
+    int oneMinute = 60;
+    int oneHour = oneMinute * 60;
+    int oneDay = oneHour * 24;
+    int oneWeek = oneDay * 7;
 
     int seconds = span.inSeconds;
-    int weeks = (seconds / ONE_WEEK).floor();
-    seconds = seconds - (weeks * ONE_WEEK);
-    int days = (seconds / ONE_DAY).floor();
-    seconds = seconds - (days * ONE_DAY);
-    int hours = (seconds / ONE_HOUR).floor();
-    seconds = seconds - (hours * ONE_HOUR);
-    int minutes = (seconds / ONE_MINUTE).floor();
-    seconds = seconds - (minutes * ONE_MINUTE);
+    int weeks = (seconds / oneWeek).floor();
+    seconds = seconds - (weeks * oneWeek);
+    int days = (seconds / oneDay).floor();
+    seconds = seconds - (days * oneDay);
+    int hours = (seconds / oneHour).floor();
+    seconds = seconds - (hours * oneHour);
+    int minutes = (seconds / oneMinute).floor();
+    seconds = seconds - (minutes * oneMinute);
 
     StringBuilder str = StringBuilder();
     if (weeks > 0) str.append("${weeks}w ");
