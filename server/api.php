@@ -2,7 +2,7 @@
 
 $DEBUG = false;
 
-$VERSION = "0.2.0+0623260916";
+$VERSION = "0.2.0+0623260946";
 
 $DEFAULT_USER_FIELDS = array(
                             array(
@@ -537,7 +537,7 @@ switch($route) {
                     $stmt->execute();
                     $rres = $stmt->get_result();
                 } else {
-                    $stmt = $DB->prepare("SELECT * FROM Alters WHERE User=? LIMIT ? OFFSET ? ORDER BY SubID DESC;");
+                    $stmt = $DB->prepare("SELECT * FROM Alters WHERE User=? ORDER BY SubID DESC LIMIT ? OFFSET ? ;");
                     $stmt->bind_param("sii", $userid, $AlterCount, $SkipAlters);
                     $stmt->execute();
                     $rres = $stmt->get_result();
