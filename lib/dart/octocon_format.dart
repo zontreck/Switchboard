@@ -10,7 +10,7 @@ class OctoconData {
   List<OctoconFront> fronts = [];
 
   /// All polls logged in the app. Compatibility with SB unknown at this time.
-  List<OctoconPoll> polls = [];
+  //List<OctoconPoll> polls = [];
 
   /// All tag groupings
   List<OctoconTag> tags = [];
@@ -33,14 +33,14 @@ class OctoconData {
 
     List<dynamic> frontHistory = jsx['fronts'] as List<dynamic>;
 
-    List<dynamic> polling = jsx['polls'] as List<dynamic>;
+    //List<dynamic> polling = jsx['polls'] as List<dynamic>;
     for (var octoFront in frontHistory) {
       data.fronts.add(OctoconFront.fromJson(octoFront));
     }
 
-    for (var poll in polling) {
-      data.polls.add(OctoconPoll.fromJson(poll));
-    }
+    //for (var poll in polling) {
+    //  data.polls.add(OctoconPoll.fromJson(poll));
+    //}
 
     List<dynamic> tags = jsx['tags'] as List<dynamic>;
 
@@ -64,10 +64,10 @@ class OctoconData {
       frontHistory.add(front.toJson());
     }
 
-    List<Map<String, dynamic>> polling = [];
-    for (var poll in polls) {
-      polling.add(poll.toJson());
-    }
+    //List<Map<String, dynamic>> polling = [];
+    //for (var poll in polls) {
+    //  polling.add(poll.toJson());
+    //}
 
     List<Map<String, dynamic>> tagging = [];
     for (var tag in tags) {
@@ -76,7 +76,7 @@ class OctoconData {
     return {
       "alters": alterList,
       "fronts": frontHistory,
-      "polls": polling,
+      //  "polls": polling,
       "tags": tagging,
       "user": user.toJson(),
     };
