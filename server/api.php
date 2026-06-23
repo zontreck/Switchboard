@@ -2,7 +2,7 @@
 
 $DEBUG = false;
 
-$VERSION = "0.2.0+0623260830";
+$VERSION = "0.2.0+0623260916";
 
 $DEFAULT_USER_FIELDS = array(
                             array(
@@ -532,12 +532,12 @@ switch($route) {
                 // For now, We'll use Flags to determine public or private status
                 $rres=null;
                 if($AlterCount == -1) {
-                    $stmt = $DB->prepare("SELECT * FROM Alters WHERE User='$userid';");
+                    $stmt = $DB->prepare("SELECT * FROM Alters WHERE User='$userid' ORDER BY SubID DESC;");
                     $stmt->bind_param("s", $userid);
                     $stmt->execute();
                     $rres = $stmt->get_result();
                 } else {
-                    $stmt = $DB->prepare("SELECT * FROM Alters WHERE User=? LIMIT ? OFFSET ?;");
+                    $stmt = $DB->prepare("SELECT * FROM Alters WHERE User=? LIMIT ? OFFSET ? ORDER BY SubID DESC;");
                     $stmt->bind_param("sii", $userid, $AlterCount, $SkipAlters);
                     $stmt->execute();
                     $rres = $stmt->get_result();
