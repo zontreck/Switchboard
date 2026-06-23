@@ -2,7 +2,7 @@
 
 $DEBUG = false;
 
-$VERSION = "0.2.0+0623260007";
+$VERSION = "0.2.0+0623260830";
 
 $DEFAULT_USER_FIELDS = array(
                             array(
@@ -1209,13 +1209,13 @@ switch($route) {
 
                     $stmt = $DB->prepare("
                         UPDATE `Alters` SET
-                            'Name'=?,
-                            'Avatar'=?,
-                            'Fields'=?,
-                            'SubID'=?,
-                            'ParentID'=?,
-                            'Flags'=?
-                        WHERE 'User'=? AND 'ID'=?;
+                            `Name`=?,
+                            `Avatar`=?,
+                            `Fields`=?,
+                            `SubID`=?,
+                            `ParentID`=?,
+                            `Flags`=?
+                        WHERE `User`=? AND `ID`=?;
                     ");
 
                     $stmt->bind_param(
@@ -1231,7 +1231,7 @@ switch($route) {
                     );
 
                     // Index is zero-based
-                    $stmt->send_long_data(4, $fieldData);
+                    $stmt->send_long_data(2, $fieldData);
 
                     $stmt->execute();
                     $stmt->close();
