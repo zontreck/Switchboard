@@ -125,9 +125,32 @@ class _widget extends State<AlterWidget> {
           SizedBox(width: 8),
           Column(
             children: [
-              Text(
-                widget.alterName,
-                style: TextStyle(fontSize: 22, color: widget.textColor),
+              FutureBuilder(
+                future: widget.alter?.getPronouns(),
+                builder: (probldr, prosnap) {
+                  if (!prosnap.hasData) {
+                    if (prosnap.hasError || widget.alter == null) {
+                      return Text(
+                        widget.alterName,
+                        style: TextStyle(fontSize: 22, color: widget.textColor),
+                      );
+                    }
+
+                    return CircularProgressIndicator();
+                  } else {
+                    String txt = "";
+                    if (prosnap.data == "") {
+                      txt = widget.alterName;
+                    } else {
+                      txt = "${widget.alterName}\n(${prosnap.data})";
+                    }
+
+                    return Text(
+                      txt,
+                      style: TextStyle(fontSize: 22, color: widget.textColor),
+                    );
+                  }
+                },
               ),
               if (widget.showFrontingTime && widget.fronting)
                 Text(

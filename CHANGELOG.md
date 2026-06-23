@@ -1,4 +1,4 @@
-# 0.1.0
+# 0.2.0
 
 ## ADD:
 
@@ -23,6 +23,7 @@
 - [x] Glow settings!
   - [x] Added Pride Flags as color presets
   - [x] REMOVED: Herobrine.
+- [x] Add boolean field type
 
 ## CHANGE:
 
@@ -33,6 +34,7 @@
 - [x] Fixes the anti-cachebusting feature that was preventing image updates on the edit alter page
 - [x] Fully fixes the image bug with migration `0019`.
 - [x] Alter background color is now pulled from the alter's system color field data.
+- [x] Migration system now uses a state system, so it can easily change behavior and page contents.
 
 # 0.1.0+0617260921
 

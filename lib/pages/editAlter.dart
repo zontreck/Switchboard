@@ -356,6 +356,7 @@ class _editAlter extends State<EditAlterPage> {
           type: field.type,
           alter: alter,
           order: field.order,
+          fieldName: field.name,
         ),
       );
 
@@ -370,6 +371,7 @@ class AlterFieldData extends StatefulWidget {
   FieldType type;
   Alter alter;
   int order;
+  String fieldName;
 
   AlterFieldData({
     super.key,
@@ -377,6 +379,7 @@ class AlterFieldData extends StatefulWidget {
     required this.type,
     required this.alter,
     required this.order,
+    required this.fieldName,
   });
 
   @override
@@ -413,7 +416,8 @@ enum FieldStorageType {
   Text(0),
   Color(1),
   Date(2),
-  Number(3);
+  Number(3),
+  Boolean(4);
 
   const FieldStorageType(int id) : _id = id;
 
@@ -431,8 +435,10 @@ enum FieldStorageType {
       return ColorFieldStorage();
     } else if (this == Date) {
       return DateFieldStorage();
-    } else {
+    } else if (this == Number) {
       return NumberFieldStorage();
+    } else {
+      return BooleanFieldStorage();
     }
   }
 }
@@ -461,6 +467,26 @@ class TextFieldStorage extends FieldStorage {
   void decode(Map<String, dynamic> js) {
     _data = js['data'];
     controller.text = _data;
+  }
+}
+
+class BooleanFieldStorage extends FieldStorage {
+  bool data = false;
+
+  @override
+  FieldStorageType get dataType => FieldStorageType.Boolean;
+
+  @override
+  Map<String, dynamic> toJson() {
+    var m = super.toJson();
+    m.addAll({"data": data});
+
+    return m;
+  }
+
+  @override
+  void decode(Map<String, dynamic> js) {
+    data = js['data'];
   }
 }
 
@@ -605,6 +631,17 @@ class _alterFieldData extends State<AlterFieldData> {
 
       if (widget.data.data.isEmpty) {
         widget.data.data = {"type": FieldStorageType.Number.id, "data": 0};
+      }
+
+      FieldStorage store = FieldStorage.fromJson(widget.data.data);
+      controlHolders[widget.data.id.toString()] = store;
+    } else if (widget.type == FieldType.Boolean) {
+      if (widget.data.data["type"] != FieldStorageType.Boolean.id) {
+        widget.data.data = {};
+      }
+
+      if (widget.data.data.isEmpty) {
+        widget.data.data = {"type": FieldStorageType.Boolean.id, "data": false};
       }
 
       FieldStorage store = FieldStorage.fromJson(widget.data.data);
@@ -819,6 +856,32 @@ class _alterFieldData extends State<AlterFieldData> {
 
               widget.alter.addOrUpdateField(
                 FieldData(id: widget.data.id, data: tfs.toJson()),
+              );
+            },
+          );
+        }
+      case FieldType.Boolean:
+        {
+          return CheckboxListTile(
+            title: Text(widget.fieldName),
+            value:
+                (controlHolders[widget.data.id.toString()]
+                        as BooleanFieldStorage)
+                    .data,
+            onChanged: (B) {
+              bool x = B ?? false;
+              (controlHolders[widget.data.id.toString()] as BooleanFieldStorage)
+                      .data =
+                  x;
+
+              widget.alter.addOrUpdateField(
+                FieldData(
+                  id: widget.data.id,
+                  data:
+                      (controlHolders[widget.data.id.toString()]
+                              as BooleanFieldStorage)
+                          .toJson(),
+                ),
               );
             },
           );

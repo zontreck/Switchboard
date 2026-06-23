@@ -30,11 +30,24 @@ class NetworkCache {
 
 class NetworkCaches {
   static Map<String, NetworkCache> registry = {};
+  static bool _blkRefresh = false;
+  static void suspendRefresh() {
+    _blkRefresh = true;
+  }
+
+  static void resumeRefresh() {
+    _blkRefresh = false;
+  }
+
+  static bool get refreshSuspended => _blkRefresh;
 
   static void Function() onInvalidate = () {};
 
   /// To be used by any methods that would change server-side data, to force refresh on next call.
   static void invalidate() {
+    if (refreshSuspended) {
+      return;
+    }
     registry.clear();
     onInvalidate();
   }
@@ -440,9 +453,25 @@ class NetworkInterface {
       dio.options.headers["Content-Type"] = "application/json";
       dio.options.headers["X-SB-Auth"] = ms.authenticationToken;
 
+      if (alter.encode().isEmpty) {
+        alter.encode();
+        throw Exception(
+          "FATAL: Encoded alter is blank, something went horribly wrong",
+        );
+      }
+
+      var reqData = {"alter": alter.encode()};
+
+      if (reqData["alter"] == null) {
+        alter.encode();
+        throw Exception(
+          "FATAL: Alter is null in encoded stream, something went horribly wrong",
+        );
+      }
+
       var reply = await dio.patch(
         "${getAPIServerURL()}/alter/${alter.id.toString()}",
-        data: {"alter": alter.encode()},
+        data: reqData,
       );
       NetworkCaches.invalidate();
 
@@ -485,6 +514,7 @@ class NetworkInterface {
         "${getAPIServerURL()}/avatar/${alter.id.toString()}",
         data: {"image": base64EncodedImage},
       );
+
       print(reply.data);
       NetworkCaches.invalidate();
 
@@ -504,8 +534,12 @@ class NetworkInterface {
             "User-Agent":
                 "Switchboard/v${MemoryState.A.applicationVersion} client",
           },
+          receiveDataWhenStatusError: true,
         ),
       );
+      if (reply.statusCode != 200) {
+        return false;
+      }
 
       var alterReply = await NetworkInterface.getAlterByID(alterID);
 
@@ -599,6 +633,7 @@ class NetworkInterface {
         data: front.toJson(),
       );
       NetworkCaches.invalidate();
+      print(reply.data);
 
       return S2CLazyResponse.decode(typeCorrectJson(reply.data));
     });
@@ -1190,7 +1225,8 @@ enum FieldType {
   Markdown(1),
   Color(2),
   Date(3),
-  Number(4);
+  Number(4),
+  Boolean(5);
 
   const FieldType(int type) : _type = type;
 
@@ -1205,6 +1241,7 @@ enum FieldType {
     if (Color._type == type) return Color;
     if (Date._type == type) return Date;
     if (Number._type == type) return Number;
+    if (Boolean._type == type) return Boolean;
 
     return Unknown;
   }
@@ -1234,6 +1271,8 @@ enum FieldType {
         return "Date";
       case Number:
         return "Number";
+      case Boolean:
+        return "Boolean (Yes/No)";
     }
   }
 }
@@ -1387,6 +1426,7 @@ class Alter {
   bool get stale => _stale;
 
   Future<void> pullUpdates() async {
+    if (!stale) return;
     var reply = await NetworkInterface.getAlterByID(id);
     if (reply.success) {
       Alter alter = reply.data!;
@@ -1399,7 +1439,23 @@ class Alter {
       parent = alter.parent;
       flags = alter.flags;
       fields = alter.fields;
+      await isFronting();
     }
+  }
+
+  Future<String> getPronouns() async {
+    var reply = await NetworkInterface.getDataFields();
+    for (var field in reply.data) {
+      if (field.type == FieldType.Pronouns) {
+        for (var entry in fields) {
+          if (entry.id.toString() == field.id.toString()) {
+            return entry.data["data"];
+          }
+        }
+      }
+    }
+
+    return "";
   }
 
   void onNewFieldData(FieldData data) {

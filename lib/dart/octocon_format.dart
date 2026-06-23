@@ -102,6 +102,9 @@ class OctoAlterBuilder {
     if (jsx['name'] != null) {
       withName(name: jsx["name"] as String);
     }
+    if (jsx['pronouns'] != null) {
+      withPronouns(pronouns: jsx['pronouns']);
+    }
     if (jsx['description'] != null) {
       withDescription(desc: jsx["description"] as String);
     }
