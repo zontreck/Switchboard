@@ -58,7 +58,7 @@ class _AccountPage extends State<AccountPage> {
             ),
           );
         },
-        label: Text("Alter"),
+        label: Text("Alter", style: TextStyle(fontSize: 22)),
         icon: Icon(Icons.add),
       );
     }
