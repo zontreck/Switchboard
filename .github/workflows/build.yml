@@ -207,6 +207,8 @@ jobs:
             ~/Library/MobileDevice/Provisioning\ Profiles/
 
       - name: Build IPA
+        env:
+          DEVELOPMENT_TEAM: ${{ secrets.IOS_DEVELOPMENT_TEAM_ID }}
         run: flutter build ipa --release
 
       - name: Upload IPA
