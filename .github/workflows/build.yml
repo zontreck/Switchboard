@@ -214,6 +214,12 @@ jobs:
           cp profile.mobileprovision \
             ~/Library/MobileDevice/Provisioning\ Profiles/
 
+      - name: Verify signing environment
+        run: |
+          security default-keychain -d user
+          security list-keychains -d user
+          security find-identity -v -p codesigning
+
       - name: Build IPA
         env:
           DEVELOPMENT_TEAM: ${{ secrets.IOS_DEVELOPMENT_TEAM_ID }}
