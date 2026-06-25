@@ -49,14 +49,14 @@ jobs:
         with:
           name: android-apk
           path: build/app/outputs/flutter-apk/app-release.apk
-          retention-days: 2
+          retention-days: 1
 
       - name: Upload AAB
         uses: actions/upload-artifact@v4
         with:
           name: android-aab
           path: build/app/outputs/bundle/release/app-release.aab
-          retention-days: 2
+          retention-days: 1
 
   linux:
     name: Linux
@@ -95,7 +95,7 @@ jobs:
         with:
           name: linux-build
           path: build/linux/x64/release/linux-build.zip
-          retention-days: 2
+          retention-days: 1
 
   windows:
     name: Windows
@@ -127,7 +127,7 @@ jobs:
         with:
           name: windows-build
           path: windows-build.zip
-          retention-days: 2
+          retention-days: 1
 
   macos:
     name: macOS
@@ -157,7 +157,7 @@ jobs:
         with:
           name: macos-build
           path: build/macos/Build/Products/Release/macos-build.zip
-          retention-days: 2
+          retention-days: 1
 
   ios:
     name: iOS IPA
@@ -207,11 +207,11 @@ jobs:
             ~/Library/MobileDevice/Provisioning\ Profiles/
 
       - name: Build IPA
-        run: flutter build ipa --release
+        run: flutter build ipa --release --export-options=ios/ExportOptions.plist
 
       - name: Upload IPA
         uses: actions/upload-artifact@v4
         with:
           name: ios-ipa
           path: build/ios/ipa/*.ipa
-          retention-days: 2
+          retention-days: 1
