@@ -48,6 +48,21 @@ class _mem {
   static int getPercent() {
     return (cur * 100 / max).round();
   }
+
+  static void reset() {
+    cur = -1;
+    max = 100;
+    currentPhase = ImportState.alters;
+    alterIDMap = {};
+    args = OctoconMigrationArguments(data: OctoconData());
+    fieldIDMap = {};
+
+    statusMessage = "Spooling up migration systems...";
+    errorMessage =
+        "*ERROR*: There was a problem with upload of the profile picture. ";
+    allFields = null;
+    refreshView = () {};
+  }
 }
 
 enum ImportState { alters, fronting, fields, fieldData, completed }
@@ -59,6 +74,12 @@ class _migrate extends State<OctoconMigrationProgressPage> {
     _mem.refreshView = () {
       setState(() {});
     };
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    _mem.reset();
   }
 
   @override
@@ -485,13 +506,13 @@ class _mfv extends State<MigrateFieldsView> {
     } else if (field.type == "number") {
       myField.type = FieldType.Number;
     } else if (field.type == "boolean") {
-      myField.type == FieldType.Boolean;
+      myField.type = FieldType.Boolean;
     }
 
     await NetworkInterface.updateField(myField);
     _mem.fieldIDMap[field.id.toString()] = myField.id;
 
-    _mem.statusMessage = "Created field: ${myField.name}";
+    _mem.statusMessage = "Created field: ${myField.name},\n${myField.toJson()}";
   }
 
   void scheduleFields() {
