@@ -172,59 +172,21 @@ jobs:
       - name: Flutter Pub Get
         run: flutter pub get
 
-      - name: Install Apple Certificate
-        env:
-          CERTIFICATE_BASE64: ${{ secrets.IOS_CERTIFICATE_BASE64 }}
-          CERTIFICATE_PASSWORD: ${{ secrets.IOS_CERTIFICATE_PASSWORD }}
-          KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
-        run: |
-          set -e
+      - uses: cedvdb/action-flutter-build-ios@v1
+        with:
+          # always use --export-options-plist=ios/GithubActionsExportOptions.plist
+          build-cmd: flutter build ipa --release --flavor dev --export-options-plist=ios/ExportOptions.plist
+          certificate-base64: ${{ secrets.IOS_CERTIFICATE_BASE64 }}
+          certificate-password: ${{ secrets.IOS_CERTIFICATE_PASSWORD }}
+          provisioning-profile-base64: ${{ secrets.PROVISIONING_PROFILE_BASE64 }}
+          keychain-password: ${{ secrets.KEYCHAIN_PASSWORD }}
 
-          echo "$CERTIFICATE_BASE64" | base64 --decode > certificate.p12
-
-          security create-keychain -p "$KEYCHAIN_PASSWORD" build.keychain
-          security set-keychain-settings -lut 21600 build.keychain
-          security unlock-keychain -p "$KEYCHAIN_PASSWORD" build.keychain
-
-          security import certificate.p12 \
-            -k build.keychain \
-            -P "$CERTIFICATE_PASSWORD" \
-            -A \
-            -T /usr/bin/codesign
-
-          security set-key-partition-list \
-            -S apple-tool:,apple: \
-            -s \
-            -k "$KEYCHAIN_PASSWORD" \
-            build.keychain
-
-          security list-keychains -s build.keychain
-          security default-keychain -s build.keychain
-
-          security find-identity -v -p codesigning
-
-      - name: Install Provisioning Profile
-        env:
-          PROFILE_BASE64: ${{ secrets.PROVISIONING_PROFILE_BASE64 }}
-        run: |
-          mkdir -p ~/Library/MobileDevice/Provisioning\ Profiles
-
-          echo "$PROFILE_BASE64" | base64 --decode > profile.mobileprovision
-
-          cp profile.mobileprovision \
-            ~/Library/MobileDevice/Provisioning\ Profiles/
-
-      - name: Verify signing environment
-        run: |
-          security default-keychain -d user
-          security list-keychains -d user
-          security find-identity -v -p codesigning
-
-      - name: Build IPA
-        env:
-          DEVELOPMENT_TEAM: ${{ secrets.IOS_DEVELOPMENT_TEAM_ID }}
-        run: |
-          flutter build ipa --release --export-options-plist=ios/ExportOptions.plist
+      - name: Archive IPA
+        uses: actions/upload-artifact@v2
+        with:
+          name: release-ipa
+          # Try running the build locally with the build command to be sure of this path
+          path: build/ios/ipa/App-dev.ipa
 
       - name: Upload IPA
         uses: actions/upload-artifact@v4
