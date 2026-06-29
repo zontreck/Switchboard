@@ -158,14 +158,45 @@ class _sbhome extends State<SBWebHome> {
                     ),
                   ),
                   SizedBox(height: 200),
-                  Image.asset("webassets/playstore.png", scale: mobile ? 2 : 1),
-                  SizedBox(height: 20),
-                  Image.asset(
-                    "webassets/applestore.png",
-                    scale: mobile ? 2 : 1,
+                  InkWell(
+                    onTap: () {
+                      launchUrlString(
+                        mobile
+                            ? "https://play.google.com/store/apps/details?id=com.zontreck.switchboard"
+                            : "https://play.google.com/apps/testing/com.zontreck.switchboard",
+                      );
+                    },
+                    child: Image.asset(
+                      "webassets/playstore.png",
+                      scale: mobile ? 2 : 1,
+                    ),
                   ),
                   SizedBox(height: 20),
-                  Image.asset("webassets/sbweb.png", scale: mobile ? 2 : 1),
+                  InkWell(
+                    onTap: () {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text(
+                            "This is coming soon. We do not have access to a Mac right at this moment for building the mobile or Mac apps.",
+                          ),
+                        ),
+                      );
+                    },
+                    child: Image.asset(
+                      "webassets/applestore.png",
+                      scale: mobile ? 2 : 1,
+                    ),
+                  ),
+                  SizedBox(height: 20),
+                  InkWell(
+                    child: Image.asset(
+                      "webassets/sbweb.png",
+                      scale: mobile ? 2 : 1,
+                    ),
+                    onTap: () {
+                      launchUrlString("https://app.systemswitchboard.com");
+                    },
+                  ),
                   SizedBox(height: 200),
                   SBWebFeatRichPromo(
                     title: "Support Us",
