@@ -1,7 +1,7 @@
 FROM git.zontreck.com/packages/switchboard:builder AS builder
 
 WORKDIR /app
-RUN git clone https://git.zontreck.com/AstaraCreations/Switchboard.git
+RUN git clone https://git.zontreck.com/Astara/Switchboard.git
 
 WORKDIR /app/Switchboard
 RUN mkdir outputs
