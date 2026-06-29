@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:glow_container/glow_container.dart';
 import 'package:libac_dart/nbt/Stream.dart';
 import 'package:libac_dart/utils/TimeUtils.dart';
-import 'package:libac_dart/utils/uuid/UUID.dart';
 import 'package:switchboard/dart/MemoryState.dart';
 import 'package:switchboard/dart/globalHelpers.dart';
 import 'package:switchboard/dart/storage.dart';
@@ -16,12 +15,12 @@ class AlterWidget extends StatefulWidget {
   bool squarePics = false;
   Color backgroundColor;
   Color textColor;
-  UUID alterID;
+  String alterID;
   String alterName;
   String url;
   bool withFronterElement;
   bool fronting;
-  UUID frontID;
+  String frontID;
   Alter? alter;
   bool showFrontingTime;
   int frontStartTime;
@@ -201,7 +200,7 @@ class _widget extends State<AlterWidget> {
             if (widget.fronting) {
               var rep = await NetworkInterface.unfrontFronter(widget.alterID);
               widget.fronting = false;
-              widget.frontID = UUID.ZERO;
+              widget.frontID = UUID_ZERO;
 
               if (!rep.success) {
                 ScaffoldMessenger.of(context).showSnackBar(
@@ -258,7 +257,7 @@ class _widget extends State<AlterWidget> {
 class AlterImage extends StatelessWidget {
   bool squarePics;
   bool flush;
-  UUID alterID;
+  String alterID;
   double? width;
   double? height;
   String url;

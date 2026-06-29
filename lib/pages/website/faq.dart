@@ -1,6 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:libac_dart/utils/uuid/UUID.dart';
+import 'package:switchboard/dart/globalHelpers.dart';
 import 'package:switchboard/pages/elements.dart';
 import 'package:switchboard/pages/website/home.dart';
 import 'package:switchboard/pages/website/sbsidebar.dart';
@@ -98,11 +98,11 @@ class _sbfaq extends State<SBWebFAQ> {
             ),
             SizedBox(height: 20),
             AlterWidget(
-              alterID: UUID.ZERO,
+              alterID: UUID_ZERO,
               alterName: "Sample Alter",
               url: "https://api.systemswitchboard.com/avatar/nul",
               withFronterElement: false,
-              frontID: UUID.ZERO,
+              frontID: UUID_ZERO,
               fronting: true,
             ),
           ],

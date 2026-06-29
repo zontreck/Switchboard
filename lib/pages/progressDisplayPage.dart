@@ -1,8 +1,8 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
-import 'package:libac_dart/utils/uuid/UUID.dart';
 import 'package:liquid_glass_widgets/widgets/feedback/glass_progress_indicator.dart';
+import 'package:switchboard/dart/globalHelpers.dart';
 import 'package:switchboard/dart/octocon_format.dart';
 import 'package:switchboard/dart/privacyPolicy.dart';
 import 'package:switchboard/dart/storage.dart';
@@ -28,8 +28,8 @@ class _mem {
   static OctoconMigrationArguments args = OctoconMigrationArguments(
     data: OctoconData(),
   );
-  static Map<int, UUID> alterIDMap = {};
-  static Map<String, UUID> fieldIDMap = {};
+  static Map<int, String> alterIDMap = {};
+  static Map<String, String> fieldIDMap = {};
   static Lock lock =
       Lock(); // Protects the task scheduling functions from double executions.
   static String statusMessage = "Spooling up migration systems...";
@@ -345,8 +345,8 @@ class _migrateFronting extends State<MigrateFrontingView> {
     List<OctoconFront> fronts = _mem.args.data.fronts;
     OctoconFront front = fronts[_mem.cur];
 
-    UUID translatedID = _mem.alterIDMap[front.alterId] ?? UUID.ZERO;
-    if (translatedID.toString() == UUID.ZERO.toString()) {
+    String translatedID = _mem.alterIDMap[front.alterId] ?? UUID_ZERO;
+    if (translatedID == UUID_ZERO) {
       _mem.errorMessage =
           "*FATAL*\nThe process unexpectedly could not find the correct alter";
       _mem.statusMessage = "";

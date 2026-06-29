@@ -7,10 +7,10 @@ import 'package:flutter/services.dart';
 import 'package:flutter_colorpicker/flutter_colorpicker.dart';
 import 'package:libac_dart/utils/Converter.dart';
 import 'package:libac_dart/utils/TimeUtils.dart';
-import 'package:libac_dart/utils/uuid/UUID.dart';
 import 'package:libacflutter/Prompt.dart';
 import 'package:libacflutter/utils/colorHelpers.dart';
 import 'package:markdown_widget/widget/all.dart';
+import 'package:switchboard/dart/globalHelpers.dart';
 import 'package:switchboard/dart/storage.dart';
 import 'package:switchboard/globalHelpers.dart';
 import 'package:switchboard/pages/elements.dart';
@@ -25,14 +25,14 @@ class EditAlterPage extends StatefulWidget {
 }
 
 class _editAlter extends State<EditAlterPage> {
-  UUID alterId = UUID.ZERO;
+  String alterId = UUID_ZERO;
   Alter alter = Alter(
-    id: UUID.ZERO,
-    user: UUID.ZERO,
+    id: UUID_ZERO,
+    user: UUID_ZERO,
     name: "name",
     avatarUrl: "avatarUrl",
     subid: 0,
-    parent: UUID.ZERO,
+    parent: UUID_ZERO,
     flags: 0,
     fields: [],
   );
@@ -46,7 +46,7 @@ class _editAlter extends State<EditAlterPage> {
 
   @override
   Widget build(BuildContext context) {
-    if (alter.id.toString() == UUID.ZERO.toString()) {
+    if (alter.id == UUID_ZERO) {
       var args =
           ModalRoute.of(context)!.settings.arguments as EditAlterArguments;
       alterId = args.alterId;
@@ -210,7 +210,7 @@ class _editAlter extends State<EditAlterPage> {
                                   alter,
                                 );
                                 if (reply.success) {
-                                  alter.avatarUrl = UUID.ZERO.toString();
+                                  alter.avatarUrl = UUID_ZERO;
                                   await NetworkInterface.updateAlter(alter);
                                   flushImageCaches();
                                   setState(() {});
@@ -330,7 +330,7 @@ class _editAlter extends State<EditAlterPage> {
   Future<Widget?> getFieldList(Alter alter) async {
     List<Widget> widgets = [];
     var fields = S2CFieldsResponse(
-      id: UUID.ZERO,
+      id: UUID_ZERO,
       path: "/",
       reason: "reason",
       success: false,
@@ -895,7 +895,7 @@ class _alterFieldData extends State<AlterFieldData> {
 }
 
 class EditAlterArguments {
-  UUID alterId;
+  String alterId;
   Alter instance;
 
   EditAlterArguments({required this.alterId, required this.instance});

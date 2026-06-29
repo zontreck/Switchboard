@@ -5,9 +5,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_colorpicker/flutter_colorpicker.dart';
 import 'package:libac_dart/utils/Converter.dart';
-import 'package:libac_dart/utils/uuid/UUID.dart';
 import 'package:libacflutter/Constants.dart';
 import 'package:switchboard/dart/MemoryState.dart';
+import 'package:switchboard/dart/globalHelpers.dart';
 import 'package:switchboard/dart/storage.dart';
 import 'package:switchboard/globalHelpers.dart';
 import 'package:switchboard/pages/elements.dart';
@@ -57,12 +57,12 @@ class _settings extends State<SettingsPage> {
                 flush: ms.flushPictures,
                 withFronterElement: false,
                 fronting: false,
-                frontID: UUID.ZERO,
+                frontID: UUID_ZERO,
                 roundedElement: ms.roundedBorder,
                 squarePics: ms.squarePicture,
                 backgroundColor: getAlterBackgroundColor(),
                 textColor: getAlterTextColor(),
-                alterID: UUID.ZERO,
+                alterID: UUID_ZERO,
                 alterName: "Sample Alter",
                 url: "null",
                 alter: null,

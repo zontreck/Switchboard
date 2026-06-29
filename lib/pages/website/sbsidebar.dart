@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:switchboard/dart/MemoryState.dart';
 import 'package:switchboard/globalHelpers.dart';
+import 'package:url_launcher/url_launcher_string.dart';
 
 class SBWebBar extends StatelessWidget {
   TextStyle sidebarStyle = TextStyle(
@@ -63,6 +64,18 @@ class SBWebBar extends StatelessWidget {
               title: Text("About Us", style: sidebarStyleReg),
               onTap: () {
                 Navigator.pushNamed(context, "/about");
+              },
+            ),
+            ListTile(
+              title: Text("Astara Studios Patreon", style: sidebarStyleReg),
+              onTap: () {
+                launchUrlString("https://patreon.com/AstaraStudios");
+              },
+            ),
+            ListTile(
+              title: Text("Ko-Fi", style: sidebarStyleReg),
+              onTap: () {
+                launchUrlString("https://ko-fi.com/zontreck");
               },
             ),
           ],

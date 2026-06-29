@@ -38,6 +38,8 @@
 - [x] Alter background color is now pulled from the alter's system color field data.
 - [x] Migration system now uses a state system, so it can easily change behavior and page contents.
 - [x] Main website is no longer hosted on Google Sites, prototyping is still done using the visual designer on Sites however.
+- [x] Completely remove UUID usage. At least for now.
+  - This was causing a massive issue with Int64 in DartJS on the web. It could not be easily resolved, so for the moment we've just ripped out all instances of UUID. We may bring back UUID usage, once we find a way to create a web safe UUID.
 
 # 0.1.0+0617260921
 

@@ -59,13 +59,13 @@ class _sbhome extends State<SBWebHome> {
           children: [
             SizedBox.fromSize(size: Size.fromHeight(150)),
             Container(
-              padding: EdgeInsets.symmetric(horizontal: 96),
+              padding: EdgeInsets.symmetric(horizontal: mobile ? 32 : 96),
               child: Column(
                 children: [
                   Text(
                     "Switchboard",
                     style: TextStyle(
-                      fontSize: 72,
+                      fontSize: mobile ? 50 : 72,
                       fontFamily: "nixieone",
                       fontWeight: FontWeight.bold,
                       color: Color(0xff5343d9),
@@ -167,33 +167,42 @@ class _sbhome extends State<SBWebHome> {
                   SizedBox(height: 20),
                   Image.asset("webassets/sbweb.png", scale: mobile ? 2 : 1),
                   SizedBox(height: 200),
-                  SBOutlineButton(
-                    onTap: () {
-                      launchUrlString("https://patreon.com/astarastudios");
-                    },
-                    roundedness: 10,
-                    thickness: 2,
-                    title: Text(
-                      "Astara Studios Patreon",
-                      style: TextStyle(
-                        fontFamily: "merriweather",
-                        fontSize: 22,
-                      ),
-                    ),
-                  ),
-                  SizedBox(height: 20),
-                  SBOutlineButton(
-                    onTap: () {
-                      launchUrlString("https://ko-fi.com/zontreck");
-                    },
-                    roundedness: 10,
-                    thickness: 2,
-                    title: Text(
-                      "Zontreck Ko-Fi (Including Switchboard)",
-                      style: TextStyle(
-                        fontFamily: "merriweather",
-                        fontSize: 22,
-                      ),
+                  SBWebFeatRichPromo(
+                    title: "Support Us",
+                    body: Row(
+                      children: [
+                        SBOutlineButton(
+                          onTap: () {
+                            launchUrlString(
+                              "https://patreon.com/AstaraStudios",
+                            );
+                          },
+                          title: Text(
+                            "Patreon",
+                            style: const TextStyle(
+                              fontFamily: "merriweather",
+                              fontSize: 20,
+                              color: Color(0xffc7bddf),
+                            ),
+                          ),
+                        ),
+                        SizedBox(width: 50),
+                        SBOutlineButton(
+                          onTap: () {
+                            launchUrlString(
+                              "https://patreon.com/AstaraStudios",
+                            );
+                          },
+                          title: Text(
+                            "Ko-Fi",
+                            style: const TextStyle(
+                              fontFamily: "merriweather",
+                              fontSize: 20,
+                              color: Color(0xffc7bddf),
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                   SizedBox(height: 200),

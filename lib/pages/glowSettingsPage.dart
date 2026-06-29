@@ -1,9 +1,9 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_colorpicker/flutter_colorpicker.dart';
-import 'package:libac_dart/utils/uuid/UUID.dart';
 import 'package:libacflutter/utils/colorHelpers.dart';
 import 'package:switchboard/dart/MemoryState.dart';
+import 'package:switchboard/dart/globalHelpers.dart';
 import 'package:switchboard/dart/privacyPolicy.dart';
 import 'package:switchboard/globalHelpers.dart';
 import 'package:switchboard/pages/elements.dart';
@@ -32,11 +32,11 @@ class _glowSettings extends State<GlowSettingsPage> {
               children: [
                 Text("Glow Settings", style: TextStyle(fontSize: 22)),
                 AlterWidget(
-                  alterID: UUID.ZERO,
+                  alterID: UUID_ZERO,
                   alterName: "Sample Alter",
                   url: "${getAPIServerURL()}/avatar/null",
                   withFronterElement: false,
-                  frontID: UUID.ZERO,
+                  frontID: UUID_ZERO,
                   fronting: true,
                 ),
                 Divider(),

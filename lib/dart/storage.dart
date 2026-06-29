@@ -5,7 +5,6 @@ import 'package:dio/dio.dart';
 import 'package:libac_dart/utils/Converter.dart';
 import 'package:libac_dart/utils/Hashing.dart';
 import 'package:libac_dart/utils/TimeUtils.dart';
-import 'package:libac_dart/utils/uuid/UUID.dart';
 import 'package:switchboard/dart/MemoryState.dart';
 import 'package:switchboard/dart/exceptions.dart';
 import 'package:switchboard/dart/globalHelpers.dart';
@@ -217,7 +216,7 @@ class NetworkInterface {
     });
   }
 
-  static Future<S2CAltersResponse> requestAltersList(UUID? user) async {
+  static Future<S2CAltersResponse> requestAltersList(String? user) async {
     return await _lRequestAltersList.synchronized(() async {
       var cached = getCache("requestAltersList");
       if (cached != null) {
@@ -291,9 +290,9 @@ class NetworkInterface {
         data: {
           "alter": {
             "name": name,
-            "parent": UUID.ZERO.toString(),
+            "parent": UUID_ZERO,
             "subid": 0,
-            "avatar": UUID.ZERO.toString(),
+            "avatar": UUID_ZERO,
           },
         },
       );
@@ -305,7 +304,7 @@ class NetworkInterface {
     });
   }
 
-  static Future<S2CAlterResponse> getAlterByID(UUID id) async {
+  static Future<S2CAlterResponse> getAlterByID(String id) async {
     return await _lGetAlterByID.synchronized(() async {
       var cached = getCache("getAlter${id.toString()}");
       if (cached != null) {
@@ -371,7 +370,7 @@ class NetworkInterface {
     });
   }
 
-  static Future<S2CFieldResponse> getField(UUID fieldID) async {
+  static Future<S2CFieldResponse> getField(String fieldID) async {
     return await _lGetField.synchronized(() async {
       var cached = getCache("getField${fieldID.toString()}");
       if (cached != null) {
@@ -406,7 +405,7 @@ class NetworkInterface {
       dio.options.headers["X-SB-Auth"] = ms.authenticationToken;
 
       Field newField = Field(
-        id: UUID.ZERO,
+        id: UUID_ZERO,
         name: name,
         type: FieldType.PlainText,
         order: 999,
@@ -426,7 +425,7 @@ class NetworkInterface {
     });
   }
 
-  static Future<S2CLazyResponse> deleteField(UUID id) async {
+  static Future<S2CLazyResponse> deleteField(String id) async {
     return await _lDeleteField.synchronized(() async {
       Dio dio = Dio();
       MemoryState ms = MemoryState();
@@ -522,7 +521,7 @@ class NetworkInterface {
     });
   }
 
-  static Future<bool> migrateAvatar(String url, UUID alterID) async {
+  static Future<bool> migrateAvatar(String url, String alterID) async {
     return await _lMigrateAvatar.synchronized(() async {
       Dio dio = Dio();
       dio.options.responseType = ResponseType.bytes;
@@ -599,7 +598,7 @@ class NetworkInterface {
   /// Set an alter as currently fronting
   ///
   /// [alterID] The ID of the alter you wish to set as fronting
-  static Future<S2CFrontResponse> setFronting(UUID alterID) async {
+  static Future<S2CFrontResponse> setFronting(String alterID) async {
     return await _lSetFronting.synchronized(() async {
       Dio dio = Dio();
       MemoryState ms = MemoryState();
@@ -642,7 +641,7 @@ class NetworkInterface {
   /// Deletes a fronter
   ///
   /// [front] Fronter ID to be deleted
-  static Future<S2CLazyResponse> deleteFronter(UUID front) async {
+  static Future<S2CLazyResponse> deleteFronter(String front) async {
     return await _lDeleteFronter.synchronized(() async {
       Dio dio = Dio();
       MemoryState ms = MemoryState();
@@ -663,7 +662,7 @@ class NetworkInterface {
   /// Remove a fronter from current front status
   ///
   /// [alter] Fronter ID to update the end time for.
-  static Future<S2CLazyResponse> unfrontFronter(UUID alter) async {
+  static Future<S2CLazyResponse> unfrontFronter(String alter) async {
     return await _lUnfrontFronter.synchronized(() async {
       Dio dio = Dio();
       MemoryState ms = MemoryState();
@@ -684,7 +683,7 @@ class NetworkInterface {
 }
 
 abstract class ResponsePacket {
-  late UUID id;
+  late String id;
   late String path;
   late String type;
   late String? reason;
@@ -693,7 +692,7 @@ abstract class ResponsePacket {
 
 class S2CLazyResponse implements ResponsePacket {
   @override
-  UUID id;
+  String id;
 
   @override
   String path;
@@ -717,7 +716,7 @@ class S2CLazyResponse implements ResponsePacket {
 
   factory S2CLazyResponse.decode(Map<String, dynamic> js) {
     S2CLazyResponse lz = S2CLazyResponse(
-      id: UUID.ZERO,
+      id: UUID_ZERO,
       path: "",
       reason: "reason",
       success: false,
@@ -730,7 +729,7 @@ class S2CLazyResponse implements ResponsePacket {
   }
 
   void _decode(Map<String, dynamic> js) {
-    id = UUID.parse(js['id'] ?? UUID.ZERO.toString());
+    id = js['id'] ?? UUID_ZERO;
     path = js['path'];
     reason = js['reason'];
     success = js['success'];
@@ -789,7 +788,7 @@ class S2CServerVersionPacket extends S2CLazyResponse {
   factory S2CServerVersionPacket.decode(Map<String, dynamic> js) {
     S2CServerVersionPacket svp = S2CServerVersionPacket(
       data: ServerVersion(product: "", version: "version"),
-      id: UUID.ZERO,
+      id: UUID_ZERO,
       path: "path",
       reason: "",
       success: false,
@@ -842,7 +841,7 @@ class S2CUserPacket extends S2CLazyResponse {
   factory S2CUserPacket.decode(Map<String, dynamic> js) {
     S2CUserPacket pkt = S2CUserPacket(
       data: null,
-      id: UUID.ZERO,
+      id: UUID_ZERO,
       path: "path",
       reason: "reason",
       success: false,
@@ -855,7 +854,7 @@ class S2CUserPacket extends S2CLazyResponse {
 }
 
 class User {
-  UUID ID;
+  String ID;
   String Name;
   String DisplayName;
   int AccountLevel;
@@ -873,9 +872,9 @@ class User {
   }) : FetchTime = TimeUtils.getUnixTimestamp();
 
   factory User.deserialize(Map<String, dynamic> js) {
-    UUID idx = UUID.ZERO;
-    if (js.containsKey("ID")) {
-      idx = UUID.parse(js['ID']);
+    String idx = UUID_ZERO;
+    if (js.containsKey("id")) {
+      idx = js['id'];
     }
 
     String username = "";
@@ -976,7 +975,7 @@ class S2CAuthenticationResponse extends S2CLazyResponse {
   factory S2CAuthenticationResponse.decode(Map<String, dynamic> js) {
     S2CAuthenticationResponse auth = S2CAuthenticationResponse(
       data: AuthReply(token: "token", username: "username"),
-      id: UUID.ZERO,
+      id: UUID_ZERO,
       path: "path",
       reason: "reason",
       success: false,
@@ -989,7 +988,7 @@ class S2CAuthenticationResponse extends S2CLazyResponse {
 }
 
 class AuthCheck {
-  UUID? id;
+  String? id;
 
   Map<String, dynamic> encode() {
     return {"id": id};
@@ -998,13 +997,13 @@ class AuthCheck {
   AuthCheck({required this.id});
 
   factory AuthCheck.decode(Map<String, dynamic> js) {
-    return AuthCheck(id: UUID.parse(js['id']));
+    return AuthCheck(id: js['id'] ?? UUID_ZERO);
   }
 }
 
 class S2CAuthenticationCheckResponse implements ResponsePacket {
   @override
-  UUID id;
+  String id;
 
   @override
   String path;
@@ -1042,7 +1041,7 @@ class S2CAuthenticationCheckResponse implements ResponsePacket {
 
   factory S2CAuthenticationCheckResponse.decode(Map<String, dynamic> js) {
     return S2CAuthenticationCheckResponse(
-      id: UUID.parse(js['id']),
+      id: js['id'],
       path: js['path'],
       reason: js['reason'],
       success: js['success'],
@@ -1068,7 +1067,7 @@ class AuthRefresh {
 
 class S2CAuthenticationRefreshResponse implements ResponsePacket {
   @override
-  UUID id;
+  String id;
 
   @override
   String path;
@@ -1106,7 +1105,7 @@ class S2CAuthenticationRefreshResponse implements ResponsePacket {
 
   factory S2CAuthenticationRefreshResponse.decode(Map<String, dynamic> js) {
     return S2CAuthenticationRefreshResponse(
-      id: UUID.parse(js['id']),
+      id: js['id'],
       path: js['path'],
       reason: js['reason'],
       success: js['success'],
@@ -1118,7 +1117,7 @@ class S2CAuthenticationRefreshResponse implements ResponsePacket {
 
 class S2CAltersPartialResponse implements ResponsePacket {
   @override
-  UUID id;
+  String id;
 
   @override
   String path;
@@ -1156,7 +1155,7 @@ class S2CAltersPartialResponse implements ResponsePacket {
 
   factory S2CAltersPartialResponse.decode(Map<String, dynamic> js) {
     return S2CAltersPartialResponse(
-      id: UUID.parse(js['id']),
+      id: js['id'],
       path: js['path'],
       reason: js['reason'],
       success: js['success'],
@@ -1278,7 +1277,7 @@ enum FieldType {
 }
 
 class Field {
-  UUID id;
+  String id;
   String name;
   FieldType type;
   int order;
@@ -1300,7 +1299,7 @@ class Field {
   }
 
   factory Field.fromJson(Map<String, dynamic> js) {
-    UUID id = UUID.parse(js['id']);
+    String id = js['id'] ?? UUID_ZERO;
     String name = js['name'];
     FieldType type = FieldType.valueOf(js['type']);
     int order = js['order'] ?? 0;
@@ -1311,7 +1310,7 @@ class Field {
 
 class S2CFieldsResponse implements ResponsePacket {
   @override
-  UUID id;
+  String id;
 
   @override
   String path;
@@ -1366,7 +1365,7 @@ class S2CFieldsResponse implements ResponsePacket {
     }
 
     return S2CFieldsResponse(
-      id: UUID.parse(js['id']),
+      id: js['id'],
       path: js['path'],
       reason: js['reason'],
       success: js['success'],
@@ -1377,7 +1376,7 @@ class S2CFieldsResponse implements ResponsePacket {
 }
 
 class FieldData {
-  UUID id;
+  String id;
   Map<String, dynamic> data = {};
 
   FieldData({required this.id, required this.data});
@@ -1387,7 +1386,7 @@ class FieldData {
   }
 
   factory FieldData.decode(Map<String, dynamic> js) {
-    return FieldData(id: UUID.parse(js['id']), data: js['value']);
+    return FieldData(id: js['id'] ?? UUID_ZERO, data: js['value']);
   }
 }
 
@@ -1408,16 +1407,16 @@ class ChangeDetector {
 }
 
 class Alter {
-  UUID id;
-  UUID user;
+  String id;
+  String user;
   String name;
   String avatarUrl;
   int subid;
-  UUID parent;
+  String parent;
   int flags;
   List<FieldData> fields;
   bool _stale = false;
-  UUID fronterID = UUID.ZERO;
+  String fronterID = UUID_ZERO;
 
   void markStale() {
     _stale = true;
@@ -1501,12 +1500,12 @@ class Alter {
     } catch (A) {}
 
     var alter = Alter(
-      id: UUID.parse(js['id']),
-      user: UUID.parse(js['user']),
+      id: js['id'],
+      user: js['user'],
       name: js['name'],
       avatarUrl: js['avatar_url'],
       subid: js['subid'],
-      parent: UUID.parse(js['parent']),
+      parent: js['parent'],
       flags: js['flags'],
       fields: decodeFields(fieldsJs),
     );
@@ -1550,7 +1549,7 @@ class Alter {
     return url;
   }
 
-  FieldData getDataByFieldID(UUID id) {
+  FieldData getDataByFieldID(String id) {
     for (var field in fields) {
       if (field.id.toString() == id.toString()) return field;
     }
@@ -1637,7 +1636,7 @@ class S2CAltersResponse {
 
 class S2CAlterResponse implements ResponsePacket {
   @override
-  UUID id;
+  String id;
 
   @override
   String path;
@@ -1675,7 +1674,7 @@ class S2CAlterResponse implements ResponsePacket {
 
   factory S2CAlterResponse.decode(Map<String, dynamic> js) {
     return S2CAlterResponse(
-      id: UUID.parse(js['id']),
+      id: js['id'],
       path: js['path'],
       reason: js['reason'],
       success: js['success'],
@@ -1715,13 +1714,13 @@ class S2CFieldResponse extends S2CLazyResponse {
 
   factory S2CFieldResponse.decode(Map<String, dynamic> js) {
     S2CFieldResponse sfr = S2CFieldResponse(
-      id: UUID.ZERO,
+      id: UUID_ZERO,
       path: "path",
       reason: "reason",
       success: false,
       type: "type",
       data: Field(
-        id: UUID.ZERO,
+        id: UUID_ZERO,
         name: "name",
         type: FieldType.Unknown,
         order: 0,
@@ -1735,7 +1734,7 @@ class S2CFieldResponse extends S2CLazyResponse {
 }
 
 class Front {
-  UUID id;
+  String id;
   int start;
   int end;
 
@@ -1747,7 +1746,7 @@ class Front {
 
   factory Front.fromJson(Map<String, dynamic> js) {
     return Front(
-      id: UUID.parse(js['alter'] ?? UUID.ZERO.toString()),
+      id: js['alter'] ?? UUID_ZERO,
       start: js['start'] ?? 0,
       end: js['end'] ?? 0, // Might be null at times
     );
@@ -1757,7 +1756,7 @@ class Front {
 }
 
 class Fronter {
-  UUID id;
+  String id;
   Front front;
 
   Fronter({required this.id, required this.front});
@@ -1770,7 +1769,7 @@ class Fronter {
   }
 
   factory Fronter.fromJson(Map<String, dynamic> js) {
-    return Fronter(id: UUID.parse(js['id']), front: Front.fromJson(js));
+    return Fronter(id: js['id'], front: Front.fromJson(js));
   }
 }
 
@@ -1804,14 +1803,14 @@ class S2CFrontResponse extends S2CLazyResponse {
 
   factory S2CFrontResponse.fromJson(Map<String, dynamic> js) {
     S2CFrontResponse front = S2CFrontResponse(
-      id: UUID.ZERO,
+      id: UUID_ZERO,
       path: "path",
       reason: "reason",
       success: false,
       type: "type",
       data: Fronter(
-        id: UUID.ZERO,
-        front: Front(id: UUID.ZERO, start: 0, end: 0),
+        id: UUID_ZERO,
+        front: Front(id: UUID_ZERO, start: 0, end: 0),
       ),
     );
 
@@ -1856,7 +1855,7 @@ class S2CFrontHistoryResponse extends S2CLazyResponse {
 
   factory S2CFrontHistoryResponse.fromJson(Map<String, dynamic> js) {
     S2CFrontHistoryResponse front = S2CFrontHistoryResponse(
-      id: UUID.ZERO,
+      id: UUID_ZERO,
       path: "path",
       reason: "reason",
       success: false,

@@ -31,6 +31,8 @@ bool identicalColors(List<int> a, List<int> b) {
   }
 }
 
+const String UUID_ZERO = "00000000-0000-0000-0000-000000000000";
+
 /// Recursively fixes the types produced by json.decode.
 ///
 /// The returned root object is always:
