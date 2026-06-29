@@ -18,7 +18,7 @@ flutter build linux || true
 flutter build windows || true
 flutter build macos || true
 flutter build ios || true
-flutter build web --wasm
+flutter build web
 flutter build apk
 if [ "$rel" = "1" ]
 then
