@@ -35,6 +35,12 @@ tar -cvf ../../../../../outputs/linux.tgz
 
 cd ../../../../../
 
+rm -rf build/web
+flutter build web -t lib/web.dart
+cd build/web
+tar -cvf ../../outputs/website.tgz .
+cd ../../
+
 if [ "$rel" = "1" ]
 then
 	cp build/app/outputs/bundle/release/app-release.aab outputs/switchboard.aab

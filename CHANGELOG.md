@@ -24,6 +24,8 @@
   - [x] Added Pride Flags as color presets
   - [x] REMOVED: Herobrine.
 - [x] Add boolean field type
+- [x] Website code, due to google sites being a PITA
+- [x] Font for website: Unitblock CC0 : https://ggbot.itch.io/unitblock-font
 
 ## CHANGE:
 
@@ -35,6 +37,7 @@
 - [x] Fully fixes the image bug with migration `0019`.
 - [x] Alter background color is now pulled from the alter's system color field data.
 - [x] Migration system now uses a state system, so it can easily change behavior and page contents.
+- [x] Main website is no longer hosted on Google Sites, prototyping is still done using the visual designer on Sites however.
 
 # 0.1.0+0617260921
 
