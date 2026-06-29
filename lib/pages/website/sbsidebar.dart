@@ -78,6 +78,12 @@ class SBWebBar extends StatelessWidget {
                 launchUrlString("https://ko-fi.com/zontreck");
               },
             ),
+            ListTile(
+              title: Text("Discord", style: sidebarStyleReg),
+              onTap: () {
+                launchUrlString("https://discord.gg/gtd9JAgYVM");
+              },
+            ),
           ],
         ),
       ),

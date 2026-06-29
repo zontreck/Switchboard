@@ -197,6 +197,13 @@ class _sbhome extends State<SBWebHome> {
                       launchUrlString("https://app.systemswitchboard.com");
                     },
                   ),
+                  SizedBox(height: 20),
+                  InkWell(
+                    child: Image.asset("webassets/Discord.png"),
+                    onTap: () {
+                      launchUrlString("https://discord.gg/gtd9JAgYVM");
+                    },
+                  ),
                   SizedBox(height: 200),
                   SBWebFeatRichPromo(
                     title: "Support Us",
