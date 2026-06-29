@@ -31,7 +31,7 @@ cd build/web
 tar -cvf ../../outputs/web.tgz .
 
 cd ../linux/x64/release/bundle
-tar -cvf ../../../../../outputs/linux.tgz
+tar -cvf ../../../../../outputs/linux.tgz .
 
 cd ../../../../../
 
