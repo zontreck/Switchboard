@@ -140,12 +140,16 @@ Future<Uint8List> getApplicationFont() async {
 }
 
 Future<bool> checkStoragePermissions() async {
-  Permission storage = Permission.manageExternalStorage;
-  if (await storage.isDenied) {
-    await storage.request();
-  }
+  try {
+    Permission storage = Permission.manageExternalStorage;
+    if (await storage.isDenied) {
+      await storage.request();
+    }
 
-  return await storage.isGranted;
+    return await storage.isGranted;
+  } catch (E) {
+    return true;
+  }
 }
 
 ThemeData getApplicationTheme() {

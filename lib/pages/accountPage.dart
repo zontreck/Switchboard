@@ -263,6 +263,9 @@ class _alters extends State<AltersPage> {
           }
 
           if (!snapshot.hasData) {
+            if (snapshot.hasError) {
+              return SizedBox();
+            }
             return Column(
               children: [
                 CircularProgressIndicator(),

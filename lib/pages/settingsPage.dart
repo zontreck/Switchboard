@@ -547,7 +547,7 @@ class _settings extends State<SettingsPage> {
 
                   await setAuthToken("");
 
-                  await Navigator.pushReplacementNamed(context, "/");
+                  await Navigator.pushReplacementNamed(context, "/login");
                 },
               ),
 

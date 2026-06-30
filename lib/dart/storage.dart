@@ -218,7 +218,7 @@ class NetworkInterface {
 
   static Future<S2CAltersResponse> requestAltersList(String? user) async {
     return await _lRequestAltersList.synchronized(() async {
-      var cached = getCache("requestAltersList");
+      var cached = getCache("requestAltersList${user ?? ""}");
       if (cached != null) {
         return S2CAltersResponse(alters: cached.responseData);
       }
@@ -244,6 +244,7 @@ class NetworkInterface {
 
         print(reply.data);
         // Check for the X-SB-Done header.
+        print(reply.headers);
         if (reply.headers.value("X-SB-Done") == null) {
           // Increment by X-SB-Count
           skip += int.parse(reply.headers.value("X-SB-Count") ?? "0");
@@ -261,6 +262,8 @@ class NetworkInterface {
           keepRequesting = false;
           print("Raw response: ${reply.data}");
           throw NotLoggedInException();
+        } else {
+          ms.lastErrorRay = "";
         }
 
         S2CAltersPartialResponse partialAlters =
