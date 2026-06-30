@@ -32,7 +32,9 @@ class _loginState extends State<SBLoginPage> {
     MemoryState ms = MemoryState();
     ms.applicationVersion = await SwitchboardConsts.getPackageVersion();
     await getApplicationFont();
-    await MobileAds.instance.initialize();
+    try {
+      await MobileAds.instance.initialize();
+    } catch (E) {}
 
     getAuthToken().then((S) async {
       if (S == "") {
@@ -97,7 +99,11 @@ class _loginState extends State<SBLoginPage> {
         } else {
           usernameController.text = "";
           passwordController.text = "";
+          await setAuthToken("");
           setState(() {});
+          if (ms.rememberMe) {
+            tryAuthToken(); // Attempt to get a new token using the stored credentials, now that the auth token has been removed.
+          }
 
           return;
         }
