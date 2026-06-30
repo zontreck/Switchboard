@@ -2,7 +2,7 @@
 
 $DEBUG = false;
 
-$VERSION = "0.2.0+0630260824";
+$VERSION = "0.2.0+0630261537";
 
 $DEFAULT_USER_FIELDS = array(
                             array(
@@ -1553,7 +1553,7 @@ switch($route) {
             // Depending on the request type, and everything, we'll further verify proper authorization.
             switch($request) {
                 case "GET": {
-                    $all = $_REQUEST['history'];
+                    $all = $_GET['history'] == "true";
 
                     if($all == true) {
                         // We are to return the entire history.
