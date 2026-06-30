@@ -245,7 +245,10 @@ class NetworkInterface {
         print(reply.data);
         // Check for the X-SB-Done header.
         print(reply.headers);
-        if (reply.headers.value("X-SB-Done") == null) {
+        bool isDone =
+            reply.headers.value("X-SB-Done") == null ||
+            reply.data["data"]?["done"];
+        if (!isDone) {
           // Increment by X-SB-Count
           skip += int.parse(reply.headers.value("X-SB-Count") ?? "0");
         } else {
@@ -588,8 +591,7 @@ class NetworkInterface {
       dio.options.headers["X-SB-Auth"] = ms.authenticationToken;
 
       var reply = await dio.get(
-        "${getAPIServerURL()}/fronting",
-        data: {"history": history},
+        "${getAPIServerURL()}/fronting?history=${history}",
       );
       setCache("getFronters${history ? "history" : "active"}", reply.data);
       print(reply.data);

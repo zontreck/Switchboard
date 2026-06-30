@@ -3,6 +3,8 @@
 ## CHANGE:
 
 - [x] PHP backend: `/alters` will now include in the json, the same header values that get set. This is to resolve a bug with the WebApp specifically.
+- [x] BREAKING: PHP backend: `/fronting` will now no longer expect request body for a full history request. Full history requests now get pulled from the request parameters. This is due to a bug in the WebApp.
+  - This change breaks all public previous versions of the app until an update can go live.
 
 # 0.2.0+0629261800
 
