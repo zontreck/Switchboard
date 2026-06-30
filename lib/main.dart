@@ -8,7 +8,7 @@ Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await LiquidGlassWidgets.initialize();
 
-  ms.applicationVersion = "0.2.0+0629261518";
+  ms.applicationVersion = "0.2.0+0629261759";
 
   runApp(LiquidGlassWidgets.wrap(child: Switchboard()));
 }

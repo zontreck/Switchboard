@@ -26,6 +26,7 @@
 - [x] Add boolean field type
 - [x] Website code, due to google sites being a PITA
 - [x] Font for website: Unitblock CC0 : https://ggbot.itch.io/unitblock-font
+- [x] Button on alter page to copy permanent profile picture link.
 
 ## CHANGE:
 

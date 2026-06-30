@@ -296,6 +296,12 @@ class _editAlter extends State<EditAlterPage> {
                   );
                 },
               ),
+              ElevatedButton(
+                onPressed: () {
+                  Clipboard.setData(ClipboardData(text: alter.getAvatarURL()));
+                },
+                child: Text("Copy Avatar Permalink"),
+              ),
               SizedBox(height: 25),
               TextField(
                 controller: alterNameController,
