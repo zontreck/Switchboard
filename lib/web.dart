@@ -22,6 +22,8 @@ class SwitchboardWeb extends StatefulWidget {
     print("Dummy rebuild function invoked too soon");
   };
 
+  const SwitchboardWeb({super.key});
+
   @override
   State<StatefulWidget> createState() {
     return _sbweb();

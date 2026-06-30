@@ -1,12 +1,11 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:markdown_widget/markdown_widget.dart';
-import 'package:markdown_widget/widget/all.dart';
 import 'package:switchboard/pages/website/sbsidebar.dart';
-import 'package:url_launcher/url_launcher.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 
 class SBWebHome extends StatefulWidget {
+  const SBWebHome({super.key});
+
   @override
   State<StatefulWidget> createState() {
     return _sbhome();
@@ -270,7 +269,7 @@ class SBOutlineButton extends StatelessWidget {
   void Function() onTap;
   Widget title;
 
-  SBOutlineButton({
+  SBOutlineButton({super.key, 
     required this.onTap,
     required this.title,
     this.thickness = 1,
@@ -297,15 +296,16 @@ abstract class FeatPromo extends StatelessWidget {
   String title;
   double? width = 500;
   double? height;
+  @override
   final GlobalKey key = GlobalKey();
 
-  FeatPromo({required this.title, this.width = 500, this.height});
+  FeatPromo({super.key, required this.title, this.width = 500, this.height});
 }
 
 class SBWebFeatPromo extends FeatPromo {
   String body;
 
-  SBWebFeatPromo({
+  SBWebFeatPromo({super.key, 
     required super.title,
     required this.body,
     super.width = 500,
@@ -314,7 +314,7 @@ class SBWebFeatPromo extends FeatPromo {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
+    return SizedBox(
       width: width,
       height: height,
       child: Padding(
@@ -350,7 +350,7 @@ class SBWebFeatPromo extends FeatPromo {
 class SBWebFeatRichPromo extends FeatPromo {
   Widget body;
 
-  SBWebFeatRichPromo({
+  SBWebFeatRichPromo({super.key, 
     required super.title,
     required this.body,
     super.width = 500,
@@ -359,7 +359,7 @@ class SBWebFeatRichPromo extends FeatPromo {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
+    return SizedBox(
       width: width,
       height: height,
       child: Padding(

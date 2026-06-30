@@ -1,4 +1,3 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:switchboard/dart/MemoryState.dart';
 import 'package:switchboard/globalHelpers.dart';
@@ -16,6 +15,8 @@ class SBWebBar extends StatelessWidget {
     fontSize: 16,
     fontFamily: "nixieone",
   );
+
+  SBWebBar({super.key});
 
   @override
   Widget build(BuildContext context) {

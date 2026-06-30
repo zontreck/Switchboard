@@ -1,4 +1,3 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:switchboard/dart/globalHelpers.dart';
 import 'package:switchboard/pages/elements.dart';
@@ -6,6 +5,8 @@ import 'package:switchboard/pages/website/home.dart';
 import 'package:switchboard/pages/website/sbsidebar.dart';
 
 class SBWebFAQ extends StatefulWidget {
+  const SBWebFAQ({super.key});
+
   @override
   State<StatefulWidget> createState() {
     return _sbfaq();

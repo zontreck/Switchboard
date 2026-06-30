@@ -1,10 +1,11 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:switchboard/pages/website/home.dart';
 import 'package:switchboard/pages/website/sbsidebar.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 
 class SBWebFeatures extends StatefulWidget {
+  const SBWebFeatures({super.key});
+
   @override
   State<StatefulWidget> createState() {
     return _sbfeatures();
