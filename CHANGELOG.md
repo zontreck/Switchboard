@@ -1,3 +1,9 @@
+# 0.2.0
+
+## CHANGE:
+
+- [x] PHP backend: `/alters` will now include in the json, the same header values that get set. This is to resolve a bug with the WebApp specifically.
+
 # 0.2.0+0629261800
 
 ## ADD:

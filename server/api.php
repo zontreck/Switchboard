@@ -2,7 +2,7 @@
 
 $DEBUG = false;
 
-$VERSION = "0.2.0+0623261306";
+$VERSION = "0.2.0+0630260043";
 
 $DEFAULT_USER_FIELDS = array(
                             array(
@@ -575,6 +575,7 @@ switch($route) {
                 header("X-SB-Count: $count");
                 $data['count'] = $count;
                 $data['alters'] = $alters;
+                $data['done'] = ($reason == "DONE");
                 break;
             }
         }
