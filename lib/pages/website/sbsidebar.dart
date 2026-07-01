@@ -28,7 +28,7 @@ class SBWebBar extends StatelessWidget {
           children: [
             const SizedBox(height: 50),
             Image.asset(
-              "webassets/Switchboard_Logo_6-29-26.png",
+              "webassets/Switchboard_Logo_6-30-26.png",
               width: 50,
               height: 50,
             ),
