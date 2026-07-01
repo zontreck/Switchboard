@@ -1,4 +1,6 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:libacflutter/Constants.dart';
 import 'package:libacflutter/utils/colorHelpers.dart';
 import 'package:switchboard/dart/MemoryState.dart';
 import 'package:switchboard/dart/globalHelpers.dart';
@@ -314,62 +316,117 @@ class _alters extends State<AltersPage> {
                         children: [
                           if (fronting.front.currentFronter)
                             SizedBox(height: 12),
-                          InkWell(
-                            onTap: () async {
-                              pageChanged();
-                              var reply = await Navigator.pushNamed(
-                                context,
-                                "/editAlter",
-                                arguments: EditAlterArguments(
-                                  alterId: alters[index].id,
-                                  instance: alters[index],
-                                ),
-                              );
-
-                              pageChanged();
-                              setState(() {});
-                            },
-                            child: FutureBuilder(
-                              future: alters[index].getAlterColor(),
-                              builder: (Bldr, Snapshot) {
-                                Color backgroundColor =
-                                    getAlterBackgroundColor();
-                                if (Snapshot.hasData) {
-                                  if (Snapshot.data!.isNotEmpty) {
-                                    backgroundColor = ColorFromList(
-                                      Snapshot.data!,
-                                    );
-                                  }
+                          FutureBuilder(
+                            future: alters[index].getAlterColor(),
+                            builder: (Bldr, Snapshot) {
+                              Color backgroundColor = getAlterBackgroundColor();
+                              if (Snapshot.hasData) {
+                                if (Snapshot.data!.isNotEmpty) {
+                                  backgroundColor = ColorFromList(
+                                    Snapshot.data!,
+                                  );
                                 }
-                                if (backgroundColor ==
-                                    Color.fromARGB(0, 0, 0, 0)) {
-                                  backgroundColor = getAlterBackgroundColor();
-                                }
+                              }
+                              if (backgroundColor ==
+                                  Color.fromARGB(0, 0, 0, 0)) {
+                                backgroundColor = getAlterBackgroundColor();
+                              }
 
-                                return AlterWidget(
-                                  withFronterElement: true,
-                                  flush: ms.flushPictures,
-                                  roundedElement: ms.roundedBorder,
-                                  squarePics: ms.squarePicture,
-                                  backgroundColor: backgroundColor,
-                                  textColor: getReadableTextColor(
-                                    backgroundColor,
-                                    getAlterTextColor(),
+                              return AlterWidget(
+                                withFronterElement: true,
+                                flush: ms.flushPictures,
+                                roundedElement: ms.roundedBorder,
+                                squarePics: ms.squarePicture,
+                                longPressMenu: true,
+                                onTap: () async {
+                                  pageChanged();
+                                  var reply = await Navigator.pushNamed(
+                                    context,
+                                    "/editAlter",
+                                    arguments: EditAlterArguments(
+                                      alterId: alters[index].id,
+                                      instance: alters[index],
+                                    ),
+                                  );
+
+                                  pageChanged();
+                                  setState(() {});
+                                },
+                                longPressOptions: [
+                                  if (!fronting.front.currentFronter)
+                                    CupertinoButton(
+                                      child: Text(
+                                        "Set Front",
+                                        style: TextStyle(fontSize: 18),
+                                      ),
+                                      onPressed: () async {
+                                        await NetworkInterface.setFronting(
+                                          alters[index].id,
+                                        );
+                                        setState(() {});
+                                        Navigator.pop(context);
+                                      },
+                                    ),
+                                  if (fronting.front.currentFronter)
+                                    CupertinoButton(
+                                      child: Text(
+                                        "Remove from front",
+                                        style: TextStyle(fontSize: 18),
+                                      ),
+                                      onPressed: () async {
+                                        await NetworkInterface.unfrontFronter(
+                                          alters[index].id,
+                                        );
+                                        setState(() {});
+                                        Navigator.pop(context);
+                                      },
+                                    ),
+                                  CupertinoButton(
+                                    color: LibACFlutterConstants.TITLEBAR_COLOR,
+                                    onPressed: () async {
+                                      Navigator.pop(context);
+
+                                      var resp = await showDialog(
+                                        context: context,
+                                        builder: (bldr) {
+                                          return confirmDeleteAlter(context);
+                                        },
+                                      );
+
+                                      if (resp is bool) {
+                                        if (resp == true) {
+                                          await NetworkInterface.deleteAlter(
+                                            alters[index].id,
+                                          );
+                                          setState(() {});
+                                        }
+                                      }
+                                    },
+                                    child: Text(
+                                      "Delete Alter",
+                                      style: TextStyle(fontSize: 18),
+                                    ),
                                   ),
-                                  alterID: alters[index].id,
-                                  alterName: alters[index].name,
-                                  url: alters[index].avatarUrl.isNotEmpty
-                                      ? alters[index].avatarUrl
-                                      : "null",
-                                  frontID: fronting.id,
-                                  frontStartTime: fronting.front.start,
-                                  frontEndTime: fronting.front.end,
+                                ],
+                                backgroundColor: backgroundColor,
+                                textColor: getReadableTextColor(
+                                  backgroundColor,
+                                  getAlterTextColor(),
+                                ),
+                                alterID: alters[index].id,
+                                alterName: alters[index].name,
+                                url: alters[index].avatarUrl.isNotEmpty
+                                    ? alters[index].avatarUrl
+                                    : "null",
+                                frontID: fronting.id,
+                                frontStartTime: fronting.front.start,
+                                frontEndTime: fronting.front.end,
 
-                                  alter: alters[index],
-                                );
-                              },
-                            ),
+                                alter: alters[index],
+                              );
+                            },
                           ),
+
                           if (fronting.front.currentFronter)
                             SizedBox(height: 12),
                         ],
@@ -442,6 +499,7 @@ class _fronting extends State<FrontingPage> {
                           getAlterTextColor(),
                         ),
                         alterID: alter.id,
+                        onTap: () {},
                         alterName: alter.name,
                         url: alter.avatarUrl.isNotEmpty
                             ? alter.avatarUrl
@@ -524,6 +582,7 @@ class _history extends State<FrontHistoryPage> {
                                   roundedElement: ms.roundedBorder,
                                   squarePics: ms.squarePicture,
                                   backgroundColor: backgroundColor,
+                                  onTap: () {},
                                   textColor: getReadableTextColor(
                                     backgroundColor,
                                     getAlterTextColor(),

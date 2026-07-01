@@ -104,6 +104,7 @@ class _sbfaq extends State<SBWebFAQ> {
               url: "https://api.systemswitchboard.com/avatar/nul",
               withFronterElement: false,
               frontID: UUID_ZERO,
+              onTap: () {},
               frontEndTime: 0,
               frontStartTime: 1,
             ),

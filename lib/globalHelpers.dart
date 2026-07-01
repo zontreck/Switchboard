@@ -1,10 +1,12 @@
 import 'dart:async' show Future;
 import 'dart:convert';
 import 'dart:typed_data';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show FontLoader, rootBundle;
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:libac_dart/utils/StringUtils.dart';
+import 'package:libacflutter/Constants.dart';
 import 'package:libacflutter/utils/colorHelpers.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -150,6 +152,35 @@ Future<bool> checkStoragePermissions() async {
   } catch (E) {
     return true;
   }
+}
+
+Widget confirmDeleteAlter(BuildContext context) {
+  return CupertinoAlertDialog(
+    title: Text("Are you sure?", style: TextStyle(fontSize: 22)),
+    content: Column(
+      children: [
+        Text(
+          "This action cannot be undone. Only do this if you actually want to delete this alter. All records associated with this alter will be deleted, including front history. This is a extremely destructive action.",
+          style: TextStyle(fontSize: 18),
+        ),
+      ],
+    ),
+    actions: [
+      CupertinoButton(
+        child: Text("CANCEL"),
+        onPressed: () {
+          Navigator.pop(context);
+        },
+      ),
+      CupertinoButton(
+        child: Text("CONFIRM"),
+        onPressed: () {
+          Navigator.pop(context, true);
+        },
+        color: LibACFlutterConstants.TITLEBAR_COLOR,
+      ),
+    ],
+  );
 }
 
 ThemeData getApplicationTheme() {

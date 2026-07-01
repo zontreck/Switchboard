@@ -34,6 +34,7 @@ class _glowSettings extends State<GlowSettingsPage> {
                 Text("Glow Settings", style: TextStyle(fontSize: 22)),
                 AlterWidget(
                   alterID: UUID_ZERO,
+                  onTap: () {},
                   alterName: "Sample Alter",
                   url: "${getAPIServerURL()}/avatar/null",
                   withFronterElement: false,

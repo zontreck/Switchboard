@@ -338,35 +338,7 @@ class _editAlter extends State<EditAlterPage> {
                   var reply = await showDialog(
                     context: context,
                     builder: (bldr) {
-                      return CupertinoAlertDialog(
-                        title: Text(
-                          "Are you sure?",
-                          style: TextStyle(fontSize: 22),
-                        ),
-                        content: Column(
-                          children: [
-                            Text(
-                              "This action cannot be undone. Only do this if you actually want to delete this alter. All records associated with this alter will be deleted, including front history. This is a extremely destructive action.",
-                              style: TextStyle(fontSize: 18),
-                            ),
-                          ],
-                        ),
-                        actions: [
-                          CupertinoButton(
-                            child: Text("CANCEL"),
-                            onPressed: () {
-                              Navigator.pop(context);
-                            },
-                          ),
-                          CupertinoButton(
-                            child: Text("CONFIRM"),
-                            onPressed: () {
-                              Navigator.pop(context, true);
-                            },
-                            color: LibACFlutterConstants.TITLEBAR_COLOR,
-                          ),
-                        ],
-                      );
+                      return confirmDeleteAlter(context);
                     },
                   );
 

@@ -5,6 +5,7 @@
 - [x] Adds a `Delete Alter` button to the edit alter page
 - [x] Delete Alter now has a confirmation dialog!
 - [x] Network Interface binding for delete alter `NetworkInterface.deleteAlter(alterId)`
+- [x] Long press menu with fronting options and a delete option + confirmation dialog
 
 ## CHANGE:
 

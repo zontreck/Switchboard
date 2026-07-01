@@ -1,5 +1,6 @@
 import 'dart:typed_data';
 
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:glow_container/glow_container.dart';
 import 'package:libac_dart/nbt/Stream.dart';
@@ -25,6 +26,9 @@ class AlterWidget extends StatefulWidget {
   bool showFrontingTime;
   int frontStartTime;
   int frontEndTime;
+  bool longPressMenu = false;
+  void Function() onTap;
+  List<CupertinoButton> longPressOptions = [];
 
   AlterWidget({
     super.key,
@@ -33,6 +37,7 @@ class AlterWidget extends StatefulWidget {
     required this.url,
     required this.withFronterElement,
     required this.frontID,
+    required this.onTap,
     this.alter,
     this.flush = true,
     this.roundedElement = true,
@@ -42,6 +47,8 @@ class AlterWidget extends StatefulWidget {
     this.showFrontingTime = false,
     this.frontStartTime = 0,
     this.frontEndTime = 0,
+    this.longPressMenu = false,
+    this.longPressOptions = const [],
   });
 
   @override
@@ -117,63 +124,85 @@ class _widget extends State<AlterWidget> {
   }
 
   Widget getCard() {
-    return Card(
-      elevation: 8,
-      shape: widget.roundedElement ? null : BoxBorder.all(),
-      margin: widget.roundedElement ? null : EdgeInsetsGeometry.zero,
-      color: widget.backgroundColor,
+    return InkWell(
+      onTap: widget.onTap,
+      onLongPress: widget.longPressMenu
+          ? () async {
+              await showDialog(
+                context: context,
+                builder: (bldr) {
+                  return CupertinoAlertDialog(
+                    title: Text(
+                      widget.alterName,
+                      style: TextStyle(fontSize: 22),
+                    ),
+                    actions: widget.longPressOptions,
+                  );
+                },
+              );
+            }
+          : null,
+      child: Card(
+        elevation: 8,
+        shape: widget.roundedElement ? null : BoxBorder.all(),
+        margin: widget.roundedElement ? null : EdgeInsetsGeometry.zero,
+        color: widget.backgroundColor,
 
-      child: Row(
-        children: [
-          AlterImage(
-            squarePics: widget.squarePics,
-            flush: widget.flush,
-            alterID: widget.alterID,
-            url: Alter.makeAvatarURL(widget.url),
-          ),
-          SizedBox(width: 8),
-          Column(
-            children: [
-              FutureBuilder(
-                future: widget.alter?.getPronouns(),
-                builder: (probldr, prosnap) {
-                  if (!prosnap.hasData) {
-                    if (prosnap.hasError || widget.alter == null) {
+        child: Row(
+          children: [
+            AlterImage(
+              squarePics: widget.squarePics,
+              flush: widget.flush,
+              alterID: widget.alterID,
+              url: Alter.makeAvatarURL(widget.url),
+            ),
+            SizedBox(width: 8),
+            Column(
+              children: [
+                FutureBuilder(
+                  future: widget.alter?.getPronouns(),
+                  builder: (probldr, prosnap) {
+                    if (!prosnap.hasData) {
+                      if (prosnap.hasError || widget.alter == null) {
+                        return Text(
+                          widget.alterName,
+                          style: TextStyle(
+                            fontSize: 22,
+                            color: widget.textColor,
+                          ),
+                        );
+                      }
+
+                      return CircularProgressIndicator();
+                    } else {
+                      String txt = "";
+                      if (prosnap.data == "") {
+                        txt = widget.alterName;
+                      } else {
+                        txt = "${widget.alterName}\n(${prosnap.data})";
+                      }
+
                       return Text(
-                        widget.alterName,
+                        txt,
                         style: TextStyle(fontSize: 22, color: widget.textColor),
                       );
                     }
-
-                    return CircularProgressIndicator();
-                  } else {
-                    String txt = "";
-                    if (prosnap.data == "") {
-                      txt = widget.alterName;
-                    } else {
-                      txt = "${widget.alterName}\n(${prosnap.data})";
-                    }
-
-                    return Text(
-                      txt,
-                      style: TextStyle(fontSize: 22, color: widget.textColor),
-                    );
-                  }
-                },
-              ),
-              if (widget.showFrontingTime && widget.fronting)
-                Text(
-                  "Fronting for: \n${calculateFrontingTime()}",
-                  style: TextStyle(fontSize: 20, color: widget.textColor),
+                  },
                 ),
-              if (!widget.fronting && widget.showFrontingTime)
-                Text(
-                  "${calculateFrontingTime()}\n${getDateRange()}",
-                  style: TextStyle(color: widget.textColor, fontSize: 18),
-                ),
-            ],
-          ),
-        ],
+                if (widget.showFrontingTime && widget.fronting)
+                  Text(
+                    "Fronting for: \n${calculateFrontingTime()}",
+                    style: TextStyle(fontSize: 20, color: widget.textColor),
+                  ),
+                if (!widget.fronting && widget.showFrontingTime)
+                  Text(
+                    "${calculateFrontingTime()}\n${getDateRange()}",
+                    style: TextStyle(color: widget.textColor, fontSize: 18),
+                  ),
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }

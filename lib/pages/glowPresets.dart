@@ -330,6 +330,7 @@ class _presets extends State<GlowPresets> {
                 ),
                 AlterWidget(
                   alterID: UUID_ZERO,
+                  onTap: () {},
                   alterName: "Sample Alter",
                   url: "${getAPIServerURL()}/avatar/null",
                   withFronterElement: false,
