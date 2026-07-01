@@ -296,6 +296,7 @@ class _editAlter extends State<EditAlterPage> {
                   );
                 },
               ),
+              SizedBox(height: 10),
               ElevatedButton(
                 onPressed: () {
                   Clipboard.setData(ClipboardData(text: alter.getAvatarURL()));

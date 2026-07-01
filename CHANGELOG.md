@@ -1,3 +1,9 @@
+# 0.2.0
+
+## CHANGE:
+
+- [x] Add spacing to the edit alter page between the Copy Avatar Permalink button and the Show Alter ID button.
+
 # 0.2.0+0630262333
 
 ## CHANGE:
