@@ -591,7 +591,7 @@ class NetworkInterface {
       dio.options.headers["X-SB-Auth"] = ms.authenticationToken;
 
       var reply = await dio.get(
-        "${getAPIServerURL()}/fronting?history=${history}",
+        "${getAPIServerURL()}/fronting?history=$history",
       );
       setCache("getFronters${history ? "history" : "active"}", reply.data);
       print(reply.data);
