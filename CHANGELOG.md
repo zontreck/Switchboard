@@ -10,6 +10,7 @@
 ## CHANGE:
 
 - [x] Add spacing to the edit alter page between the Copy Avatar Permalink button and the Show Alter ID button.
+- [x] Update all icons to use new Logo from The Asterism Theatre
 
 # 0.2.0+0630262333
 

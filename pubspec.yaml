@@ -16,7 +16,7 @@ publish_to: "none" # Remove this line if you wish to publish to pub.dev
 # https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/CoreFoundationKeys.html
 # In Windows, build-name is used as the major, minor, and patch parts
 # of the product and file versions while build-number is used as the build suffix.
-version: 0.3.0+0701260851
+version: 0.3.0+0701260903
 
 environment:
   sdk: ^3.11.0
@@ -58,6 +58,7 @@ dependencies:
   synchronized: ^3.4.0+1
 
 dev_dependencies:
+  flutter_launcher_icons: "^0.14.1"
   flutter_test:
     sdk: flutter
 
@@ -69,6 +70,25 @@ dev_dependencies:
   flutter_lints: ^6.0.0
   # For information on the generic Dart part of this file, see the
   # following page: https://dart.dev/tools/pub/pubspec
+
+flutter_launcher_icons:
+  android: true
+  ios: true
+  image_path: "webassets/Switchboard_Logo_6-30-26.png"
+  min_sdk_android: 21
+  remove_alpha_ios: true
+  web:
+    generate: true
+    image_path: "webassets/Switchboard_Logo_6-30-26.png"
+    background_color: "#13121f"
+    theme_color: "#4e4695"
+  windows:
+    generate: true
+    image_path: "webassets/Switchboard_Logo_6-30-26.png"
+    icon_size: 256
+  macos:
+    generate: true
+    image_path: "webassets/Switchboard_Logo_6-30-26.png"
 
 flutter:
   # The following line ensures that the Material Icons font is
