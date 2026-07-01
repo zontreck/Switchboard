@@ -1,5 +1,11 @@
 # 0.2.0
 
+## ADD:
+
+- [x] Adds a `Delete Alter` button to the edit alter page
+- [x] Delete Alter now has a confirmation dialog!
+- [x] Network Interface binding for delete alter `NetworkInterface.deleteAlter(alterId)`
+
 ## CHANGE:
 
 - [x] Add spacing to the edit alter page between the Copy Avatar Permalink button and the Show Alter ID button.

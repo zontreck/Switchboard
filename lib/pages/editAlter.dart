@@ -7,6 +7,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_colorpicker/flutter_colorpicker.dart';
 import 'package:libac_dart/utils/Converter.dart';
 import 'package:libac_dart/utils/TimeUtils.dart';
+import 'package:libacflutter/Constants.dart';
 import 'package:libacflutter/Prompt.dart';
 import 'package:libacflutter/utils/colorHelpers.dart';
 import 'package:markdown_widget/widget/all.dart';
@@ -14,6 +15,7 @@ import 'package:switchboard/dart/globalHelpers.dart';
 import 'package:switchboard/dart/storage.dart';
 import 'package:switchboard/globalHelpers.dart';
 import 'package:switchboard/pages/elements.dart';
+import 'package:switchboard/sb.dart';
 
 class EditAlterPage extends StatefulWidget {
   const EditAlterPage({super.key});
@@ -325,6 +327,69 @@ class _editAlter extends State<EditAlterPage> {
                     return snapFields.data!;
                   }
                 },
+              ),
+              SizedBox(height: 20),
+              ListTile(
+                title: Text("Delete Alter"),
+                subtitle: Text(
+                  "Delete this alter from the system. Cannot be undone!",
+                ),
+                onTap: () async {
+                  var reply = await showDialog(
+                    context: context,
+                    builder: (bldr) {
+                      return CupertinoAlertDialog(
+                        title: Text(
+                          "Are you sure?",
+                          style: TextStyle(fontSize: 22),
+                        ),
+                        content: Column(
+                          children: [
+                            Text(
+                              "This action cannot be undone. Only do this if you actually want to delete this alter. All records associated with this alter will be deleted, including front history. This is a extremely destructive action.",
+                              style: TextStyle(fontSize: 18),
+                            ),
+                          ],
+                        ),
+                        actions: [
+                          CupertinoButton(
+                            child: Text("CANCEL"),
+                            onPressed: () {
+                              Navigator.pop(context);
+                            },
+                          ),
+                          CupertinoButton(
+                            child: Text("CONFIRM"),
+                            onPressed: () {
+                              Navigator.pop(context, true);
+                            },
+                            color: LibACFlutterConstants.TITLEBAR_COLOR,
+                          ),
+                        ],
+                      );
+                    },
+                  );
+
+                  if (reply is bool) {
+                    if (reply == true) {
+                      var resp = await NetworkInterface.deleteAlter(alter.id);
+                      if (resp.success) {
+                        Switchboard.rebuild();
+                        Navigator.pop(context);
+                      } else {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text(
+                              "Fatal Error: Could not delete alter. Request ID [${resp.id}]\nReason: ${resp.reason}",
+                            ),
+                          ),
+                        );
+                      }
+                    }
+                  }
+                },
+                tileColor: LibACFlutterConstants.TITLEBAR_COLOR,
+                leading: Icon(Icons.delete_forever),
               ),
               SizedBox(height: 150),
             ],

@@ -685,6 +685,24 @@ class NetworkInterface {
       return S2CLazyResponse.decode(typeCorrectJson(reply.data));
     });
   }
+
+  /// Permanently delete a requested alter
+  ///
+  /// [alter] Alter ID to be permanently deleted. (Must be your own)
+  static Future<S2CLazyResponse> deleteAlter(String alter) async {
+    Dio dio = Dio();
+    MemoryState ms = MemoryState();
+
+    dio.options.headers["Content-Type"] = "application/json";
+    dio.options.headers["X-SB-Auth"] = ms.authenticationToken;
+
+    var reply = await dio.delete("${getAPIServerURL()}/alter/${alter}");
+
+    NetworkCaches.invalidate();
+    print(reply.data);
+
+    return S2CLazyResponse.decode(typeCorrectJson(reply.data));
+  }
 }
 
 abstract class ResponsePacket {
