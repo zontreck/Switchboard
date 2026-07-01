@@ -11,6 +11,7 @@
 
 - [x] Add spacing to the edit alter page between the Copy Avatar Permalink button and the Show Alter ID button.
 - [x] Update all icons to use new Logo from The Asterism Theatre
+- [x] HARD RESET OF DATABASE: All migrations have been squashed down, indexes redone.
 
 # 0.2.0+0630262333
 
