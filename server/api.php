@@ -51,6 +51,10 @@ function MakeSAT($Token, $Expire, $ISS) {
     )));
 }
 
+function null_uuid() {
+    return "00000000-0000-0000-0000-000000000000";
+}
+
 class SATReply {
     public bool $Success;
     public int $Scope;
