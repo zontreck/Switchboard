@@ -1,3 +1,9 @@
+# 0.2.0
+
+## CHANGE:
+
+- [x] AS: Fix the fronting history and status. Only the currently active fronter will be highlighted, not all instances of the same alter.
+
 # 0.2.0+0630260842
 
 ## CHANGE:

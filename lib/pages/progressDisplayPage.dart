@@ -361,7 +361,11 @@ class _migrateFronting extends State<MigrateFrontingView> {
     DateTime end = front.timeEnd ?? start;
     int endStamp = (end.millisecondsSinceEpoch / 1000).round();
 
-    Front newFront = Front(id: translatedID, start: asTimestamp, end: endStamp);
+    Front newFront = Front(
+      alterId: translatedID,
+      start: asTimestamp,
+      end: endStamp,
+    );
     int tries = 0;
     while (tries <= 4) {
       if (!mounted) {

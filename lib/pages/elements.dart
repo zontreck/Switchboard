@@ -19,7 +19,7 @@ class AlterWidget extends StatefulWidget {
   String alterName;
   String url;
   bool withFronterElement;
-  bool fronting;
+  bool get fronting => frontStartTime > 0 && frontEndTime == 0;
   String frontID;
   Alter? alter;
   bool showFrontingTime;
@@ -37,7 +37,6 @@ class AlterWidget extends StatefulWidget {
     this.flush = true,
     this.roundedElement = true,
     this.squarePics = false,
-    this.fronting = false,
     this.backgroundColor = Colors.grey,
     this.textColor = Colors.white70,
     this.showFrontingTime = false,
@@ -199,7 +198,7 @@ class _widget extends State<AlterWidget> {
             // Left to right: Remove from front
             if (widget.fronting) {
               var rep = await NetworkInterface.unfrontFronter(widget.alterID);
-              widget.fronting = false;
+              widget.frontEndTime = TimeUtils.getUnixTimestamp();
               widget.frontID = UUID_ZERO;
 
               if (!rep.success) {
@@ -216,7 +215,9 @@ class _widget extends State<AlterWidget> {
             // Right to left: Set front
             if (!widget.fronting) {
               var rep = await NetworkInterface.setFronting(widget.alterID);
-              widget.fronting = true;
+
+              widget.frontEndTime = 0;
+              widget.frontStartTime = TimeUtils.getUnixTimestamp();
 
               if (!rep.success) {
                 ScaffoldMessenger.of(context).showSnackBar(

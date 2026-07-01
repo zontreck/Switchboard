@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:glow_container/glow_container.dart';
+import 'package:libac_dart/utils/TimeUtils.dart';
 import 'package:switchboard/dart/MemoryState.dart';
 import 'package:switchboard/dart/globalHelpers.dart';
 import 'package:switchboard/dart/privacyPolicy.dart';
@@ -333,7 +334,8 @@ class _presets extends State<GlowPresets> {
                   url: "${getAPIServerURL()}/avatar/null",
                   withFronterElement: false,
                   frontID: UUID_ZERO,
-                  fronting: true,
+                  frontStartTime: TimeUtils.getUnixTimestamp(),
+                  frontEndTime: 0,
                 ),
                 Divider(),
               ],

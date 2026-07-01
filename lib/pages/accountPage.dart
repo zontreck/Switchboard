@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:libacflutter/utils/colorHelpers.dart';
 import 'package:switchboard/dart/MemoryState.dart';
+import 'package:switchboard/dart/globalHelpers.dart';
 import 'package:switchboard/dart/storage.dart';
 import 'package:switchboard/globalHelpers.dart';
 import 'package:switchboard/pages/editAlter.dart';
@@ -289,8 +290,7 @@ class _alters extends State<AltersPage> {
                 return FutureBuilder(
                   future: alters[index].isFronting(),
                   builder: (frontingBuilder, frontingSnapshot) {
-                    if (!frontingSnapshot.hasData &&
-                        !frontingSnapshot.hasError) {
+                    if (!frontingSnapshot.hasData) {
                       return CircularProgressIndicator();
                     } else {
                       if (frontingSnapshot.hasError) {
@@ -298,11 +298,22 @@ class _alters extends State<AltersPage> {
                           "Fronting snapshot threw an error: ${frontingSnapshot.error}",
                         );
                       }
-                      bool fronting = frontingSnapshot.data ?? false;
+                      Fronter fronting =
+                          frontingSnapshot.data ??
+                          Fronter(
+                            id: UUID_ZERO,
+                            front: Front(
+                              alterId: alters[index].id,
+                              start: 0,
+                              end: 0,
+                            ),
+                          );
+                      print(fronting.toJson());
 
                       return Column(
                         children: [
-                          if (fronting) SizedBox(height: 12),
+                          if (fronting.front.currentFronter)
+                            SizedBox(height: 12),
                           InkWell(
                             onTap: () async {
                               pageChanged();
@@ -350,14 +361,17 @@ class _alters extends State<AltersPage> {
                                   url: alters[index].avatarUrl.isNotEmpty
                                       ? alters[index].avatarUrl
                                       : "null",
-                                  fronting: fronting,
-                                  frontID: alters[index].fronterID,
+                                  frontID: fronting.id,
+                                  frontStartTime: fronting.front.start,
+                                  frontEndTime: fronting.front.end,
+
                                   alter: alters[index],
                                 );
                               },
                             ),
                           ),
-                          if (fronting) SizedBox(height: 12),
+                          if (fronting.front.currentFronter)
+                            SizedBox(height: 12),
                         ],
                       );
                     }
@@ -396,7 +410,7 @@ class _fronting extends State<FrontingPage> {
           itemBuilder: (itbldr, index) {
             return FutureBuilder(
               future: NetworkInterface.getAlterByID(
-                response.data[index].front.id,
+                response.data[index].front.alterId,
               ),
               builder: (alterBuilder, alterSnap) {
                 if (!alterSnap.hasData) {
@@ -432,11 +446,10 @@ class _fronting extends State<FrontingPage> {
                         url: alter.avatarUrl.isNotEmpty
                             ? alter.avatarUrl
                             : "null",
-                        fronting: true,
-                        frontID: alter.fronterID,
+                        frontID: response.data[index].id,
                         alter: alter,
                         showFrontingTime: true,
-                        frontEndTime: 0,
+                        frontEndTime: response.data[index].front.end,
                         frontStartTime: response.data[index].front.start,
                       );
                     },
@@ -482,7 +495,7 @@ class _history extends State<FrontHistoryPage> {
                 itemBuilder: (itbldr, index) {
                   return FutureBuilder(
                     future: NetworkInterface.getAlterByID(
-                      response.data[index].front.id,
+                      response.data[index].front.alterId,
                     ),
                     builder: (alterBuilder, alterSnap) {
                       if (!alterSnap.hasData) {
@@ -503,39 +516,32 @@ class _history extends State<FrontHistoryPage> {
                               backgroundColor = getAlterBackgroundColor();
                             }
 
-                            return FutureBuilder(
-                              future: alter.isFronting(),
-                              builder: (frontingBldr, frontingSnap) {
-                                if (!frontingSnap.hasData) {
-                                  return CircularProgressIndicator();
-                                } else {
-                                  bool fronting = frontingSnap.data ?? false;
-                                  return AlterWidget(
-                                    withFronterElement: false,
-                                    flush: ms.flushPictures,
-                                    roundedElement: ms.roundedBorder,
-                                    squarePics: ms.squarePicture,
-                                    backgroundColor: backgroundColor,
-                                    textColor: getReadableTextColor(
-                                      backgroundColor,
-                                      getAlterTextColor(),
-                                    ),
-                                    alterID: alter.id,
-                                    alterName: alter.name,
-                                    url: alter.avatarUrl.isNotEmpty
-                                        ? alter.avatarUrl
-                                        : "null",
-                                    fronting: fronting,
-                                    frontID: alter.fronterID,
-                                    alter: alter,
-                                    showFrontingTime: true,
-                                    frontEndTime:
-                                        response.data[index].front.end,
-                                    frontStartTime:
-                                        response.data[index].front.start,
-                                  );
-                                }
-                              },
+                            return Column(
+                              children: [
+                                AlterWidget(
+                                  withFronterElement: false,
+                                  flush: ms.flushPictures,
+                                  roundedElement: ms.roundedBorder,
+                                  squarePics: ms.squarePicture,
+                                  backgroundColor: backgroundColor,
+                                  textColor: getReadableTextColor(
+                                    backgroundColor,
+                                    getAlterTextColor(),
+                                  ),
+                                  alterID: alter.id,
+                                  alterName: alter.name,
+                                  url: alter.avatarUrl.isNotEmpty
+                                      ? alter.avatarUrl
+                                      : "null",
+                                  frontID: response.data[index].id,
+                                  alter: alter,
+                                  showFrontingTime: true,
+                                  frontEndTime: response.data[index].front.end,
+                                  frontStartTime:
+                                      response.data[index].front.start,
+                                ),
+                                SizedBox(height: 5),
+                              ],
                             );
                           },
                         );

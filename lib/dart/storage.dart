@@ -1421,7 +1421,6 @@ class Alter {
   int flags;
   List<FieldData> fields;
   bool _stale = false;
-  String fronterID = UUID_ZERO;
 
   void markStale() {
     _stale = true;
@@ -1620,16 +1619,18 @@ class Alter {
     return [];
   }
 
-  Future<bool> isFronting() async {
+  Future<Fronter> isFronting() async {
     var fronts = await NetworkInterface.getFronters(false);
     for (var fronter in fronts.data) {
-      if (fronter.front.id.toString() == id.toString()) {
-        fronterID = fronter.front.id;
-        return true;
+      if (fronter.front.alterId.toString() == id.toString()) {
+        return fronter;
       }
     }
 
-    return false;
+    return Fronter(
+      id: UUID_ZERO,
+      front: Front(alterId: id, start: 0, end: 0),
+    );
   }
 }
 
@@ -1739,25 +1740,25 @@ class S2CFieldResponse extends S2CLazyResponse {
 }
 
 class Front {
-  String id;
+  String alterId;
   int start;
   int end;
 
-  Front({required this.id, required this.start, required this.end});
+  Front({required this.alterId, required this.start, required this.end});
 
   Map<String, dynamic> toJson() {
-    return {"alter": id.toString(), "start": start, "end": end};
+    return {"alter": alterId, "start": start, "end": end};
   }
 
   factory Front.fromJson(Map<String, dynamic> js) {
     return Front(
-      id: js['alter'] ?? UUID_ZERO,
+      alterId: js['alter'] ?? UUID_ZERO,
       start: js['start'] ?? 0,
       end: js['end'] ?? 0, // Might be null at times
     );
   }
 
-  bool get currentFronter => end == 0;
+  bool get currentFronter => end == 0 && start > 0;
 }
 
 class Fronter {
@@ -1815,7 +1816,7 @@ class S2CFrontResponse extends S2CLazyResponse {
       type: "type",
       data: Fronter(
         id: UUID_ZERO,
-        front: Front(id: UUID_ZERO, start: 0, end: 0),
+        front: Front(alterId: UUID_ZERO, start: 0, end: 0),
       ),
     );
 

@@ -56,7 +56,8 @@ class _settings extends State<SettingsPage> {
               AlterWidget(
                 flush: ms.flushPictures,
                 withFronterElement: false,
-                fronting: false,
+                frontStartTime: 0,
+                frontEndTime: 0,
                 frontID: UUID_ZERO,
                 roundedElement: ms.roundedBorder,
                 squarePics: ms.squarePicture,

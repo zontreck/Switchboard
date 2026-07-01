@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_colorpicker/flutter_colorpicker.dart';
+import 'package:libac_dart/utils/TimeUtils.dart';
 import 'package:libacflutter/utils/colorHelpers.dart';
 import 'package:switchboard/dart/MemoryState.dart';
 import 'package:switchboard/dart/globalHelpers.dart';
@@ -37,7 +38,8 @@ class _glowSettings extends State<GlowSettingsPage> {
                   url: "${getAPIServerURL()}/avatar/null",
                   withFronterElement: false,
                   frontID: UUID_ZERO,
-                  fronting: true,
+                  frontEndTime: 0,
+                  frontStartTime: TimeUtils.getUnixTimestamp(),
                 ),
                 Divider(),
               ],
