@@ -2,7 +2,7 @@
 
 $DEBUG = false;
 
-$VERSION = "0.3.0+0701262351";
+$VERSION = "0.3.0+0702261220";
 
 $DEFAULT_USER_FIELDS = array(
                             array(
@@ -375,12 +375,21 @@ switch($route) {
                         $DB->commit();
                     }
 
+                    $rootFolder = gen_uuid();
+                    $rfTime = time();
+                    $rfStmt = $DB->prepare("INSERT INTO `Folders` (`ID`, `ParentFolder`, `UserID`, `Created`, `Modified`) VALUES (?, ?, ?, ?, ?);");
+                    $rfStmt->bind_param("sssii", $rootFolder, $null, $userid, $rfTime);
+                    $rfStmt->execute();
+                    $rfStmt->close();
+                    $DB->commit();
+
                     $data = array(
                         "user" => $username,
                         "displayName" => $username,
                         "alter_count" => 0,
                         "level" => 1,
                         "id" => $userid,
+                        "root_folder" => $rootFolder,
                         "fields" => null // I am lazy, and do not feel like iterating over this. We'll just have the user send a request.
                     );
                 } else {
@@ -405,14 +414,15 @@ switch($route) {
                         break;
                     }
                     $row = $resp->fetch_assoc();
+                    $userId = $row['ID'];
                     $alterFetch = $DB->prepare("SELECT * FROM Alters WHERE User=?;");
-                    $alterFetch->bind_param("s", $row['ID']);
+                    $alterFetch->bind_param("s", $userId);
                     $alterFetch->execute();
                     $alters = $alterFetch->get_result();
 
 
                     $fieldsFetch = $DB->prepare("SELECT * FROM Fields WHERE User=?;");
-                    $fieldsFetch->bind_param("s", $row['ID']);
+                    $fieldsFetch->bind_param("s", $userId);
                     $fieldsFetch->execute();
                     $fields = $fieldsFetch->get_result();
 
@@ -459,13 +469,21 @@ switch($route) {
                         break;
                     }
 
+                    $rfStmt = $DB->prepare("SELECT * FROM `Folders` WHERE `UserID`=? AND ParentFolder IS NULL;");
+                    $rfStmt->bind_param("s", $userId);
+                    $rfStmt->execute();
+                    $rfRes = $rfStmt->get_result();
+                    $rfRow = $rfRes->fetch_assoc();
+                    $rootFolder = $rfRow['ID'];
+
                     $data = array(
                         "user" => $row['UserName'],
                         "displayName" => $row['DisplayName'],
                         "alter_count" => $alterCount,
                         "level" => $row['AccountLevel'],
                         "id" => $row['ID'],
-                        "fields" => $fieldData
+                        "fields" => $fieldData,
+                        "root_folder" => $rootFolder
                     );
 
                 } else {
@@ -491,6 +509,103 @@ switch($route) {
             "data" => $data
         )));
 
+        break;
+    }
+
+    case "/folders": {
+        $DB = get_DB("switchboard");
+        $packet = json_decode(file_get_contents("php://input"), true);
+
+        $userid = $matches[1] ?? null; // null if /alters was requested without a username
+        
+        $auth = get_Authorization();
+        $AuthReply = ValidateSAT($auth);
+
+
+        $reason = "";
+
+        $success=false;
+/*
+        $defaultFolderStructure = array(
+            "id" => null_uuid(),
+            "name" => "sample folder",
+            "created" => time(),
+            "modified" => time(),
+            "contents" => array() // To avoid an absolutely MASSIVE response payload, we will only be listing 3 things in the response. It will be up to the client to send a request for more information about each item.  {ID, Name, Type}
+        );
+*/
+
+        if($AuthReply->Success) {
+            switch($request) {
+                case "GET": {
+                    // Get will pass all parameters via the GET request header: q
+                    $packet = json_decode(base64_decode($_GET['q']), true);
+                    // Now we can get requested information, like folder what the user is requesting. If the path ends in a (dot)extension, the request points to a resource.
+                    $rootOnly = $packet['root'];
+
+                    $path = $packet['path'];
+
+                    if($rootOnly)
+                        $stmt = $DB->prepare("SELECT * FROM `Folders` WHERE `UserID`=? AND `ParentFolder` IS NULL;");
+                    else
+                        $stmt = $DB->prepare("SELECT * FROM `Folders` WHERE `ID`=?;");
+                    
+                    
+                    $stmt->bind_param("s", $packet['id']);
+                    $stmt->execute();
+                    $res = $stmt->get_result();
+
+                    $row = $res->fetch_assoc();
+                    $data = array(
+                        "id" => $row['ID'],
+                        "name" => $row['Name'],
+                        "created" => $row['Created'],
+                        "modified" => $row['Modified'],
+                        "contents" => array()
+                    );
+                    $folderID = $row['ID'];
+
+                    $stmt = $DB->prepare("SELECT * FROM `FolderEntries` WHERE `FolderID`=?;");
+                    $stmt->bind_param("s", $folderID);
+                    $stmt->execute();
+                    $res = $stmt->get_result();
+
+                    while($row = $res->fetch_assoc()) {
+                        $arr = array(
+                            "id" => $row['ID'],
+                            "name" => $row['Name'],
+                            "type" => $row['EntryType'],
+                            "target" => $row['TargetID'],
+                            "created" => $row['Created']
+                        );
+
+                        array_push($data["contents"], $arr);
+                    }
+                    $success=true;
+                    
+                    break;
+                }
+                case "POST": {
+                    // 
+                    break;
+                }
+                case "DELETE": {
+                    break;
+                }
+            }
+        } else {
+            $success=false;
+            $reason = "Not Logged In";
+        }
+
+        die(json_encode(array(
+            "id" => $ID,
+            "type" => $request,
+            "path" => $route,
+            "success" => $success,
+            "reason" => $reason,
+            "data" => $data
+        )));
         break;
     }
 
