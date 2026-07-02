@@ -2,7 +2,7 @@
 
 $DEBUG = false;
 
-$VERSION = "0.3.0+0701261753";
+$VERSION = "0.3.0+0701261824";
 
 $DEFAULT_USER_FIELDS = array(
                             array(
@@ -369,7 +369,7 @@ switch($route) {
                         // Create the default fields for the specified user.
                         $fieldID = gen_uuid();
                         $dfStmt = $DB->prepare("INSERT INTO `Fields` (`User`, `ID`, `FieldName`, `FieldType`, `SortOrder`) VALUES (?,?,?,?, ?);");
-                        $dfStmt->bind_param("sssi", $userid, $fieldID, $value["Name"], $value["Type"], $value["Order"]);
+                        $dfStmt->bind_param("sssii", $userid, $fieldID, $value["Name"], $value["Type"], $value["Order"]);
                         $dfStmt->execute();
                         $dfStmt->close();
                         $DB->commit();
