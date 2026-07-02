@@ -125,7 +125,7 @@ class NetworkInterface {
     });
   }
 
-  static Future<S2CUserPacket> putNewUser(
+  static Future<S2CLazyResponse> putNewUser(
     String username,
     String password,
   ) async {
@@ -140,7 +140,7 @@ class NetworkInterface {
       print(reply.data);
 
       // Deserialize the make new user packet
-      S2CUserPacket response = S2CUserPacket.decode(
+      S2CLazyResponse response = S2CLazyResponse.decode(
         typeCorrectJson(reply.data),
       );
       NetworkCaches.invalidate();

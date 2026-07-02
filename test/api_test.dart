@@ -28,7 +28,7 @@ void main() {
     // 2 - Allow Deletion
     // Effectively, the level also acts as Flags for the account.
 
-    S2CUserPacket userReply = await NetworkInterface.putNewUser(
+    S2CLazyResponse userReply = await NetworkInterface.putNewUser(
       "1234apitest",
       "test",
     );

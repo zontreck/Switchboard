@@ -12,6 +12,7 @@
 - [x] Add spacing to the edit alter page between the Copy Avatar Permalink button and the Show Alter ID button.
 - [x] Update all icons to use new Logo from The Asterism Theatre
 - [x] HARD RESET OF DATABASE: All migrations have been squashed down, indexes redone.
+- [x] `NetworkInterface.putNewUser` will now return a `S2CLazyResponse` instead of a `S2CUserResponse`. This is because on registration, it does not return the full Fields list like a UserResponse would.
 
 # 0.2.0+0630262333
 

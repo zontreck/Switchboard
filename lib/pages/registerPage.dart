@@ -43,7 +43,7 @@ class _SBRegister extends State<SBRegisterPage> {
           ? ElevatedButton.icon(
               onPressed: () async {
                 // do register
-                S2CUserPacket usrPkt = await NetworkInterface.putNewUser(
+                S2CLazyResponse usrPkt = await NetworkInterface.putNewUser(
                   usernameController.text,
                   passwordController.text,
                 );
