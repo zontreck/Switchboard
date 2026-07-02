@@ -2,7 +2,7 @@
 
 $DEBUG = false;
 
-$VERSION = "0.3.0+0702261220";
+$VERSION = "0.3.0+0702261549";
 
 $DEFAULT_USER_FIELDS = array(
                             array(
@@ -586,7 +586,80 @@ switch($route) {
                     break;
                 }
                 case "POST": {
-                    // 
+                    // Create folder
+                    $folderId = gen_uuid();
+                    $name = $packet['name'];
+                    $creation = time();
+                    $mod = time();
+
+                    $stmt = $DB->prepare("INSERT INTO `Folders` (`ID`, `ParentFolder`, `Name`, `UserID`, `Created`, `Modified`) VALUES (?, ?, ?, ?, ?, ?);");
+                    $stmt->bind_param("ssssii", $folderId, $null, $name, $AuthReply->UserID, $creation, $mod);
+                    $stmt->execute();
+                    $stmt->close();
+                    $DB->commit();
+
+
+                    $success=true;
+                    $reason = "Folder created";
+
+                    $data = array(
+                        "id" => $folderId,
+                        "name" => $name,
+                        "created" => $creation,
+                        "modified" => $mod,
+                        "contents" => array()
+                    );
+
+                    break;
+                }
+                case "PUT": {
+                    // Add a Folder Entry. This mechanism will add any ID as a child object.
+                    $id = $packet['id'];
+                    $parent = $packet['parent'];
+                    $name = $packet['name'];
+                    $type = $packet['type'];
+                    $isLink = $packet['link'] == "1";
+                    $isFolder = $packet['folder'] == "1"; // If folder, we must update the Folders table. 
+                    $creation = time();
+
+                    if($isFolder) {
+                        // This is possibly a MOVE operation. 
+                        // Delete this folder from any other previous parent
+                        $dstmt = $DB->prepare("DELETE FROM `FolderEntries` WHERE `ID` = ? AND `Name` = ?;");
+                        $dstmt->bind_param("ss", $id, $name);
+                        $dstmt->execute();
+                        $dstmt->close();
+                        $DB->commit();
+                    }
+
+                    $stmt = $DB->prepare("INSERT INTO `FolderEntries` (`ID`, `FolderID`, `Name`, `EntryType`, `TargetID`, `Created`) VALUES (?, ?, ?, ?, ?, ?)");
+                    if(!$isFolder) {
+                        $target = $id;
+                        $id = gen_uuid(); // Make a new ID for any object that is not a folder. Links are viewed as regular files also.
+                    }
+                    $stmt->bind_param("sssssi", $id, $parent, $name, $type, $target, $creation);
+                    $stmt->execute();
+                    $stmt->close();
+                    $DB->commit();
+
+                    // Update the parent folder's modified time
+                    $stmt = $DB->prepare("UPDATE `Folders` SET `Modified` = ? WHERE `ID` = ?;");
+                    $mod = time();
+                    $stmt->bind_param("is", $mod, $parent);
+                    $stmt->execute();
+                    $stmt->close();
+                    $DB->commit();
+
+                    if($isFolder) {
+                        // Update the folder's parent
+                        $stmt = $DB->prepare("UPDATE `Folders` SET `ParentFolder` = ?, `Modified` = ? WHERE `ID` = ?;");
+                        $stmt->bind_param("sis", $parent, $mod, $id);
+                        $stmt->execute();
+                        $stmt->close();
+                        $DB->commit();
+                    }
+
+                    $success=true;
                     break;
                 }
                 case "DELETE": {
