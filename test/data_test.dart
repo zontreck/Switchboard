@@ -18,7 +18,7 @@ void main() {
           .build(),
     );
     testData.user = OctoconUser(
-      id: UUID.generate(4),
+      id: UUID.generate(4).toString(),
       description: "test description",
       fields: [],
       username: "usertest",

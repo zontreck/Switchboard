@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
@@ -6,6 +7,7 @@ import 'package:libacflutter/Constants.dart';
 import 'package:markdown_widget/widget/markdown_block.dart';
 import 'package:switchboard/dart/octocon_format.dart';
 import 'package:switchboard/dart/storage.dart';
+import 'package:switchboard/file_picker.dart';
 import 'package:switchboard/globalHelpers.dart';
 import 'package:switchboard/pages/progressDisplayPage.dart';
 
@@ -19,12 +21,14 @@ class OctoconImport extends StatefulWidget {
 }
 
 class _octocon extends State<OctoconImport> {
-  String _selectedFile = "";
+  Uint8List? _contents = null;
 
   Future<void> runMigration() async {
     // Start importing OctoconData
-    File octo = File(_selectedFile);
-    String octoData = octo.readAsStringSync();
+    if (_contents == null) {
+      return;
+    }
+    String octoData = await convertRawBytesToString(_contents!);
     OctoconData octoconData = OctoconData.fromJson(octoData);
 
     await Navigator.pushNamed(
@@ -67,32 +71,16 @@ class _octocon extends State<OctoconImport> {
                 leading: Icon(Icons.file_open),
                 tileColor: Colors.blueGrey,
                 onTap: () async {
-                  var hasPerm = await checkStoragePermissions();
-                  if (!hasPerm) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text(
-                          "Storage permissions are denied currently. Please grant them before you can proceed.",
-                        ),
-                      ),
-                    );
-                    return;
-                  }
-                  FilePickerResult? reply = await FilePicker.pickFiles(
+                  _contents = await FileLoader.getFile(
+                    context: context,
                     allowedExtensions: ["json"],
-                    allowMultiple: false,
-                    type: FileType.custom,
                   );
 
-                  if (reply == null) {
-                    _selectedFile = "";
+                  if (_contents == null) {
                     ScaffoldMessenger.of(
                       context,
                     ).showSnackBar(SnackBar(content: Text("Aborting import")));
                     return;
-                  } else {
-                    // Set the selected file path
-                    _selectedFile = reply.files.first.path!;
                   }
                 },
               ),
@@ -105,7 +93,7 @@ class _octocon extends State<OctoconImport> {
                 leading: Icon(Icons.import_contacts),
                 tileColor: LibACFlutterConstants.TITLEBAR_COLOR,
                 onTap: () async {
-                  if (_selectedFile.isEmpty) {
+                  if (_contents == null) {
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(
                         content: Text("ERROR: You must select the file first."),
@@ -117,7 +105,7 @@ class _octocon extends State<OctoconImport> {
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(
                       content: Text(
-                        "This feature is coming soon. It is not yet available.",
+                        "This feature is experimental and may not function exactly as expected yet.",
                       ),
                     ),
                   );
@@ -136,7 +124,7 @@ class _octocon extends State<OctoconImport> {
                 leading: Icon(Icons.import_contacts),
                 tileColor: const Color.fromARGB(255, 0, 105, 4),
                 onTap: () {
-                  if (_selectedFile.isEmpty) {
+                  if (_contents == null) {
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(
                         content: Text("ERROR: You must select the file first."),
@@ -147,7 +135,7 @@ class _octocon extends State<OctoconImport> {
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(
                       content: Text(
-                        "This feature is coming soon. It is not yet available.",
+                        "This feature is experimental and may not function exactly as expected yet.",
                       ),
                     ),
                   );

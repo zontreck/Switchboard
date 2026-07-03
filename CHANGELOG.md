@@ -14,6 +14,8 @@
 - [x] Update all icons to use new Logo from The Asterism Theatre
 - [x] HARD RESET OF DATABASE: All migrations have been squashed down, indexes redone.
 - [x] `NetworkInterface.putNewUser` will now return a `S2CLazyResponse` instead of a `S2CUserResponse`. This is because on registration, it does not return the full Fields list like a UserResponse would.
+- [x] Rip out UUID from `Octocon Format`, replacing with Strings.
+- [x] Move all instances of File Picker to a dedicated handler, fixing the Web App.
 
 # 0.2.0+0630262333
 

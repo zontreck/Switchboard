@@ -1,6 +1,6 @@
 import 'dart:convert';
 
-import 'package:libac_dart/utils/uuid/UUID.dart';
+import 'package:switchboard/dart/globalHelpers.dart';
 
 class OctoconData {
   /// Alter List
@@ -257,13 +257,13 @@ class OctoconAlter {
 }
 
 class OctoField {
-  UUID id;
+  String id;
   dynamic value;
 
   OctoField({required this.id, required this.value});
 
   factory OctoField.fromJson(Map<String, dynamic> jsx) {
-    return OctoField(id: UUID.parse(jsx['id'] as String), value: jsx['value']);
+    return OctoField(id: jsx['id'] as String, value: jsx['value']);
   }
 
   Map<String, dynamic> toJson() {
@@ -272,7 +272,7 @@ class OctoField {
 }
 
 class OctoconFront {
-  final UUID id;
+  final String id;
   final String comment;
   final DateTime? timeEnd; // time_end
   final int alterId; // alter_id
@@ -287,7 +287,7 @@ class OctoconFront {
   });
 
   factory OctoconFront.fromJson(Map<String, dynamic> jsx) {
-    UUID id = UUID.parse(jsx['id'] as String);
+    String id = jsx['id'] as String;
     String comment = jsx['comment'] as String;
     DateTime? end;
     if (jsx.containsKey("time_end")) {
@@ -326,7 +326,7 @@ class OctoconFront {
 }
 
 class OctoconUser {
-  final UUID id;
+  final String id;
   final String? description;
   final List<OctoconField> fields;
   final String? username;
@@ -342,7 +342,7 @@ class OctoconUser {
 
   static OctoconUser blank() {
     return OctoconUser(
-      id: UUID.ZERO,
+      id: UUID_ZERO,
       description: "",
       fields: [],
       username: "",
@@ -351,7 +351,7 @@ class OctoconUser {
   }
 
   factory OctoconUser.fromJson(Map<String, dynamic> jsx) {
-    UUID id = UUID.parse(jsx['id'] as String);
+    String id = jsx['id'] as String;
     String? description = jsx['description'];
     List<dynamic> fieldx = jsx['fields'] as List<dynamic>;
     String? username = jsx['username'];
@@ -386,7 +386,7 @@ class OctoconUser {
     };
   }
 
-  OctoconField? getFieldByID(UUID id) {
+  OctoconField? getFieldByID(String id) {
     for (var field in fields) {
       if (field.id.toString() == id.toString()) {
         return field;
@@ -397,7 +397,7 @@ class OctoconUser {
 }
 
 class OctoconField {
-  final UUID id;
+  final String id;
   final String name;
   final String type;
   final bool locked;
@@ -412,7 +412,7 @@ class OctoconField {
   });
 
   factory OctoconField.fromJson(Map<String, dynamic> jsx) {
-    UUID id = UUID.parse(jsx['id'] as String);
+    String id = jsx['id'] as String;
     String name = jsx['name'] as String;
     String type = jsx['type'] as String;
     bool locked = jsx['locked'] as bool;
@@ -476,7 +476,7 @@ enum OctoconSecurityLevel {
 
 class OctoconPoll {
   final OctoconPollData data;
-  final UUID id;
+  final String id;
   final OctoconPollType type;
   final String description;
   final String title;
@@ -510,7 +510,7 @@ class OctoconPoll {
 
   factory OctoconPoll.fromJson(Map<String, dynamic> jsx) {
     OctoconPollData opd = OPDVoteData(allowVeto: false, responses: []);
-    UUID id = UUID.ZERO;
+    String id = UUID_ZERO;
     OctoconPollType type = OctoconPollType.vote;
     String description = "";
     String title = "";
@@ -532,7 +532,7 @@ class OctoconPoll {
     }
 
     if (jsx['id'] != null) {
-      id = UUID.parse(jsx['id'] as String);
+      id = jsx['id'] as String;
     }
     if (jsx['description'] != null) {
       description = jsx['description'] as String;
@@ -614,7 +614,7 @@ class OPDChoiceData implements OctoconPollData {
 
 class OPDChoiceSelection {
   final int alterId;
-  final UUID choiceId;
+  final String choiceId;
 
   OPDChoiceSelection({required this.alterId, required this.choiceId});
 
@@ -624,14 +624,14 @@ class OPDChoiceSelection {
 
   factory OPDChoiceSelection.fromJson(Map<String, dynamic> jsx) {
     int alter = 0;
-    UUID id = UUID.ZERO;
+    String id = UUID_ZERO;
 
     if (jsx['alter_id'] != null) {
       alter = jsx['alter_id'] as int;
     }
 
     if (jsx['choice_id'] != null) {
-      id = UUID.parse(jsx['choice_id'] as String);
+      id = jsx['choice_id'] as String;
     }
 
     return OPDChoiceSelection(alterId: alter, choiceId: id);
@@ -639,7 +639,7 @@ class OPDChoiceSelection {
 }
 
 class OPDChoice {
-  final UUID id;
+  final String id;
   final String name;
 
   OPDChoice({required this.id, required this.name});
@@ -649,10 +649,10 @@ class OPDChoice {
   }
 
   factory OPDChoice.fromJson(Map<String, dynamic> jsx) {
-    UUID id = UUID.ZERO;
+    String id = UUID_ZERO;
     String name = "";
 
-    if (jsx['id'] != null) id = UUID.parse(jsx['id'] as String);
+    if (jsx['id'] != null) id = jsx['id'] as String;
     if (jsx['name'] != null) {
       name = jsx['name'] as String;
     }
@@ -781,7 +781,7 @@ enum OPDVote {
 }
 
 class OctoconTag {
-  final UUID id;
+  final String id;
   final String name;
   final String description;
   final String color;
@@ -789,7 +789,7 @@ class OctoconTag {
   final DateTime updatedAt; //updated_at
   final OctoconSecurityLevel securityLevel; //security_level
   final List<int> alters;
-  final UUID parentTagId; // parent_tag_id
+  final String parentTagId; // parent_tag_id
 
   OctoconTag({
     required this.id,
@@ -818,7 +818,7 @@ class OctoconTag {
   }
 
   factory OctoconTag.fromJson(Map<String, dynamic> jsx) {
-    UUID id = UUID.ZERO;
+    String id = UUID_ZERO;
     String name = "";
     String description = "";
     String color = "";
@@ -826,10 +826,10 @@ class OctoconTag {
     DateTime updatedAt = DateTime.now();
     OctoconSecurityLevel securityLevel = OctoconSecurityLevel.private;
     List<int> alters = [];
-    UUID parentTagId = UUID.ZERO;
+    String parentTagId = UUID_ZERO;
 
     if (jsx['id'] != null) {
-      id = UUID.parse(jsx['id'] as String);
+      id = jsx['id'] as String;
     }
 
     if (jsx['name'] != null) {
@@ -862,7 +862,7 @@ class OctoconTag {
     }
 
     if (jsx['parent_tag_id'] != null) {
-      parentTagId = UUID.parse(jsx['parent_tag_id']);
+      parentTagId = jsx['parent_tag_id'];
     }
 
     return OctoconTag(

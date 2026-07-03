@@ -5,6 +5,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show FontLoader, rootBundle;
 import 'package:google_mobile_ads/google_mobile_ads.dart';
+import 'package:libac_dart/utils/Converter.dart';
 import 'package:libac_dart/utils/StringUtils.dart';
 import 'package:libacflutter/Constants.dart';
 import 'package:libacflutter/utils/colorHelpers.dart';
@@ -152,6 +153,11 @@ Future<bool> checkStoragePermissions() async {
   } catch (E) {
     return true;
   }
+}
+
+Future<String> convertRawBytesToString(Uint8List bytes) async {
+  var b64 = base64Encoder.base64EncBytes(bytes);
+  return base64Encoder.base64Dec(b64);
 }
 
 Widget confirmDeleteAlter(BuildContext context) {

@@ -5,6 +5,7 @@ import 'package:dio/dio.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:libacflutter/Constants.dart';
+import 'package:switchboard/file_picker.dart';
 import 'package:switchboard/globalHelpers.dart';
 
 class FontPage extends StatefulWidget {
@@ -59,26 +60,13 @@ class _fontPage extends State<FontPage> {
                 leading: Icon(Icons.font_download),
                 tileColor: Colors.purple,
                 onTap: () async {
-                  var hasPerm = await checkStoragePermissions();
-                  if (!hasPerm) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text(
-                          "Storage permissions are denied currently. Please grant them before you can proceed.",
-                        ),
-                      ),
-                    );
-                    return;
-                  }
-                  FilePickerResult? result = await FilePicker.pickFiles(
-                    allowMultiple: false,
-                    allowedExtensions: ["ttf"],
-                    type: FileType.custom,
+                  var result = await FileLoader.getFile(
+                    context: context,
+                    allowedExtensions: ["ttf", "otf"],
                   );
 
                   if (result != null) {
-                    File file = File(result.files.single.path!);
-                    await setApplicationFont(file.readAsBytesSync());
+                    await setApplicationFont(result);
                     setState(() {});
                   } else {
                     ScaffoldMessenger.of(context).showSnackBar(
