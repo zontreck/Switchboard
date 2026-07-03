@@ -2,7 +2,7 @@
 
 $DEBUG = false;
 
-$VERSION = "0.3.0+0702262124";
+$VERSION = "0.3.0+0702262223";
 
 $DEFAULT_USER_FIELDS = array(
                             array(
@@ -377,8 +377,9 @@ switch($route) {
 
                     $rootFolder = gen_uuid();
                     $rfTime = time();
-                    $rfStmt = $DB->prepare("INSERT INTO `Folders` (`ID`, `ParentFolder`, `UserID`, `Created`, `Modified`) VALUES (?, ?, ?, ?, ?);");
-                    $rfStmt->bind_param("sssii", $rootFolder, $null, $userid, $rfTime, $rfTime);
+                    $rootName = "root";
+                    $rfStmt = $DB->prepare("INSERT INTO `Folders` (`ID`, `Name`, `ParentFolder`, `UserID`, `Created`, `Modified`) VALUES (?, ?, ?, ?, ?, ?);");
+                    $rfStmt->bind_param("ssssii", $rootFolder, $rootName, $null, $userid, $rfTime, $rfTime);
                     $rfStmt->execute();
                     $rfStmt->close();
                     $DB->commit();
