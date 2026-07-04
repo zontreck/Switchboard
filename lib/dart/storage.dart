@@ -751,6 +751,118 @@ class NetworkInterface {
 
     return S2CLazyResponse.decode(typeCorrectJson(reply.data));
   }
+
+  /// Add a folder or item to the contents of a folder
+  ///
+  /// [id] The ID to be added as an item
+  /// [parent] The containing folder
+  /// [name] Name of the item. (For folders, MUST match the folder name.)
+  /// [isFolder] Indicate whether the type of item is a Folder.
+  static Future<S2CLazyResponse> addToFolderContents(
+    String id,
+    String parent,
+    String name,
+    bool isFolder,
+    bool isAlter,
+    bool isAvatar,
+    bool isImage,
+  ) async {
+    Dio dio = Dio();
+    MemoryState ms = MemoryState();
+
+    String type = "x-sb/unknown";
+
+    if (isFolder) {
+      type = "sb/folder";
+    } else if (isAlter) {
+      type = "sb/alter";
+    } else if (isAvatar) {
+      type = "sb/avatar";
+    } else if (isImage) {
+      type = "sb/img";
+    }
+
+    dio.options.headers["Content-Type"] = "application/json";
+    dio.options.headers["X-SB-Auth"] = ms.authenticationToken;
+
+    var reply = await dio.put(
+      "${getAPIServerURL()}/folders",
+      data: {
+        "id": id,
+        "name": name,
+        "type": type,
+        "parent": parent,
+        "folder": isFolder ? 1 : 0,
+      },
+    );
+    print(reply.data);
+
+    return S2CLazyResponse.decode(typeCorrectJson(reply.data));
+  }
+}
+
+class XSBType {
+  bool isFolder;
+  bool isAlter;
+  bool isAvatar;
+  bool isImage;
+
+  XSBType._({
+    required this.isAlter,
+    required this.isAvatar,
+    required this.isFolder,
+    required this.isImage,
+  });
+
+  factory XSBType.fromTypeString(String type) {
+    switch (type) {
+      case "sb/folder":
+        {
+          return XSBType._(
+            isAlter: false,
+            isAvatar: false,
+            isFolder: true,
+            isImage: false,
+          );
+        }
+      case "sb/alter":
+        {
+          return XSBType._(
+            isAlter: true,
+            isAvatar: false,
+            isFolder: false,
+            isImage: false,
+          );
+        }
+      case "sb/avatar":
+        {
+          return XSBType._(
+            isAlter: false,
+            isAvatar: true,
+            isFolder: false,
+            isImage: false,
+          );
+        }
+      case "sb/img":
+        {
+          return XSBType._(
+            isAlter: false,
+            isAvatar: false,
+            isFolder: false,
+            isImage: true,
+          );
+        }
+      default:
+        {
+          return XSBType._(
+            isAlter: false,
+            isAvatar: false,
+            isFolder: false,
+            isImage: false,
+          );
+        }
+    }
+  }
 }
 
 abstract class ResponsePacket {
