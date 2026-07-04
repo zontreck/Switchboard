@@ -2,7 +2,7 @@
 
 $DEBUG = false;
 
-$VERSION = "0.3.0+0704261249";
+$VERSION = "0.3.0+0704261315";
 
 $DEFAULT_USER_FIELDS = array(
                             array(
@@ -526,15 +526,6 @@ switch($route) {
         $reason = "";
 
         $success=false;
-/*
-        $defaultFolderStructure = array(
-            "id" => null_uuid(),
-            "name" => "sample folder",
-            "created" => time(),
-            "modified" => time(),
-            "contents" => array() // To avoid an absolutely MASSIVE response payload, we will only be listing 3 things in the response. It will be up to the client to send a request for more information about each item.  {ID, Name, Type}
-        );
-*/
 
         if($AuthReply->Success) {
             switch($request) {
@@ -639,7 +630,7 @@ switch($route) {
                         $target = $id;
                         $id = gen_uuid(); // Make a new ID for any object that is not a folder. Links are viewed as regular files also.
                     }
-                    $stmt->bind_param("sssssi", $id, $parent, $name, $type, $target, $creation, $AuthReply->UserID);
+                    $stmt->bind_param("sssssis", $id, $parent, $name, $type, $target, $creation, $AuthReply->UserID);
                     $stmt->execute();
                     $stmt->close();
                     $DB->commit();

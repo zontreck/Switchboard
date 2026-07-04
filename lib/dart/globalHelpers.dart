@@ -72,6 +72,10 @@ dynamic typeCorrect(dynamic value) {
   // Handle lists
   if (value is List) {
     List<dynamic> corrected = value.map(typeCorrect).toList();
+    if (corrected.isEmpty) {
+      // Type is unknowable.
+      return corrected;
+    }
 
     Type firstType = corrected.first.runtimeType;
 
