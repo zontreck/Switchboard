@@ -2,7 +2,7 @@
 
 $DEBUG = false;
 
-$VERSION = "0.3.0+0704260241";
+$VERSION = "0.3.0+0704261042";
 
 $DEFAULT_USER_FIELDS = array(
                             array(
@@ -538,21 +538,22 @@ switch($route) {
 
         if($AuthReply->Success) {
             switch($request) {
-                case "GET": {
+                case "GET": { // S2CFolderResponse
                     // Get will pass all parameters via the GET request header: q
                     $packet = json_decode(base64_decode($_GET['q']), true);
                     // Now we can get requested information, like folder what the user is requesting. If the path ends in a (dot)extension, the request points to a resource.
-                    $rootOnly = $packet['root'];
-
-                    $path = $packet['path'];
+                    $rootOnly = $packet['root'] == 1;
 
                     if($rootOnly)
                         $stmt = $DB->prepare("SELECT * FROM `Folders` WHERE `UserID`=? AND `ParentFolder` IS NULL;");
                     else
                         $stmt = $DB->prepare("SELECT * FROM `Folders` WHERE `ID`=? AND `UserID` = ?;");
                     
-                    
-                    $stmt->bind_param("ss", $packet['id'], $AuthReply->UserID);
+                    if(!$rootOnly)
+                        $stmt->bind_param("ss", $packet['id'], $AuthReply->UserID);
+                    else
+                        $stmt->bind_param("s", $AuthReply->UserID);
+
                     $stmt->execute();
                     $res = $stmt->get_result();
 
@@ -586,7 +587,7 @@ switch($route) {
                     
                     break;
                 }
-                case "POST": {
+                case "POST": {  // S2CFolderReply
                     // Create folder
                     $folderId = gen_uuid();
                     $name = $packet['name'];
@@ -613,7 +614,7 @@ switch($route) {
 
                     break;
                 }
-                case "PUT": {
+                case "PUT": { // S2CLazyResponse
                     // Add a Folder Entry. This mechanism will add any ID as a child object.
                     $id = $packet['id'];
                     $parent = $packet['parent'];
@@ -663,7 +664,7 @@ switch($route) {
                     $success=true;
                     break;
                 }
-                case "DELETE": {
+                case "DELETE": { //S2CLazyResponse
                     $id = $packet['id'];
                     $item = $packet['folder'] == 0;
                     
@@ -684,7 +685,7 @@ switch($route) {
 
                     break;
                 }
-                case "PATCH": {
+                case "PATCH": { // S2CLazyResponse
                     // Rename a folder!
                     $id = $packet['id'];
                     $name = $packet['name'];

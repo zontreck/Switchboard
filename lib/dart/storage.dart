@@ -756,7 +756,7 @@ class NetworkInterface {
   /// NOTE: The folder will not have a parent by default. It will need to be moved to the root folder, or it's destination in a subsequent call after you have the new ID.
   ///
   /// [name] Folder name to generate
-  static Future<S2CLazyResponse> createFolder(String name) async {
+  static Future<S2CFolderReply> createFolder(String name) async {
     Dio dio = Dio();
     MemoryState ms = MemoryState();
 
@@ -769,7 +769,7 @@ class NetworkInterface {
     );
     print(reply.data);
 
-    return S2CLazyResponse.decode(typeCorrectJson(reply.data));
+    return S2CFolderReply.decode(typeCorrectJson(reply.data));
   }
 
   /// Add a folder or item to the contents of a folder
@@ -778,6 +778,9 @@ class NetworkInterface {
   /// [parent] The containing folder
   /// [name] Name of the item. (For folders, MUST match the folder name.)
   /// [isFolder] Indicate whether the type of item is a Folder.
+  /// [isAlter] Indicate whether the type of item is an alter.
+  /// [isAvatar] Indicates whether the type of item is an avatar image.
+  /// [isImage] Indicates whether the type of item is an Image.
   static Future<S2CLazyResponse> addToFolderContents(
     String id,
     String parent,
@@ -818,6 +821,29 @@ class NetworkInterface {
     print(reply.data);
 
     return S2CLazyResponse.decode(typeCorrectJson(reply.data));
+  }
+
+  /// Add a folder or item to the contents of a folder
+  ///
+  /// [id] The ID to be added as an item
+  /// [rootOnly] Indicates to the server if we only want the root folder. Useful when you do not know the RootFolderID
+  static Future<S2CFolderReply> getFolderOrItem(
+    String id,
+    bool rootOnly,
+  ) async {
+    Dio dio = Dio();
+    MemoryState ms = MemoryState();
+
+    dio.options.headers["Content-Type"] = "application/json";
+    dio.options.headers["X-SB-Auth"] = ms.authenticationToken;
+
+    var q = {"id": id, "root": rootOnly ? 1 : 0};
+    var qStr = base64Encoder.base64Enc(json.encode(q));
+
+    var reply = await dio.get("${getAPIServerURL()}/folders?q=${qStr}");
+    print(reply.data);
+
+    return S2CFolderReply.decode(typeCorrectJson(reply.data));
   }
 }
 
@@ -2160,5 +2186,102 @@ class Folder {
       modified: TimeUtils.parseTimestamp(js['modified']),
       contents: entries,
     );
+  }
+}
+
+class S2CFolderReply extends S2CLazyResponse {
+  Folder data;
+  S2CFolderReply({
+    required super.id,
+    required super.path,
+    required super.reason,
+    required super.success,
+    required super.type,
+    required this.data,
+  });
+
+  @override
+  Map<String, dynamic> encode() {
+    var rep = super.encode();
+    rep.addAll({"data": data.toJson()});
+
+    return rep;
+  }
+
+  @override
+  void _decode(Map<String, dynamic> js) {
+    super._decode(js);
+
+    data = Folder.decode(js['data']);
+  }
+
+  factory S2CFolderReply.decode(Map<String, dynamic> js) {
+    S2CFolderReply reply = S2CFolderReply(
+      id: UUID_ZERO,
+      path: "",
+      reason: "reason",
+      success: false,
+      type: "type",
+      data: Folder(
+        id: UUID_ZERO,
+        name: "name",
+        created: DateTime.now(),
+        modified: DateTime.now(),
+        contents: [],
+      ),
+    );
+
+    reply._decode(js);
+
+    return reply;
+  }
+}
+
+class S2CFoldersReply extends S2CLazyResponse {
+  List<Folder> data;
+  S2CFoldersReply({
+    required super.id,
+    required super.path,
+    required super.reason,
+    required super.success,
+    required super.type,
+    required this.data,
+  });
+
+  @override
+  Map<String, dynamic> encode() {
+    var rep = super.encode();
+    List<Map<String, dynamic>> jdata = [];
+    for (var entry in data) {
+      jdata.add(entry.toJson());
+    }
+    rep["data"] = jdata;
+
+    return rep;
+  }
+
+  @override
+  void _decode(Map<String, dynamic> js) {
+    super._decode(js);
+
+    data = [];
+    for (var entry in js['data']) {
+      data.add(Folder.decode(entry));
+    }
+  }
+
+  factory S2CFoldersReply.decode(Map<String, dynamic> js) {
+    S2CFoldersReply reply = S2CFoldersReply(
+      id: UUID_ZERO,
+      path: "",
+      reason: "reason",
+      success: false,
+      type: "type",
+      data: [],
+    );
+
+    reply._decode(js);
+
+    return reply;
   }
 }
