@@ -2,7 +2,7 @@
 
 $DEBUG = false;
 
-$VERSION = "0.3.0+0703262157";
+$VERSION = "0.3.0+0703262203";
 
 $DEFAULT_USER_FIELDS = array(
                             array(
@@ -549,10 +549,10 @@ switch($route) {
                     if($rootOnly)
                         $stmt = $DB->prepare("SELECT * FROM `Folders` WHERE `UserID`=? AND `ParentFolder` IS NULL;");
                     else
-                        $stmt = $DB->prepare("SELECT * FROM `Folders` WHERE `ID`=?;");
+                        $stmt = $DB->prepare("SELECT * FROM `Folders` WHERE `ID`=? AND `UserID` = ?;");
                     
                     
-                    $stmt->bind_param("s", $packet['id']);
+                    $stmt->bind_param("ss", $packet['id'], $AuthReply->UserID);
                     $stmt->execute();
                     $res = $stmt->get_result();
 
@@ -566,8 +566,8 @@ switch($route) {
                     );
                     $folderID = $row['ID'];
 
-                    $stmt = $DB->prepare("SELECT * FROM `FolderEntries` WHERE `FolderID`=?;");
-                    $stmt->bind_param("s", $folderID);
+                    $stmt = $DB->prepare("SELECT * FROM `FolderEntries` WHERE `FolderID`=? AND `UserID` = ?;");
+                    $stmt->bind_param("ss", $folderID, $AuthReply->UserID);
                     $stmt->execute();
                     $res = $stmt->get_result();
 
@@ -626,35 +626,35 @@ switch($route) {
                     if($isFolder) {
                         // This is possibly a MOVE operation. 
                         // Delete this folder from any other previous parent
-                        $dstmt = $DB->prepare("DELETE FROM `FolderEntries` WHERE `ID` = ? AND `Name` = ?;");
-                        $dstmt->bind_param("ss", $id, $name);
+                        $dstmt = $DB->prepare("DELETE FROM `FolderEntries` WHERE `ID` = ? AND `Name` = ? AND `UserID` = ?;");
+                        $dstmt->bind_param("sss", $id, $name, $AuthReply->UserID);
                         $dstmt->execute();
                         $dstmt->close();
                         $DB->commit();
                     }
 
-                    $stmt = $DB->prepare("INSERT INTO `FolderEntries` (`ID`, `FolderID`, `Name`, `EntryType`, `TargetID`, `Created`) VALUES (?, ?, ?, ?, ?, ?)");
+                    $stmt = $DB->prepare("INSERT INTO `FolderEntries` (`ID`, `FolderID`, `Name`, `EntryType`, `TargetID`, `Created`, `UserID`) VALUES (?, ?, ?, ?, ?, ?, ?)");
                     if(!$isFolder) {
                         $target = $id;
                         $id = gen_uuid(); // Make a new ID for any object that is not a folder. Links are viewed as regular files also.
                     }
-                    $stmt->bind_param("sssssi", $id, $parent, $name, $type, $target, $creation);
+                    $stmt->bind_param("sssssi", $id, $parent, $name, $type, $target, $creation, $AuthReply->UserID);
                     $stmt->execute();
                     $stmt->close();
                     $DB->commit();
 
                     // Update the parent folder's modified time
-                    $stmt = $DB->prepare("UPDATE `Folders` SET `Modified` = ? WHERE `ID` = ?;");
+                    $stmt = $DB->prepare("UPDATE `Folders` SET `Modified` = ? WHERE `ID` = ? AND `UserID` = ?;");
                     $mod = time();
-                    $stmt->bind_param("is", $mod, $parent);
+                    $stmt->bind_param("iss", $mod, $parent, $AuthReply->UserID);
                     $stmt->execute();
                     $stmt->close();
                     $DB->commit();
 
                     if($isFolder) {
                         // Update the folder's parent
-                        $stmt = $DB->prepare("UPDATE `Folders` SET `ParentFolder` = ?, `Modified` = ? WHERE `ID` = ?;");
-                        $stmt->bind_param("sis", $parent, $mod, $id);
+                        $stmt = $DB->prepare("UPDATE `Folders` SET `ParentFolder` = ?, `Modified` = ? WHERE `ID` = ? AND `UserID`=?;");
+                        $stmt->bind_param("siss", $parent, $mod, $id, $AuthReply->UserID);
                         $stmt->execute();
                         $stmt->close();
                         $DB->commit();
