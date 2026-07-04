@@ -2,7 +2,7 @@
 
 $DEBUG = false;
 
-$VERSION = "0.3.0+0704260030";
+$VERSION = "0.3.0+0704260241";
 
 $DEFAULT_USER_FIELDS = array(
                             array(
@@ -691,10 +691,18 @@ switch($route) {
 
                     $folder = $packet['folder'] == 1;
 
-                    if($folder)
+                    if($folder){
                         $stmt = $DB->prepare("UPDATE `Folders` SET `Name` = ? WHERE `ID` = ? AND `UserID` = ?;");
-                    else $stmt = $DB->prepare("UPDATE `FolderEntries` SET `Name` = ? WHERE `ID` = ? AND `UserID` = ?;");
+                    
 
+                        $stmt->bind_param("sss", $name, $id, $AuthReply->UserID);
+                        $stmt->execute();
+                        $stmt->close();
+
+                        $DB->commit();
+                    }
+
+                    $stmt = $DB->prepare("UPDATE `FolderEntries` SET `Name` = ? WHERE `ID` = ? AND `UserID` = ?;");
                     $stmt->bind_param("sss", $name, $id, $AuthReply->UserID);
                     $stmt->execute();
                     $stmt->close();
