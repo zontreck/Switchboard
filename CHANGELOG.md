@@ -7,6 +7,12 @@
 - [x] Network Interface binding for delete alter `NetworkInterface.deleteAlter(alterId)`
 - [x] Long press menu with fronting options and a delete option + confirmation dialog
 - [x] Roadmap: 1.0 Release will include Encryption of the database.Not sure yet what this will look like implementation-wise.
+- [ ] API bindings for interacting with folders on the server.
+  - [x] Patch
+  - [x] DELETE
+  - [x] PUT
+  - [ ] POST
+  - [ ] GET
 
 ## CHANGE:
 

@@ -752,6 +752,26 @@ class NetworkInterface {
     return S2CLazyResponse.decode(typeCorrectJson(reply.data));
   }
 
+  /// Creates a folder.
+  /// NOTE: The folder will not have a parent by default. It will need to be moved to the root folder, or it's destination in a subsequent call after you have the new ID.
+  ///
+  /// [name] Folder name to generate
+  static Future<S2CLazyResponse> createFolder(String name) async {
+    Dio dio = Dio();
+    MemoryState ms = MemoryState();
+
+    dio.options.headers["Content-Type"] = "application/json";
+    dio.options.headers["X-SB-Auth"] = ms.authenticationToken;
+
+    var reply = await dio.post(
+      "${getAPIServerURL()}/folders",
+      data: {"name": name},
+    );
+    print(reply.data);
+
+    return S2CLazyResponse.decode(typeCorrectJson(reply.data));
+  }
+
   /// Add a folder or item to the contents of a folder
   ///
   /// [id] The ID to be added as an item
@@ -813,6 +833,15 @@ class XSBType {
     required this.isFolder,
     required this.isImage,
   });
+
+  String toJson() {
+    if (isFolder) return "sb/folder";
+    if (isAlter) return "sb/alter";
+    if (isAvatar) return "sb/avatar";
+    if (isImage) return "sb/img";
+
+    return "x-sb/unknown";
+  }
 
   factory XSBType.fromTypeString(String type) {
     switch (type) {
@@ -2049,5 +2078,87 @@ class S2CFrontHistoryResponse extends S2CLazyResponse {
 
     front._decode(js);
     return front;
+  }
+}
+
+class FolderEntry {
+  String name;
+  String id;
+  XSBType type;
+  String target;
+  DateTime created;
+
+  FolderEntry({
+    required this.name,
+    required this.created,
+    required this.id,
+    required this.target,
+    required this.type,
+  });
+
+  Map<String, dynamic> toJson() {
+    return {
+      "id": id,
+      "name": name,
+      "type": type.toJson(),
+      "target": target,
+      "created": created,
+    };
+  }
+
+  factory FolderEntry.decode(Map<String, dynamic> js) {
+    return FolderEntry(
+      name: js['name'],
+      created: TimeUtils.parseTimestamp(js['created']),
+      id: js['id'],
+      target: js['target'],
+      type: XSBType.fromTypeString(js['type']),
+    );
+  }
+}
+
+class Folder {
+  String id;
+  String name;
+  DateTime created;
+  DateTime modified;
+  List<FolderEntry> contents;
+
+  Folder({
+    required this.id,
+    required this.name,
+    required this.created,
+    required this.modified,
+    required this.contents,
+  });
+
+  Map<String, dynamic> toJson() {
+    List<Map<String, dynamic>> jsx = [];
+    for (var entry in contents) {
+      jsx.add(entry.toJson());
+    }
+
+    return {
+      "id": id,
+      "name": name,
+      "created": created,
+      "modified": modified,
+      "contents": contents,
+    };
+  }
+
+  factory Folder.decode(Map<String, dynamic> js) {
+    List<FolderEntry> entries = [];
+    for (var entry in js['contents']) {
+      entries.add(FolderEntry.decode(entry));
+    }
+
+    return Folder(
+      id: js['id'],
+      name: js['name'],
+      created: TimeUtils.parseTimestamp(js['created']),
+      modified: TimeUtils.parseTimestamp(js['modified']),
+      contents: entries,
+    );
   }
 }
