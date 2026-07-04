@@ -2,7 +2,7 @@
 
 $DEBUG = false;
 
-$VERSION = "0.3.0+0702262223";
+$VERSION = "0.3.0+0703262157";
 
 $DEFAULT_USER_FIELDS = array(
                             array(
@@ -664,6 +664,24 @@ switch($route) {
                     break;
                 }
                 case "DELETE": {
+                    $id = $packet['id'];
+                    $item = $packet['folder'] == 0;
+                    
+                    if($item){
+                        $stmt = $DB->prepare("DELETE FROM `FolderEntries` WHERE `ID`=? AND `UserID`=?;");
+                    } else {
+                        $stmt = $DB->prepare("DELETE FROM `Folders` WHERE `ID`=? AND `UserID`=?;");
+                    }
+
+                    $stmt->bind_param("ss", $id, $AuthReply->UserID);
+                    $stmt->execute();
+                    $stmt->close();
+
+                    $DB->commit();
+
+                    $success=true;
+                    $reason = "Query executed";
+
                     break;
                 }
             }
@@ -1684,7 +1702,21 @@ switch($route) {
             $stmt->bind_param("s", $uid);
             $stmt->execute();
             $stmt->close();
+
+            // FolderEntries
+            $stmt = $DB->prepare("DELETE FROM `FolderEntries` WHERE UserID=?;");
+            $stmt->bind_param("s", $uid);
+            $stmt->execute();
+            $stmt->close();
+
+            // Folders
+            $stmt = $DB->prepare("DELETE FROM `Folders` WHERE `UserID` = ?;");
+            $stmt->bind_param("s", $uid);
+            $stmt->execute();
+            $stmt->close();
         }
+
+        $DB->commit();
 
 
 
