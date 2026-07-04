@@ -728,6 +728,29 @@ class NetworkInterface {
 
     return S2CLazyResponse.decode(typeCorrectJson(reply.data));
   }
+
+  /// Deletes a folder/entry
+  ///
+  /// [id] The item to delete
+  /// [isFolder] Whether the item is a folder, or a Item
+  static Future<S2CLazyResponse> deleteFolderItem(
+    String id,
+    bool isFolder,
+  ) async {
+    Dio dio = Dio();
+    MemoryState ms = MemoryState();
+
+    dio.options.headers["Content-Type"] = "application/json";
+    dio.options.headers["X-SB-Auth"] = ms.authenticationToken;
+
+    var reply = await dio.delete(
+      "${getAPIServerURL()}/folders",
+      data: {"id": id, "folder": isFolder ? 1 : 0},
+    );
+    print(reply.data);
+
+    return S2CLazyResponse.decode(typeCorrectJson(reply.data));
+  }
 }
 
 abstract class ResponsePacket {
