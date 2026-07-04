@@ -79,6 +79,13 @@ class NetworkInterface {
   static final _lInsertFronter = Lock();
   static final _lDeleteFronter = Lock();
   static final _lUnfrontFronter = Lock();
+  static final _lDeleteAlter = Lock();
+  static final _lDeleteFolder = Lock();
+  static final _lMakeFolder = Lock();
+  static final _lMoveFolder = Lock();
+  static final _lUpdateFolder = Lock();
+  static final _lAddFolderItem = Lock();
+  static final _lGetFolderItem = Lock();
 
   /// Retrieval of a cache object, if present.
   ///
@@ -402,6 +409,9 @@ class NetworkInterface {
     });
   }
 
+  /// Create a new field
+  ///
+  /// [name] The name to give the new field.
   static Future<S2CFieldResponse> newField(String name) async {
     return await _lNewField.synchronized(() async {
       Dio dio = Dio();
@@ -431,6 +441,9 @@ class NetworkInterface {
     });
   }
 
+  /// Delete a field by ID from the server
+  ///
+  /// [id] The field's ID to delete. Must be owned by the currently logged in user.
   static Future<S2CLazyResponse> deleteField(String id) async {
     return await _lDeleteField.synchronized(() async {
       Dio dio = Dio();
@@ -450,6 +463,9 @@ class NetworkInterface {
     });
   }
 
+  /// Update alter details on the server.
+  ///
+  /// [alter] The alter to update
   static Future<S2CLazyResponse> updateAlter(Alter alter) async {
     return await _lUpdateAlter.synchronized(() async {
       Dio dio = Dio();
@@ -486,6 +502,9 @@ class NetworkInterface {
     });
   }
 
+  /// Request deletion of the avatar for an alter
+  ///
+  /// [alter] The alter to remove the profile picture for
   static Future<S2CLazyResponse> deleteAvatar(Alter alter) async {
     return await _lDeleteAvatar.synchronized(() async {
       Dio dio = Dio();
@@ -504,6 +523,10 @@ class NetworkInterface {
     });
   }
 
+  /// Update the avatar image for the alter
+  ///
+  /// [alter] The alter to update
+  /// [base64EncodedImage] The raw image data encoded as base64
   static Future<S2CLazyResponse> updateAvatar(
     Alter alter,
     String base64EncodedImage,
@@ -527,6 +550,10 @@ class NetworkInterface {
     });
   }
 
+  /// Migrates an avatar image from one hosting service to our own.
+  ///
+  /// [url] The URL to migrate
+  /// [alterID] The alter ID to store the image for
   static Future<bool> migrateAvatar(String url, String alterID) async {
     return await _lMigrateAvatar.synchronized(() async {
       Dio dio = Dio();
@@ -558,6 +585,7 @@ class NetworkInterface {
     });
   }
 
+  /// Wipe the user account, erasing all data except the account itself.
   static Future<S2CLazyResponse> wipeAccount() async {
     return await _lWipeAccount.synchronized(() async {
       Dio dio = Dio();
@@ -690,18 +718,20 @@ class NetworkInterface {
   ///
   /// [alter] Alter ID to be permanently deleted. (Must be your own)
   static Future<S2CLazyResponse> deleteAlter(String alter) async {
-    Dio dio = Dio();
-    MemoryState ms = MemoryState();
+    return await _lDeleteAlter.synchronized(() async {
+      Dio dio = Dio();
+      MemoryState ms = MemoryState();
 
-    dio.options.headers["Content-Type"] = "application/json";
-    dio.options.headers["X-SB-Auth"] = ms.authenticationToken;
+      dio.options.headers["Content-Type"] = "application/json";
+      dio.options.headers["X-SB-Auth"] = ms.authenticationToken;
 
-    var reply = await dio.delete("${getAPIServerURL()}/alter/${alter}");
+      var reply = await dio.delete("${getAPIServerURL()}/alter/${alter}");
 
-    NetworkCaches.invalidate();
-    print(reply.data);
+      NetworkCaches.invalidate();
+      print(reply.data);
 
-    return S2CLazyResponse.decode(typeCorrectJson(reply.data));
+      return S2CLazyResponse.decode(typeCorrectJson(reply.data));
+    });
   }
 
   /// Renames a folder/entry
@@ -709,24 +739,27 @@ class NetworkInterface {
   /// [id] The item to rename
   /// [name] New name for the item
   /// [isFolder] Whether the item is a folder, or a Item
-  static Future<S2CLazyResponse> renameFolderItem(
+  static Future<S2CLazyResponse> updateFolderItem(
     String id,
     String name,
     bool isFolder,
   ) async {
-    Dio dio = Dio();
-    MemoryState ms = MemoryState();
+    return await _lUpdateFolder.synchronized(() async {
+      Dio dio = Dio();
+      MemoryState ms = MemoryState();
 
-    dio.options.headers["Content-Type"] = "application/json";
-    dio.options.headers["X-SB-Auth"] = ms.authenticationToken;
+      dio.options.headers["Content-Type"] = "application/json";
+      dio.options.headers["X-SB-Auth"] = ms.authenticationToken;
 
-    var reply = await dio.patch(
-      "${getAPIServerURL()}/folders",
-      data: {"id": id, "name": name, "folder": isFolder ? 1 : 0},
-    );
-    print(reply.data);
+      var reply = await dio.patch(
+        "${getAPIServerURL()}/folders",
+        data: {"id": id, "name": name, "folder": isFolder ? 1 : 0},
+      );
+      print(reply.data);
+      NetworkCaches.invalidate();
 
-    return S2CLazyResponse.decode(typeCorrectJson(reply.data));
+      return S2CLazyResponse.decode(typeCorrectJson(reply.data));
+    });
   }
 
   /// Deletes a folder/entry
@@ -737,19 +770,22 @@ class NetworkInterface {
     String id,
     bool isFolder,
   ) async {
-    Dio dio = Dio();
-    MemoryState ms = MemoryState();
+    return await _lDeleteFolder.synchronized(() async {
+      Dio dio = Dio();
+      MemoryState ms = MemoryState();
 
-    dio.options.headers["Content-Type"] = "application/json";
-    dio.options.headers["X-SB-Auth"] = ms.authenticationToken;
+      dio.options.headers["Content-Type"] = "application/json";
+      dio.options.headers["X-SB-Auth"] = ms.authenticationToken;
 
-    var reply = await dio.delete(
-      "${getAPIServerURL()}/folders",
-      data: {"id": id, "folder": isFolder ? 1 : 0},
-    );
-    print(reply.data);
+      var reply = await dio.delete(
+        "${getAPIServerURL()}/folders",
+        data: {"id": id, "folder": isFolder ? 1 : 0},
+      );
+      print(reply.data);
+      NetworkCaches.invalidate();
 
-    return S2CLazyResponse.decode(typeCorrectJson(reply.data));
+      return S2CLazyResponse.decode(typeCorrectJson(reply.data));
+    });
   }
 
   /// Creates a folder.
@@ -757,19 +793,22 @@ class NetworkInterface {
   ///
   /// [name] Folder name to generate
   static Future<S2CFolderReply> createFolder(String name) async {
-    Dio dio = Dio();
-    MemoryState ms = MemoryState();
+    return await _lMakeFolder.synchronized(() async {
+      Dio dio = Dio();
+      MemoryState ms = MemoryState();
 
-    dio.options.headers["Content-Type"] = "application/json";
-    dio.options.headers["X-SB-Auth"] = ms.authenticationToken;
+      dio.options.headers["Content-Type"] = "application/json";
+      dio.options.headers["X-SB-Auth"] = ms.authenticationToken;
 
-    var reply = await dio.post(
-      "${getAPIServerURL()}/folders",
-      data: {"name": name},
-    );
-    print(reply.data);
+      var reply = await dio.post(
+        "${getAPIServerURL()}/folders",
+        data: {"name": name},
+      );
+      print(reply.data);
+      NetworkCaches.invalidate();
 
-    return S2CFolderReply.decode(typeCorrectJson(reply.data));
+      return S2CFolderReply.decode(typeCorrectJson(reply.data));
+    });
   }
 
   /// Add a folder or item to the contents of a folder
@@ -790,37 +829,40 @@ class NetworkInterface {
     bool isAvatar,
     bool isImage,
   ) async {
-    Dio dio = Dio();
-    MemoryState ms = MemoryState();
+    return await _lAddFolderItem.synchronized(() async {
+      Dio dio = Dio();
+      MemoryState ms = MemoryState();
 
-    String type = "x-sb/unknown";
+      String type = "x-sb/unknown";
 
-    if (isFolder) {
-      type = "sb/folder";
-    } else if (isAlter) {
-      type = "sb/alter";
-    } else if (isAvatar) {
-      type = "sb/avatar";
-    } else if (isImage) {
-      type = "sb/img";
-    }
+      if (isFolder) {
+        type = "sb/folder";
+      } else if (isAlter) {
+        type = "sb/alter";
+      } else if (isAvatar) {
+        type = "sb/avatar";
+      } else if (isImage) {
+        type = "sb/img";
+      }
 
-    dio.options.headers["Content-Type"] = "application/json";
-    dio.options.headers["X-SB-Auth"] = ms.authenticationToken;
+      dio.options.headers["Content-Type"] = "application/json";
+      dio.options.headers["X-SB-Auth"] = ms.authenticationToken;
 
-    var reply = await dio.put(
-      "${getAPIServerURL()}/folders",
-      data: {
-        "id": id,
-        "name": name,
-        "type": type,
-        "parent": parent,
-        "folder": isFolder ? 1 : 0,
-      },
-    );
-    print(reply.data);
+      var reply = await dio.put(
+        "${getAPIServerURL()}/folders",
+        data: {
+          "id": id,
+          "name": name,
+          "type": type,
+          "parent": parent,
+          "folder": isFolder ? 1 : 0,
+        },
+      );
+      print(reply.data);
+      NetworkCaches.invalidate();
 
-    return S2CLazyResponse.decode(typeCorrectJson(reply.data));
+      return S2CLazyResponse.decode(typeCorrectJson(reply.data));
+    });
   }
 
   /// Add a folder or item to the contents of a folder
@@ -831,19 +873,27 @@ class NetworkInterface {
     String id,
     bool rootOnly,
   ) async {
-    Dio dio = Dio();
-    MemoryState ms = MemoryState();
+    return await _lGetFolderItem.synchronized(() async {
+      var cached = getCache("getFolderOrItem${rootOnly ? "root" : id}");
+      if (cached != null) {
+        return S2CFolderReply.decode(typeCorrectJson(cached.responseData));
+      }
+      Dio dio = Dio();
+      MemoryState ms = MemoryState();
 
-    dio.options.headers["Content-Type"] = "application/json";
-    dio.options.headers["X-SB-Auth"] = ms.authenticationToken;
+      dio.options.headers["Content-Type"] = "application/json";
+      dio.options.headers["X-SB-Auth"] = ms.authenticationToken;
 
-    var q = {"id": id, "root": rootOnly ? 1 : 0};
-    var qStr = base64Encoder.base64Enc(json.encode(q));
+      var q = {"id": id, "root": rootOnly ? 1 : 0};
+      var qStr = base64Encoder.base64Enc(json.encode(q));
 
-    var reply = await dio.get("${getAPIServerURL()}/folders?q=${qStr}");
-    print(reply.data);
+      var reply = await dio.get("${getAPIServerURL()}/folders?q=${qStr}");
+      print(reply.data);
 
-    return S2CFolderReply.decode(typeCorrectJson(reply.data));
+      setCache("getFolderOrItem${rootOnly ? "root" : id}", reply.data);
+
+      return S2CFolderReply.decode(typeCorrectJson(reply.data));
+    });
   }
 }
 
@@ -2148,6 +2198,8 @@ class Folder {
   String name;
   DateTime created;
   DateTime modified;
+  String color;
+  String desc;
   List<FolderEntry> contents;
 
   Folder({
@@ -2155,6 +2207,8 @@ class Folder {
     required this.name,
     required this.created,
     required this.modified,
+    required this.color,
+    required this.desc,
     required this.contents,
   });
 
@@ -2169,6 +2223,8 @@ class Folder {
       "name": name,
       "created": created,
       "modified": modified,
+      "color": color,
+      "desc": desc,
       "contents": contents,
     };
   }
@@ -2184,6 +2240,8 @@ class Folder {
       name: js['name'],
       created: TimeUtils.parseTimestamp(js['created']),
       modified: TimeUtils.parseTimestamp(js['modified']),
+      color: js['color'],
+      desc: js['desc'],
       contents: entries,
     );
   }
@@ -2227,57 +2285,10 @@ class S2CFolderReply extends S2CLazyResponse {
         name: "name",
         created: DateTime.now(),
         modified: DateTime.now(),
+        color: "",
+        desc: "",
         contents: [],
       ),
-    );
-
-    reply._decode(js);
-
-    return reply;
-  }
-}
-
-class S2CFoldersReply extends S2CLazyResponse {
-  List<Folder> data;
-  S2CFoldersReply({
-    required super.id,
-    required super.path,
-    required super.reason,
-    required super.success,
-    required super.type,
-    required this.data,
-  });
-
-  @override
-  Map<String, dynamic> encode() {
-    var rep = super.encode();
-    List<Map<String, dynamic>> jdata = [];
-    for (var entry in data) {
-      jdata.add(entry.toJson());
-    }
-    rep["data"] = jdata;
-
-    return rep;
-  }
-
-  @override
-  void _decode(Map<String, dynamic> js) {
-    super._decode(js);
-
-    data = [];
-    for (var entry in js['data']) {
-      data.add(Folder.decode(entry));
-    }
-  }
-
-  factory S2CFoldersReply.decode(Map<String, dynamic> js) {
-    S2CFoldersReply reply = S2CFoldersReply(
-      id: UUID_ZERO,
-      path: "",
-      reason: "reason",
-      success: false,
-      type: "type",
-      data: [],
     );
 
     reply._decode(js);
