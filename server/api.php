@@ -2,7 +2,7 @@
 
 $DEBUG = false;
 
-$VERSION = "0.3.0+0704260023";
+$VERSION = "0.3.0+0704260030";
 
 $DEFAULT_USER_FIELDS = array(
                             array(
@@ -682,6 +682,27 @@ switch($route) {
                     $success=true;
                     $reason = "Query executed";
 
+                    break;
+                }
+                case "PATCH": {
+                    // Rename a folder!
+                    $id = $packet['id'];
+                    $name = $packet['name'];
+
+                    $folder = $packet['folder'] == 1;
+
+                    if($folder)
+                        $stmt = $DB->prepare("UPDATE `Folders` SET `Name` = ? WHERE `ID` = ? AND `UserID` = ?;");
+                    else $stmt = $DB->prepare("UPDATE `FolderEntries` SET `Name` = ? WHERE `ID` = ? AND `UserID` = ?;");
+
+                    $stmt->bind_param("sss", $name, $id, $AuthReply->UserID);
+                    $stmt->execute();
+                    $stmt->close();
+
+                    $DB->commit();
+
+                    $success = true;
+                    $reason = "Updated database.";
                     break;
                 }
             }
