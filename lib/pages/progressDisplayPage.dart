@@ -817,6 +817,8 @@ class _mfdv extends State<MigrateFieldDataView> {
 }
 
 class MigrateFolders extends StatefulWidget {
+  const MigrateFolders({super.key});
+
   @override
   State<StatefulWidget> createState() {
     return _mfldr();

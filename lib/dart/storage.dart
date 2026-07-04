@@ -725,7 +725,7 @@ class NetworkInterface {
       dio.options.headers["Content-Type"] = "application/json";
       dio.options.headers["X-SB-Auth"] = ms.authenticationToken;
 
-      var reply = await dio.delete("${getAPIServerURL()}/alter/${alter}");
+      var reply = await dio.delete("${getAPIServerURL()}/alter/$alter");
 
       NetworkCaches.invalidate();
       print(reply.data);
@@ -887,7 +887,7 @@ class NetworkInterface {
       var q = {"id": id, "root": rootOnly ? 1 : 0};
       var qStr = base64Encoder.base64Enc(json.encode(q));
 
-      var reply = await dio.get("${getAPIServerURL()}/folders?q=${qStr}");
+      var reply = await dio.get("${getAPIServerURL()}/folders?q=$qStr");
       print(reply.data);
 
       setCache("getFolderOrItem${rootOnly ? "root" : id}", reply.data);

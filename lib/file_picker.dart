@@ -8,7 +8,7 @@ import 'package:switchboard/globalHelpers.dart';
 class FileLoader {
   /// Opens the appropriate file browser, then returns the contents of a selected file, or null if the user cancelled selection.
   static Future<Uint8List?> getFile({
-    BuildContext? context = null,
+    BuildContext? context,
     required List<String> allowedExtensions,
   }) async {
     bool perm = await checkStoragePermissions();

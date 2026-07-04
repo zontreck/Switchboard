@@ -179,11 +179,11 @@ Widget confirmDeleteAlter(BuildContext context) {
         },
       ),
       CupertinoButton(
-        child: Text("CONFIRM"),
         onPressed: () {
           Navigator.pop(context, true);
         },
         color: LibACFlutterConstants.TITLEBAR_COLOR,
+        child: Text("CONFIRM"),
       ),
     ],
   );

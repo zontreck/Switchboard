@@ -1,7 +1,5 @@
-import 'dart:io';
 import 'dart:typed_data';
 
-import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:libacflutter/Constants.dart';
 import 'package:markdown_widget/widget/markdown_block.dart';
@@ -21,7 +19,7 @@ class OctoconImport extends StatefulWidget {
 }
 
 class _octocon extends State<OctoconImport> {
-  Uint8List? _contents = null;
+  Uint8List? _contents;
 
   Future<void> runMigration() async {
     // Start importing OctoconData
