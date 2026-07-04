@@ -584,9 +584,11 @@ switch($route) {
                     $name = $packet['name'];
                     $creation = time();
                     $mod = time();
+                    $color = "FF000000";
+                    $desc = "";
 
-                    $stmt = $DB->prepare("INSERT INTO `Folders` (`ID`, `ParentFolder`, `Name`, `UserID`, `Created`, `Modified`) VALUES (?, ?, ?, ?, ?, ?);");
-                    $stmt->bind_param("ssssii", $folderId, $null, $name, $AuthReply->UserID, $creation, $mod);
+                    $stmt = $DB->prepare("INSERT INTO `Folders` (`ID`, `ParentFolder`, `Name`, `UserID`, `Created`, `Modified`, `Color`, `Description`) VALUES (?, ?, ?, ?, ?, ?, ?, ?);");
+                    $stmt->bind_param("ssssiiss", $folderId, $null, $name, $AuthReply->UserID, $creation, $mod, $color, $desc);
                     $stmt->execute();
                     $stmt->close();
                     $DB->commit();
@@ -600,6 +602,8 @@ switch($route) {
                         "name" => $name,
                         "created" => $creation,
                         "modified" => $mod,
+                        "color" => $color,
+                        "desc" => $desc,
                         "contents" => array()
                     );
 
@@ -680,14 +684,16 @@ switch($route) {
                     // Rename a folder!
                     $id = $packet['id'];
                     $name = $packet['name'];
+                    $color = $packet['color'];
+                    $desc = $packet['desc'];
 
                     $folder = $packet['folder'] == 1;
 
                     if($folder){
-                        $stmt = $DB->prepare("UPDATE `Folders` SET `Name` = ? WHERE `ID` = ? AND `UserID` = ?;");
+                        $stmt = $DB->prepare("UPDATE `Folders` SET `Name` = ?, `Color` = ?, `Description` = ?, `Modified` = ? WHERE `ID` = ? AND `UserID` = ?;");
                     
-
-                        $stmt->bind_param("sss", $name, $id, $AuthReply->UserID);
+                        $mod = time();
+                        $stmt->bind_param("sssiss", $name, $color, $desc, $mod, $id, $AuthReply->UserID);
                         $stmt->execute();
                         $stmt->close();
 
