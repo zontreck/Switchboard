@@ -821,7 +821,7 @@ class OctoconTag {
     String id = UUID_ZERO;
     String name = "";
     String description = "";
-    String color = "";
+    String color = "#000000";
     DateTime insertedAt = DateTime.now();
     DateTime updatedAt = DateTime.now();
     OctoconSecurityLevel securityLevel = OctoconSecurityLevel.private;

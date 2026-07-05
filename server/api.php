@@ -2,7 +2,7 @@
 
 $DEBUG = false;
 
-$VERSION = "0.3.0+0704261907";
+$VERSION = "0.3.0+0704261937";
 
 $DEFAULT_USER_FIELDS = array(
                             array(
@@ -555,7 +555,7 @@ switch($route) {
                         "created" => $row['Created'],
                         "modified" => $row['Modified'],
                         "color" => $row['Color'],
-                        "desc" => $row['Description'],
+                        "desc" => $row['Description'] == null ? "" : $row['Description'],
                         "contents" => array()
                     );
                     $folderID = $row['ID'];
