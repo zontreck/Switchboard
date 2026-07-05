@@ -1,3 +1,10 @@
+# 0.3.1+070426
+
+## ADD:
+
+- [x] Missing Proxy info to alters
+- [x] Migration of proxy information
+
 # 0.3.0+0704261942
 
 ## ADD:

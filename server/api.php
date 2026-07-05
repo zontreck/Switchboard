@@ -807,7 +807,9 @@ switch($route) {
                         "fields" => base64_encode($row['Fields']), // This is a CompoundTag. We need to base64 encode for transport.
                         "subid" => $row['SubID'],
                         "parent" => $row['ParentID'],
-                        "flags" => $row['Flags']
+                        "flags" => $row['Flags'],
+                        "proxy_name" => $row['ProxyName'],
+                        "proxies" => json_decode($row['Proxies'])
                     ));
                 }
 
@@ -1383,7 +1385,9 @@ switch($route) {
                         "fields" => base64_encode($row['Fields']), // CompoundTag binary.
                         "subid" => (int) $row['SubID'],
                         "parent" => $row['ParentID'],
-                        "flags" => (int) $row['Flags']
+                        "flags" => (int) $row['Flags'],
+                        "proxy_name" => $row['ProxyName'],
+                        "proxies" => json_decode($row['Proxies'], true)
                     );
                     break;
                 }
@@ -1395,8 +1399,8 @@ switch($route) {
                     $nFlags = 0;
                     $fieldBinary = base64_decode($alter['fields']);
 
-                    $stmt = $DB->prepare("INSERT INTO Alters (User, ID, Name, Avatar, Fields, SubID, ParentID, Flags) VALUES (?, ?, ?, ?, ?, ?, ?, ?);");
-                    $stmt->bind_param("ssssbisi", $SBAuth->UserID, $alterId, $alter['name'], $alter['avatar'], $null, $alter['subid'], $alter['parent'], $nFlags);
+                    $stmt = $DB->prepare("INSERT INTO Alters (User, ID, Name, Avatar, Fields, SubID, ParentID, Flags, ProxyName, Proxies) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?);");
+                    $stmt->bind_param("ssssbisiss", $SBAuth->UserID, $alterId, $alter['name'], $alter['avatar'], $null, $alter['subid'], $alter['parent'], $nFlags, $alter['proxy_name'], json_encode($alter['proxies']));
                     $stmt->send_long_data(4, $fieldBinary);
                     $stmt->execute();
                     $stmt->close();
@@ -1412,7 +1416,9 @@ switch($route) {
                         "fields" => base64_encode($fieldBinary),
                         "subid" => (int) $alter['subid'],
                         "parent" => $alter['parent'],
-                        "flags" => 0
+                        "flags" => 0,
+                        "proxy_name" => "",
+                        "proxies" => json_decode("[]", true)
                     );
                     break;
                 }
@@ -1444,6 +1450,8 @@ switch($route) {
                     $subid = $alter['subid'] ?? $row['SubID'];
                     $parent = $alter['parent'] ?? $row['ParentID'];
                     $flags = $alter['flags'] ?? $row['Flags'];
+                    $proxyName = $alter['proxy_name'] ?? $row['ProxyName'];
+                    $proxies = $alter['proxies'] ?? json_decode($row['Proxies'], true);
 
                     // Placeholder variable for blob field
                     $null = null;
@@ -1455,18 +1463,22 @@ switch($route) {
                             `Fields`=?,
                             `SubID`=?,
                             `ParentID`=?,
-                            `Flags`=?
+                            `Flags`=?,
+                            `ProxyName`=?,
+                            `Proxies`=?
                         WHERE `User`=? AND `ID`=?;
                     ");
 
                     $stmt->bind_param(
-                        "ssbisiss",
+                        "ssbisissss",
                         $name,
                         $avatar,
                         $null,
                         $subid,
                         $parent,
                         $flags,
+                        $proxyName,
+                        $proxies,
                         $SBAuth->UserID,
                         $alterId,
                     );
