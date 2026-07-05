@@ -177,6 +177,8 @@ class _mav extends State<MigrateAltersView> {
       }
     }
     newAlter.subid = alter.id;
+    newAlter.proxyName = alter.proxyName;
+    newAlter.proxies = alter.discordProxies;
 
     await NetworkInterface.updateAlter(newAlter);
 
