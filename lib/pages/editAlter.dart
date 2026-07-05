@@ -37,6 +37,8 @@ class _editAlter extends State<EditAlterPage> {
     parent: UUID_ZERO,
     flags: 0,
     fields: [],
+    proxyName: "",
+    proxies: [],
   );
   TextEditingController alterNameController = TextEditingController();
 

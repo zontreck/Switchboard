@@ -2,7 +2,7 @@
 
 $DEBUG = false;
 
-$VERSION = "0.3.0+0704262150";
+$VERSION = "0.3.0+0704262211";
 
 $DEFAULT_USER_FIELDS = array(
                             array(
@@ -809,7 +809,7 @@ switch($route) {
                         "parent" => $row['ParentID'],
                         "flags" => $row['Flags'],
                         "proxy_name" => $row['ProxyName'],
-                        "proxies" => json_decode($row['Proxies'])
+                        "proxies" => json_decode($row['Proxies'], true)
                     ));
                 }
 
@@ -1469,6 +1469,8 @@ switch($route) {
                         WHERE `User`=? AND `ID`=?;
                     ");
 
+                    $jproxy = json_encode($proxies);
+
                     $stmt->bind_param(
                         "ssbisissss",
                         $name,
@@ -1478,7 +1480,7 @@ switch($route) {
                         $parent,
                         $flags,
                         $proxyName,
-                        $proxies,
+                        $jproxy,
                         $SBAuth->UserID,
                         $alterId,
                     );

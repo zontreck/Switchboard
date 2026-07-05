@@ -1711,6 +1711,8 @@ class Alter {
   String parent;
   int flags;
   List<FieldData> fields;
+  String proxyName;
+  List<String> proxies;
   bool _stale = false;
 
   void markStale() {
@@ -1733,6 +1735,8 @@ class Alter {
       parent = alter.parent;
       flags = alter.flags;
       fields = alter.fields;
+      proxyName = alter.proxyName;
+      proxies = alter.proxies;
       await isFronting();
     }
   }
@@ -1765,6 +1769,8 @@ class Alter {
     required this.parent,
     required this.flags,
     required this.fields,
+    required this.proxyName,
+    required this.proxies,
   });
 
   Map<String, dynamic> encode() {
@@ -1777,6 +1783,8 @@ class Alter {
       "parent": parent.toString(),
       "flags": flags,
       "fields": base64Encoder.base64Enc(json.encode({"A": encodeFields()})),
+      "proxy_name": proxyName,
+      "proxies": proxies,
     };
   }
 
@@ -1794,6 +1802,8 @@ class Alter {
       fieldsJs = jsC["A"];
     } catch (A) {}
 
+    List<dynamic> proxies = js['proxies'];
+
     var alter = Alter(
       id: js['id'],
       user: js['user'],
@@ -1803,6 +1813,8 @@ class Alter {
       parent: js['parent'],
       flags: js['flags'],
       fields: decodeFields(fieldsJs),
+      proxyName: js['proxy_name'],
+      proxies: proxies.isEmpty ? [] : proxies as List<String>,
     );
 
     return alter;
