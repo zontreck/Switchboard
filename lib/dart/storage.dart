@@ -2249,7 +2249,7 @@ class Folder {
       created: TimeUtils.parseTimestamp(js['created']),
       modified: TimeUtils.parseTimestamp(js['modified']),
       color: js['color'],
-      desc: js['desc'],
+      desc: js['desc'] ?? "",
       contents: entries,
     );
   }
