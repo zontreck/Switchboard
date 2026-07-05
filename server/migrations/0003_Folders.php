@@ -1,10 +1,10 @@
 <?php
 
 return function ($conn) {
-    $conn->query("CREATE TABLE IF NOT EXISTS Folders (    ID            VARCHAR(64) PRIMARY KEY,    ParentFolder    VARCHAR(64) NULL,    Name            VARCHAR(255) NOT NULL,    UserID          VARCHAR(64) NOT NULL, Created         BIGINT NOT NULL,    Modified        BIGINT NOT NULL,    CONSTRAINT FK_Folders_Parent        FOREIGN KEY (ParentFolder)        REFERENCES Folders(ID),    CONSTRAINT FK_Folders_User        FOREIGN KEY (UserID)        REFERENCES users(ID)        ON DELETE CASCADE        ON UPDATE CASCADE,    UNIQUE KEY UK_Folder_Name (ParentFolder, Name));");
+    $conn->query("CREATE TABLE `Folders` (  `ID` varchar(64) NOT NULL,  `ParentFolder` varchar(64) DEFAULT NULL,  `Name` varchar(255) NOT NULL,  `UserID` varchar(64) NOT NULL,  `Created` bigint(20) NOT NULL,  `Modified` bigint(20) NOT NULL,  `Color` varchar(24) NOT NULL DEFAULT '[0,0,0,0]',  `Description` text DEFAULT NULL,  PRIMARY KEY (`ID`),  UNIQUE KEY `UK_Folder_Name` (`ParentFolder`,`Name`),  KEY `FK_Folders_User` (`UserID`),  CONSTRAINT `FK_Folders_Parent` FOREIGN KEY (`ParentFolder`) REFERENCES `Folders` (`ID`) ON DELETE SET NULL ON UPDATE CASCADE,  CONSTRAINT `FK_Folders_User` FOREIGN KEY (`UserID`) REFERENCES `users` (`ID`) ON DELETE CASCADE ON UPDATE CASCADE);");
 
 
-    $conn->query("CREATE TABLE IF NOT EXISTS FolderEntries (    ID            VARCHAR(64) PRIMARY KEY,    FolderID      VARCHAR(64) NOT NULL,    Name            VARCHAR(255) NOT NULL,    EntryType       VARCHAR(32) NOT NULL,    TargetID      VARCHAR(64) NOT NULL,    Created         BIGINT NOT NULL,    CONSTRAINT FK_FolderEntries_Folder        FOREIGN KEY (FolderID)        REFERENCES Folders(ID)        ON DELETE CASCADE        ON UPDATE CASCADE,    UNIQUE KEY UK_Entry_Name (FolderID, Name));");
+    $conn->query("CREATE TABLE `FolderEntries` (  `ID` varchar(64) NOT NULL,  `FolderID` varchar(64) NOT NULL,  `Name` varchar(255) NOT NULL,  `EntryType` varchar(32) NOT NULL,  `TargetID` varchar(64) DEFAULT NULL,  `Created` bigint(20) NOT NULL,  `UserID` varchar(64) DEFAULT NULL,  PRIMARY KEY (`ID`),  UNIQUE KEY `UK_Entry_Name` (`FolderID`,`Name`),  KEY `FKUserID` (`UserID`),  CONSTRAINT `FKUserID` FOREIGN KEY (`UserID`) REFERENCES `users` (`ID`) ON DELETE CASCADE ON UPDATE CASCADE,  CONSTRAINT `FK_FolderEntries_Folder` FOREIGN KEY (`FolderID`) REFERENCES `Folders` (`ID`) ON DELETE CASCADE ON UPDATE CASCADE);");
 
     $resUsers = $conn->query("SELECT * FROM users;");
     while($row = $resUsers->fetch_assoc()) {
@@ -17,9 +17,11 @@ return function ($conn) {
         $targetFolder = null_uuid();
         $link = FALSE;
         $creationTime = time();
+        $color = "[0,0,0,0]";
+        $description = "";
 
-        $stmt = $conn->prepare("INSERT INTO `Folders` (`ID`, `ParentFolder`, `Name`, `UserID`, `Created`, `Modified`) VALUES (?, ?, ?, ?, ?, ?);");
-        $stmt->bind_param("ssssii", $rootID, $null, $rootName, $usr, $creationTime, $creationTime );
+        $stmt = $conn->prepare("INSERT INTO `Folders` (`ID`, `ParentFolder`, `Name`, `UserID`, `Created`, `Modified`, `Color`, `Description`) VALUES (?, ?, ?, ?, ?, ?, ?, ?);");
+        $stmt->bind_param("ssssii", $rootID, $null, $rootName, $usr, $creationTime, $creationTime, $color, $description);
         $stmt->execute();
         $conn->commit();
     }
