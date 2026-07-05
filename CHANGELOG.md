@@ -1,3 +1,13 @@
+# 0.3.1
+
+## ADD:
+
+- [x] Implement extremely basic discord connectivity for the bot
+
+## CHANGE:
+
+- [x] Bot is now built using `bin/bot.dart`, as `server.dart` has been renamed and repurposed. The original purpose, was that this dart file would be the backend server, but we went with PHP for that instead.
+
 # 0.3.1+0705260030
 
 ## ADD:

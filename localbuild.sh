@@ -12,7 +12,7 @@ flutter doctor --android-licenses
 rm -rf outputs
 mkdir -pv outputs
 
-dart compile exe -o outputs/server-x86_64-linux bin/server.dart
+dart compile exe -o outputs/proxybot-x86_64-linux bin/bot.dart
 dart compile exe -o outputs/dlocto bin/backupOctocon.dart
 flutter build linux || true
 flutter build windows || true

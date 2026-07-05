@@ -14,11 +14,7 @@ class MemoryState {
 
   MemoryState._init();
 
-  bool useSQL = false;
-  String mariaDBHost = "";
-  String mariaDBUser = "";
-  String mariaDBPass = "";
-  String mariaDBName = "";
+  String serverBotPSK = "";
   String botToken = "";
   String authenticationToken = "";
   String lastErrorRay = "";

@@ -109,6 +109,22 @@ function get_Authorization()
     return "XX";
 }
 
+function get_SuperAdmin() {
+    $headers = apache_request_headers();
+    foreach ($headers as $header => $value) {
+        if(strtolower($header) == "x-sb-token") {
+            return $value;
+        }
+    }
+
+    return "XX";
+}
+
+function is_Admin() {
+    global $BOTTOKEN;
+    return get_SuperAdmin() == $BOTTOKEN;
+}
+
 function get_DB($dbname)
 {
     global $HOST, $DBUSER, $DBPASS;
@@ -271,11 +287,49 @@ logAudit($ID, $request, $route, $db0);
 
 $db0->close();
 
+function processBotImpersonate() {
+    global $request, $route, $ID;
+    if(!is_Admin()) return;
+
+    $headers = apache_request_headers();
+    $dnName = "Discord";
+    foreach ($headers as $header => $value) {
+        if(strtolower($header) == "x-sb-discord") { // Set to Linked Discord Name. Linking accounts will be required for this.
+            $dnName = $value;
+        }
+    }
+
+    $DB = get_DB("switchboard");
+
+    $stmt = $DB->prepare("SELECT * FROM `Discord` WHERE `Username`=?;");
+    $stmt->bind_param("s", $dnName);
+    $stmt->execute();
+    $res = $stmt->get_result();
+    if($res->num_rows == 0) {
+        // This user has not yet linked a discord account.
+        die(json_encode(array(
+            "success" => false,
+            "reason" => "DiscordNotLinked",
+            "type" => $request,
+            "path" => $route,
+            "id" => $ID
+        )));
+    } else {
+        $row = $res->fetch_assoc();
+    }
+    
+}
+
+if(is_Admin()) {
+    processBotImpersonate();
+}
+
 
 switch($route) {
     case "/": {
         die(json_encode(array(
-            "result"=> "FAIL",
+            "success"=> false,
+            "reason" => "Invalid endpoint",
             "type"=> $request,
             "path"=> $route,
             "id"=> $ID
@@ -285,6 +339,12 @@ switch($route) {
 
     case "/cron": {
         // Execute recurring cron tasks, such as checking for expired content in the database and cleaning it up.
+        if(!is_Admin()) {
+            die(json_encode(array(
+                "success" => false,
+                "reason" => "Administrative powers required"
+            )));
+        }
         header("Content-Type: text/plain");
         echo("System Switchboard Server v/$VERSION (PHP)\n> Cron task script invoked.\n\n");
 
