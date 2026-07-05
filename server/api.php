@@ -2,7 +2,7 @@
 
 $DEBUG = false;
 
-$VERSION = "0.3.0+0704261706";
+$VERSION = "0.3.0+0704261749";
 
 $DEFAULT_USER_FIELDS = array(
                             array(
@@ -1739,7 +1739,12 @@ switch($route) {
             $stmt->close();
 
             // Folders
-            $stmt = $DB->prepare("DELETE FROM `Folders` WHERE `UserID` = ? AND `ParentFolder` IS NOT NULL AND `Name` != 'root';");
+            $stmt = $DB->prepare("DELETE FROM `Folders` WHERE `UserID` = ? AND `ParentFolder` IS NOT NULL;");
+            $stmt->bind_param("s", $uid);
+            $stmt->execute();
+            $stmt->close();
+
+            $stmt = $DB->prepare("DELETE FROM `Folders` WHERE `UserID` = ? AND `ParentFolder` IS NULL AND `Name` != 'root';");
             $stmt->bind_param("s", $uid);
             $stmt->execute();
             $stmt->close();
