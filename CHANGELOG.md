@@ -3,10 +3,12 @@
 ## ADD:
 
 - [x] Implement extremely basic discord connectivity for the bot
+- [x] Basic non-functional version of the `/link` command. Does nothing for now.
 
 ## CHANGE:
 
 - [x] Bot is now built using `bin/bot.dart`, as `server.dart` has been renamed and repurposed. The original purpose, was that this dart file would be the backend server, but we went with PHP for that instead.
+- [x] Updated version of bot API: Mineral to 5.0.0
 
 # 0.3.1+0705260030
 
