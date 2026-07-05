@@ -1802,7 +1802,7 @@ class Alter {
       fieldsJs = jsC["A"];
     } catch (A) {}
 
-    List<dynamic> proxies = js['proxies'];
+    List<dynamic> proxies = js['proxies'] ?? [];
 
     var alter = Alter(
       id: js['id'],
@@ -1813,7 +1813,7 @@ class Alter {
       parent: js['parent'],
       flags: js['flags'],
       fields: decodeFields(fieldsJs),
-      proxyName: js['proxy_name'],
+      proxyName: js['proxy_name'] ?? "",
       proxies: proxies.isEmpty ? [] : proxies as List<String>,
     );
 
