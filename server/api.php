@@ -2,7 +2,7 @@
 
 $DEBUG = false;
 
-$VERSION = "0.3.0+0704262340";
+$VERSION = "0.3.0+0705260005";
 
 $DEFAULT_USER_FIELDS = array(
                             array(
@@ -1398,9 +1398,11 @@ switch($route) {
 
                     $nFlags = 0;
                     $fieldBinary = base64_decode($alter['fields']);
+                    $proxies = json_encode($alter['proxies']);
+                    $proxyName = $alter['proxy_name'] ?? "";
 
                     $stmt = $DB->prepare("INSERT INTO Alters (User, ID, Name, Avatar, Fields, SubID, ParentID, Flags, ProxyName, Proxies) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?);");
-                    $stmt->bind_param("ssssbisiss", $SBAuth->UserID, $alterId, $alter['name'], $alter['avatar'], $null, $alter['subid'], $alter['parent'], $nFlags, $alter['proxy_name'] ?? "", json_encode($alter['proxies']));
+                    $stmt->bind_param("ssssbisiss", $SBAuth->UserID, $alterId, $alter['name'], $alter['avatar'], $null, $alter['subid'], $alter['parent'], $nFlags, $proxyName, $proxies);
                     $stmt->send_long_data(4, $fieldBinary);
                     $stmt->execute();
                     $stmt->close();
