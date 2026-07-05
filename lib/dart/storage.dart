@@ -743,6 +743,8 @@ class NetworkInterface {
     String id,
     String name,
     bool isFolder,
+    String color,
+    String desc,
   ) async {
     return await _lUpdateFolder.synchronized(() async {
       Dio dio = Dio();
@@ -753,7 +755,13 @@ class NetworkInterface {
 
       var reply = await dio.patch(
         "${getAPIServerURL()}/folders",
-        data: {"id": id, "name": name, "folder": isFolder ? 1 : 0},
+        data: {
+          "id": id,
+          "name": name,
+          "folder": isFolder ? 1 : 0,
+          "color": color,
+          "desc": desc,
+        },
       );
       print(reply.data);
       NetworkCaches.invalidate();

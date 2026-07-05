@@ -1,6 +1,8 @@
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:libacflutter/utils/colorHelpers.dart';
 import 'package:liquid_glass_widgets/widgets/feedback/glass_progress_indicator.dart';
 import 'package:switchboard/dart/globalHelpers.dart';
 import 'package:switchboard/dart/octocon_format.dart';
@@ -899,6 +901,18 @@ class _mfldr extends State<MigrateFolders> {
           false,
         );
       }
+
+      _mem.statusMessage = "Moving Folder color and description...";
+      setState(() {});
+      Color newColor = htmlColorToFlutter(tag.color);
+      String colorStr = json.encode(Color2List(newColor));
+      await NetworkInterface.updateFolderItem(
+        newFolderReply.data.id,
+        tag.name,
+        true,
+        colorStr,
+        tag.description,
+      );
 
       _mem.args.data.tags.remove(tag);
       _mem.cur = 0;
