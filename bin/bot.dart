@@ -1,14 +1,12 @@
 // ignore_for_file: avoid_print
 
 import 'dart:async';
-import 'dart:io';
 
 import 'package:libac_dart/argparse/Args.dart';
 import 'package:libac_dart/argparse/Parser.dart';
 import 'package:mineral/mineral.dart';
 import 'package:switchboard/dart/MemoryState.dart';
 import 'package:switchboard/dart/bot/Providers.dart';
-import 'package:switchboard/dart/octocon_format.dart';
 
 Future<int> main(List<String> args) async {
   MemoryState state = MemoryState();
