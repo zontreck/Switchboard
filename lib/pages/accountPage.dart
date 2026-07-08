@@ -23,12 +23,13 @@ class _AccountPage extends State<AccountPage> {
   int _index = 0;
   bool listMode = true;
   MemoryState ms = MemoryState();
+  TextEditingController searchBar = TextEditingController();
 
   Widget getPageForIndex() {
     switch (_index) {
       case 0:
         {
-          return AltersPage();
+          return AltersPage(searchBar: searchBar);
         }
       case 1:
         {
@@ -40,7 +41,7 @@ class _AccountPage extends State<AccountPage> {
         }
     }
 
-    return AltersPage();
+    return AltersPage(searchBar: searchBar);
   }
 
   Widget? getActionButton() {
@@ -92,6 +93,33 @@ class _AccountPage extends State<AccountPage> {
               icon: Icon(Icons.history),
             ),
         ],
+        bottom: PreferredSize(
+          preferredSize: Size.fromHeight(50),
+          child: Column(
+            children: [
+              if (_index == 0)
+                TextField(
+                  controller: searchBar,
+                  decoration: InputDecoration(
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(32),
+                    ),
+                    hintText: "Search Alters...",
+                  ),
+                  onTapOutside: (event) {
+                    FocusManager.instance.primaryFocus?.unfocus();
+                  },
+                  onChanged: (value) {
+                    setState(() {});
+                  },
+                  onSubmitted: (value) {
+                    FocusManager.instance.primaryFocus?.unfocus();
+                    setState(() {});
+                  },
+                ),
+            ],
+          ),
+        ),
       ),
       drawer: Drawer(
         child: Column(
@@ -217,6 +245,7 @@ class _AccountPage extends State<AccountPage> {
         padding: EdgeInsetsGeometry.all(8),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
+          mainAxisSize: MainAxisSize.min,
           children: [
             Divider(),
             Expanded(child: getPageForIndex()),
@@ -228,7 +257,8 @@ class _AccountPage extends State<AccountPage> {
 }
 
 class AltersPage extends StatefulWidget {
-  const AltersPage({super.key});
+  final TextEditingController searchBar;
+  const AltersPage({super.key, required this.searchBar});
 
   @override
   State<StatefulWidget> createState() {
@@ -299,6 +329,14 @@ class _alters extends State<AltersPage> {
                         print(
                           "Fronting snapshot threw an error: ${frontingSnapshot.error}",
                         );
+                      }
+                      // Run search test
+                      if (widget.searchBar.text.isNotEmpty) {
+                        if (!alters[index].name.toLowerCase().contains(
+                          widget.searchBar.text.toLowerCase(),
+                        )) {
+                          return SizedBox();
+                        }
                       }
                       Fronter fronting =
                           frontingSnapshot.data ??

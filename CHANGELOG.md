@@ -4,6 +4,7 @@
 
 - [x] Implement extremely basic discord connectivity for the bot
 - [x] Basic non-functional version of the `/link` command. Does nothing for now.
+- [x] Search bar to the Alters page
 
 ## CHANGE:
 
