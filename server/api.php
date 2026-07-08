@@ -2,7 +2,7 @@
 
 $DEBUG = false;
 
-$VERSION = "0.3.1+0708260928";
+$VERSION = "0.3.1+0708260935";
 
 $DEFAULT_USER_FIELDS = array(
                             array(
@@ -843,7 +843,7 @@ switch($route) {
                     $rres = $stmt->get_result();
                 }
 
-                if($rres->num_rows == 0) {
+                if($rres->num_rows < $AlterCount) {
                     header("X-SB-Done: 1");
                     $reason = "DONE";
                 }
