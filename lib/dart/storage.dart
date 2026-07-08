@@ -252,9 +252,7 @@ class NetworkInterface {
         print(reply.data);
         // Check for the X-SB-Done header.
         print(reply.headers);
-        bool isDone =
-            reply.headers.value("X-SB-Done") == null ||
-            reply.data["data"]?["done"];
+        bool isDone = reply.data["data"]?["done"];
         if (!isDone) {
           // Increment by X-SB-Count
           skip += int.parse(reply.headers.value("X-SB-Count") ?? "0");

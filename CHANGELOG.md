@@ -9,6 +9,7 @@
 
 - [x] Bot is now built using `bin/bot.dart`, as `server.dart` has been renamed and repurposed. The original purpose, was that this dart file would be the backend server, but we went with PHP for that instead.
 - [x] Updated version of bot API: Mineral to 5.0.0
+- [x] Fixes the requestAltersList loop for larger systems
 
 # 0.3.1+0705260030
 
