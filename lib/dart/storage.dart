@@ -246,7 +246,7 @@ class NetworkInterface {
         dio.options.headers["X-SB-Count"] = "$request";
 
         var reply = await dio.get(
-          "${getAPIServerURL()}/alters${user == null ? '' : "/${user.toString()}"}",
+          "${getAPIServerURL()}/alters${user == null ? '?skip=${skip}&count=${request}' : "/${user.toString()}"}?skip=${skip}&count=${request}",
         );
 
         print(reply.data);
@@ -276,6 +276,9 @@ class NetworkInterface {
 
         S2CAltersPartialResponse partialAlters =
             S2CAltersPartialResponse.decode(typeCorrectJson(reply.data));
+        if (reply.headers.value("X-SB-Count") == null) {
+          skip += partialAlters.data.count;
+        }
 
         allAlters.addAll(partialAlters.data.alters);
       }
