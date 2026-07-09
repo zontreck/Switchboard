@@ -5,6 +5,7 @@
 - [x] Implement extremely basic discord connectivity for the bot
 - [x] Basic non-functional version of the `/link` command. Does nothing for now.
 - [x] Search bar to the Alters page
+- [x] Open edit alter from fronting page
 
 ## CHANGE:
 
@@ -12,6 +13,7 @@
 - [x] Updated version of bot API: Mineral to 5.0.0
 - [x] Fixes the requestAltersList loop for larger systems
 - [x] Fixes another bug in `NetworkInterface.requestAltersList` which prevented the Web App specifically from loading the entire alters list for larger systems.
+- [x] Attempt to fix the WebApp text alignment
 
 # 0.3.1+0705260030
 
