@@ -158,6 +158,8 @@ class _widget extends State<AlterWidget> {
             ),
             SizedBox(width: 8),
             Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 FutureBuilder(
                   future: widget.alter?.getPronouns(),
