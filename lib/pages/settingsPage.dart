@@ -165,6 +165,24 @@ class _settings extends State<SettingsPage> {
                   Text("Rounded Borders", style: TextStyle(fontSize: 16)),
                 ],
               ),
+              Row(
+                children: [
+                  Checkbox(
+                    value: ms.disableGlowAnimations,
+                    onChanged: (B) {
+                      ms.disableGlowAnimations = B ?? true;
+                      setAppSettings().then((V) {
+                        setState(() {});
+                      });
+                    },
+                  ),
+                  SizedBox(width: 8),
+                  Text(
+                    "Disable glow animations",
+                    style: TextStyle(fontSize: 16),
+                  ),
+                ],
+              ),
               ElevatedButton(
                 onPressed: () async {
                   tempColor = getAlterBackgroundColor();

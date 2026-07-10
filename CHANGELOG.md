@@ -14,6 +14,7 @@
 - [x] Fixes the requestAltersList loop for larger systems
 - [x] Fixes another bug in `NetworkInterface.requestAltersList` which prevented the Web App specifically from loading the entire alters list for larger systems.
 - [x] Attempt to fix the WebApp text alignment
+- [ ] Implement requested feature (#7), ability to turn off the glow animations
 
 # 0.3.1+0705260030
 

@@ -26,6 +26,7 @@ class MemoryState {
   bool roundedBorder = true;
   bool squarePicture = false;
   bool rememberMe = false;
+  bool disableGlowAnimations = false;
   String username = "";
   String password = "";
   String applicationVersion = "";
@@ -311,6 +312,12 @@ class MemoryState {
     } else {
       glowColors = [];
     }
+
+    if (js.containsKey("glow_anims")) {
+      disableGlowAnimations = true;
+    } else {
+      disableGlowAnimations = false;
+    }
   }
 
   Map<String, dynamic> toJson({bool theme = true}) {
@@ -441,6 +448,10 @@ class MemoryState {
 
     if (glowColors.isNotEmpty) {
       js['glow'] = glowColors;
+    }
+
+    if (disableGlowAnimations) {
+      js['glow_anims'] = disableGlowAnimations;
     }
 
     return js;
