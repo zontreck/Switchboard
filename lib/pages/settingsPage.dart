@@ -503,7 +503,8 @@ class _settings extends State<SettingsPage> {
                           ),
                           ElevatedButton(
                             onPressed: () async {
-                              await ms.reset();
+                              ms.reset();
+                              await clearApplicationFont();
 
                               setState(() {});
 

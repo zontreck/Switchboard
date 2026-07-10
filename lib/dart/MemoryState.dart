@@ -1,7 +1,6 @@
 import 'dart:async';
 
 import 'package:switchboard/dart/globalHelpers.dart';
-import 'package:switchboard/globalHelpers.dart';
 
 class MemoryState {
   static final MemoryState _state = MemoryState._init();
@@ -458,9 +457,8 @@ class MemoryState {
     return js;
   }
 
-  Future<void> reset() async {
+  void reset() {
     fromJson(_defaults.toJson());
-    await clearApplicationFont();
   }
 }
 
