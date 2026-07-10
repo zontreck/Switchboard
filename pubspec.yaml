@@ -54,7 +54,9 @@ dependencies:
   liquid_glass_widgets: ^0.12.7
   google_mobile_ads: ^8.0.0
   url_launcher: ^6.3.2
-  glow_container: ^1.0.1
+  glow_container:
+    hosted: https://git.zontreck.com/api/packages/Packages/pub/
+    version: ^1.1.0
   synchronized: ^3.4.0+1
 
 dev_dependencies:

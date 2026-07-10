@@ -59,7 +59,12 @@ class AlterWidget extends StatefulWidget {
 
 class _widget extends State<AlterWidget> {
   Widget getGlow(Widget child, List<Color> colors) {
-    return GlowContainer(gradientColors: colors, glowRadius: 8, child: child);
+    return GlowContainer(
+      gradientColors: colors,
+      glowRadius: 8,
+      animations: false,
+      child: child,
+    );
   }
 
   String calculateFrontingTime() {
@@ -158,8 +163,8 @@ class _widget extends State<AlterWidget> {
             ),
             SizedBox(width: 8),
             Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-                        mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 FutureBuilder(
                   future: widget.alter?.getPronouns(),
