@@ -62,7 +62,7 @@ class _widget extends State<AlterWidget> {
     return GlowContainer(
       gradientColors: colors,
       glowRadius: 8,
-      animations: false,
+      animations: MemoryState.A.disableGlowAnimations ? false : true,
       child: child,
     );
   }
