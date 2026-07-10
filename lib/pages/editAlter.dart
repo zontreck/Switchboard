@@ -82,24 +82,33 @@ class _editAlter extends State<EditAlterPage> {
           ),
         ],
       ),
-      floatingActionButton: ElevatedButton.icon(
-        onPressed: () async {
-          alter.name = alterNameController.text;
-          print(alter.encode());
+      floatingActionButton: previewMode
+          ? ElevatedButton.icon(
+              onPressed: () {
+                previewMode = false;
+                setState(() {});
+              },
+              label: Text("Leave Preview"),
+              icon: Icon(Icons.close),
+            )
+          : ElevatedButton.icon(
+              onPressed: () async {
+                alter.name = alterNameController.text;
+                print(alter.encode());
 
-          FocusManager.instance.primaryFocus?.unfocus();
+                FocusManager.instance.primaryFocus?.unfocus();
 
-          setState(() {});
+                setState(() {});
 
-          var reply = await NetworkInterface.updateAlter(alter);
-          if (reply.success) {
-            flushImageCaches();
-            Navigator.pop(context);
-          }
-        },
-        label: Text("Save"),
-        icon: Icon(Icons.done_outline_rounded),
-      ),
+                var reply = await NetworkInterface.updateAlter(alter);
+                if (reply.success) {
+                  flushImageCaches();
+                  Navigator.pop(context);
+                }
+              },
+              label: Text("Save"),
+              icon: Icon(Icons.done_outline_rounded),
+            ),
       body: Padding(
         padding: EdgeInsetsGeometry.all(8),
         child: SingleChildScrollView(
