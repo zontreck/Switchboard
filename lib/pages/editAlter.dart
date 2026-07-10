@@ -28,6 +28,7 @@ class EditAlterPage extends StatefulWidget {
 
 class _editAlter extends State<EditAlterPage> {
   String alterId = UUID_ZERO;
+  bool previewMode = false;
   Alter alter = Alter(
     id: UUID_ZERO,
     user: UUID_ZERO,
@@ -70,6 +71,16 @@ class _editAlter extends State<EditAlterPage> {
             ],
           ),
         ),
+        actions: [
+          IconButton(
+            onPressed: () {
+              setState(() {
+                previewMode = !previewMode;
+              });
+            },
+            icon: Icon(Icons.preview),
+          ),
+        ],
       ),
       floatingActionButton: ElevatedButton.icon(
         onPressed: () async {
@@ -103,6 +114,9 @@ class _editAlter extends State<EditAlterPage> {
                     useCacheBusting: true,
                   ),
                   onTap: () async {
+                    if (previewMode) {
+                      return;
+                    }
                     print("Display image customize menu");
 
                     await showCupertinoDialog(
@@ -267,54 +281,60 @@ class _editAlter extends State<EditAlterPage> {
                   },
                 ),
               ),
-              ElevatedButton.icon(
-                icon: Icon(Icons.perm_identity),
-                label: Text("Show Alter ID"),
-                onPressed: () {
-                  showDialog(
-                    context: context,
-                    builder: (builder) {
-                      return AlertDialog(
-                        title: Text("Alter ID"),
-                        content: Text(
-                          "The Alter ID is: ${alter.id.toString()}",
-                        ),
-                        actions: [
-                          ElevatedButton(
-                            onPressed: () {
-                              Clipboard.setData(
-                                ClipboardData(text: alter.id.toString()),
-                              );
-                            },
-                            child: Text("Copy"),
+              if (!previewMode)
+                ElevatedButton.icon(
+                  icon: Icon(Icons.perm_identity),
+                  label: Text("Show Alter ID"),
+                  onPressed: () {
+                    showDialog(
+                      context: context,
+                      builder: (builder) {
+                        return AlertDialog(
+                          title: Text("Alter ID"),
+                          content: Text(
+                            "The Alter ID is: ${alter.id.toString()}",
                           ),
-                          ElevatedButton(
-                            onPressed: () {
-                              Navigator.pop(context);
-                            },
-                            child: Text("Dismiss"),
-                          ),
-                        ],
-                      );
-                    },
-                  );
-                },
-              ),
-              SizedBox(height: 10),
-              ElevatedButton(
-                onPressed: () {
-                  Clipboard.setData(ClipboardData(text: alter.getAvatarURL()));
-                },
-                child: Text("Copy Avatar Permalink"),
-              ),
-              SizedBox(height: 25),
-              TextField(
-                controller: alterNameController,
-                decoration: InputDecoration(
-                  hintText: "Alter Name",
-                  border: OutlineInputBorder(),
+                          actions: [
+                            ElevatedButton(
+                              onPressed: () {
+                                Clipboard.setData(
+                                  ClipboardData(text: alter.id.toString()),
+                                );
+                              },
+                              child: Text("Copy"),
+                            ),
+                            ElevatedButton(
+                              onPressed: () {
+                                Navigator.pop(context);
+                              },
+                              child: Text("Dismiss"),
+                            ),
+                          ],
+                        );
+                      },
+                    );
+                  },
                 ),
-              ),
+              SizedBox(height: 10),
+              if (!previewMode)
+                ElevatedButton(
+                  onPressed: () {
+                    Clipboard.setData(
+                      ClipboardData(text: alter.getAvatarURL()),
+                    );
+                  },
+                  child: Text("Copy Avatar Permalink"),
+                ),
+              SizedBox(height: 25),
+              if (!previewMode)
+                TextField(
+                  controller: alterNameController,
+                  decoration: InputDecoration(
+                    hintText: "Alter Name",
+                    border: OutlineInputBorder(),
+                  ),
+                ),
+              if (previewMode) ListTile(title: Text(alterNameController.text)),
               SizedBox(height: 25),
               Divider(),
               FutureBuilder(
@@ -331,40 +351,41 @@ class _editAlter extends State<EditAlterPage> {
                 },
               ),
               SizedBox(height: 20),
-              ListTile(
-                title: Text("Delete Alter"),
-                subtitle: Text(
-                  "Delete this alter from the system. Cannot be undone!",
-                ),
-                onTap: () async {
-                  var reply = await showDialog(
-                    context: context,
-                    builder: (bldr) {
-                      return confirmDeleteAlter(context);
-                    },
-                  );
+              if (!previewMode)
+                ListTile(
+                  title: Text("Delete Alter"),
+                  subtitle: Text(
+                    "Delete this alter from the system. Cannot be undone!",
+                  ),
+                  onTap: () async {
+                    var reply = await showDialog(
+                      context: context,
+                      builder: (bldr) {
+                        return confirmDeleteAlter(context);
+                      },
+                    );
 
-                  if (reply is bool) {
-                    if (reply == true) {
-                      var resp = await NetworkInterface.deleteAlter(alter.id);
-                      if (resp.success) {
-                        Switchboard.rebuild();
-                        Navigator.pop(context);
-                      } else {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text(
-                              "Fatal Error: Could not delete alter. Request ID [${resp.id}]\nReason: ${resp.reason}",
+                    if (reply is bool) {
+                      if (reply == true) {
+                        var resp = await NetworkInterface.deleteAlter(alter.id);
+                        if (resp.success) {
+                          Switchboard.rebuild();
+                          Navigator.pop(context);
+                        } else {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text(
+                                "Fatal Error: Could not delete alter. Request ID [${resp.id}]\nReason: ${resp.reason}",
+                              ),
                             ),
-                          ),
-                        );
+                          );
+                        }
                       }
                     }
-                  }
-                },
-                tileColor: LibACFlutterConstants.TITLEBAR_COLOR,
-                leading: Icon(Icons.delete_forever),
-              ),
+                  },
+                  tileColor: LibACFlutterConstants.TITLEBAR_COLOR,
+                  leading: Icon(Icons.delete_forever),
+                ),
               SizedBox(height: 150),
             ],
           ),
@@ -403,6 +424,7 @@ class _editAlter extends State<EditAlterPage> {
           alter: alter,
           order: field.order,
           fieldName: field.name,
+          preview: previewMode,
         ),
       );
 
@@ -418,6 +440,7 @@ class AlterFieldData extends StatefulWidget {
   Alter alter;
   int order;
   String fieldName;
+  bool preview;
 
   AlterFieldData({
     super.key,
@@ -426,6 +449,7 @@ class AlterFieldData extends StatefulWidget {
     required this.alter,
     required this.order,
     required this.fieldName,
+    required this.preview,
   });
 
   @override
@@ -493,9 +517,6 @@ class TextFieldStorage extends FieldStorage {
   String _data = "";
   TextEditingController controller = TextEditingController();
   String get data => controller.text;
-
-  /// This flag is used for Markdown previewing only.
-  bool preview = false;
 
   @override
   FieldStorageType get dataType => FieldStorageType.Text;
@@ -701,24 +722,35 @@ class _alterFieldData extends State<AlterFieldData> {
       case FieldType.Pronouns:
       case FieldType.PlainText:
         {
-          return TextField(
-            controller:
-                (controlHolders[widget.data.id.toString()] as TextFieldStorage)
-                    .controller,
-            decoration: InputDecoration(border: OutlineInputBorder()),
-            onChanged: (value) {
-              TextFieldStorage tfs =
+          if (!widget.preview) {
+            return TextField(
+              controller:
                   (controlHolders[widget.data.id.toString()]
-                      as TextFieldStorage);
+                          as TextFieldStorage)
+                      .controller,
+              decoration: InputDecoration(border: OutlineInputBorder()),
+              onChanged: (value) {
+                TextFieldStorage tfs =
+                    (controlHolders[widget.data.id.toString()]
+                        as TextFieldStorage);
 
-              widget.alter.addOrUpdateField(
-                FieldData(id: widget.data.id, data: tfs.toJson()),
-              );
-            },
-            onTapOutside: (event) {
-              FocusManager.instance.primaryFocus?.unfocus();
-            },
-          );
+                widget.alter.addOrUpdateField(
+                  FieldData(id: widget.data.id, data: tfs.toJson()),
+                );
+              },
+              onTapOutside: (event) {
+                FocusManager.instance.primaryFocus?.unfocus();
+              },
+            );
+          } else {
+            return ListTile(
+              title: Text(
+                (controlHolders[widget.data.id] as TextFieldStorage)
+                    .controller
+                    .text,
+              ),
+            );
+          }
         }
       case FieldType.Color:
       case FieldType.ColorSys:
@@ -732,9 +764,16 @@ class _alterFieldData extends State<AlterFieldData> {
                           as ColorFieldStorage)
                       .data,
             ),
-            title: Text("Pick A Color"),
-            subtitle: Text("Tap here to change the color selection"),
+            title: Text(widget.preview ? "Color" : "Pick A Color"),
+            subtitle: Text(
+              widget.preview
+                  ? "#${colorToHex((controlHolders[widget.data.id] as ColorFieldStorage).data)}"
+                  : "Tap here to change the color selection",
+            ),
             onTap: () async {
+              if (widget.preview) {
+                return;
+              }
               ColorFieldStorage Cfs =
                   controlHolders[widget.data.id.toString()]
                       as ColorFieldStorage;
@@ -774,8 +813,7 @@ class _alterFieldData extends State<AlterFieldData> {
         {
           return Column(
             children: [
-              (controlHolders[widget.data.id.toString()] as TextFieldStorage)
-                      .preview
+              widget.preview
                   ? Card(
                       child: SingleChildScrollView(
                         child: MarkdownWidget(
@@ -809,24 +847,6 @@ class _alterFieldData extends State<AlterFieldData> {
                         );
                       },
                     ),
-              SizedBox(height: 8),
-              ListTile(
-                title: Text("Preview"),
-                leading: Icon(Icons.preview),
-                subtitle: Text(
-                  "Enable/Disable editing and render a markdown preview.",
-                ),
-                onTap: () {
-                  (controlHolders[widget.data.id.toString()]
-                              as TextFieldStorage)
-                          .preview =
-                      !(controlHolders[widget.data.id.toString()]
-                              as TextFieldStorage)
-                          .preview;
-
-                  setState(() {});
-                },
-              ),
             ],
           );
         }

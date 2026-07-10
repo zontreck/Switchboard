@@ -6,6 +6,7 @@
 - [x] Basic non-functional version of the `/link` command. Does nothing for now.
 - [x] Search bar to the Alters page
 - [x] Open edit alter from fronting page
+- [x] Request #2: Change the way Preview works, and move the button to be a single button for the entire page
 
 ## CHANGE:
 
