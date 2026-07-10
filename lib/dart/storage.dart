@@ -246,7 +246,7 @@ class NetworkInterface {
         dio.options.headers["X-SB-Count"] = "$request";
 
         var reply = await dio.get(
-          "${getAPIServerURL()}/alters${user == null ? '?skip=${skip}&count=${request}' : "/${user.toString()}"}?skip=${skip}&count=${request}",
+          "${getAPIServerURL()}/alters${user == null ? '?skip=$skip&count=$request' : "/${user.toString()}"}?skip=$skip&count=$request",
         );
 
         print(reply.data);
