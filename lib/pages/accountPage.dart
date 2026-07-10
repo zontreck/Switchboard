@@ -538,76 +538,70 @@ class _fronting extends State<FrontingPage> {
                         ),
                         alterID: alter.id,
                         longPressMenu: true,
-                                onTap: () async {
-                                  pageChanged();
-                                  var reply = await Navigator.pushNamed(
-                                    context,
-                                    "/editAlter",
-                                    arguments: EditAlterArguments(
-                                      alterId: alter.id,
-                                      instance: alter,
-                                    ),
-                                  );
+                        onTap: () async {
+                          pageChanged();
+                          var reply = await Navigator.pushNamed(
+                            context,
+                            "/editAlter",
+                            arguments: EditAlterArguments(
+                              alterId: alter.id,
+                              instance: alter,
+                            ),
+                          );
 
-                                  pageChanged();
-                                  setState(() {});
+                          pageChanged();
+                          setState(() {});
+                        },
+                        longPressOptions: [
+                          if (!response.data[index].front.currentFronter)
+                            CupertinoButton(
+                              child: Text(
+                                "Set Front",
+                                style: TextStyle(fontSize: 18),
+                              ),
+                              onPressed: () async {
+                                await NetworkInterface.setFronting(alter.id);
+                                setState(() {});
+                                Navigator.pop(context);
+                              },
+                            ),
+                          if (response.data[index].front.currentFronter)
+                            CupertinoButton(
+                              child: Text(
+                                "Remove from front",
+                                style: TextStyle(fontSize: 18),
+                              ),
+                              onPressed: () async {
+                                await NetworkInterface.unfrontFronter(alter.id);
+                                setState(() {});
+                                Navigator.pop(context);
+                              },
+                            ),
+                          CupertinoButton(
+                            color: LibACFlutterConstants.TITLEBAR_COLOR,
+                            onPressed: () async {
+                              Navigator.pop(context);
+
+                              var resp = await showDialog(
+                                context: context,
+                                builder: (bldr) {
+                                  return confirmDeleteAlter(context);
                                 },
-                                longPressOptions: [
-                                  if (!fronting.front.currentFronter)
-                                    CupertinoButton(
-                                      child: Text(
-                                        "Set Front",
-                                        style: TextStyle(fontSize: 18),
-                                      ),
-                                      onPressed: () async {
-                                        await NetworkInterface.setFronting(
-                                          alter.id,
-                                        );
-                                        setState(() {});
-                                        Navigator.pop(context);
-                                      },
-                                    ),
-                                  if (fronting.front.currentFronter)
-                                    CupertinoButton(
-                                      child: Text(
-                                        "Remove from front",
-                                        style: TextStyle(fontSize: 18),
-                                      ),
-                                      onPressed: () async {
-                                        await NetworkInterface.unfrontFronter(
-                                          alter.id,
-                                        );
-                                        setState(() {});
-                                        Navigator.pop(context);
-                                      },
-                                    ),
-                                  CupertinoButton(
-                                    color: LibACFlutterConstants.TITLEBAR_COLOR,
-                                    onPressed: () async {
-                                      Navigator.pop(context);
+                              );
 
-                                      var resp = await showDialog(
-                                        context: context,
-                                        builder: (bldr) {
-                                          return confirmDeleteAlter(context);
-                                        },
-                                      );
-
-                                      if (resp is bool) {
-                                        if (resp == true) {
-                                          await NetworkInterface.deleteAlter(
-                                            alter.id,
-                                          );
-                                          setState(() {});
-                                        }
-                                      }
-                                    },
-                                    child: Text(
-                                      "Delete Alter",
-                                      style: TextStyle(fontSize: 18),
-                                    ),
-                                  ),
-                                ],
+                              if (resp is bool) {
+                                if (resp == true) {
+                                  await NetworkInterface.deleteAlter(alter.id);
+                                  setState(() {});
+                                }
+                              }
+                            },
+                            child: Text(
+                              "Delete Alter",
+                              style: TextStyle(fontSize: 18),
+                            ),
+                          ),
+                        ],
                         alterName: alter.name,
                         url: alter.avatarUrl.isNotEmpty
                             ? alter.avatarUrl
