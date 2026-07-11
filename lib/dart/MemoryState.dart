@@ -479,8 +479,7 @@ class AdSettings {
     );
   }
 
-  AdSettings({required this.onNavigate, this.navCount = 4, int pageViews = 0})
-    : _pageViews = pageViews;
+  AdSettings({required this.onNavigate, this.navCount = 4, this._pageViews = 0});
 
   bool shouldShowAd() {
     if (!onNavigate) {
