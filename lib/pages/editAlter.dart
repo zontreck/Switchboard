@@ -268,6 +268,18 @@ class _editAlter extends State<EditAlterPage> {
                             ),
                             CupertinoDialogAction(
                               child: Text(
+                                "Copy Permalink URL",
+                                style: TextStyle(fontSize: 22),
+                              ),
+                              onPressed: () {
+                                Clipboard.setData(
+                                  ClipboardData(text: alter.getAvatarURL()),
+                                );
+                                Navigator.pop(context);
+                              },
+                            ),
+                            CupertinoDialogAction(
+                              child: Text(
                                 "Cancel",
                                 style: TextStyle(
                                   fontSize: 22,
@@ -324,16 +336,7 @@ class _editAlter extends State<EditAlterPage> {
                     );
                   },
                 ),
-              SizedBox(height: 10),
-              if (!previewMode)
-                ElevatedButton(
-                  onPressed: () {
-                    Clipboard.setData(
-                      ClipboardData(text: alter.getAvatarURL()),
-                    );
-                  },
-                  child: Text("Copy Avatar Permalink"),
-                ),
+
               SizedBox(height: 25),
               if (!previewMode)
                 TextField(
