@@ -288,7 +288,7 @@ class OctoconFront {
 
   factory OctoconFront.fromJson(Map<String, dynamic> jsx) {
     String id = jsx['id'] as String;
-    String comment = jsx['comment'] as String;
+    String comment = (jsx['comment'] ?? "") as String;
     DateTime? end;
     if (jsx.containsKey("time_end")) {
       if (jsx['time_end'] == null) {

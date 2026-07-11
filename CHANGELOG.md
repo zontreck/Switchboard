@@ -1,4 +1,4 @@
-# 0.3.2
+# 0.3.2+0711261047 HOTFIX
 
 ## CHANGE:
 
@@ -6,6 +6,7 @@
 - [x] Register button no longer hides.
 - [x] Removed the checkboxes from the register page, since they are redundant. The TOS and Privacy Policy have already been agreed to long before this page is reached.
 - [x] Move copy avatar url to the dialog actions for the image in the editor
+- [x] [HOTFIX] Fixed a bug reported by Discord user Liv, who could not import from Octocon. Problem was Octocon sometimes sets the Comment Field to null. The app expected it to either always be a blank string, or always have something set. This is a edge case.
 
 # 0.3.1+0710261437
 
