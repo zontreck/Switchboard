@@ -33,38 +33,45 @@ class _SBRegister extends State<SBRegisterPage> {
           ),
         ),
       ),
-      floatingActionButton:
-          (usernameController.text.isNotEmpty &&
+      floatingActionButton: ElevatedButton.icon(
+        onPressed: () async {
+          if (!((usernameController.text.isNotEmpty &&
               passwordController.text.isNotEmpty &&
               passwordConfirmController.text.isNotEmpty &&
-              passwordController.text == passwordConfirmController.text)
-          ? ElevatedButton.icon(
-              onPressed: () async {
-                // do register
-                S2CLazyResponse usrPkt = await NetworkInterface.putNewUser(
-                  usernameController.text,
-                  passwordController.text,
-                );
+              passwordController.text == passwordConfirmController.text))) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(
+                  "ERROR: You must fill out the username field, and ensure both passwords match.",
+                ),
+              ),
+            );
+            return;
+          }
+          // do register
+          S2CLazyResponse usrPkt = await NetworkInterface.putNewUser(
+            usernameController.text,
+            passwordController.text,
+          );
 
-                if (usrPkt.success) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text("User Account Created!")),
-                  );
-                  Navigator.pop(context);
-                } else {
-                  // Show error message
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text("ERROR ${usrPkt.reason}"),
-                      backgroundColor: Colors.redAccent,
-                    ),
-                  );
-                }
-              },
-              label: Text("Register Account"),
-              icon: Icon(Icons.app_registration_rounded),
-            )
-          : null,
+          if (usrPkt.success) {
+            ScaffoldMessenger.of(
+              context,
+            ).showSnackBar(SnackBar(content: Text("User Account Created!")));
+            Navigator.pop(context);
+          } else {
+            // Show error message
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text("ERROR ${usrPkt.reason}"),
+                backgroundColor: Colors.redAccent,
+              ),
+            );
+          }
+        },
+        label: Text("Register Account"),
+        icon: Icon(Icons.app_registration_rounded),
+      ),
       body: Padding(
         padding: EdgeInsetsGeometry.all(8),
         child: SingleChildScrollView(
