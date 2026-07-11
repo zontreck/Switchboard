@@ -14,7 +14,7 @@ WORKDIR /app
 COPY --from=builder /app/Switchboard/outputs/proxybot-x86_64-linux /sbin/switchboard
 RUN chmod +x /sbin/switchboard
 
-VOLUME ["/app/data", "/app/cdn"]
+VOLUME ["/app/data"]
 
 ENV BOT_TOKEN NotSet
 ENV SB_BOTPSK NotSet
