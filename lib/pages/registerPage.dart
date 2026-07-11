@@ -34,9 +34,7 @@ class _SBRegister extends State<SBRegisterPage> {
         ),
       ),
       floatingActionButton:
-          (agreeToPrivacy &&
-              agreeToTOS &&
-              usernameController.text.isNotEmpty &&
+          (usernameController.text.isNotEmpty &&
               passwordController.text.isNotEmpty &&
               passwordConfirmController.text.isNotEmpty &&
               passwordController.text == passwordConfirmController.text)
@@ -103,32 +101,6 @@ class _SBRegister extends State<SBRegisterPage> {
                   hintText: "Password Confirmation",
                 ),
                 obscureText: true,
-              ),
-
-              SizedBox(height: 25),
-              Row(
-                children: [
-                  Checkbox(
-                    value: agreeToPrivacy,
-                    onChanged: (B) async {
-                      agreeToPrivacy = B ?? false;
-                      setState(() {});
-                    },
-                  ),
-                  Text("I agree to the Privacy Policy"),
-                ],
-              ),
-              Row(
-                children: [
-                  Checkbox(
-                    value: agreeToTOS,
-                    onChanged: (B) async {
-                      agreeToTOS = B ?? false;
-                      setState(() {});
-                    },
-                  ),
-                  Text("I agree to the Terms of Service"),
-                ],
               ),
             ],
           ),
