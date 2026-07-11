@@ -65,7 +65,7 @@ class _loginState extends State<SBLoginPage> {
                 actions: [
                   IconButton(
                     onPressed: () {
-                      Navigator.pop(context);
+                      ScaffoldMessenger.of(context).clearMaterialBanners();
                     },
                     icon: Icon(Icons.close),
                   ),

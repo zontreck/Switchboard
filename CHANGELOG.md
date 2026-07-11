@@ -1,3 +1,9 @@
+# 0.3.2
+
+## CHANGE:
+
+- [x] Fix #14: Login failure banner cannot be dismissed.
+
 # 0.3.1+0710261437
 
 ## ADD:
