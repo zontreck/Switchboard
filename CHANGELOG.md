@@ -3,6 +3,8 @@
 ## CHANGE:
 
 - [x] Fix #14: Login failure banner cannot be dismissed.
+- [x] Register button no longer hides.
+- [x] Removed the checkboxes from the register page, since they are redundant. The TOS and Privacy Policy have already been agreed to long before this page is reached.
 
 # 0.3.1+0710261437
 
