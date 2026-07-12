@@ -75,9 +75,14 @@ class Ourcana {
           tagMembers.add(alterIDMap[entry.id]!);
         }
       }
+      dynamic parentTagID = tag.parentId ?? UUID_ZERO;
+      if (parentTagID != UUID_ZERO) {
+        parentTagID = tagIDMap[parentTagID]!;
+      }
+
       data.tags.add(
         OctoconTag(
-          id: tag.id,
+          id: "${tagIDMap[tag.id]!}",
           name: tag.label,
           description: tag.label,
           color: tag.color,
@@ -85,7 +90,7 @@ class Ourcana {
           updatedAt: DateTime.now(),
           securityLevel: OctoconSecurityLevel.trusted,
           alters: tagMembers,
-          parentTagId: tag.parentId ?? "",
+          parentTagId: "${parentTagID}",
         ),
       );
     }
@@ -280,8 +285,8 @@ class OurcanaFront {
     return {
       "id": id,
       "memberIds": memberIds,
-      "startTime": startTime,
-      "endTime": endTime,
+      "startTime": startTime * 1000,
+      "endTime": endTime != null ? (endTime! * 1000) : null,
       "isLive": isLive,
     };
   }
@@ -291,10 +296,9 @@ class OurcanaFront {
     return OurcanaFront(
       id: js['id'],
       memberIds: js['memberIds'],
-      startTime: start,
-      endTime:
-          js['endTime'] ??
-          start, // For the purposes of importing, don't leave someone fronting.
+      startTime: (start / 1000).round(),
+      endTime: (((js['endTime'] ?? start) as int) / 1000)
+          .round(), // For the purposes of importing, don't leave someone fronting.
     );
   }
 }
