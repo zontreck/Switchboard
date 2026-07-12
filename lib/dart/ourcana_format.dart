@@ -75,10 +75,6 @@ class Ourcana {
           tagMembers.add(alterIDMap[entry.id]!);
         }
       }
-      dynamic parentTagID = tag.parentId ?? UUID_ZERO;
-      if (parentTagID != UUID_ZERO) {
-        parentTagID = tagIDMap[parentTagID]!;
-      }
 
       data.tags.add(
         OctoconTag(
@@ -90,7 +86,8 @@ class Ourcana {
           updatedAt: DateTime.now(),
           securityLevel: OctoconSecurityLevel.trusted,
           alters: tagMembers,
-          parentTagId: "${parentTagID}",
+          parentTagId:
+              UUID_ZERO, // Discard structure, for now at least, the format is a bit spaghetti, at least until I have more time to properly sort it out.
         ),
       );
     }
