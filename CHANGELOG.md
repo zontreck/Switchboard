@@ -5,6 +5,10 @@
 - [x] PluralKit exports are now partially supported.
 - [x] Ourcana exports are now partially supported.
 
+## CHANGE:
+
+- [x] Fix a typo on the Login screen
+
 # 0.3.2+0711261047 HOTFIX
 
 ## CHANGE:

@@ -183,7 +183,7 @@ class _loginState extends State<SBLoginPage> {
           child: Column(
             children: [
               Text(
-                "You must login to Switchboard in order to use this application and service.\n\n* NOTE: Switchboard is not yet in a usable state. If you are currently testing, you will have been given login permissions by the development team. \n\nUntil the app is usable, we are making every effort to make it possible to migrate Ocotocon data as painlessly as possible.\n\n* Interested in joining the team? Message zontreck on Discord.",
+                "You must login to Switchboard in order to use this application and service.\n\n* NOTE: Switchboard is not yet in a usable state. If you are currently testing, you will have been given login permissions by the development team. \n\nUntil the app is usable, we are making every effort to make it possible to migrate Octocon data as painlessly as possible.\n\n* Interested in joining the team? Message zontreck on Discord.",
               ),
 
               FutureBuilder(
