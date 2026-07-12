@@ -283,7 +283,7 @@ class _mav extends State<MigrateAltersView> {
           child: Column(
             children: [
               Text(
-                "Migrating Octocon Data\nAlters",
+                "Migrating 3rd Party Data\nAlters",
                 style: TextStyle(fontSize: 22),
               ),
               Divider(),
@@ -450,7 +450,7 @@ class _migrateFronting extends State<MigrateFrontingView> {
           child: Column(
             children: [
               Text(
-                "Migrating Octocon Data\nFronting History",
+                "Migrating 3rd Party Data\nFronting History",
                 style: TextStyle(fontSize: 22),
               ),
               Divider(),
@@ -588,7 +588,7 @@ class _mfv extends State<MigrateFieldsView> {
           child: Column(
             children: [
               Text(
-                "Migrating Octocon Data\nCustom Data Fields",
+                "Migrating 3rd Party Data\nCustom Data Fields",
                 style: TextStyle(fontSize: 22),
               ),
               Divider(),
@@ -758,7 +758,7 @@ class _mfdv extends State<MigrateFieldDataView> {
           child: Column(
             children: [
               Text(
-                "Migrating Octocon Data\nAlter Field Data",
+                "Migrating 3rd Party Data\nAlter Field Data",
                 style: TextStyle(fontSize: 22),
               ),
               Divider(),
@@ -988,7 +988,7 @@ class _mfldr extends State<MigrateFolders> {
           child: Column(
             children: [
               Text(
-                "Migrating Octocon Data\nTags",
+                "Migrating 3rd Party Data\nTags",
                 style: TextStyle(fontSize: 22),
               ),
               Divider(),
@@ -1006,7 +1006,7 @@ class _mfldr extends State<MigrateFolders> {
                 style: TextStyle(fontSize: 22),
               ),
             Text(
-              "Your tags / folders are now being created and uploaded...\n\n> Switchboard refers to Tags a bit differently than Octocon did. We refer to them as Folders. They currently are experimental, and function more like a filesystem than a tag. The feature can be revised and changed later.",
+              "Your tags / folders are now being created and uploaded...\n\n> Switchboard refers to Tags a bit differently than others did. We refer to them as Folders. They currently are experimental, and function more like a filesystem than a tag. The feature can be revised and changed later.",
               style: TextStyle(fontSize: 22),
             ),
 

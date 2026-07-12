@@ -11,7 +11,7 @@ import 'package:switchboard/pages/fontPage.dart';
 import 'package:switchboard/pages/glowPresets.dart';
 import 'package:switchboard/pages/glowSettingsPage.dart';
 import 'package:switchboard/pages/loginPage.dart';
-import 'package:switchboard/pages/octoconSettings.dart';
+import 'package:switchboard/pages/3pSettings.dart';
 import 'package:switchboard/pages/privacyPolicyPage.dart';
 import 'package:switchboard/pages/progressDisplayPage.dart';
 import 'package:switchboard/pages/registerPage.dart';
