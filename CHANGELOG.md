@@ -8,6 +8,7 @@
 ## CHANGE:
 
 - [x] Fix a typo on the Login screen
+- [x] Temporarily disable the wipe account debug option in the Settings menu. Part of restructuring the settings menu, to prevent accidental account wiping. (#11)
 
 # 0.3.2+0711261047 HOTFIX
 

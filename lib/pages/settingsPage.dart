@@ -544,8 +544,14 @@ class _settings extends State<SettingsPage> {
                 ),
                 tileColor: LibACFlutterConstants.TITLEBAR_COLOR,
                 onTap: () async {
-                  await NetworkInterface.wipeAccount();
-
+                  //await NetworkInterface.wipeAccount();
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text(
+                        "Wiping account has been temporarily disabled as part of the settings menu restructuring. This option is moving to the Developer Options menu.",
+                      ),
+                    ),
+                  );
                   setState(() {});
                 },
               ),
