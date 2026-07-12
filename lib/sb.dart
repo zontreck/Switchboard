@@ -61,7 +61,6 @@ class _switchboard extends State<Switchboard> {
             "/settings/ads": (ctx) => AdSettings(),
             "/account": (ctx) => AccountPage(),
             "/account/settings": (ctx) => SettingsPageOld(),
-            "/account/settings/ads": (ctx) => AdSettingsPageOld(),
             "/account/settings/font": (ctx) => FontPage(),
             "/account/settings/octocon": (ctx) => OctoconImport(),
             "/account/settings/glow": (ctx) => GlowSettingsPage(),
