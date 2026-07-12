@@ -13,8 +13,8 @@ import 'package:switchboard/globalHelpers.dart';
 import 'package:switchboard/pages/elements.dart';
 import 'package:switchboard/sb.dart';
 
-class SettingsPage extends StatefulWidget {
-  const SettingsPage({super.key});
+class SettingsPageOld extends StatefulWidget {
+  const SettingsPageOld({super.key});
 
   @override
   State<StatefulWidget> createState() {
@@ -22,7 +22,7 @@ class SettingsPage extends StatefulWidget {
   }
 }
 
-class _settings extends State<SettingsPage> {
+class _settings extends State<SettingsPageOld> {
   MemoryState ms = MemoryState();
   Color tempColor = getAlterBackgroundColor();
   TextEditingController importThemeController = TextEditingController();
@@ -587,8 +587,8 @@ class _settings extends State<SettingsPage> {
   }
 }
 
-class AdSettingsPage extends StatefulWidget {
-  const AdSettingsPage({super.key});
+class AdSettingsPageOld extends StatefulWidget {
+  const AdSettingsPageOld({super.key});
 
   @override
   State<StatefulWidget> createState() {
@@ -596,7 +596,7 @@ class AdSettingsPage extends StatefulWidget {
   }
 }
 
-class _adSettings extends State<AdSettingsPage> {
+class _adSettings extends State<AdSettingsPageOld> {
   TextEditingController navCountController = TextEditingController();
 
   void updateAdCount() {

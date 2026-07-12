@@ -15,7 +15,9 @@ import 'package:switchboard/pages/3pSettings.dart';
 import 'package:switchboard/pages/privacyPolicyPage.dart';
 import 'package:switchboard/pages/progressDisplayPage.dart';
 import 'package:switchboard/pages/registerPage.dart';
+import 'package:switchboard/pages/settings.dart';
 import 'package:switchboard/pages/settingsPage.dart';
+import 'package:switchboard/pages/settings_categories/ads.dart';
 
 class Switchboard extends StatefulWidget {
   static void Function() rebuild = () {
@@ -55,9 +57,11 @@ class _switchboard extends State<Switchboard> {
             "/register": (ctx) => SBRegisterPage(),
             "/privacy": (ctx) => PrivacyPolicyPage(),
             "/tos": (ctx) => TermsOfServicePage(),
+            "/settings": (ctx) => SettingsPage(),
+            "/settings/ads": (ctx) => AdSettings(),
             "/account": (ctx) => AccountPage(),
-            "/account/settings": (ctx) => SettingsPage(),
-            "/account/settings/ads": (ctx) => AdSettingsPage(),
+            "/account/settings": (ctx) => SettingsPageOld(),
+            "/account/settings/ads": (ctx) => AdSettingsPageOld(),
             "/account/settings/font": (ctx) => FontPage(),
             "/account/settings/octocon": (ctx) => OctoconImport(),
             "/account/settings/glow": (ctx) => GlowSettingsPage(),

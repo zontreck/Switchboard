@@ -152,7 +152,18 @@ class _AccountPage extends State<AccountPage> {
             ),
             ListTile(
               title: Text("S E T T I N G S"),
-              subtitle: Text("Manage app settings"),
+              subtitle: Text("Manage switchboard settings"),
+              leading: Icon(Icons.settings),
+              onTap: () async {
+                pageChanged();
+                await Navigator.pushNamed(context, "/settings");
+                pageChanged();
+                setState(() {});
+              },
+            ),
+            ListTile(
+              title: Text("S E T T I N G S  -  O L D"),
+              subtitle: Text("Manage app settings - OLD INTERFACE"),
               leading: Icon(Icons.settings),
               onTap: () async {
                 pageChanged();
