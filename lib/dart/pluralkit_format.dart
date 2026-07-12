@@ -149,7 +149,7 @@ class PluralKitGroup {
     return {
       "color": color,
       "description": description,
-      "id": "${id}",
+      "id": "$id",
       "members": members,
       "name": name,
     };

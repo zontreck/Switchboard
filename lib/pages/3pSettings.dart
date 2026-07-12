@@ -76,7 +76,7 @@ class _octocon extends State<OctoconImport> {
     await Navigator.pushNamed(
       context,
       "/account/settings/octocon/migrate",
-      arguments: OctoconMigrationArguments(data: octoconData!),
+      arguments: OctoconMigrationArguments(data: octoconData),
     );
   }
 
