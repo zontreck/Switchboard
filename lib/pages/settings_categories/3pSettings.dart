@@ -10,22 +10,22 @@ import 'package:switchboard/dart/pluralkit_format.dart';
 import 'package:switchboard/dart/storage.dart';
 import 'package:switchboard/file_picker.dart';
 import 'package:switchboard/globalHelpers.dart';
-import 'package:switchboard/pages/progressDisplayPage.dart';
+import 'package:switchboard/pages/settings_categories/progressDisplayPage.dart';
 
-class OctoconImport extends StatefulWidget {
-  const OctoconImport({super.key});
+class ThirdPartyImport extends StatefulWidget {
+  const ThirdPartyImport({super.key});
 
   @override
   State<StatefulWidget> createState() {
-    return _octocon();
+    return _3p();
   }
 }
 
-class _octocon extends State<OctoconImport> {
+class _3p extends State<ThirdPartyImport> {
   Uint8List? _contents;
 
   Future<void> runMigration() async {
-    // Start importing OctoconData
+    // Start importing data
     if (_contents == null) {
       return;
     }
@@ -72,12 +72,14 @@ class _octocon extends State<OctoconImport> {
       );
       return;
     }
-
+    pageChanged();
     await Navigator.pushNamed(
       context,
-      "/account/settings/octocon/migrate",
+      "/settings/3p/migrate",
       arguments: OctoconMigrationArguments(data: octoconData),
     );
+    pageChanged();
+    setState(() {});
   }
 
   @override
@@ -89,7 +91,10 @@ class _octocon extends State<OctoconImport> {
           preferredSize: Size.fromHeight(25),
           child: Column(
             children: [
-              Text("IMPORT FROM 3RD PARTY", style: TextStyle(fontSize: 22)),
+              Text(
+                "IMPORT FROM 3RD PARTY (JSON)",
+                style: TextStyle(fontSize: 22),
+              ),
               Divider(),
             ],
           ),

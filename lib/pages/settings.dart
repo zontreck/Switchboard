@@ -63,6 +63,7 @@ class _settings extends State<SettingsPage> {
                     ),
                     ListTile(
                       title: Text("Ad Settings"),
+                      leading: Icon(Icons.ad_units),
                       trailing: Icon(Icons.forward),
                       subtitle: Text("Configure settings related to ads"),
                       onTap: () async {
@@ -73,6 +74,36 @@ class _settings extends State<SettingsPage> {
                       },
                     ),
                   ],
+                ),
+              ),
+              SizedBox(height: 50),
+              Center(child: Text("Account", style: TextStyle(fontSize: 20))),
+              Divider(),
+              Card(
+                child: Padding(
+                  padding: EdgeInsetsGeometry.all(8),
+                  child: Column(
+                    children: [
+                      ListTile(
+                        title: Text("Account Settings"),
+                        subtitle: Text(
+                          "View and manage all account related settings",
+                        ),
+                        trailing: Icon(Icons.forward),
+                        leading: Icon(Icons.settings),
+                        onTap: () async {
+                          pageChanged();
+                          await Navigator.pushNamed(
+                            context,
+                            "/settings/account",
+                          );
+                          pageChanged();
+
+                          setState(() {});
+                        },
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ],

@@ -11,12 +11,13 @@ import 'package:switchboard/pages/fontPage.dart';
 import 'package:switchboard/pages/glowPresets.dart';
 import 'package:switchboard/pages/glowSettingsPage.dart';
 import 'package:switchboard/pages/loginPage.dart';
-import 'package:switchboard/pages/3pSettings.dart';
+import 'package:switchboard/pages/settings_categories/3pSettings.dart';
 import 'package:switchboard/pages/privacyPolicyPage.dart';
-import 'package:switchboard/pages/progressDisplayPage.dart';
+import 'package:switchboard/pages/settings_categories/progressDisplayPage.dart';
 import 'package:switchboard/pages/registerPage.dart';
 import 'package:switchboard/pages/settings.dart';
 import 'package:switchboard/pages/settingsPage.dart';
+import 'package:switchboard/pages/settings_categories/account.dart';
 import 'package:switchboard/pages/settings_categories/ads.dart';
 
 class Switchboard extends StatefulWidget {
@@ -59,18 +60,18 @@ class _switchboard extends State<Switchboard> {
             "/tos": (ctx) => TermsOfServicePage(),
             "/settings": (ctx) => SettingsPage(),
             "/settings/ads": (ctx) => AdSettings(),
+            "/settings/account": (ctx) => AccountSettings(),
+            "/settings/3pjson": (ctx) => ThirdPartyImport(),
+            "/settings/3p/migrate": (ctx) => ThirdPartyMigrationProgress(),
             "/account": (ctx) => AccountPage(),
             "/account/settings": (ctx) => SettingsPageOld(),
             "/account/settings/font": (ctx) => FontPage(),
-            "/account/settings/octocon": (ctx) => OctoconImport(),
             "/account/settings/glow": (ctx) => GlowSettingsPage(),
             "/account/settings/glow/presets": (ctx) => GlowPresets(),
             "/account/settings/fields": (ctx) => EditFieldsPage(),
             "/account/settings/fields/edit": (ctx) => EditField(),
             "/editAlter": (ctx) => EditAlterPage(),
             "/feedback": (ctx) => FeedbackHUB(),
-            "/account/settings/octocon/migrate": (ctx) =>
-                OctoconMigrationProgressPage(),
           },
         );
       },

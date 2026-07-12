@@ -13,8 +13,8 @@ import 'package:switchboard/pages/editAlter.dart';
 import 'package:switchboard/sb.dart';
 import 'package:synchronized/synchronized.dart';
 
-class OctoconMigrationProgressPage extends StatefulWidget {
-  const OctoconMigrationProgressPage({super.key});
+class ThirdPartyMigrationProgress extends StatefulWidget {
+  const ThirdPartyMigrationProgress({super.key});
 
   @override
   State<StatefulWidget> createState() {
@@ -73,7 +73,7 @@ class _mem {
 
 enum ImportState { alters, fronting, fields, fieldData, tags, completed }
 
-class _migrate extends State<OctoconMigrationProgressPage> {
+class _migrate extends State<ThirdPartyMigrationProgress> {
   @override
   void initState() {
     super.initState();

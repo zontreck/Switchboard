@@ -495,61 +495,6 @@ class _settings extends State<SettingsPageOld> {
                 },
               ),
 
-              Divider(),
-              ListTile(
-                title: Text("I M P O R T  F R O M  3 R D  P A R T Y"),
-                subtitle: Text(
-                  "Import all data from a 3RD Party export. Must be in the JSON file format.",
-                ),
-                tileColor: LibACFlutterConstants.TITLEBAR_COLOR,
-                leading: Icon(Icons.import_contacts),
-                onTap: () {
-                  Navigator.pushNamed(context, "/account/settings/octocon");
-                },
-              ),
-              Divider(),
-
-              ListTile(
-                title: Text("DEBUG: Wipe Account"),
-                subtitle: Text(
-                  "This debug option will wipe all data from your account. It is not reversible.",
-                ),
-                tileColor: LibACFlutterConstants.TITLEBAR_COLOR,
-                onTap: () async {
-                  //await NetworkInterface.wipeAccount();
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text(
-                        "Wiping account has been temporarily disabled as part of the settings menu restructuring. This option is moving to the Developer Options menu.",
-                      ),
-                    ),
-                  );
-                  setState(() {});
-                },
-              ),
-
-              Divider(),
-
-              SizedBox(height: 50),
-              ListTile(
-                title: Text("L O G  O U T"),
-                leading: Icon(Icons.logout),
-                subtitle: Text(
-                  "Immediately logs you out of the app. Remember me will also be turned off and invalidated.",
-                ),
-                tileColor: LibACFlutterConstants.TITLEBAR_COLOR,
-                onTap: () async {
-                  ms.rememberMe = false;
-                  ms.username = "";
-                  ms.password = "";
-                  ms.authenticationToken = "";
-
-                  await setAuthToken("");
-
-                  await Navigator.pushReplacementNamed(context, "/login");
-                },
-              ),
-
               SizedBox(height: 50),
             ],
           ),
