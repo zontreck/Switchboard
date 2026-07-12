@@ -525,9 +525,9 @@ class _settings extends State<SettingsPage> {
 
               Divider(),
               ListTile(
-                title: Text("I M P O R T  F R O M  O C T O C O N"),
+                title: Text("I M P O R T  F R O M  3 R D  P A R T Y"),
                 subtitle: Text(
-                  "Import all data from an Octocon full JSON export.\n(DISCLAIMER) This feature will only be available as long as the Octocon servers remain operational. This feature will continue working indefinitely, however there is a ticking clock on the import function due to the Profile Pictures being hosted by Octocon's CDN. This feature will migrate all images to our own in-house CDN. ",
+                  "Import all data from a 3RD Party export. Must be in the JSON file format.",
                 ),
                 tileColor: LibACFlutterConstants.TITLEBAR_COLOR,
                 leading: Icon(Icons.import_contacts),

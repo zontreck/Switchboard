@@ -1,3 +1,9 @@
+# 0.3.3
+
+## ADD:
+
+- [x] PluralKit exports are now partially supported.
+
 # 0.3.2+0711261047 HOTFIX
 
 ## CHANGE:
