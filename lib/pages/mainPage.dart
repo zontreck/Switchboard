@@ -141,92 +141,102 @@ class _AccountPage extends State<AccountPage> {
                 ],
               ),
             ),
-            ListTile(
-              title: Text("A B O U T"),
-              leading: Icon(Icons.info_rounded),
-              onTap: () async {
-                pageChanged();
-                await Navigator.pushNamed(context, "/about");
-                pageChanged();
-              },
-            ),
-            ListTile(
-              title: Text("S E T T I N G S"),
-              subtitle: Text("Manage switchboard settings"),
-              leading: Icon(Icons.settings),
-              onTap: () async {
-                pageChanged();
-                await Navigator.pushNamed(context, "/settings");
-                pageChanged();
-                setState(() {});
-              },
-            ),
-            ListTile(
-              title: Text("S E T T I N G S  -  O L D"),
-              subtitle: Text("Manage app settings - OLD INTERFACE"),
-              leading: Icon(Icons.settings),
-              onTap: () async {
-                pageChanged();
-                await Navigator.pushNamed(context, "/account/settings");
-                pageChanged();
-                setState(() {});
-              },
-            ),
-            ListTile(
-              title: Text("P R I V A C Y  P O L I C Y"),
-              subtitle: Text("View the Privacy Policy"),
-              leading: Icon(Icons.privacy_tip),
-              onTap: () async {
-                pageChanged();
-                await Navigator.pushNamed(context, "/privacy");
-                pageChanged();
-              },
-            ),
-            ListTile(
-              title: Text("T E R M S  O F  S E R V I C E"),
-              subtitle: Text("View the Terms of Service"),
-              leading: Icon(Icons.label_important),
-              onTap: () async {
-                pageChanged();
-                await Navigator.pushNamed(context, "/tos");
-                pageChanged();
-              },
-            ),
-            ListTile(
-              title: Text("P A T R E O N"),
-              subtitle: Text("Open our Patreon in your browser"),
-              leading: Icon(Icons.monetization_on),
-              onTap: () async {
-                launchUrlString("https://patreon.com/astarastudios");
-              },
-            ),
-            ListTile(
-              title: Text("K O - F I"),
-              subtitle: Text("Open our Ko-Fi in your browser"),
-              leading: Icon(Icons.monetization_on),
-              onTap: () async {
-                launchUrlString("https://ko-fi.com/zontreck");
-              },
-            ),
-            ListTile(
-              title: Text("F E E D B A C K"),
-              subtitle: Text(
-                "Feedback HUB. Submit requests, feedback, and bug reports.",
+            SingleChildScrollView(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  ListTile(
+                    title: Text("A B O U T"),
+                    leading: Icon(Icons.info_rounded),
+                    onTap: () async {
+                      pageChanged();
+                      await Navigator.pushNamed(context, "/about");
+                      pageChanged();
+                    },
+                  ),
+                  ListTile(
+                    title: Text("S E T T I N G S"),
+                    subtitle: Text("Manage switchboard settings"),
+                    leading: Icon(Icons.settings),
+                    onTap: () async {
+                      pageChanged();
+                      await Navigator.pushNamed(context, "/settings");
+                      pageChanged();
+                      setState(() {});
+                    },
+                  ),
+                  ListTile(
+                    title: Text("S E T T I N G S  -  O L D"),
+                    subtitle: Text("Manage app settings - OLD INTERFACE"),
+                    leading: Icon(Icons.settings),
+                    onTap: () async {
+                      pageChanged();
+                      await Navigator.pushNamed(context, "/account/settings");
+                      pageChanged();
+                      setState(() {});
+                    },
+                  ),
+                  ListTile(
+                    title: Text("P R I V A C Y  P O L I C Y"),
+                    subtitle: Text("View the Privacy Policy"),
+                    leading: Icon(Icons.privacy_tip),
+                    onTap: () async {
+                      pageChanged();
+                      await Navigator.pushNamed(context, "/privacy");
+                      pageChanged();
+                    },
+                  ),
+                  ListTile(
+                    title: Text("T E R M S  O F  S E R V I C E"),
+                    subtitle: Text("View the Terms of Service"),
+                    leading: Icon(Icons.label_important),
+                    onTap: () async {
+                      pageChanged();
+                      await Navigator.pushNamed(context, "/tos");
+                      pageChanged();
+                    },
+                  ),
+                  ListTile(
+                    title: Text("P A T R E O N"),
+                    subtitle: Text("Open our Patreon in your browser"),
+                    leading: Icon(Icons.monetization_on),
+                    onTap: () async {
+                      launchUrlString("https://patreon.com/astarastudios");
+                    },
+                  ),
+                  ListTile(
+                    title: Text("K O - F I"),
+                    subtitle: Text("Open our Ko-Fi in your browser"),
+                    leading: Icon(Icons.monetization_on),
+                    onTap: () async {
+                      launchUrlString("https://ko-fi.com/zontreck");
+                    },
+                  ),
+                  ListTile(
+                    title: Text("F E E D B A C K"),
+                    subtitle: Text(
+                      "Feedback HUB. Submit requests, feedback, and bug reports.",
+                    ),
+                    leading: Icon(Icons.feedback),
+                    onTap: () async {
+                      pageChanged();
+                      await Navigator.pushNamed(context, "/feedback");
+                      pageChanged();
+                    },
+                  ),
+                  ListTile(
+                    title: Text("S O U R C E  C O D E"),
+                    subtitle: Text("View our code! (And possibly contribute?)"),
+                    leading: Icon(Icons.code),
+                    onTap: () {
+                      launchUrlString(
+                        "https://git.zontreck.com/Astara/Switchboard",
+                      );
+                    },
+                  ),
+                ],
               ),
-              leading: Icon(Icons.feedback),
-              onTap: () async {
-                pageChanged();
-                await Navigator.pushNamed(context, "/feedback");
-                pageChanged();
-              },
-            ),
-            ListTile(
-              title: Text("S O U R C E  C O D E"),
-              subtitle: Text("View our code! (And possibly contribute?)"),
-              leading: Icon(Icons.code),
-              onTap: () {
-                launchUrlString("https://git.zontreck.com/Astara/Switchboard");
-              },
             ),
           ],
         ),

@@ -3,7 +3,7 @@ import 'package:switchboard/dart/storage.dart';
 import 'package:switchboard/globalHelpers.dart';
 import 'package:switchboard/pages/FirstRunPage.dart';
 import 'package:switchboard/pages/aboutPage.dart';
-import 'package:switchboard/pages/accountPage.dart';
+import 'package:switchboard/pages/mainPage.dart';
 import 'package:switchboard/pages/editAlter.dart';
 import 'package:switchboard/pages/settings_categories/appearance.dart';
 import 'package:switchboard/pages/settings_categories/editFields.dart';
