@@ -33,6 +33,43 @@ class _acct extends State<AccountSettings> {
         child: SingleChildScrollView(
           child: Column(
             children: [
+              Center(child: Text("Options", style: TextStyle(fontSize: 20))),
+              Divider(),
+              Card(
+                child: Padding(
+                  padding: EdgeInsetsGeometry.all(8),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      SizedBox(height: 8),
+                      ListTile(
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        title: Text("E D I T  F I E L D S"),
+                        tileColor: const Color.fromARGB(255, 119, 219, 255),
+                        textColor: Colors.black,
+                        trailing: Icon(Icons.forward, color: Colors.black),
+                        subtitle: Text(
+                          "Edit the fields that show up for each alter.\nYou can also rearrange the order in which they appear.",
+                        ),
+                        leading: Icon(
+                          Icons.edit_attributes,
+                          color: Colors.black,
+                        ),
+                        onTap: () async {
+                          Navigator.pushNamed(
+                            context,
+                            "/settings/account/fields",
+                          );
+                        },
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              SizedBox(height: 25),
               Center(
                 child: Text("Third Party Apps", style: TextStyle(fontSize: 20)),
               ),
@@ -63,6 +100,78 @@ class _acct extends State<AccountSettings> {
                       },
                     ),
                   ],
+                ),
+              ),
+
+              SizedBox(height: 25),
+              Text("Session", style: TextStyle(fontSize: 22)),
+              Divider(),
+              Card(
+                child: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      ListTile(
+                        title: Text("Log Out"),
+                        tileColor: LibACFlutterConstants.TITLEBAR_COLOR,
+                        leading: Icon(Icons.logout),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadiusGeometry.circular(8),
+                        ),
+                        subtitle: Text(
+                          "Immediately ends your Switchboard Session and logs you out of your account.",
+                        ),
+                        onTap: () async {
+                          var reply = await showCupertinoDialog(
+                            context: context,
+                            builder: (bldr) {
+                              return CupertinoAlertDialog(
+                                title: Text("Log Out?"),
+                                content: Text(
+                                  "Remember Me, if enabled will be turned off, and you will be logged out.",
+                                  style: TextStyle(fontSize: 18),
+                                ),
+                                actions: [
+                                  CupertinoDialogAction(
+                                    isDefaultAction: true,
+                                    child: Text("Yes"),
+                                    onPressed: () {
+                                      Navigator.pop(context, true);
+                                    },
+                                  ),
+                                  CupertinoDialogAction(
+                                    isDestructiveAction: true,
+                                    child: Text("Cancel"),
+                                    onPressed: () {
+                                      Navigator.pop(context);
+                                    },
+                                  ),
+                                ],
+                              );
+                            },
+                          );
+
+                          if (reply != null) {
+                            MemoryState ms = MemoryState();
+                            ms.rememberMe = false;
+                            ms.username = "";
+                            ms.password = "";
+                            ms.authenticationToken = "";
+
+                            await setAuthToken("");
+                            await setAppSettings();
+
+                            Navigator.pushReplacementNamed(
+                              context,
+                              "/onboarding/0",
+                            );
+                          }
+                        },
+                      ),
+                    ],
+                  ),
                 ),
               ),
               SizedBox(height: 25),
@@ -139,78 +248,6 @@ class _acct extends State<AccountSettings> {
                               );
                             },
                           );
-                        },
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-
-              SizedBox(height: 25),
-              Text("Session", style: TextStyle(fontSize: 22)),
-              Divider(),
-              Card(
-                child: Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      ListTile(
-                        title: Text("Log Out"),
-                        tileColor: LibACFlutterConstants.TITLEBAR_COLOR,
-                        leading: Icon(Icons.logout),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadiusGeometry.circular(8),
-                        ),
-                        subtitle: Text(
-                          "Immediately ends your Switchboard Session and logs you out of your account.",
-                        ),
-                        onTap: () async {
-                          var reply = await showCupertinoDialog(
-                            context: context,
-                            builder: (bldr) {
-                              return CupertinoAlertDialog(
-                                title: Text("Log Out?"),
-                                content: Text(
-                                  "Remember Me, if enabled will be turned off, and you will be logged out.",
-                                  style: TextStyle(fontSize: 18),
-                                ),
-                                actions: [
-                                  CupertinoDialogAction(
-                                    isDefaultAction: true,
-                                    child: Text("Yes"),
-                                    onPressed: () {
-                                      Navigator.pop(context, true);
-                                    },
-                                  ),
-                                  CupertinoDialogAction(
-                                    isDestructiveAction: true,
-                                    child: Text("Cancel"),
-                                    onPressed: () {
-                                      Navigator.pop(context);
-                                    },
-                                  ),
-                                ],
-                              );
-                            },
-                          );
-
-                          if (reply != null) {
-                            MemoryState ms = MemoryState();
-                            ms.rememberMe = false;
-                            ms.username = "";
-                            ms.password = "";
-                            ms.authenticationToken = "";
-
-                            await setAuthToken("");
-                            await setAppSettings();
-
-                            Navigator.pushReplacementNamed(
-                              context,
-                              "/onboarding/0",
-                            );
-                          }
                         },
                       ),
                     ],

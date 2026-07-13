@@ -324,19 +324,6 @@ class _settings extends State<SettingsPageOld> {
               ),
               SizedBox(height: 8),
               ListTile(
-                title: Text("E D I T  F I E L D S"),
-                tileColor: const Color.fromARGB(255, 119, 219, 255),
-                textColor: Colors.black,
-                subtitle: Text(
-                  "Edit the fields that show up for each alter.\nYou can also rearrange the order in which they appear.",
-                ),
-                leading: Icon(Icons.edit_attributes, color: Colors.black),
-                onTap: () async {
-                  Navigator.pushNamed(context, "/account/settings/fields");
-                },
-              ),
-              SizedBox(height: 8),
-              ListTile(
                 title: Text("G L O W  S E T T I N G S"),
                 subtitle: Text("Edit the glow settings!"),
                 leading: Icon(CupertinoIcons.circle_fill),

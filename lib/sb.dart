@@ -5,7 +5,7 @@ import 'package:switchboard/pages/FirstRunPage.dart';
 import 'package:switchboard/pages/aboutPage.dart';
 import 'package:switchboard/pages/accountPage.dart';
 import 'package:switchboard/pages/editAlter.dart';
-import 'package:switchboard/pages/editFields.dart';
+import 'package:switchboard/pages/settings_categories/editFields.dart';
 import 'package:switchboard/pages/feedbackHUB.dart';
 import 'package:switchboard/pages/fontPage.dart';
 import 'package:switchboard/pages/glowPresets.dart';
@@ -61,6 +61,8 @@ class _switchboard extends State<Switchboard> {
             "/settings": (ctx) => SettingsPage(),
             "/settings/ads": (ctx) => AdSettings(),
             "/settings/account": (ctx) => AccountSettings(),
+            "/settings/account/fields": (ctx) => EditFieldsPage(),
+            "/settings/account/fields/edit": (ctx) => EditField(),
             "/settings/3pjson": (ctx) => ThirdPartyImport(),
             "/settings/3p/migrate": (ctx) => ThirdPartyMigrationProgress(),
             "/account": (ctx) => AccountPage(),
@@ -68,8 +70,6 @@ class _switchboard extends State<Switchboard> {
             "/account/settings/font": (ctx) => FontPage(),
             "/account/settings/glow": (ctx) => GlowSettingsPage(),
             "/account/settings/glow/presets": (ctx) => GlowPresets(),
-            "/account/settings/fields": (ctx) => EditFieldsPage(),
-            "/account/settings/fields/edit": (ctx) => EditField(),
             "/editAlter": (ctx) => EditAlterPage(),
             "/feedback": (ctx) => FeedbackHUB(),
           },
