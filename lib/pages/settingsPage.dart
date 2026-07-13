@@ -1,17 +1,10 @@
 import 'dart:convert';
 
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_colorpicker/flutter_colorpicker.dart';
 import 'package:libac_dart/utils/Converter.dart';
-import 'package:libacflutter/Constants.dart';
 import 'package:switchboard/dart/MemoryState.dart';
-import 'package:switchboard/dart/globalHelpers.dart';
-import 'package:switchboard/dart/storage.dart';
 import 'package:switchboard/globalHelpers.dart';
-import 'package:switchboard/pages/elements.dart';
-import 'package:switchboard/sb.dart';
 
 class SettingsPageOld extends StatefulWidget {
   const SettingsPageOld({super.key});

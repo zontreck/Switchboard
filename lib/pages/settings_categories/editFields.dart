@@ -399,11 +399,11 @@ class _editField extends State<EditField> {
                                       ),
                                       actions: [
                                         CupertinoDialogAction(
-                                          child: Text("Close"),
                                           isDefaultAction: true,
                                           onPressed: () {
                                             Navigator.pop(context);
                                           },
+                                          child: Text("Close"),
                                         ),
                                       ],
                                     );

@@ -1,9 +1,10 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:switchboard/dart/MemoryState.dart';
 import 'package:switchboard/globalHelpers.dart';
 
 class AdSettings extends StatefulWidget {
+  const AdSettings({super.key});
+
   @override
   State<StatefulWidget> createState() {
     return _adsetting();

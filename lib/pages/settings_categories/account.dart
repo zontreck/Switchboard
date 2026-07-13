@@ -6,6 +6,8 @@ import 'package:switchboard/dart/storage.dart';
 import 'package:switchboard/globalHelpers.dart';
 
 class AccountSettings extends StatefulWidget {
+  const AccountSettings({super.key});
+
   @override
   State<StatefulWidget> createState() {
     return _acct();

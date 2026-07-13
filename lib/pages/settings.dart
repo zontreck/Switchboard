@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:switchboard/globalHelpers.dart';
 
 class SettingsPage extends StatefulWidget {
+  const SettingsPage({super.key});
+
   @override
   State<StatefulWidget> createState() {
     return _settings();

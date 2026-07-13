@@ -9,6 +9,8 @@ import 'package:switchboard/pages/elements.dart';
 import 'package:switchboard/sb.dart';
 
 class AppearanceSettings extends StatefulWidget {
+  const AppearanceSettings({super.key});
+
   @override
   State<StatefulWidget> createState() {
     return _visual();
