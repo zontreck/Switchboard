@@ -61,6 +61,7 @@ class _settings extends State<SettingsPage> {
                         }
                       },
                     ),
+                    Divider(),
                     ListTile(
                       title: Text("Ad Settings"),
                       leading: Icon(Icons.ad_units),
@@ -80,6 +81,7 @@ class _settings extends State<SettingsPage> {
               Center(child: Text("Account", style: TextStyle(fontSize: 20))),
               Divider(),
               Card(
+                elevation: 8,
                 child: Padding(
                   padding: EdgeInsetsGeometry.all(8),
                   child: Column(
@@ -96,6 +98,37 @@ class _settings extends State<SettingsPage> {
                           await Navigator.pushNamed(
                             context,
                             "/settings/account",
+                          );
+                          pageChanged();
+
+                          setState(() {});
+                        },
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              SizedBox(height: 50),
+              Center(child: Text("App", style: TextStyle(fontSize: 20))),
+              Divider(),
+              Card(
+                elevation: 8,
+                child: Padding(
+                  padding: EdgeInsetsGeometry.all(8),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      ListTile(
+                        title: Text("Appearance Settings"),
+                        subtitle: Text("Configure the app appearance settings"),
+                        leading: Icon(Icons.settings),
+                        trailing: Icon(Icons.forward),
+                        onTap: () async {
+                          pageChanged();
+                          await Navigator.pushNamed(
+                            context,
+                            "/settings/appearance",
                           );
                           pageChanged();
 

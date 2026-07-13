@@ -351,30 +351,33 @@ class _presets extends State<GlowPresets> {
             crossAxisCount: 2,
           ),
           itemBuilder: (bldr, index) {
-            return InkWell(
-              onTap: () {
-                if (_selectedPreset == index) {
-                  _selectedPreset = -1;
-                  presets[index].deselect();
-                } else {
-                  _selectedPreset = index;
-                  presets[index].callback();
-                }
+            return SizedBox(
+              height: 75,
+              child: InkWell(
+                onTap: () {
+                  if (_selectedPreset == index) {
+                    _selectedPreset = -1;
+                    presets[index].deselect();
+                  } else {
+                    _selectedPreset = index;
+                    presets[index].callback();
+                  }
 
-                sanityCheck();
-                setState(() {
-                  MemoryState.A.glowPresetID = _selectedPreset;
-                });
-              },
-              child: _selectedPreset == index
-                  ? GlowContainer(
-                      gradientColors: [getNavSelColor()],
-                      animations: MemoryState.A.disableGlowAnimations
-                          ? false
-                          : true,
-                      child: getCard(index),
-                    )
-                  : getCard(index),
+                  sanityCheck();
+                  setState(() {
+                    MemoryState.A.glowPresetID = _selectedPreset;
+                  });
+                },
+                child: _selectedPreset == index
+                    ? GlowContainer(
+                        gradientColors: [getNavSelColor()],
+                        animations: MemoryState.A.disableGlowAnimations
+                            ? false
+                            : true,
+                        child: getCard(index),
+                      )
+                    : getCard(index),
+              ),
             );
           },
           itemCount: presets.length,

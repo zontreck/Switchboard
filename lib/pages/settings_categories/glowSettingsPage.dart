@@ -60,40 +60,79 @@ class _glowSettings extends State<GlowSettingsPage> {
         padding: EdgeInsetsGeometry.all(8),
         child: SingleChildScrollView(
           child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.end,
+            mainAxisAlignment: MainAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               SizedBox(height: 25),
-              Text(
-                "NOTE: We aim to be inclusive. It's not possible to add every flag preset as a toggle, or else we would. There are too many. If you have one in particular you want, you can either request it, or customize the glow yourself below.",
-                style: TextStyle(fontSize: 18),
-              ),
-              ListTile(
-                title: Text("Flag Color Presets"),
-                subtitle: Text(
-                  "Pick from a selection of pride flags for the glow color!",
+              Center(child: Text("Presets", style: TextStyle(fontSize: 22))),
+              Divider(),
+              Card(
+                elevation: 8,
+                child: Padding(
+                  padding: EdgeInsetsGeometry.all(8),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        "NOTE: We aim to be inclusive. It's not possible to add every flag preset as a toggle, or else we would. There are too many. If you have one in particular you want, you can either request it, or customize the glow yourself below.",
+                        style: TextStyle(fontSize: 18),
+                      ),
+                      SizedBox(height: 25),
+                      Divider(),
+                      ListTile(
+                        title: Text("Flag Color Presets"),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadiusGeometry.circular(16),
+                        ),
+                        subtitle: Text(
+                          "Pick from a selection of pride flags for the glow color!",
+                        ),
+                        leading: Icon(CupertinoIcons.flag),
+                        trailing: Icon(Icons.forward),
+                        onTap: () async {
+                          await Navigator.pushNamed(
+                            context,
+                            "/settings/glow/presets",
+                          );
+
+                          Switchboard.rebuild();
+                          await setAppSettings();
+
+                          setState(() {});
+                        },
+                      ),
+                    ],
+                  ),
                 ),
-                leading: Icon(CupertinoIcons.flag),
-                tileColor: Colors.blueGrey,
-                onTap: () async {
-                  await Navigator.pushNamed(
-                    context,
-                    "/account/settings/glow/presets",
-                  );
-
-                  Switchboard.rebuild();
-                  await setAppSettings();
-
-                  setState(() {});
-                },
               ),
 
-              SizedBox(height: 7),
+              SizedBox(height: 25),
 
-              Divider(height: 22),
-              Text(
-                "Custom glow colors!\nCustomize the colors below to whatever you would like them to be.\nNOTE: The alter's color preference will always appear in the glow.",
-                style: TextStyle(fontSize: 18),
+              Center(
+                child: Text(
+                  "Custom Color Selection",
+                  style: TextStyle(fontSize: 22),
+                ),
+              ),
+              Divider(),
+              Card(
+                elevation: 8,
+                child: Padding(
+                  padding: EdgeInsetsGeometry.all(8),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      ListTile(
+                        title: Text("Custom Glow Colors"),
+                        subtitle: Text(
+                          "Customize the colors below to whatever you would like them to be.\n\nNOTE: The alter's color will always appear in the glow.",
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
               ),
               Divider(),
               SizedBox(

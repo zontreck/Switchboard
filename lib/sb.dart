@@ -5,11 +5,12 @@ import 'package:switchboard/pages/FirstRunPage.dart';
 import 'package:switchboard/pages/aboutPage.dart';
 import 'package:switchboard/pages/accountPage.dart';
 import 'package:switchboard/pages/editAlter.dart';
+import 'package:switchboard/pages/settings_categories/appearance.dart';
 import 'package:switchboard/pages/settings_categories/editFields.dart';
 import 'package:switchboard/pages/feedbackHUB.dart';
 import 'package:switchboard/pages/fontPage.dart';
-import 'package:switchboard/pages/glowPresets.dart';
-import 'package:switchboard/pages/glowSettingsPage.dart';
+import 'package:switchboard/pages/settings_categories/glowPresets.dart';
+import 'package:switchboard/pages/settings_categories/glowSettingsPage.dart';
 import 'package:switchboard/pages/loginPage.dart';
 import 'package:switchboard/pages/settings_categories/3pSettings.dart';
 import 'package:switchboard/pages/privacyPolicyPage.dart';
@@ -60,16 +61,17 @@ class _switchboard extends State<Switchboard> {
             "/tos": (ctx) => TermsOfServicePage(),
             "/settings": (ctx) => SettingsPage(),
             "/settings/ads": (ctx) => AdSettings(),
+            "/settings/appearance": (ctx) => AppearanceSettings(),
             "/settings/account": (ctx) => AccountSettings(),
             "/settings/account/fields": (ctx) => EditFieldsPage(),
             "/settings/account/fields/edit": (ctx) => EditField(),
             "/settings/3pjson": (ctx) => ThirdPartyImport(),
             "/settings/3p/migrate": (ctx) => ThirdPartyMigrationProgress(),
+            "/settings/glow": (ctx) => GlowSettingsPage(),
+            "/settings/glow/presets": (ctx) => GlowPresets(),
             "/account": (ctx) => AccountPage(),
             "/account/settings": (ctx) => SettingsPageOld(),
             "/account/settings/font": (ctx) => FontPage(),
-            "/account/settings/glow": (ctx) => GlowSettingsPage(),
-            "/account/settings/glow/presets": (ctx) => GlowPresets(),
             "/editAlter": (ctx) => EditAlterPage(),
             "/feedback": (ctx) => FeedbackHUB(),
           },
