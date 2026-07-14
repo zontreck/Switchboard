@@ -5,6 +5,7 @@
 - [x] PluralKit exports are now partially supported.
 - [x] Ourcana exports are now partially supported.
 - [x] Proper account settings that now indicate username, ID, access level, alter count, etc.
+- [x] New Endpoint: `/auth/password` which accepts ANY HTTP call except for GET. This changes the account password.
 
 ## CHANGE:
 
@@ -13,6 +14,7 @@
 - [x] #11, new, nicer UI for the Settings. Old Settings page has been moved and renamed.
 - [x] Make the app drawer scrollable
 - [x] Ads Settings now reflects the new ad count limit, which I changed to no more than 4 every 2 minutes.
+- [x] Backend server will now recognize Auth level 8 as being banned
 
 # 0.3.2+0711261047 HOTFIX
 

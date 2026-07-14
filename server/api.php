@@ -2,7 +2,7 @@
 
 $DEBUG = false;
 
-$VERSION = "0.3.3+0714261048";
+$VERSION = "0.3.3+0714261051";
 
 $DEFAULT_USER_FIELDS = array(
                             array(
@@ -506,7 +506,7 @@ switch($route) {
 
                     $success=true;
 
-                    if($row['AccountLevel'] == 0) {
+                    if(($row['AccountLevel'] & 8) == 8) {
                         $success = false;
                         $reason = "User is banned";
                     }
@@ -972,11 +972,14 @@ switch($route) {
         $success = false;
         $SBReply = ValidateSAT(get_Authorization());
         $DB = get_DB("switchboard");
+        if(!$SBReply->Success) {
+            $reason = "Not logged in";
+        }
         
-        if($request != "GET") {
+        if($request != "GET" && $SBReply->Success) {
             $pkt = json_decode(file_get_contents("php://input"), true);
 
-            $userID = $pkt['id'];
+            $userID = $SBReply->UserID;
             $passwordHash = $pkt['auth']; // This is a hashed password from the client. We re-hash it here with a salt to create a secure password, safe for storage.
 
             $salt = md5(time());
@@ -998,7 +1001,7 @@ switch($route) {
                 // Check the account level, make sure it is not banned, App Store, or Tester
                 $actLevel = $row['AccountLevel'];
                 $stmt->close();
-                if(($actLevel & 2) == 2 || ($actLevel & 4) == 4) {
+                if(($actLevel & 2) == 2 || ($actLevel & 4) == 4 || ($actLevel & 8) == 8) {
                     // Invalid change request
                     $success=false;
                     $reason = "Limited Account";
