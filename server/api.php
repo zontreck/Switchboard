@@ -2,7 +2,7 @@
 
 $DEBUG = false;
 
-$VERSION = "0.3.3+0714261051";
+$VERSION = "0.3.3+0714261139";
 
 $DEFAULT_USER_FIELDS = array(
                             array(
@@ -384,8 +384,19 @@ switch($route) {
         $username = $matches[1] ?? null; // null if /user was requested without a username
         
         $reason = "";
-        if($username == null) {
-            $success=  false;
+        if($username == null || $username == "") {
+            $SBAuth = ValidateSAT(get_Authorization());
+            if($SBAuth->Success) {
+                $userId = $SBAuth->UserID;
+
+                $ustmt = $DB->prepare("SELECT * FROM `users` WHERE `ID` = ?;");
+                $ustmt->bind_param("s", $userId);
+                $ustmt->execute();
+                $res = $ustmt->get_result();
+                $row = $res->fetch_assoc();
+                $username = $row['UserName'];
+                $ustmt->close();
+            }
         }
         $success=false;
         $data = null;

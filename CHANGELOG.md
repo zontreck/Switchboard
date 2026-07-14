@@ -15,6 +15,7 @@
 - [x] Make the app drawer scrollable
 - [x] Ads Settings now reflects the new ad count limit, which I changed to no more than 4 every 2 minutes.
 - [x] Backend server will now recognize Auth level 8 as being banned
+- [x] `/user` can now be called without a Username. This returns the currently authenticated user.
 
 # 0.3.2+0711261047 HOTFIX
 
