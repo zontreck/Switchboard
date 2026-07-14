@@ -2,7 +2,7 @@
 
 $DEBUG = false;
 
-$VERSION = "0.3.1+0708260935";
+$VERSION = "0.3.3+0714261048";
 
 $DEFAULT_USER_FIELDS = array(
                             array(
@@ -964,6 +964,71 @@ switch($route) {
             )
         )));
 
+        break;
+    }
+
+    case "/auth/password": {
+
+        $success = false;
+        $SBReply = ValidateSAT(get_Authorization());
+        $DB = get_DB("switchboard");
+        
+        if($request != "GET") {
+            $pkt = json_decode(file_get_contents("php://input"), true);
+
+            $userID = $pkt['id'];
+            $passwordHash = $pkt['auth']; // This is a hashed password from the client. We re-hash it here with a salt to create a secure password, safe for storage.
+
+            $salt = md5(time());
+            $salt = md5($salt.":".md5(time()).":".$passwordHash);
+
+            $passwordHash = md5($passwordHash.":".$salt);
+
+            // Verify the user's level now
+            $stmt = $DB->prepare("SELECT * FROM `users` WHERE `ID`=?;");
+            $stmt->bind_param("s", $userID);
+            $stmt->execute();
+            $res = $stmt->get_result();
+            if($res->num_rows == 0) {
+                $success = false;
+                $reason = "No such user";
+            } else {
+
+                $row = $res->fetch_assoc();
+                // Check the account level, make sure it is not banned, App Store, or Tester
+                $actLevel = $row['AccountLevel'];
+                $stmt->close();
+                if(($actLevel & 2) == 2 || ($actLevel & 4) == 4) {
+                    // Invalid change request
+                    $success=false;
+                    $reason = "Limited Account";
+                } else {
+                    $stmt = $DB->prepare("UPDATE `users` SET `PasswordHash`=?, `PasswordSalt`=? WHERE `ID`=?;");
+
+                    $stmt->bind_param("sss", $passwordHash, $salt, $userID);
+                    $stmt->execute();
+                    $stmt->close();
+                    $DB->commit();
+
+                    $success=true;
+                    $reason = "Password Changed";
+
+                    $stmt = $DB->prepare("DELETE FROM `Access` WHERE `User` = ? AND `TokenScope` = 1;"); // Revoke all access tokens with scope 1
+                    $stmt->bind_param("s", $userID);
+                    $stmt->execute();
+                    $stmt->close();
+                    $DB->commit();
+                }
+            }
+        }
+
+        die(json_encode(array(
+            "success" => $success,
+            "path" => $route,
+            "reason" => $reason,
+            "type" => $request,
+            "id" => $ID
+        )));
         break;
     }
 
