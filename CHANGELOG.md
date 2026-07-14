@@ -12,6 +12,7 @@
 - [x] Temporarily disable the wipe account debug option in the Settings menu. Part of restructuring the settings menu, to prevent accidental account wiping. (#11)
 - [x] #11, new, nicer UI for the Settings. Old Settings page has been moved and renamed.
 - [x] Make the app drawer scrollable
+- [x] Ads Settings now reflects the new ad count limit, which I changed to no more than 4 every 2 minutes.
 
 # 0.3.2+0711261047 HOTFIX
 

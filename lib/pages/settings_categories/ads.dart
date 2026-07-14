@@ -55,7 +55,7 @@ class _adsetting extends State<AdSettings> {
           child: Column(
             children: [
               Text(
-                "NOTE: Ads cannot be played more frequently than 10 times every 2 minutes. This is intentional, so that the app itself does not become so unpleasant to use, despite the optional nature of these settings.",
+                "NOTE: Ads cannot be played more frequently than 4 times every 2 minutes. This is intentional, so that the app itself does not become so unpleasant to use, despite the optional nature of these settings.",
                 style: TextStyle(fontSize: 16),
               ),
               Divider(),
