@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:switchboard/dart/globalHelpers.dart';
+import 'package:switchboard/dart/storage.dart';
 
 class MemoryState {
   static final MemoryState _state = MemoryState._init();
@@ -96,6 +97,8 @@ class MemoryState {
   List<int> AlterTextColor = [179, 255, 255, 255];
   List<int> NavSelColor = [255, 0, 183, 255];
   List<int> NavUnSelColor = [255, 105, 105, 205];
+
+  User currentUser = User.NUL();
 
   void fromJson(Map<String, dynamic> js, {bool theme = false}) {
     js = typeCorrectJson(js); // Fix the types real fast.
@@ -479,7 +482,11 @@ class AdSettings {
     );
   }
 
-  AdSettings({required this.onNavigate, this.navCount = 4, this._pageViews = 0});
+  AdSettings({
+    required this.onNavigate,
+    this.navCount = 4,
+    this._pageViews = 0,
+  });
 
   bool shouldShowAd() {
     if (!onNavigate) {

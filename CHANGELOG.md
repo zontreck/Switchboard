@@ -4,12 +4,13 @@
 
 - [x] PluralKit exports are now partially supported.
 - [x] Ourcana exports are now partially supported.
+- [x] Proper account settings that now indicate username, ID, access level, alter count, etc.
 
 ## CHANGE:
 
 - [x] Fix a typo on the Login screen
 - [x] Temporarily disable the wipe account debug option in the Settings menu. Part of restructuring the settings menu, to prevent accidental account wiping. (#11)
-- [x] Part of #11, start designing a new, nicer UI for the Settings. Old Settings page has been moved and renamed.
+- [x] #11, new, nicer UI for the Settings. Old Settings page has been moved and renamed.
 - [x] Make the app drawer scrollable
 
 # 0.3.2+0711261047 HOTFIX

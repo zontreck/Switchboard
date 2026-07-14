@@ -187,6 +187,7 @@ class NetworkInterface {
       );
 
       print(reply.data);
+      MemoryState.A.username = username;
 
       return S2CAuthenticationResponse.decode(typeCorrectJson(reply.data));
     });
@@ -1158,6 +1159,17 @@ class User {
   int AlterCount;
   int FetchTime;
   List<Field> Fields;
+
+  factory User.NUL() {
+    return User(
+      ID: UUID_ZERO,
+      Name: "N/A",
+      DisplayName: "N/A",
+      AccountLevel: 0,
+      AlterCount: 0,
+      Fields: [],
+    );
+  }
 
   User({
     required this.ID,
