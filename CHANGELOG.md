@@ -1,3 +1,9 @@
+# 0.3.4
+
+## ADD:
+
+- [x] Extremely basic implementation of a singlet mode
+
 # 0.3.3+0715260059
 
 ## ADD:

@@ -66,6 +66,16 @@ Future<void> setApplicationFont(Uint8List binary) async {
   customFontNotifier.value = fontFamily;
 }
 
+Future<bool> getSingletMode() async {
+  SharedPreferences prefs = await SharedPreferences.getInstance();
+  return (prefs.getBool("singlet")) ?? false;
+}
+
+Future<void> setSingletMode(bool singlet) async {
+  SharedPreferences prefs = await SharedPreferences.getInstance();
+  await prefs.setBool("singlet", singlet);
+}
+
 Future<void> setAdsSupport(bool option) async {
   SharedPreferences prefs = await SharedPreferences.getInstance();
   await prefs.setBool("ads", option);

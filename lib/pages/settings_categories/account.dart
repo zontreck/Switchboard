@@ -111,6 +111,36 @@ class _acct extends State<AccountSettings> {
                               },
                             ),
                             SizedBox(height: 8),
+                            FutureBuilder(
+                              future: getSingletMode(),
+                              builder: (bldr, singlet) {
+                                if (!singlet.hasData) {
+                                  return CircularProgressIndicator();
+                                } else {
+                                  return CheckboxListTile(
+                                    value: singlet.data!,
+                                    onChanged: (B) async {
+                                      await setSingletMode(B ?? false);
+                                      setState(() {});
+                                    },
+                                    secondary: Icon(
+                                      singlet.data!
+                                          ? Icons.person
+                                          : Icons.people,
+                                    ),
+                                    title: Text("Singlet Mode"),
+                                    subtitle: Text(
+                                      "Disables some of the app's plural features",
+                                    ),
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius:
+                                          BorderRadiusGeometry.circular(8),
+                                    ),
+                                  );
+                                }
+                              },
+                            ),
+                            SizedBox(height: 8),
                             ListTile(
                               title: Text("Friend Count"),
                               subtitle: Text("0"),

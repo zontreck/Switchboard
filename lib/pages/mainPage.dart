@@ -24,6 +24,8 @@ class AccountPage extends StatefulWidget {
 class _AccountPage extends State<AccountPage> {
   int _index = 0;
   bool listMode = true;
+  bool singlet = false;
+  int alterCount = 0;
   MemoryState ms = MemoryState();
   TextEditingController searchBar = TextEditingController();
 
@@ -31,7 +33,7 @@ class _AccountPage extends State<AccountPage> {
     switch (_index) {
       case 0:
         {
-          return AltersPage(searchBar: searchBar);
+          return AltersPage(searchBar: searchBar, singlet: singlet);
         }
       case 1:
         {
@@ -41,18 +43,29 @@ class _AccountPage extends State<AccountPage> {
         {
           return FrontHistoryPage();
         }
+      case 3:
+        {
+          return SizedBox();
+        }
     }
 
-    return AltersPage(searchBar: searchBar);
+    return AltersPage(searchBar: searchBar, singlet: singlet);
   }
 
   Widget? getActionButton() {
     if (_index == 0) {
+      if (singlet) {
+        if (alterCount >= 1) {
+          return null;
+        }
+      }
       return ElevatedButton.icon(
         onPressed: () async {
           // Add new alter!
           // Make a new alter and immediately open the editor.
-          var newAlter = await NetworkInterface.makeNewAlter("New Alter");
+          var newAlter = await NetworkInterface.makeNewAlter(
+            singlet ? "Profile" : "New Alter",
+          );
           setState(() {});
 
           var reply = await Navigator.pushNamed(
@@ -64,7 +77,10 @@ class _AccountPage extends State<AccountPage> {
             ),
           );
         },
-        label: Text("Alter", style: TextStyle(fontSize: 22)),
+        label: Text(
+          singlet ? "Profile" : "Alter",
+          style: TextStyle(fontSize: 22),
+        ),
         icon: Icon(Icons.add),
       );
     }
@@ -96,10 +112,16 @@ class _AccountPage extends State<AccountPage> {
             ),
         ],
         bottom: PreferredSize(
-          preferredSize: Size.fromHeight(50),
+          preferredSize: Size.fromHeight(
+            singlet
+                ? 0
+                : _index == 0
+                ? 50
+                : 0,
+          ),
           child: Column(
             children: [
-              if (_index == 0)
+              if (_index == 0 && !singlet)
                 TextField(
                   controller: searchBar,
                   decoration: InputDecoration(
@@ -228,25 +250,56 @@ class _AccountPage extends State<AccountPage> {
         ),
       ),
       floatingActionButton: getActionButton(),
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: _index,
-        items: [
-          BottomNavigationBarItem(
-            icon: Icon(Icons.people_alt),
-            label: "Alters",
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.person_2),
-            label: "Fronting",
-          ),
-          BottomNavigationBarItem(icon: Icon(Icons.history), label: "History"),
-        ],
-        onTap: (value) async {
-          _index = value;
-          setState(() {});
+      bottomNavigationBar: FutureBuilder(
+        future: getSingletMode(),
+        builder: (bnav, singlet) {
+          if (!singlet.hasData) {
+            return CircularProgressIndicator();
+          } else {
+            if (singlet.data!) {
+              _index = 0;
+              if (!this.singlet) {
+                Timer(Duration(seconds: 1), () async {
+                  var list = await NetworkInterface.requestAltersList(null);
+                  this.alterCount = list.alters.length;
+
+                  setState(() {});
+                });
+              }
+              this.singlet = true;
+
+              return SizedBox();
+            }
+            this.singlet = false;
+            return BottomNavigationBar(
+              currentIndex: _index,
+              items: [
+                BottomNavigationBarItem(
+                  icon: Icon(Icons.people_alt),
+                  label: "Alters",
+                ),
+                BottomNavigationBarItem(
+                  icon: Icon(Icons.person_2),
+                  label: "Fronting",
+                ),
+                BottomNavigationBarItem(
+                  icon: Icon(Icons.history),
+                  label: "History",
+                ),
+                BottomNavigationBarItem(
+                  icon: Icon(Icons.note_add),
+                  label: "Journal",
+                ),
+              ],
+              onTap: (value) async {
+                _index = value;
+                setState(() {});
+              },
+              selectedItemColor: getNavSelColor(),
+              unselectedItemColor: getNavUnselColor(),
+            );
+          }
         },
-        selectedItemColor: getNavSelColor(),
-        unselectedItemColor: getNavUnselColor(),
       ),
       body: Padding(
         padding: EdgeInsetsGeometry.all(8),
@@ -265,7 +318,8 @@ class _AccountPage extends State<AccountPage> {
 
 class AltersPage extends StatefulWidget {
   final TextEditingController searchBar;
-  const AltersPage({super.key, required this.searchBar});
+  final bool singlet;
+  const AltersPage({super.key, required this.searchBar, required this.singlet});
 
   @override
   State<StatefulWidget> createState() {
@@ -322,7 +376,11 @@ class _alters extends State<AltersPage> {
             MemoryState ms = MemoryState();
 
             return ListView.builder(
-              itemCount: alters.length,
+              itemCount: widget.singlet
+                  ? alters.length > 0
+                        ? 1
+                        : 0
+                  : alters.length,
               shrinkWrap: true,
               padding: EdgeInsets.all(8),
               itemBuilder: (bctx, index) {
