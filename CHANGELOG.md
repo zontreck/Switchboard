@@ -6,6 +6,7 @@
 - [x] Ourcana exports are now partially supported.
 - [x] Proper account settings that now indicate username, ID, access level, alter count, etc.
 - [x] New Endpoint: `/auth/password` which accepts ANY HTTP call except for GET. This changes the account password.
+- [x] Ability to change user password. (#12 & #11)
 
 ## CHANGE:
 

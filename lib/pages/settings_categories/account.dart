@@ -1,11 +1,11 @@
-import 'dart:io';
-
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_phoenix/flutter_phoenix.dart';
 import 'package:libacflutter/Constants.dart';
 import 'package:libacflutter/Prompt.dart';
 import 'package:switchboard/dart/MemoryState.dart';
+import 'package:switchboard/dart/globalHelpers.dart';
 import 'package:switchboard/dart/storage.dart';
 import 'package:switchboard/dart/users.dart';
 import 'package:switchboard/globalHelpers.dart';
@@ -150,6 +150,21 @@ class _acct extends State<AccountSettings> {
                                 subtitle: Text("Password, Email..."),
                                 leading: Icon(Icons.security),
                                 trailing: Icon(Icons.forward),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadiusGeometry.circular(
+                                    8,
+                                  ),
+                                ),
+                                onTap: () async {
+                                  pageChanged();
+                                  await Navigator.pushNamed(
+                                    context,
+                                    "/settings/account/security",
+                                  );
+                                  pageChanged();
+
+                                  setState(() {});
+                                },
                               ),
                           ],
                         ),
@@ -285,18 +300,14 @@ class _acct extends State<AccountSettings> {
                             ms.username = "";
                             ms.password = "";
                             ms.authenticationToken = "";
+                            MemoryState.A.currentUser.ID = UUID_ZERO;
 
                             await setAuthToken("");
                             await setAppSettings();
 
                             NetworkCaches.invalidate();
 
-                            Navigator.pushReplacementNamed(
-                              context,
-                              "/onboarding/0",
-                            );
-
-                            exit(0);
+                            Phoenix.rebirth(context);
                           }
                         },
                       ),

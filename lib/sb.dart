@@ -20,6 +20,7 @@ import 'package:switchboard/pages/settings.dart';
 import 'package:switchboard/pages/settingsPage.dart';
 import 'package:switchboard/pages/settings_categories/account.dart';
 import 'package:switchboard/pages/settings_categories/ads.dart';
+import 'package:switchboard/pages/settings_categories/security.dart';
 
 class Switchboard extends StatefulWidget {
   static void Function() rebuild = () {
@@ -63,6 +64,7 @@ class _switchboard extends State<Switchboard> {
             "/settings/ads": (ctx) => AdSettings(),
             "/settings/appearance": (ctx) => AppearanceSettings(),
             "/settings/account": (ctx) => AccountSettings(),
+            "/settings/account/security": (ctx) => SecuritySettings(),
             "/settings/account/fields": (ctx) => EditFieldsPage(),
             "/settings/account/fields/edit": (ctx) => EditField(),
             "/settings/3pjson": (ctx) => ThirdPartyImport(),

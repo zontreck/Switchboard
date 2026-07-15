@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_phoenix/flutter_phoenix.dart';
 import 'package:liquid_glass_widgets/liquid_glass_setup.dart';
 import 'package:switchboard/dart/MemoryState.dart';
 import 'package:switchboard/sb.dart';
@@ -10,5 +11,5 @@ Future<void> main() async {
 
   ms.applicationVersion = "0.3.1+0708261728";
 
-  runApp(LiquidGlassWidgets.wrap(child: Switchboard()));
+  runApp(Phoenix(child: LiquidGlassWidgets.wrap(child: Switchboard())));
 }

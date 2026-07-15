@@ -82,7 +82,7 @@ class NetworkInterface {
   static final _lDeleteAlter = Lock();
   static final _lDeleteFolder = Lock();
   static final _lMakeFolder = Lock();
-  static final _lMoveFolder = Lock();
+  static final _lChangePassword = Lock();
   static final _lUpdateFolder = Lock();
   static final _lAddFolderItem = Lock();
   static final _lGetFolderItem = Lock();
@@ -907,6 +907,26 @@ class NetworkInterface {
       setCache("getFolderOrItem${rootOnly ? "root" : id}", reply.data);
 
       return S2CFolderReply.decode(typeCorrectJson(reply.data));
+    });
+  }
+
+  /// Change the account password
+  static Future<S2CLazyResponse> updatePassword(String newPassword) async {
+    return await _lChangePassword.synchronized(() async {
+      String MD5Hash = Hashing.md5Hash(newPassword);
+      Dio dio = Dio();
+
+      dio.options.headers["Content-Type"] = "application/json";
+      dio.options.headers["X-SB-Auth"] = MemoryState.A.authenticationToken;
+
+      var reply = await dio.post(
+        "${getAPIServerURL()}/auth/password",
+        data: {"auth": MD5Hash},
+      );
+
+      print(reply.data);
+
+      return S2CLazyResponse.decode(typeCorrectJson(reply.data));
     });
   }
 }
