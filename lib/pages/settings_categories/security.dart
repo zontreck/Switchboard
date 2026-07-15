@@ -1,4 +1,3 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_phoenix/flutter_phoenix.dart';
 import 'package:switchboard/dart/MemoryState.dart';
@@ -7,6 +6,8 @@ import 'package:switchboard/dart/storage.dart';
 import 'package:switchboard/globalHelpers.dart';
 
 class SecuritySettings extends StatefulWidget {
+  const SecuritySettings({super.key});
+
   @override
   State<StatefulWidget> createState() {
     return _security();
@@ -14,8 +15,8 @@ class SecuritySettings extends StatefulWidget {
 }
 
 class _security extends State<SecuritySettings> {
-  TextEditingController _nP1 = TextEditingController();
-  TextEditingController _nP2 = TextEditingController();
+  final TextEditingController _nP1 = TextEditingController();
+  final TextEditingController _nP2 = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
