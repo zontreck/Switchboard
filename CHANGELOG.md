@@ -17,6 +17,7 @@
 - [x] Backend server will now recognize Auth level 8 as being banned
 - [x] `/user` can now be called without a Username. This returns the currently authenticated user.
 - [x] `NetworkInterface.getUser` will now supply the authentication token to the server for retrieval of information on the Account Settings page.
+- [x] Fix bug on Web App that disallowed uploading images
 
 # 0.3.2+0711261047 HOTFIX
 

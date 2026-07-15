@@ -161,13 +161,13 @@ class _editAlter extends State<EditAlterPage> {
                                         "jpeg",
                                       ],
                                       type: FileType.custom,
+                                      withData: true,
                                     );
 
                                 if (result != null) {
-                                  File file = File(result.files.single.path!);
-                                  var byteStream = await file.readAsBytes();
+                                  var data = result.files.single.bytes!;
                                   var b64Img = base64Encoder.base64EncBytes(
-                                    byteStream,
+                                    data,
                                   );
                                   await NetworkInterface.updateAvatar(
                                     alter,
