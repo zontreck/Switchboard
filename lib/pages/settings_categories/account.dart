@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -40,102 +42,121 @@ class _acct extends State<AccountSettings> {
             children: [
               Center(child: Text("Info", style: TextStyle(fontSize: 20))),
               Divider(),
-              Card(
-                elevation: 8,
-                child: Padding(
-                  padding: EdgeInsetsGeometry.all(8),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      ListTile(
-                        title: Text("Username"),
-                        subtitle: Text(MemoryState.A.username),
-                        leading: Icon(Icons.person),
-                      ),
-                      SizedBox(height: 8),
-                      ListTile(
-                        title: Text("User ID"),
-                        subtitle: Text(
-                          "${MemoryState.A.currentUser.ID}\nTap to copy | Needed for Wiping or Deleting account",
-                        ),
-                        leading: Icon(Icons.perm_identity),
-                        onTap: () async {
-                          await Clipboard.setData(
-                            ClipboardData(text: MemoryState.A.currentUser.ID),
-                          );
-                        },
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadiusGeometry.circular(8),
-                        ),
-                      ),
-                      SizedBox(height: 8),
-                      ListTile(
-                        title: Text("Account Level"),
-                        subtitle: Text(
-                          getAccountLevel(
-                            MemoryState.A.currentUser.AccountLevel,
-                          ),
-                        ),
-                        leading: Icon(Icons.key_sharp),
-                      ),
-                      SizedBox(height: 8),
-                      FutureBuilder(
-                        future: NetworkInterface.requestAltersList(null),
-                        builder: (bldr3, snp3) {
-                          if (!snp3.hasData) {
-                            return CircularProgressIndicator();
-                          } else {
-                            MemoryState.A.currentUser.AlterCount =
-                                snp3.data!.alters.length;
+              FutureBuilder(
+                future: NetworkInterface.getUser(""),
+                builder: (bldr, snap) {
+                  if (!snap.hasData) {
+                    return CircularProgressIndicator();
+                  } else {
+                    MemoryState.A.currentUser = snap.data!.data!;
+                    return Card(
+                      elevation: 8,
+                      child: Padding(
+                        padding: EdgeInsetsGeometry.all(8),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            ListTile(
+                              title: Text("Username"),
+                              subtitle: Text(MemoryState.A.currentUser.Name),
+                              leading: Icon(Icons.person),
+                            ),
+                            SizedBox(height: 8),
+                            ListTile(
+                              title: Text("User ID"),
+                              subtitle: Text(
+                                "${MemoryState.A.currentUser.ID}\nTap to copy | Needed for Wiping or Deleting account",
+                              ),
+                              leading: Icon(Icons.perm_identity),
+                              onTap: () async {
+                                await Clipboard.setData(
+                                  ClipboardData(
+                                    text: MemoryState.A.currentUser.ID,
+                                  ),
+                                );
+                              },
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadiusGeometry.circular(8),
+                              ),
+                            ),
+                            SizedBox(height: 8),
+                            ListTile(
+                              title: Text("Account Level"),
+                              subtitle: Text(
+                                getAccountLevel(
+                                  MemoryState.A.currentUser.AccountLevel,
+                                ),
+                              ),
+                              leading: Icon(Icons.key_sharp),
+                            ),
+                            SizedBox(height: 8),
+                            FutureBuilder(
+                              future: NetworkInterface.requestAltersList(null),
+                              builder: (bldr3, snp3) {
+                                if (!snp3.hasData) {
+                                  return CircularProgressIndicator();
+                                } else {
+                                  MemoryState.A.currentUser.AlterCount =
+                                      snp3.data!.alters.length;
 
-                            return ListTile(
-                              title: Text("Alter Count"),
-                              subtitle: Text("${snp3.data!.alters.length}"),
+                                  return ListTile(
+                                    title: Text("Alter Count"),
+                                    subtitle: Text(
+                                      "${snp3.data!.alters.length}",
+                                    ),
+                                    leading: Icon(Icons.numbers),
+                                  );
+                                }
+                              },
+                            ),
+                            SizedBox(height: 8),
+                            ListTile(
+                              title: Text("Friend Count"),
+                              subtitle: Text("0"),
                               leading: Icon(Icons.numbers),
-                            );
-                          }
-                        },
-                      ),
-                      SizedBox(height: 8),
-                      ListTile(
-                        title: Text("Friend Count"),
-                        subtitle: Text("0"),
-                        leading: Icon(Icons.numbers),
-                      ),
-                      SizedBox(height: 8),
-                      if ((MemoryState.A.currentUser.AccountLevel &
-                                  USER_LEVEL_TESTER) ==
-                              USER_LEVEL_TESTER ||
-                          (MemoryState.A.currentUser.AccountLevel &
-                                  USER_LEVEL_APP_STORE) ==
-                              USER_LEVEL_APP_STORE)
-                        ListTile(
-                          title: Text("Password cannot be changed"),
-                          subtitle: Text(
-                            "Your account level is either that of a tester, or a App Store employee, you cannot change security features related to this limited account",
-                          ),
-                          leading: Icon(Icons.warning, color: Colors.yellow),
-                          tileColor: LibACFlutterConstants.TITLEBAR_COLOR,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadiusGeometry.circular(8),
-                          ),
+                            ),
+                            SizedBox(height: 8),
+                            if ((MemoryState.A.currentUser.AccountLevel &
+                                        USER_LEVEL_TESTER) ==
+                                    USER_LEVEL_TESTER ||
+                                (MemoryState.A.currentUser.AccountLevel &
+                                        USER_LEVEL_APP_STORE) ==
+                                    USER_LEVEL_APP_STORE)
+                              ListTile(
+                                title: Text("Password cannot be changed"),
+                                subtitle: Text(
+                                  "Your account level is either that of a tester, or a App Store employee, you cannot change security features related to this limited account",
+                                ),
+                                leading: Icon(
+                                  Icons.warning,
+                                  color: Colors.yellow,
+                                ),
+                                tileColor: LibACFlutterConstants.TITLEBAR_COLOR,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadiusGeometry.circular(
+                                    8,
+                                  ),
+                                ),
+                              ),
+                            if (!((MemoryState.A.currentUser.AccountLevel &
+                                        USER_LEVEL_TESTER) ==
+                                    USER_LEVEL_TESTER) &&
+                                !((MemoryState.A.currentUser.AccountLevel &
+                                        USER_LEVEL_APP_STORE) ==
+                                    USER_LEVEL_APP_STORE))
+                              ListTile(
+                                title: Text("Security Options"),
+                                subtitle: Text("Password, Email..."),
+                                leading: Icon(Icons.security),
+                                trailing: Icon(Icons.forward),
+                              ),
+                          ],
                         ),
-                      if (!((MemoryState.A.currentUser.AccountLevel &
-                                  USER_LEVEL_TESTER) ==
-                              USER_LEVEL_TESTER) &&
-                          !((MemoryState.A.currentUser.AccountLevel &
-                                  USER_LEVEL_APP_STORE) ==
-                              USER_LEVEL_APP_STORE))
-                        ListTile(
-                          title: Text("Security Options"),
-                          subtitle: Text("Password, Email..."),
-                          leading: Icon(Icons.security),
-                          trailing: Icon(Icons.forward),
-                        ),
-                    ],
-                  ),
-                ),
+                      ),
+                    );
+                  }
+                },
               ),
               SizedBox(height: 25),
               Center(child: Text("Options", style: TextStyle(fontSize: 20))),
@@ -268,10 +289,14 @@ class _acct extends State<AccountSettings> {
                             await setAuthToken("");
                             await setAppSettings();
 
+                            NetworkCaches.invalidate();
+
                             Navigator.pushReplacementNamed(
                               context,
                               "/onboarding/0",
                             );
+
+                            exit(0);
                           }
                         },
                       ),

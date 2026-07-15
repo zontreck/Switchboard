@@ -108,6 +108,10 @@ class _loginState extends State<SBLoginPage> {
           return;
         }
 
+        var userReply = await NetworkInterface.getUser("");
+        MemoryState.A.currentUser = userReply.data!;
+
+        setState(() {});
         // Use new token and move on to the next screen.
         Navigator.pushReplacementNamed(context, "/account");
       }
@@ -316,6 +320,9 @@ class _loginState extends State<SBLoginPage> {
 
                 await getAppSettings();
                 setState(() {});
+
+                var userReply = await NetworkInterface.getUser("");
+                MemoryState.A.currentUser = userReply.data!;
 
                 // Use new token and move on to the next screen.
                 Navigator.pushReplacementNamed(context, "/account");

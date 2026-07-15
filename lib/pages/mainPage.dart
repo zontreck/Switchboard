@@ -81,15 +81,6 @@ class _AccountPage extends State<AccountPage> {
 
   @override
   Widget build(BuildContext context) {
-    if (ms.currentUser.ID == UUID_ZERO) {
-      Timer(Duration(seconds: 5), () async {
-        // Obtain the current user!
-        var reply = await NetworkInterface.getUser(ms.username);
-        if (reply.success) {
-          ms.currentUser = reply.data!;
-        }
-      });
-    }
     return Scaffold(
       appBar: AppBar(
         title: Text("Switchboard"),

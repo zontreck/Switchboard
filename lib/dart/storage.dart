@@ -164,7 +164,11 @@ class NetworkInterface {
       }
       Dio dio = Dio();
       dio.options.contentType = "application/json";
-      var reply = await dio.get("${getAPIServerURL()}/user/$username");
+      dio.options.headers["X-SB-Auth"] = MemoryState.A.authenticationToken;
+
+      var reply = await dio.get(
+        "${getAPIServerURL()}/user${username.isNotEmpty ? "/$username" : ""}",
+      );
 
       print(reply.data);
       setCache("getUser$username", reply.data);
