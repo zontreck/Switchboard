@@ -272,7 +272,7 @@ Future<Uint8List?> getFont(String font) async {
 
 Future<Map<String, dynamic>> getFontsJson() async {
   SharedPreferences prefs = await SharedPreferences.getInstance();
-  return typeCorrectJsonDecode(await prefs.getString("fonts") ?? "{}");
+  return typeCorrectJsonDecode(prefs.getString("fonts") ?? "{}");
 }
 
 Future<void> setFontJson(Map<String, dynamic> js) async {

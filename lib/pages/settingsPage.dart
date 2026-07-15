@@ -50,51 +50,6 @@ class _settings extends State<SettingsPageOld> {
 
               SizedBox(height: 8),
               Divider(height: 25),
-              ListTile(
-                title: Text("E X P O R T  A P P  T H E M E"),
-                leading: Icon(Icons.download_for_offline, color: Colors.black),
-                subtitle: Text(
-                  "Export your app settings for safe-keeping, or to share with others.",
-                ),
-                tileColor: const Color.fromARGB(255, 138, 222, 122),
-                textColor: Colors.black,
-                onTap: () async {
-                  String data = base64Encoder.base64Enc(
-                    json.encode(ms.toJson()),
-                  );
-
-                  await showDialog(
-                    context: context,
-                    builder: (bldr) {
-                      return AlertDialog(
-                        title: Text("Export Complete"),
-                        content: SizedBox(
-                          height: 150,
-                          child: SingleChildScrollView(
-                            child: Card(
-                              elevation: 8,
-                              child: Text(data, style: TextStyle(fontSize: 16)),
-                            ),
-                          ),
-                        ),
-                        actions: [
-                          ElevatedButton(
-                            onPressed: () async {
-                              await Clipboard.setData(
-                                ClipboardData(text: data),
-                              );
-                              Navigator.pop(context);
-                            },
-                            child: Text("COPY"),
-                          ),
-                        ],
-                      );
-                    },
-                  );
-
-                  print(data);
-                },
-              ),
 
               SizedBox(height: 25),
               ListTile(
