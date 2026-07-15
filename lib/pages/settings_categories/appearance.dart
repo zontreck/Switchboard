@@ -1,7 +1,12 @@
+import 'dart:convert';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_colorpicker/flutter_colorpicker.dart';
+import 'package:libac_dart/utils/Converter.dart';
 import 'package:libac_dart/utils/TimeUtils.dart';
+import 'package:libacflutter/Constants.dart';
 import 'package:switchboard/dart/MemoryState.dart';
 import 'package:switchboard/dart/globalHelpers.dart';
 import 'package:switchboard/globalHelpers.dart';
@@ -20,6 +25,8 @@ class AppearanceSettings extends StatefulWidget {
 class _visual extends State<AppearanceSettings> {
   MemoryState ms = MemoryState();
   Color tempColor = Colors.white;
+  TextEditingController importThemeController = TextEditingController();
+  bool importErrorHint = false;
 
   @override
   Widget build(BuildContext context) {
@@ -357,6 +364,167 @@ class _visual extends State<AppearanceSettings> {
                         },
                       ),
                       Divider(),
+                      ListTile(
+                        title: Text("Export App Theme"),
+                        leading: Icon(Icons.download_for_offline),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadiusGeometry.circular(8),
+                        ),
+                        subtitle: Text(
+                          "Export your app settings for safe-keeping, or to share with others.",
+                        ),
+                        onTap: () async {
+                          String data = base64Encoder.base64Enc(
+                            json.encode(ms.toJson()),
+                          );
+
+                          await showDialog(
+                            context: context,
+                            builder: (bldr) {
+                              return AlertDialog(
+                                title: Text("Export Complete"),
+                                content: SizedBox(
+                                  height: 150,
+                                  child: SingleChildScrollView(
+                                    child: Card(
+                                      elevation: 8,
+                                      child: Text(
+                                        data,
+                                        style: TextStyle(fontSize: 16),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                                actions: [
+                                  ElevatedButton(
+                                    onPressed: () async {
+                                      await Clipboard.setData(
+                                        ClipboardData(text: data),
+                                      );
+                                      Navigator.pop(context);
+                                    },
+                                    child: Text("COPY"),
+                                  ),
+                                ],
+                              );
+                            },
+                          );
+
+                          print(data);
+                        },
+                      ),
+                      Divider(),
+                      ListTile(
+                        title: Text("Import App Theme"),
+                        leading: Icon(Icons.install_mobile),
+                        subtitle: Text(
+                          "Import a app theme, and apply it immediately!",
+                        ),
+                        onTap: () async {
+                          // Display a prompt to obtain the base64 encoded settings.
+                          await showDialog(
+                            context: context,
+                            builder: (bldr) {
+                              return AlertDialog(
+                                title: Text("Paste Theme"),
+                                actions: [
+                                  ElevatedButton(
+                                    onPressed: () async {
+                                      // Do apply theme
+                                      try {
+                                        String data = base64Encoder.base64Dec(
+                                          importThemeController.text,
+                                        );
+                                        ms.fromJson(
+                                          json.decode(data),
+                                          theme: true,
+                                        );
+
+                                        setState(() {});
+
+                                        setAppSettings();
+                                        importErrorHint = false;
+                                        Navigator.pop(context);
+                                      } catch (E) {
+                                        importErrorHint = true;
+                                        setState(() {});
+                                      }
+                                    },
+                                    child: Text("Apply"),
+                                  ),
+                                  ElevatedButton(
+                                    onPressed: () async {
+                                      Navigator.pop(context);
+                                    },
+                                    child: Text("CANCEL"),
+                                  ),
+                                ],
+                                content: SizedBox(
+                                  height: 75,
+                                  child: Column(
+                                    children: [
+                                      if (importErrorHint)
+                                        Text(
+                                          "Invalid Theme data was provided.",
+                                          style: TextStyle(color: Colors.red),
+                                        ),
+                                      TextField(
+                                        controller: importThemeController,
+                                        decoration: InputDecoration(
+                                          hintText: "Base64 Encoded Theme",
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              );
+                            },
+                          );
+                        },
+                      ),
+                      Divider(),
+                      ListTile(
+                        title: Text("Restore Default Theme"),
+                        leading: Icon(Icons.restore_from_trash),
+                        subtitle: Text("Reset all defaults for the app theme"),
+                        tileColor: LibACFlutterConstants.TITLEBAR_COLOR,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadiusGeometry.circular(16),
+                        ),
+                        onTap: () async {
+                          await showDialog(
+                            context: context,
+                            builder: (builder) {
+                              return AlertDialog(
+                                title: Text("Are you sure?"),
+                                actions: [
+                                  ElevatedButton(
+                                    onPressed: () async {
+                                      Navigator.pop(context);
+                                    },
+                                    child: Text("Cancel"),
+                                  ),
+                                  ElevatedButton(
+                                    onPressed: () async {
+                                      ms.reset();
+                                      await clearApplicationFont();
+
+                                      setState(() {});
+
+                                      Navigator.pop(context);
+                                    },
+                                    child: Text("Confirm"),
+                                  ),
+                                ],
+                                content: Text(
+                                  "WARNING: This cannot be undone. All theme settings will be reset to defaults.",
+                                ),
+                                icon: Icon(Icons.warning),
+                              );
+                            },
+                          );
+                        },
+                      ),
                     ],
                   ),
                 ),

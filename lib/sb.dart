@@ -17,7 +17,6 @@ import 'package:switchboard/pages/privacyPolicyPage.dart';
 import 'package:switchboard/pages/settings_categories/progressDisplayPage.dart';
 import 'package:switchboard/pages/registerPage.dart';
 import 'package:switchboard/pages/settings.dart';
-import 'package:switchboard/pages/settingsPage.dart';
 import 'package:switchboard/pages/settings_categories/account.dart';
 import 'package:switchboard/pages/settings_categories/ads.dart';
 import 'package:switchboard/pages/settings_categories/security.dart';
@@ -73,7 +72,6 @@ class _switchboard extends State<Switchboard> {
             "/settings/glow": (ctx) => GlowSettingsPage(),
             "/settings/glow/presets": (ctx) => GlowPresets(),
             "/account": (ctx) => AccountPage(),
-            "/account/settings": (ctx) => SettingsPageOld(),
             "/editAlter": (ctx) => EditAlterPage(),
             "/feedback": (ctx) => FeedbackHUB(),
           },

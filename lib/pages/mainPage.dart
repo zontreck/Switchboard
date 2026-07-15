@@ -166,17 +166,6 @@ class _AccountPage extends State<AccountPage> {
                 },
               ),
               ListTile(
-                title: Text("S E T T I N G S  -  O L D"),
-                subtitle: Text("Manage app settings - OLD INTERFACE"),
-                leading: Icon(Icons.settings),
-                onTap: () async {
-                  pageChanged();
-                  await Navigator.pushNamed(context, "/account/settings");
-                  pageChanged();
-                  setState(() {});
-                },
-              ),
-              ListTile(
                 title: Text("P R I V A C Y  P O L I C Y"),
                 subtitle: Text("View the Privacy Policy"),
                 leading: Icon(Icons.privacy_tip),
