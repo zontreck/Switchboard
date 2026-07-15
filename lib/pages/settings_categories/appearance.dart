@@ -258,109 +258,105 @@ class _visual extends State<AppearanceSettings> {
                     mainAxisAlignment: MainAxisAlignment.start,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Row(
-                        children: [
-                          Icon(
-                            Icons.people_alt,
-                            color: getNavSelColor(),
-                            size: 50,
-                          ),
-                          SizedBox(width: 25),
-                          Text("NavBar Selected Color"),
-                          ElevatedButton(
-                            onPressed: () async {
-                              tempColor = getNavSelColor();
-
-                              await showDialog(
-                                context: context,
-                                builder: (bldr) {
-                                  return AlertDialog(
-                                    title: Text("Pick a color"),
-                                    content: ColorPicker(
-                                      pickerColor: tempColor,
-                                      onColorChanged: (C) {
-                                        tempColor = C;
-                                      },
-                                    ),
-                                    actions: [
-                                      ElevatedButton(
-                                        onPressed: () async {
-                                          setNavSelColor(tempColor);
-                                          Navigator.pop(context);
-
-                                          setState(() {});
-                                        },
-                                        child: Text("Dismiss"),
-                                      ),
-                                    ],
-                                  );
-                                },
-                              );
-                            },
-                            child: Icon(Icons.colorize),
-                          ),
-                        ],
-                      ),
-                      SizedBox(height: 8),
-                      Row(
-                        children: [
-                          Icon(
-                            Icons.people_alt,
-                            color: getNavUnselColor(),
-                            size: 50,
-                          ),
-                          SizedBox(width: 25),
-                          Text("NavBar Unselected Color"),
-                          ElevatedButton(
-                            onPressed: () async {
-                              tempColor = getNavUnselColor();
-
-                              await showDialog(
-                                context: context,
-                                builder: (bldr) {
-                                  return AlertDialog(
-                                    title: Text("Pick a color"),
-                                    content: ColorPicker(
-                                      pickerColor: tempColor,
-                                      onColorChanged: (C) {
-                                        tempColor = C;
-                                      },
-                                    ),
-                                    actions: [
-                                      ElevatedButton(
-                                        onPressed: () async {
-                                          setNavUnselColor(tempColor);
-                                          Navigator.pop(context);
-
-                                          setState(() {});
-                                        },
-                                        child: Text("Dismiss"),
-                                      ),
-                                    ],
-                                  );
-                                },
-                              );
-                            },
-                            child: Icon(Icons.colorize),
-                          ),
-                        ],
-                      ),
                       ListTile(
-                        title: Text("C H A N G E  F O N T"),
+                        title: Text("NavBar Tab-Selected Color"),
                         subtitle: Text(
-                          "Allows you to change the current font for the entire app.",
+                          "Used mostly by the navigation bar on the main screen. Current page selection color.",
                         ),
-                        leading: Icon(Icons.font_download, color: Colors.black),
-                        tileColor: Color.fromARGB(255, 213, 213, 213),
-                        textColor: Colors.black,
+                        tileColor: Color.fromARGB(75, 10, 10, 10),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadiusGeometry.circular(16),
+                        ),
+
+                        leading: Icon(Icons.circle, color: getNavSelColor()),
+                        trailing: Icon(Icons.colorize),
                         onTap: () async {
-                          // Open the font selection screen.
-                          await Navigator.pushNamed(
-                            context,
-                            "/account/settings/font",
+                          tempColor = getNavSelColor();
+
+                          await showDialog(
+                            context: context,
+                            builder: (bldr) {
+                              return AlertDialog(
+                                title: Text("Pick a color"),
+                                content: ColorPicker(
+                                  pickerColor: tempColor,
+                                  onColorChanged: (C) {
+                                    tempColor = C;
+                                  },
+                                ),
+                                actions: [
+                                  ElevatedButton(
+                                    onPressed: () async {
+                                      setNavSelColor(tempColor);
+                                      Navigator.pop(context);
+
+                                      setState(() {});
+                                    },
+                                    child: Text("Dismiss"),
+                                  ),
+                                ],
+                              );
+                            },
                           );
                         },
                       ),
+                      SizedBox(height: 16),
+                      ListTile(
+                        title: Text("NavBar Tab Not Selected Color"),
+                        tileColor: Color.fromARGB(75, 10, 10, 10),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadiusGeometry.circular(16),
+                        ),
+                        subtitle: Text(
+                          "Used for inactive navigation pages. The pages not currently being viewed are indicated by this color.",
+                        ),
+                        leading: Icon(Icons.circle, color: getNavUnselColor()),
+                        trailing: Icon(Icons.colorize),
+                        onTap: () async {
+                          tempColor = getNavUnselColor();
+
+                          await showDialog(
+                            context: context,
+                            builder: (bldr) {
+                              return AlertDialog(
+                                title: Text("Pick a color"),
+                                content: ColorPicker(
+                                  pickerColor: tempColor,
+                                  onColorChanged: (C) {
+                                    tempColor = C;
+                                  },
+                                ),
+                                actions: [
+                                  ElevatedButton(
+                                    onPressed: () async {
+                                      setNavUnselColor(tempColor);
+                                      Navigator.pop(context);
+
+                                      setState(() {});
+                                    },
+                                    child: Text("Dismiss"),
+                                  ),
+                                ],
+                              );
+                            },
+                          );
+                        },
+                      ),
+                      SizedBox(height: 16),
+                      Divider(),
+                      ListTile(
+                        title: Text("Change Font"),
+                        subtitle: Text(
+                          "Allows you to change the current font for the entire app.",
+                        ),
+                        leading: Icon(Icons.font_download),
+                        trailing: Icon(Icons.forward),
+                        onTap: () async {
+                          // Open the font selection screen.
+                          await Navigator.pushNamed(context, "/settings/font");
+                        },
+                      ),
+                      Divider(),
                     ],
                   ),
                 ),

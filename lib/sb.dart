@@ -8,7 +8,7 @@ import 'package:switchboard/pages/editAlter.dart';
 import 'package:switchboard/pages/settings_categories/appearance.dart';
 import 'package:switchboard/pages/settings_categories/editFields.dart';
 import 'package:switchboard/pages/feedbackHUB.dart';
-import 'package:switchboard/pages/fontPage.dart';
+import 'package:switchboard/pages/settings_categories/fontPage.dart';
 import 'package:switchboard/pages/settings_categories/glowPresets.dart';
 import 'package:switchboard/pages/settings_categories/glowSettingsPage.dart';
 import 'package:switchboard/pages/loginPage.dart';
@@ -61,6 +61,7 @@ class _switchboard extends State<Switchboard> {
             "/privacy": (ctx) => PrivacyPolicyPage(),
             "/tos": (ctx) => TermsOfServicePage(),
             "/settings": (ctx) => SettingsPage(),
+            "/settings/font": (ctx) => FontPage(),
             "/settings/ads": (ctx) => AdSettings(),
             "/settings/appearance": (ctx) => AppearanceSettings(),
             "/settings/account": (ctx) => AccountSettings(),
@@ -73,7 +74,6 @@ class _switchboard extends State<Switchboard> {
             "/settings/glow/presets": (ctx) => GlowPresets(),
             "/account": (ctx) => AccountPage(),
             "/account/settings": (ctx) => SettingsPageOld(),
-            "/account/settings/font": (ctx) => FontPage(),
             "/editAlter": (ctx) => EditAlterPage(),
             "/feedback": (ctx) => FeedbackHUB(),
           },

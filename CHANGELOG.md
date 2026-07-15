@@ -7,6 +7,7 @@
 - [x] Proper account settings that now indicate username, ID, access level, alter count, etc.
 - [x] New Endpoint: `/auth/password` which accepts ANY HTTP call except for GET. This changes the account password.
 - [x] Ability to change user password. (#12 & #11)
+- [x] Font Library WIP button has been added to the Change Font menu.
 
 ## CHANGE:
 
@@ -19,6 +20,7 @@
 - [x] `/user` can now be called without a Username. This returns the currently authenticated user.
 - [x] `NetworkInterface.getUser` will now supply the authentication token to the server for retrieval of information on the Account Settings page.
 - [x] Fix bug on Web App that disallowed uploading images
+- [x] Completely redesign the Font changing menu
 
 # 0.3.2+0711261047 HOTFIX
 

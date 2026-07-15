@@ -255,6 +255,31 @@ Future<void> getAppSettings() async {
   }
 }
 
+Future<void> saveFont(String font, Uint8List bytes) async {
+  var fontJson = await getFontsJson();
+  fontJson[font] = base64Encoder.base64EncBytes(bytes);
+  await setFontJson(fontJson);
+}
+
+Future<Uint8List?> getFont(String font) async {
+  var fonts = await getFontsJson();
+  if (!fonts.containsKey(font)) {
+    return null;
+  } else {
+    return base64Encoder.base64DecBytes(fonts[font]);
+  }
+}
+
+Future<Map<String, dynamic>> getFontsJson() async {
+  SharedPreferences prefs = await SharedPreferences.getInstance();
+  return typeCorrectJsonDecode(await prefs.getString("fonts") ?? "{}");
+}
+
+Future<void> setFontJson(Map<String, dynamic> js) async {
+  SharedPreferences prefs = await SharedPreferences.getInstance();
+  await prefs.setString("fonts", json.encode(js));
+}
+
 Color getReadableTextColor(Color backgroundColor, Color defaultColor) {
   Color colorWhite = Colors.white;
   Color colorBlack = Colors.black;
