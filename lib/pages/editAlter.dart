@@ -1,4 +1,3 @@
-
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -748,6 +747,8 @@ class _alterFieldData extends State<AlterFieldData> {
                 widget.alter.addOrUpdateField(
                   FieldData(id: widget.data.id, data: tfs.toJson()),
                 );
+
+                setState(() {});
               },
               onTapOutside: (event) {
                 FocusManager.instance.primaryFocus?.unfocus();
@@ -856,6 +857,8 @@ class _alterFieldData extends State<AlterFieldData> {
                         widget.alter.addOrUpdateField(
                           FieldData(id: widget.data.id, data: tfs.toJson()),
                         );
+
+                        setState(() {});
                       },
                     ),
             ],
@@ -887,6 +890,8 @@ class _alterFieldData extends State<AlterFieldData> {
                           widget.alter.addOrUpdateField(
                             FieldData(id: widget.data.id, data: tfs.toJson()),
                           );
+
+                          setState(() {});
                         },
                         maximumDate: DateTime(2500),
                         mode: CupertinoDatePickerMode.date,
@@ -920,6 +925,7 @@ class _alterFieldData extends State<AlterFieldData> {
                   controlHolders[widget.data.id.toString()]
                       as NumberFieldStorage;
               store.controller.text = "${store.data}";
+              setState(() {});
             },
             onChanged: (value) {
               NumberFieldStorage store =
@@ -934,6 +940,8 @@ class _alterFieldData extends State<AlterFieldData> {
               widget.alter.addOrUpdateField(
                 FieldData(id: widget.data.id, data: tfs.toJson()),
               );
+
+              setState(() {});
             },
           );
         }
@@ -960,6 +968,8 @@ class _alterFieldData extends State<AlterFieldData> {
                           .toJson(),
                 ),
               );
+
+              setState(() {});
             },
           );
         }

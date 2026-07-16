@@ -1,8 +1,13 @@
-# 0.3.4
+# 0.3.4+0715261946
 
 ## ADD:
 
 - [x] Extremely basic implementation of a singlet mode
+- [x] iOS and macOS build information
+
+## CHANGE:
+
+- [x] Fix a bug with some field types that might cause them to not update when interacted with.
 
 # 0.3.3+0715260059
 
