@@ -27,7 +27,7 @@
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
 	<key>NSCameraUsageDescription</key>
-	<string></string>
+	<string>For customization of alter profile pictures.</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
 	<string>A dependency may be requesting location. It is not needed for proper functionality of the Switchboard app.</string>
 	<key>NSPhotoLibraryUsageDescription</key>
