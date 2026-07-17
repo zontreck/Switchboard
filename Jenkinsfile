@@ -110,5 +110,68 @@ pipeline {
             }
         }
 
+        stage("Build MacOS") {
+            agent {
+                label "mac"
+            }
+
+            steps {
+                script {
+                    sh '''
+                    #!/bin/zsh
+                    source ~/.zshrc
+
+                    flutter doctor
+                    flutter build macos
+
+                    cd build/macos/Build/Products/Release/
+                    tar -xvf ../../../../../switchboard-macos.app.tgz switchboard.app
+                    '''
+                }
+            }
+
+            post {
+                always {
+                    archiveArtifacts artifacts: "*.tgz"
+
+                    cleanWs()
+                }
+            }
+        }
+
+
+        stage("Build iOS") {
+            agent {
+                label "mac"
+            }
+
+            steps {
+                script {
+                    sh '''
+                    #!/bin/zsh
+                    source ~/.zshrc
+
+                    flutter doctor
+                    flutter build ios
+                    flutter build ipa
+
+                    cd build/ios/iphoneos
+                    tar -xvf ../../../switchboard-ios.app.tgz Runner.app
+                    cd ../../../
+                    mv build/ios/ipa/switchboard.ipa .
+                    '''
+                }
+            }
+
+            post {
+                always {
+                    archiveArtifacts artifacts: "*.tgz"
+                    archiveArtifacts artifacts: "*.ipa"
+
+                    cleanWs()
+                }
+            }
+        }
+
     }
 }
