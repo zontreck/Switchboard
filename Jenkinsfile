@@ -125,7 +125,7 @@ pipeline {
                     flutter build macos
 
                     cd build/macos/Build/Products/Release/
-                    tar -xvf ../../../../../switchboard-macos.app.tgz switchboard.app
+                    tar -cvf ../../../../../switchboard-macos.app.tgz switchboard.app
                     '''
                 }
             }
@@ -156,7 +156,7 @@ pipeline {
                     flutter build ipa
 
                     cd build/ios/iphoneos
-                    tar -xvf ../../../switchboard-ios.app.tgz Runner.app
+                    tar -cvf ../../../switchboard-ios.app.tgz Runner.app
                     cd ../../../
                     mv build/ios/ipa/switchboard.ipa .
                     '''
