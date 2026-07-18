@@ -168,7 +168,7 @@ class _AccountPage extends State<AccountPage> {
                 ),
               ),
               ListTile(
-                title: Text("A B O U T"),
+                title: Text("About"),
                 leading: Icon(Icons.info_rounded),
                 onTap: () async {
                   pageChanged();
@@ -177,7 +177,7 @@ class _AccountPage extends State<AccountPage> {
                 },
               ),
               ListTile(
-                title: Text("S E T T I N G S"),
+                title: Text("Settings"),
                 subtitle: Text("Manage switchboard settings"),
                 leading: Icon(Icons.settings),
                 onTap: () async {
@@ -188,7 +188,7 @@ class _AccountPage extends State<AccountPage> {
                 },
               ),
               ListTile(
-                title: Text("P R I V A C Y  P O L I C Y"),
+                title: Text("Privacy Policy"),
                 subtitle: Text("View the Privacy Policy"),
                 leading: Icon(Icons.privacy_tip),
                 onTap: () async {
@@ -198,7 +198,7 @@ class _AccountPage extends State<AccountPage> {
                 },
               ),
               ListTile(
-                title: Text("T E R M S  O F  S E R V I C E"),
+                title: Text("Terms of Service"),
                 subtitle: Text("View the Terms of Service"),
                 leading: Icon(Icons.label_important),
                 onTap: () async {
@@ -208,7 +208,7 @@ class _AccountPage extends State<AccountPage> {
                 },
               ),
               ListTile(
-                title: Text("P A T R E O N"),
+                title: Text("Patreon"),
                 subtitle: Text("Open our Patreon in your browser"),
                 leading: Icon(Icons.monetization_on),
                 onTap: () async {
@@ -216,7 +216,7 @@ class _AccountPage extends State<AccountPage> {
                 },
               ),
               ListTile(
-                title: Text("K O - F I"),
+                title: Text("Ko-Fi"),
                 subtitle: Text("Open our Ko-Fi in your browser"),
                 leading: Icon(Icons.monetization_on),
                 onTap: () async {
@@ -224,7 +224,7 @@ class _AccountPage extends State<AccountPage> {
                 },
               ),
               ListTile(
-                title: Text("F E E D B A C K"),
+                title: Text("Feedback"),
                 subtitle: Text(
                   "Feedback HUB. Submit requests, feedback, and bug reports.",
                 ),
@@ -236,7 +236,7 @@ class _AccountPage extends State<AccountPage> {
                 },
               ),
               ListTile(
-                title: Text("S O U R C E  C O D E"),
+                title: Text("Source Code"),
                 subtitle: Text("View our code! (And possibly contribute?)"),
                 leading: Icon(Icons.code),
                 onTap: () {

@@ -1,3 +1,13 @@
+# 0.3.5
+
+## ADD:
+
+- [x] Missing Terms of Service link on the login page
+
+## CHANGE:
+
+- [x] Fix #17: Text spacing on navigation pages was difficult for some users to read.
+
 # 0.3.4+0715261946
 
 ## ADD:

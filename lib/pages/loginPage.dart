@@ -144,24 +144,31 @@ class _loginState extends State<SBLoginPage> {
                 ),
               ),
               ListTile(
-                title: Text("A B O U T"),
+                title: Text("About"),
                 leading: Icon(Icons.info_outline),
                 onTap: () async {
                   Navigator.pushNamed(context, "/about");
                 },
               ),
               ListTile(
-                title: Text("R E G I S T E R"),
+                title: Text("Register"),
                 leading: Icon(Icons.app_registration),
                 onTap: () async {
                   Navigator.pushNamed(context, "/register");
                 },
               ),
               ListTile(
-                title: Text("P R I V A C Y  P O L I C Y"),
+                title: Text("Privacy Policy"),
                 leading: Icon(Icons.privacy_tip),
                 onTap: () {
                   Navigator.pushNamed(context, "/privacy");
+                },
+              ),
+              ListTile(
+                title: Text("Terms of Service"),
+                leading: Icon(Icons.privacy_tip),
+                onTap: () {
+                  Navigator.pushNamed(context, "/tos");
                 },
               ),
             ],

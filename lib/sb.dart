@@ -13,7 +13,7 @@ import 'package:switchboard/pages/settings_categories/glowPresets.dart';
 import 'package:switchboard/pages/settings_categories/glowSettingsPage.dart';
 import 'package:switchboard/pages/loginPage.dart';
 import 'package:switchboard/pages/settings_categories/3pSettings.dart';
-import 'package:switchboard/pages/privacyPolicyPage.dart';
+import 'package:switchboard/pages/policyPages.dart';
 import 'package:switchboard/pages/settings_categories/progressDisplayPage.dart';
 import 'package:switchboard/pages/registerPage.dart';
 import 'package:switchboard/pages/settings.dart';
