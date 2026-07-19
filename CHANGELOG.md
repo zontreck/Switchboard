@@ -9,6 +9,7 @@
 - [x] Fix #17: Text spacing on navigation pages was difficult for some users to read.
 - [ ] Fix #19
   - [x] Fix network permissions on MacOS
+  - [x] Fix file access permissions on MacOS
 
 # 0.3.4+0715261946
 
