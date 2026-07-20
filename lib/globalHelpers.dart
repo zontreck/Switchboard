@@ -159,6 +159,28 @@ Future<bool> checkStoragePermissions() async {
       await storage.request();
     }
 
+    if (!(await storage.isGranted)) {
+      storage = Permission.storage;
+      if (await storage.isDenied) {
+        await storage.request();
+      }
+    }
+
+    bool granted = await storage.isGranted;
+
+    return await storage.isGranted;
+  } catch (E) {
+    return true;
+  }
+}
+
+Future<bool> checkPhotosPermission() async {
+  try {
+    Permission storage = Permission.photos;
+    if (await storage.isDenied) {
+      await storage.request();
+    }
+
     return await storage.isGranted;
   } catch (E) {
     return true;

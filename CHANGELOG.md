@@ -1,15 +1,17 @@
-# 0.3.5
+# 0.3.5+0719261910
 
 ## ADD:
 
 - [x] Missing Terms of Service link on the login page
+- [x] More gitignore entries
 
 ## CHANGE:
 
 - [x] Fix #17: Text spacing on navigation pages was difficult for some users to read.
-- [ ] Fix #19
+- [x] Fix #19
   - [x] Fix network permissions on MacOS
   - [x] Fix file access permissions on MacOS
+  - [x] Fix file browser on iOS
 
 # 0.3.4+0715261946
 

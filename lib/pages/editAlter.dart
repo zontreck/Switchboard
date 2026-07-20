@@ -138,7 +138,7 @@ class _editAlter extends State<EditAlterPage> {
                                 style: TextStyle(fontSize: 22),
                               ),
                               onPressed: () async {
-                                var hasPerm = await checkStoragePermissions();
+                                var hasPerm = await checkPhotosPermission();
                                 if (!hasPerm) {
                                   ScaffoldMessenger.of(context).showSnackBar(
                                     SnackBar(
@@ -149,18 +149,13 @@ class _editAlter extends State<EditAlterPage> {
                                   );
                                   return;
                                 }
-                                FilePickerResult? result =
-                                    await FilePicker.pickFiles(
-                                      allowMultiple: false,
-                                      allowedExtensions: [
-                                        "png",
-                                        "jpg",
-                                        "webp",
-                                        "jpeg",
-                                      ],
-                                      type: FileType.custom,
-                                      withData: true,
-                                    );
+                                FilePickerResult?
+                                result = await FilePicker.pickFiles(
+                                  allowMultiple: false,
+                                  type: FileType
+                                      .image, //TODO: Make this be either custom, or image. Needs to depend upon two things, platform, and selected browse source.
+                                  withData: true,
+                                );
 
                                 if (result != null) {
                                   var data = result.files.single.bytes!;
