@@ -1,6 +1,8 @@
 import 'dart:async' show Future;
 import 'dart:convert';
+import 'dart:io';
 import 'dart:typed_data';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show FontLoader, rootBundle;
@@ -34,12 +36,10 @@ class Policies {
   }
 }
 
-class SwitchboardConsts {
-  static Future<String> getPackageVersion() async {
-    PackageInfo inf = await PackageInfo.fromPlatform();
+Future<String> getPackageVersion() async {
+  PackageInfo inf = await PackageInfo.fromPlatform();
 
-    return "${inf.version}+${inf.buildNumber}";
-  }
+  return "${inf.version}+${inf.buildNumber}";
 }
 
 Future<void> setAuthToken(String authToken) async {
@@ -94,10 +94,7 @@ Future<double> getAdHeight() async {
 Future<void> updateOnboardingPhase(int phase) async {
   SharedPreferences prefs = await SharedPreferences.getInstance();
   await prefs.setInt("onboarding", phase);
-  await prefs.setString(
-    "onboard_ver",
-    await SwitchboardConsts.getPackageVersion(),
-  );
+  await prefs.setString("onboard_ver", await getPackageVersion());
 
   if (phase == 0) {
     await prefs.remove("ads");
@@ -108,7 +105,7 @@ Future<bool> needsNewOnboarding() async {
   SharedPreferences prefs = await SharedPreferences.getInstance();
   String lastVer = prefs.getString("onboard_ver") ?? "";
 
-  return lastVer != await SwitchboardConsts.getPackageVersion();
+  return lastVer != await getPackageVersion();
 }
 
 Future<int> getOnboardingPhase() async {
@@ -117,6 +114,32 @@ Future<int> getOnboardingPhase() async {
   if (await needsNewOnboarding()) return 0;
 
   return prefs.getInt("onboarding") ?? 0;
+}
+
+/// A class full of constants that define the environment we are running on.
+class Capabilities {
+  /// This controls whether we use a separate media picker. In combination with the iOS platform flag.
+  static bool get isApple => iOS || macOS;
+
+  /// Wrapper for Platform.isIOS
+  static bool get iOS => Platform.isIOS;
+
+  /// Wrapper for Platform.isMacOS
+  static bool get macOS => Platform.isMacOS;
+
+  /// Controls whether the file selector in the picture browser will use the full access browser, or the media only browser.
+  static bool get requiresMedia => isApple && iOS;
+
+  /// Wrapper for Platform.isAndroid
+  static bool get android => Platform.isAndroid;
+
+  /// Checks if the platform is mobile. If it is, then permissions must be used for actions.
+  ///
+  /// NOTE: MacOS now uses access permissions, which means we must classify it as a Mobile Device for the purposes of our internal checks. It will still allow full disk access though per the [Capabilities.requiresMedia] flag.
+  static bool get isMobile => iOS || android || macOS;
+
+  /// This changes even more behaviors, since web requires the file picker to react differently. This will tell us if we need to respond slightly different due to the dartJS library differences.
+  static bool get isWeb => kIsWeb;
 }
 
 Future<void> clearApplicationFont() async {
@@ -152,38 +175,41 @@ Future<Uint8List> getApplicationFont() async {
   return fontBytes;
 }
 
-Future<bool> checkStoragePermissions() async {
-  try {
-    Permission storage = Permission.manageExternalStorage;
-    if (await storage.isDenied) {
-      await storage.request();
-    }
-
-    if (!(await storage.isGranted)) {
-      storage = Permission.storage;
-      if (await storage.isDenied) {
-        await storage.request();
+/// Checks for and requests relevant permissions.
+///
+/// Uses the supplied arguments, but checks against the Capabilities to see what permission is most appropriate.
+///
+/// [camera] Indicates whether the camera permission may be needed
+/// [photos] Indicates whether the photos permission may be needed
+Future<bool> checkStoragePermissions({
+  required bool camera,
+  required bool photos,
+}) async {
+  if (photos || camera) {
+    if (Capabilities.requiresMedia) {
+      Permission store = Capabilities.macOS
+          ? Permission.manageExternalStorage
+          : camera
+          ? Permission.camera
+          : Permission.photos;
+      if (await store.isDenied) {
+        await store.request();
       }
+
+      return await store.isGranted;
+    } else {
+      return true;
     }
-
-    bool granted = await storage.isGranted;
-
-    return await storage.isGranted;
-  } catch (E) {
-    return true;
-  }
-}
-
-Future<bool> checkPhotosPermission() async {
-  try {
-    Permission storage = Permission.photos;
-    if (await storage.isDenied) {
-      await storage.request();
+  } else {
+    if (!Capabilities.isMobile) {
+      return true;
+    } else {
+      Permission store = Permission.manageExternalStorage;
+      if (await store.isDenied) {
+        await store.request();
+      }
+      return await store.isGranted;
     }
-
-    return await storage.isGranted;
-  } catch (E) {
-    return true;
   }
 }
 

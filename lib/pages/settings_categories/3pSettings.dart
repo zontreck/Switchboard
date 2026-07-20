@@ -119,6 +119,8 @@ class _3p extends State<ThirdPartyImport> {
                   _contents = await FileLoader.getFile(
                     context: context,
                     allowedExtensions: ["json"],
+                    camera: false,
+                    photos: false,
                   );
 
                   if (_contents == null) {

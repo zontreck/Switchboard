@@ -30,7 +30,7 @@ class _loginState extends State<SBLoginPage> {
   Future<void> tryAuthToken() async {
     // try to load or refresh the authentication
     MemoryState ms = MemoryState();
-    ms.applicationVersion = await SwitchboardConsts.getPackageVersion();
+    ms.applicationVersion = await getPackageVersion();
     await getApplicationFont();
     try {
       await MobileAds.instance.initialize();
@@ -131,7 +131,7 @@ class _loginState extends State<SBLoginPage> {
                   children: [
                     Text("System Switchboard"),
                     FutureBuilder(
-                      future: SwitchboardConsts.getPackageVersion(),
+                      future: getPackageVersion(),
                       builder: (BCTX, AsyncSnapshot<String> snapshot) {
                         if (!snapshot.hasData) {
                           return CircularProgressIndicator();

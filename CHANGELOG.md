@@ -1,3 +1,9 @@
+# 0.3.6
+
+## CHANGE:
+
+- [x] Attempt to fix platform specific bug introduced in Android when fixing the permissions related to file browsing on iOS.
+
 # 0.3.5+0719261955
 
 ## ADD:

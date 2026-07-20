@@ -47,7 +47,7 @@ void main() {
   });
 
   test("Get app version", () async {
-    print(await SwitchboardConsts.getPackageVersion());
+    print(await getPackageVersion());
 
     expect(true, true);
   });

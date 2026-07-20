@@ -111,6 +111,8 @@ class _fontPage extends State<FontPage> {
                           var result = await FileLoader.getFile(
                             context: context,
                             allowedExtensions: ["ttf", "otf"],
+                            camera: false,
+                            photos: false,
                           );
 
                           if (result != null) {

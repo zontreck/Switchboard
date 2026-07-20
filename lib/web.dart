@@ -43,7 +43,7 @@ class _sbweb extends State<SwitchboardWeb> {
 
   Future<void> loadVersionCode() async {
     MemoryState ms = MemoryState();
-    ms.applicationVersion = await SwitchboardConsts.getPackageVersion();
+    ms.applicationVersion = await getPackageVersion();
 
     setState(() {});
   }

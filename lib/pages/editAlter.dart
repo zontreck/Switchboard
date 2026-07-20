@@ -11,6 +11,7 @@ import 'package:libacflutter/utils/colorHelpers.dart';
 import 'package:markdown_widget/widget/all.dart';
 import 'package:switchboard/dart/globalHelpers.dart';
 import 'package:switchboard/dart/storage.dart';
+import 'package:switchboard/file_picker.dart';
 import 'package:switchboard/globalHelpers.dart';
 import 'package:switchboard/pages/elements.dart';
 import 'package:switchboard/sb.dart';
@@ -138,29 +139,21 @@ class _editAlter extends State<EditAlterPage> {
                                 style: TextStyle(fontSize: 22),
                               ),
                               onPressed: () async {
-                                var hasPerm = await checkPhotosPermission();
-                                if (!hasPerm) {
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    SnackBar(
-                                      content: Text(
-                                        "Storage permissions are denied currently. Please grant them before you can proceed.",
-                                      ),
-                                    ),
-                                  );
-                                  return;
-                                }
-                                FilePickerResult?
-                                result = await FilePicker.pickFiles(
-                                  allowMultiple: false,
-                                  type: FileType
-                                      .image, //TODO: Make this be either custom, or image. Needs to depend upon two things, platform, and selected browse source.
-                                  withData: true,
+                                Uint8List? result = await FileLoader.getFile(
+                                  allowedExtensions: [
+                                    "png",
+                                    "jpg",
+                                    "jpeg",
+                                    "tif",
+                                    "tiff",
+                                  ],
+                                  photos: true,
+                                  camera: false,
                                 );
 
                                 if (result != null) {
-                                  var data = result.files.single.bytes!;
                                   var b64Img = base64Encoder.base64EncBytes(
-                                    data,
+                                    result,
                                   );
                                   await NetworkInterface.updateAvatar(
                                     alter,

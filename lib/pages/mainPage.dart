@@ -155,7 +155,7 @@ class _AccountPage extends State<AccountPage> {
                   children: [
                     Text("Switchboard"),
                     FutureBuilder(
-                      future: SwitchboardConsts.getPackageVersion(),
+                      future: getPackageVersion(),
                       builder: (BTX, AsyncSnapshot<String> snapshot) {
                         if (snapshot.hasData) {
                           return Text("Version v${snapshot.data}");
@@ -375,169 +375,185 @@ class _alters extends State<AltersPage> {
             List<Alter> alters = snapshot.data!;
             MemoryState ms = MemoryState();
 
-            return ListView.builder(
-              itemCount: widget.singlet
-                  ? alters.length > 0
-                        ? 1
-                        : 0
-                  : alters.length,
-              shrinkWrap: true,
-              padding: EdgeInsets.all(8),
-              itemBuilder: (bctx, index) {
-                return FutureBuilder(
-                  future: alters[index].isFronting(),
-                  builder: (frontingBuilder, frontingSnapshot) {
-                    if (!frontingSnapshot.hasData) {
-                      return CircularProgressIndicator();
-                    } else {
-                      if (frontingSnapshot.hasError) {
-                        print(
-                          "Fronting snapshot threw an error: ${frontingSnapshot.error}",
-                        );
-                      }
-                      // Run search test
-                      if (widget.searchBar.text.isNotEmpty) {
-                        if (!alters[index].name.toLowerCase().contains(
-                          widget.searchBar.text.toLowerCase(),
-                        )) {
-                          return SizedBox();
-                        }
-                      }
-                      Fronter fronting =
-                          frontingSnapshot.data ??
-                          Fronter(
-                            id: UUID_ZERO,
-                            front: Front(
-                              alterId: alters[index].id,
-                              start: 0,
-                              end: 0,
-                            ),
-                          );
-                      print(fronting.toJson());
-
-                      return Column(
-                        children: [
-                          if (fronting.front.currentFronter)
-                            SizedBox(height: 12),
-                          FutureBuilder(
-                            future: alters[index].getAlterColor(),
-                            builder: (Bldr, Snapshot) {
-                              Color backgroundColor = getAlterBackgroundColor();
-                              if (Snapshot.hasData) {
-                                if (Snapshot.data!.isNotEmpty) {
-                                  backgroundColor = ColorFromList(
-                                    Snapshot.data!,
-                                  );
-                                }
-                              }
-                              if (backgroundColor ==
-                                  Color.fromARGB(0, 0, 0, 0)) {
-                                backgroundColor = getAlterBackgroundColor();
-                              }
-
-                              return AlterWidget(
-                                withFronterElement: true,
-                                flush: ms.flushPictures,
-                                roundedElement: ms.roundedBorder,
-                                squarePics: ms.squarePicture,
-                                longPressMenu: true,
-                                onTap: () async {
-                                  pageChanged();
-                                  var reply = await Navigator.pushNamed(
-                                    context,
-                                    "/editAlter",
-                                    arguments: EditAlterArguments(
-                                      alterId: alters[index].id,
-                                      instance: alters[index],
-                                    ),
-                                  );
-
-                                  pageChanged();
-                                  setState(() {});
-                                },
-                                longPressOptions: [
-                                  if (!fronting.front.currentFronter)
-                                    CupertinoButton(
-                                      child: Text(
-                                        "Set Front",
-                                        style: TextStyle(fontSize: 18),
-                                      ),
-                                      onPressed: () async {
-                                        await NetworkInterface.setFronting(
-                                          alters[index].id,
-                                        );
-                                        setState(() {});
-                                        Navigator.pop(context);
-                                      },
-                                    ),
-                                  if (fronting.front.currentFronter)
-                                    CupertinoButton(
-                                      child: Text(
-                                        "Remove from front",
-                                        style: TextStyle(fontSize: 18),
-                                      ),
-                                      onPressed: () async {
-                                        await NetworkInterface.unfrontFronter(
-                                          alters[index].id,
-                                        );
-                                        setState(() {});
-                                        Navigator.pop(context);
-                                      },
-                                    ),
-                                  CupertinoButton(
-                                    color: LibACFlutterConstants.TITLEBAR_COLOR,
-                                    onPressed: () async {
-                                      Navigator.pop(context);
-
-                                      var resp = await showDialog(
-                                        context: context,
-                                        builder: (bldr) {
-                                          return confirmDeleteAlter(context);
-                                        },
-                                      );
-
-                                      if (resp is bool) {
-                                        if (resp == true) {
-                                          await NetworkInterface.deleteAlter(
-                                            alters[index].id,
-                                          );
-                                          setState(() {});
-                                        }
-                                      }
-                                    },
-                                    child: Text(
-                                      "Delete Alter",
-                                      style: TextStyle(fontSize: 18),
-                                    ),
-                                  ),
-                                ],
-                                backgroundColor: backgroundColor,
-                                textColor: getReadableTextColor(
-                                  backgroundColor,
-                                  getAlterTextColor(),
-                                ),
-                                alterID: alters[index].id,
-                                alterName: alters[index].name,
-                                url: alters[index].avatarUrl.isNotEmpty
-                                    ? alters[index].avatarUrl
-                                    : "null",
-                                frontID: fronting.id,
-                                frontStartTime: fronting.front.start,
-                                frontEndTime: fronting.front.end,
-
-                                alter: alters[index],
+            return SingleChildScrollView(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                mainAxisAlignment: MainAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  ListView.builder(
+                    itemCount: widget.singlet
+                        ? alters.length > 0
+                              ? 1
+                              : 0
+                        : alters.length,
+                    shrinkWrap: true,
+                    padding: EdgeInsets.all(8),
+                    physics: NeverScrollableScrollPhysics(),
+                    itemBuilder: (bctx, index) {
+                      return FutureBuilder(
+                        future: alters[index].isFronting(),
+                        builder: (frontingBuilder, frontingSnapshot) {
+                          if (!frontingSnapshot.hasData) {
+                            return CircularProgressIndicator();
+                          } else {
+                            if (frontingSnapshot.hasError) {
+                              print(
+                                "Fronting snapshot threw an error: ${frontingSnapshot.error}",
                               );
-                            },
-                          ),
+                            }
+                            // Run search test
+                            if (widget.searchBar.text.isNotEmpty) {
+                              if (!alters[index].name.toLowerCase().contains(
+                                widget.searchBar.text.toLowerCase(),
+                              )) {
+                                return SizedBox();
+                              }
+                            }
+                            Fronter fronting =
+                                frontingSnapshot.data ??
+                                Fronter(
+                                  id: UUID_ZERO,
+                                  front: Front(
+                                    alterId: alters[index].id,
+                                    start: 0,
+                                    end: 0,
+                                  ),
+                                );
+                            print(fronting.toJson());
 
-                          if (fronting.front.currentFronter)
-                            SizedBox(height: 12),
-                        ],
+                            return Column(
+                              children: [
+                                if (fronting.front.currentFronter)
+                                  SizedBox(height: 12),
+                                FutureBuilder(
+                                  future: alters[index].getAlterColor(),
+                                  builder: (Bldr, Snapshot) {
+                                    Color backgroundColor =
+                                        getAlterBackgroundColor();
+                                    if (Snapshot.hasData) {
+                                      if (Snapshot.data!.isNotEmpty) {
+                                        backgroundColor = ColorFromList(
+                                          Snapshot.data!,
+                                        );
+                                      }
+                                    }
+                                    if (backgroundColor ==
+                                        Color.fromARGB(0, 0, 0, 0)) {
+                                      backgroundColor =
+                                          getAlterBackgroundColor();
+                                    }
+
+                                    return AlterWidget(
+                                      withFronterElement: true,
+                                      flush: ms.flushPictures,
+                                      roundedElement: ms.roundedBorder,
+                                      squarePics: ms.squarePicture,
+                                      longPressMenu: true,
+                                      onTap: () async {
+                                        pageChanged();
+                                        var reply = await Navigator.pushNamed(
+                                          context,
+                                          "/editAlter",
+                                          arguments: EditAlterArguments(
+                                            alterId: alters[index].id,
+                                            instance: alters[index],
+                                          ),
+                                        );
+
+                                        pageChanged();
+                                        setState(() {});
+                                      },
+                                      longPressOptions: [
+                                        if (!fronting.front.currentFronter)
+                                          CupertinoButton(
+                                            child: Text(
+                                              "Set Front",
+                                              style: TextStyle(fontSize: 18),
+                                            ),
+                                            onPressed: () async {
+                                              await NetworkInterface.setFronting(
+                                                alters[index].id,
+                                              );
+                                              setState(() {});
+                                              Navigator.pop(context);
+                                            },
+                                          ),
+                                        if (fronting.front.currentFronter)
+                                          CupertinoButton(
+                                            child: Text(
+                                              "Remove from front",
+                                              style: TextStyle(fontSize: 18),
+                                            ),
+                                            onPressed: () async {
+                                              await NetworkInterface.unfrontFronter(
+                                                alters[index].id,
+                                              );
+                                              setState(() {});
+                                              Navigator.pop(context);
+                                            },
+                                          ),
+                                        CupertinoButton(
+                                          color: LibACFlutterConstants
+                                              .TITLEBAR_COLOR,
+                                          onPressed: () async {
+                                            Navigator.pop(context);
+
+                                            var resp = await showDialog(
+                                              context: context,
+                                              builder: (bldr) {
+                                                return confirmDeleteAlter(
+                                                  context,
+                                                );
+                                              },
+                                            );
+
+                                            if (resp is bool) {
+                                              if (resp == true) {
+                                                await NetworkInterface.deleteAlter(
+                                                  alters[index].id,
+                                                );
+                                                setState(() {});
+                                              }
+                                            }
+                                          },
+                                          child: Text(
+                                            "Delete Alter",
+                                            style: TextStyle(fontSize: 18),
+                                          ),
+                                        ),
+                                      ],
+                                      backgroundColor: backgroundColor,
+                                      textColor: getReadableTextColor(
+                                        backgroundColor,
+                                        getAlterTextColor(),
+                                      ),
+                                      alterID: alters[index].id,
+                                      alterName: alters[index].name,
+                                      url: alters[index].avatarUrl.isNotEmpty
+                                          ? alters[index].avatarUrl
+                                          : "null",
+                                      frontID: fronting.id,
+                                      frontStartTime: fronting.front.start,
+                                      frontEndTime: fronting.front.end,
+
+                                      alter: alters[index],
+                                    );
+                                  },
+                                ),
+
+                                if (fronting.front.currentFronter)
+                                  SizedBox(height: 12),
+                              ],
+                            );
+                          }
+                        },
                       );
-                    }
-                  },
-                );
-              },
+                    },
+                  ),
+                  SizedBox(height: 150),
+                ],
+              ),
             );
           }
         },
@@ -566,124 +582,143 @@ class _fronting extends State<FrontingPage> {
         }
 
         var response = snap.data!;
-        return ListView.builder(
-          itemBuilder: (itbldr, index) {
-            return FutureBuilder(
-              future: NetworkInterface.getAlterByID(
-                response.data[index].front.alterId,
-              ),
-              builder: (alterBuilder, alterSnap) {
-                if (!alterSnap.hasData) {
-                  return CircularProgressIndicator();
-                } else {
-                  Alter alter = alterSnap.data!.data!;
-                  MemoryState ms = MemoryState();
-                  return FutureBuilder(
-                    future: alter.getAlterColor(),
-                    builder: (Bldr, Snapshot) {
-                      Color backgroundColor = getAlterBackgroundColor();
-                      if (Snapshot.hasData) {
-                        if (Snapshot.data!.isNotEmpty) {
-                          backgroundColor = ColorFromList(Snapshot.data!);
-                        }
-                      }
-                      if (backgroundColor == Color.fromARGB(0, 0, 0, 0)) {
-                        backgroundColor = getAlterBackgroundColor();
-                      }
-
-                      return AlterWidget(
-                        withFronterElement: true,
-                        flush: ms.flushPictures,
-                        roundedElement: ms.roundedBorder,
-                        squarePics: ms.squarePicture,
-                        backgroundColor: backgroundColor,
-                        textColor: getReadableTextColor(
-                          backgroundColor,
-                          getAlterTextColor(),
-                        ),
-                        alterID: alter.id,
-                        longPressMenu: true,
-                        onTap: () async {
-                          pageChanged();
-                          var reply = await Navigator.pushNamed(
-                            context,
-                            "/editAlter",
-                            arguments: EditAlterArguments(
-                              alterId: alter.id,
-                              instance: alter,
-                            ),
-                          );
-
-                          pageChanged();
-                          setState(() {});
-                        },
-                        longPressOptions: [
-                          if (!response.data[index].front.currentFronter)
-                            CupertinoButton(
-                              child: Text(
-                                "Set Front",
-                                style: TextStyle(fontSize: 18),
-                              ),
-                              onPressed: () async {
-                                await NetworkInterface.setFronting(alter.id);
-                                setState(() {});
-                                Navigator.pop(context);
-                              },
-                            ),
-                          if (response.data[index].front.currentFronter)
-                            CupertinoButton(
-                              child: Text(
-                                "Remove from front",
-                                style: TextStyle(fontSize: 18),
-                              ),
-                              onPressed: () async {
-                                await NetworkInterface.unfrontFronter(alter.id);
-                                setState(() {});
-                                Navigator.pop(context);
-                              },
-                            ),
-                          CupertinoButton(
-                            color: LibACFlutterConstants.TITLEBAR_COLOR,
-                            onPressed: () async {
-                              Navigator.pop(context);
-
-                              var resp = await showDialog(
-                                context: context,
-                                builder: (bldr) {
-                                  return confirmDeleteAlter(context);
-                                },
-                              );
-
-                              if (resp is bool) {
-                                if (resp == true) {
-                                  await NetworkInterface.deleteAlter(alter.id);
-                                  setState(() {});
-                                }
+        return SingleChildScrollView(
+          child: ListView.builder(
+            padding: EdgeInsets.all(8),
+            shrinkWrap: true,
+            physics: NeverScrollableScrollPhysics(),
+            itemBuilder: (itbldr, index) {
+              return Column(
+                mainAxisAlignment: MainAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  FutureBuilder(
+                    future: NetworkInterface.getAlterByID(
+                      response.data[index].front.alterId,
+                    ),
+                    builder: (alterBuilder, alterSnap) {
+                      if (!alterSnap.hasData) {
+                        return CircularProgressIndicator();
+                      } else {
+                        Alter alter = alterSnap.data!.data!;
+                        MemoryState ms = MemoryState();
+                        return FutureBuilder(
+                          future: alter.getAlterColor(),
+                          builder: (Bldr, Snapshot) {
+                            Color backgroundColor = getAlterBackgroundColor();
+                            if (Snapshot.hasData) {
+                              if (Snapshot.data!.isNotEmpty) {
+                                backgroundColor = ColorFromList(Snapshot.data!);
                               }
-                            },
-                            child: Text(
-                              "Delete Alter",
-                              style: TextStyle(fontSize: 18),
-                            ),
-                          ),
-                        ],
-                        alterName: alter.name,
-                        url: alter.avatarUrl.isNotEmpty
-                            ? alter.avatarUrl
-                            : "null",
-                        frontID: response.data[index].id,
-                        alter: alter,
-                        showFrontingTime: true,
-                        frontEndTime: response.data[index].front.end,
-                        frontStartTime: response.data[index].front.start,
-                      );
+                            }
+                            if (backgroundColor == Color.fromARGB(0, 0, 0, 0)) {
+                              backgroundColor = getAlterBackgroundColor();
+                            }
+
+                            return AlterWidget(
+                              withFronterElement: true,
+                              flush: ms.flushPictures,
+                              roundedElement: ms.roundedBorder,
+                              squarePics: ms.squarePicture,
+                              backgroundColor: backgroundColor,
+                              textColor: getReadableTextColor(
+                                backgroundColor,
+                                getAlterTextColor(),
+                              ),
+                              alterID: alter.id,
+                              longPressMenu: true,
+                              onTap: () async {
+                                pageChanged();
+                                var reply = await Navigator.pushNamed(
+                                  context,
+                                  "/editAlter",
+                                  arguments: EditAlterArguments(
+                                    alterId: alter.id,
+                                    instance: alter,
+                                  ),
+                                );
+
+                                pageChanged();
+                                setState(() {});
+                              },
+                              longPressOptions: [
+                                if (!response.data[index].front.currentFronter)
+                                  CupertinoButton(
+                                    child: Text(
+                                      "Set Front",
+                                      style: TextStyle(fontSize: 18),
+                                    ),
+                                    onPressed: () async {
+                                      await NetworkInterface.setFronting(
+                                        alter.id,
+                                      );
+                                      setState(() {});
+                                      Navigator.pop(context);
+                                    },
+                                  ),
+                                if (response.data[index].front.currentFronter)
+                                  CupertinoButton(
+                                    child: Text(
+                                      "Remove from front",
+                                      style: TextStyle(fontSize: 18),
+                                    ),
+                                    onPressed: () async {
+                                      await NetworkInterface.unfrontFronter(
+                                        alter.id,
+                                      );
+                                      setState(() {});
+                                      Navigator.pop(context);
+                                    },
+                                  ),
+                                CupertinoButton(
+                                  color: LibACFlutterConstants.TITLEBAR_COLOR,
+                                  onPressed: () async {
+                                    Navigator.pop(context);
+
+                                    var resp = await showDialog(
+                                      context: context,
+                                      builder: (bldr) {
+                                        return confirmDeleteAlter(context);
+                                      },
+                                    );
+
+                                    if (resp is bool) {
+                                      if (resp == true) {
+                                        await NetworkInterface.deleteAlter(
+                                          alter.id,
+                                        );
+                                        setState(() {});
+                                      }
+                                    }
+                                  },
+                                  child: Text(
+                                    "Delete Alter",
+                                    style: TextStyle(fontSize: 18),
+                                  ),
+                                ),
+                              ],
+                              alterName: alter.name,
+                              url: alter.avatarUrl.isNotEmpty
+                                  ? alter.avatarUrl
+                                  : "null",
+                              frontID: response.data[index].id,
+                              alter: alter,
+                              showFrontingTime: true,
+                              frontEndTime: response.data[index].front.end,
+                              frontStartTime: response.data[index].front.start,
+                            );
+                          },
+                        );
+                      }
                     },
-                  );
-                }
-              },
-            );
-          },
-          itemCount: response.data.length,
+                  ),
+                  SizedBox(height: 16),
+                ],
+              );
+            },
+            itemCount: response.data.length,
+          ),
         );
       },
     );

@@ -1,7 +1,6 @@
 import 'dart:typed_data';
 
 import 'package:file_picker/file_picker.dart';
-import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:switchboard/globalHelpers.dart';
 
@@ -10,8 +9,10 @@ class FileLoader {
   static Future<Uint8List?> getFile({
     BuildContext? context,
     required List<String> allowedExtensions,
+    required bool photos,
+    required bool camera,
   }) async {
-    bool perm = await checkStoragePermissions();
+    bool perm = await checkStoragePermissions(camera: camera, photos: photos);
     if (!perm) {
       if (context != null) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -25,14 +26,19 @@ class FileLoader {
       return null;
     }
 
-    // Get the platform
-    if (kIsWeb) {
-      // All other platforms get ignored by this special handler.
+    FileType selType = FileType.custom;
+    List<String>? exts = allowedExtensions;
+    if (Capabilities.requiresMedia) {
+      if (photos || camera) {
+        selType = FileType.image;
+        exts = null;
+      }
     }
+
     FilePickerResult? result = await FilePicker.pickFiles(
       allowMultiple: false,
-      allowedExtensions: allowedExtensions,
-      type: FileType.custom,
+      allowedExtensions: exts,
+      type: selType,
       withData: true,
     );
 
