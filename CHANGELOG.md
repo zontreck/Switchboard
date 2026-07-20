@@ -1,4 +1,4 @@
-# 0.3.5+0719261910
+# 0.3.5+0719261955
 
 ## ADD:
 
@@ -12,6 +12,7 @@
   - [x] Fix network permissions on MacOS
   - [x] Fix file access permissions on MacOS
   - [x] Fix file browser on iOS
+- [x] Added a missing purpose string for location services (A dependency appears to require this)
 
 # 0.3.4+0715261946
 
