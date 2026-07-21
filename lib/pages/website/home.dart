@@ -173,35 +173,34 @@ class _sbhome extends State<SBWebHome> {
                   SizedBox(height: 20),
                   InkWell(
                     onTap: () {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: Text(
-                            "This is coming soon. We do not have access to a Mac right at this moment for building the mobile or Mac apps.",
-                          ),
-                        ),
+                      launchUrlString(
+                        "https://testflight.apple.com/join/bktcYgFX",
                       );
                     },
-                    child: Image.asset(
-                      "webassets/applestore.png",
-                      scale: mobile ? 2 : 1,
-                    ),
+                    child: Image.asset("webassets/applestore.png", width: 500),
                   ),
                   SizedBox(height: 20),
                   InkWell(
-                    child: Image.asset(
-                      "webassets/sbweb.png",
-                      scale: mobile ? 2 : 1,
-                    ),
+                    child: Image.asset("webassets/sbweb.png", width: 500),
                     onTap: () {
                       launchUrlString("https://app.systemswitchboard.com");
                     },
                   ),
                   SizedBox(height: 20),
                   InkWell(
-                    child: Image.asset("webassets/Discord.png"),
+                    child: Image.asset("webassets/Discord.png", width: 500),
                     onTap: () {
                       launchUrlString("https://discord.gg/gtd9JAgYVM");
                     },
+                  ),
+                  SizedBox(height: 20),
+                  InkWell(
+                    onTap: () {
+                      launchUrlString(
+                        "https://ci.zontreck.com/job/Projects/job/Dart/job/Switchboard/job/master/lastSuccessfulBuild/artifact/Switchboard.dmg",
+                      );
+                    },
+                    child: Image.asset("webassets/macos.png", width: 500),
                   ),
                   SizedBox(height: 200),
                   SBWebFeatRichPromo(
@@ -269,7 +268,8 @@ class SBOutlineButton extends StatelessWidget {
   void Function() onTap;
   Widget title;
 
-  SBOutlineButton({super.key, 
+  SBOutlineButton({
+    super.key,
     required this.onTap,
     required this.title,
     this.thickness = 1,
@@ -305,7 +305,8 @@ abstract class FeatPromo extends StatelessWidget {
 class SBWebFeatPromo extends FeatPromo {
   String body;
 
-  SBWebFeatPromo({super.key, 
+  SBWebFeatPromo({
+    super.key,
     required super.title,
     required this.body,
     super.width = 500,
@@ -350,7 +351,8 @@ class SBWebFeatPromo extends FeatPromo {
 class SBWebFeatRichPromo extends FeatPromo {
   Widget body;
 
-  SBWebFeatRichPromo({super.key, 
+  SBWebFeatRichPromo({
+    super.key,
     required super.title,
     required this.body,
     super.width = 500,

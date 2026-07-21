@@ -7,6 +7,7 @@
 ## CHANGE:
 
 - [x] Attempt to fix platform specific bug introduced in Android when fixing the permissions related to file browsing on iOS.
+- [x] Update links on the switchboard website.
 
 # 0.3.5+0719261955
 

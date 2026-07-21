@@ -1,6 +1,13 @@
 {
   "title": "Switchboard",
   "icon": "AppIcon.icns",
+  "icon-size": 100,
+  "window": {
+    "size": {
+      "width": 600,
+      "height": 600
+    }
+  },
   "background": "background.png",
   "contents": [
     {
@@ -14,6 +21,18 @@
       "y": 275,
       "type": "link",
       "path": "/Applications"
+    },
+    {
+      "x": 1000,
+      "y": 100,
+      "type": "position",
+      "path": ".VolumeIcon.icns"
+    },
+    {
+      "x": 1050,
+      "y": 100,
+      "type": "position",
+      "path": ".background"
     }
   ],
   "code-sign": {
