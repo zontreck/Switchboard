@@ -1,4 +1,4 @@
-# 0.3.6
+# 0.3.6+0720262149
 
 ## ADD:
 
@@ -9,6 +9,7 @@
 - [x] Attempt to fix platform specific bug introduced in Android when fixing the permissions related to file browsing on iOS.
 - [x] Update links on the switchboard website.
 - [x] Mac builds now will be both dmg and tgz. Due to Apple's increased security.
+- [x] Fix #20: There are now two controls in the Appearance settings to control text overflow. Replace with dots, or animate.
 
 # 0.3.5+0719261955
 

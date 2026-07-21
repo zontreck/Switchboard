@@ -23,6 +23,9 @@ class MemoryState {
   Timer? flushTimer;
   bool terminating = false;
 
+  bool overflowDots = true;
+  bool overflowAnimate = false;
+
   bool flushPictures = false;
   bool roundedBorder = true;
   bool squarePicture = false;
@@ -321,6 +324,18 @@ class MemoryState {
     } else {
       disableGlowAnimations = false;
     }
+
+    if (js.containsKey("overflow_dots")) {
+      overflowDots = false;
+    } else {
+      overflowDots = true;
+    }
+
+    if (js.containsKey("overflow_anim")) {
+      overflowAnimate = true;
+    } else {
+      overflowAnimate = false;
+    }
   }
 
   Map<String, dynamic> toJson({bool theme = true}) {
@@ -455,6 +470,14 @@ class MemoryState {
 
     if (disableGlowAnimations) {
       js['glow_anims'] = disableGlowAnimations;
+    }
+
+    if (!overflowDots) {
+      js['overflow_dots'] = 0;
+    }
+
+    if (overflowAnimate) {
+      js['overflow_anim'] = 1;
     }
 
     return js;

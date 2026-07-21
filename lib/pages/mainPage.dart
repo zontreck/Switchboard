@@ -450,6 +450,9 @@ class _alters extends State<AltersPage> {
                                       roundedElement: ms.roundedBorder,
                                       squarePics: ms.squarePicture,
                                       longPressMenu: true,
+                                      overflowDots: MemoryState.A.overflowDots,
+                                      overflowAnim:
+                                          MemoryState.A.overflowAnimate,
                                       onTap: () async {
                                         pageChanged();
                                         var reply = await Navigator.pushNamed(

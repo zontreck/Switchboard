@@ -9,6 +9,7 @@ import 'package:switchboard/dart/MemoryState.dart';
 import 'package:switchboard/dart/globalHelpers.dart';
 import 'package:switchboard/dart/storage.dart';
 import 'package:switchboard/globalHelpers.dart';
+import 'package:text_scroll/text_scroll.dart';
 
 class AlterWidget extends StatefulWidget {
   bool flush = false;
@@ -27,6 +28,8 @@ class AlterWidget extends StatefulWidget {
   int frontStartTime;
   int frontEndTime;
   bool longPressMenu = false;
+  bool overflowDots = true;
+  bool overflowAnim = false;
   void Function() onTap;
   List<CupertinoButton> longPressOptions = [];
 
@@ -49,6 +52,8 @@ class AlterWidget extends StatefulWidget {
     this.frontEndTime = 0,
     this.longPressMenu = false,
     this.longPressOptions = const [],
+    this.overflowDots = true,
+    this.overflowAnim = false,
   });
 
   @override
@@ -152,6 +157,7 @@ class _widget extends State<AlterWidget> {
         shape: widget.roundedElement ? null : BoxBorder.all(),
         margin: widget.roundedElement ? null : EdgeInsetsGeometry.zero,
         color: widget.backgroundColor,
+        clipBehavior: Clip.hardEdge,
 
         child: Row(
           children: [
@@ -162,51 +168,86 @@ class _widget extends State<AlterWidget> {
               url: Alter.makeAvatarURL(widget.url),
             ),
             SizedBox(width: 8),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                FutureBuilder(
-                  future: widget.alter?.getPronouns(),
-                  builder: (probldr, prosnap) {
-                    if (!prosnap.hasData) {
-                      if (prosnap.hasError || widget.alter == null) {
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  if (widget.overflowAnim)
+                    TextScroll(
+                      widget.alterName,
+                      style: TextStyle(fontSize: 22, color: widget.textColor),
+                      mode: TextScrollMode.endless,
+                      fadedBorder: true,
+                      fadedBorderWidth: 0.02,
+                      pauseBetween: Duration(seconds: 5),
+                      velocity: Velocity(pixelsPerSecond: Offset(20, 0)),
+                    ),
+                  if (!widget.overflowAnim)
+                    Text(
+                      widget.alterName,
+                      maxLines: 1,
+                      style: TextStyle(fontSize: 22, color: widget.textColor),
+                      overflow: widget.overflowDots
+                          ? TextOverflow.ellipsis
+                          : null,
+                    ),
+                  FutureBuilder(
+                    future: widget.alter?.getPronouns(),
+                    builder: (probldr, prosnap) {
+                      if (!prosnap.hasData) {
+                        if (!prosnap.hasError) {
+                          return SizedBox();
+                        }
+                        return CircularProgressIndicator();
+                      } else {
+                        String txt = "";
+                        if (prosnap.data == "") {
+                          return SizedBox();
+                        } else {
+                          txt = "(${prosnap.data})";
+                        }
+
+                        if (widget.overflowAnim) {
+                          return TextScroll(
+                            txt,
+                            style: TextStyle(
+                              fontSize: 22,
+                              color: widget.textColor,
+                            ),
+                            mode: TextScrollMode.endless,
+                            fadedBorder: true,
+                            fadedBorderWidth: 0.02,
+                            pauseBetween: Duration(seconds: 5),
+                            velocity: Velocity(pixelsPerSecond: Offset(20, 0)),
+                          );
+                        }
                         return Text(
-                          widget.alterName,
+                          txt,
+                          maxLines: 2,
                           style: TextStyle(
                             fontSize: 22,
                             color: widget.textColor,
                           ),
+                          overflow: widget.overflowDots
+                              ? TextOverflow.ellipsis
+                              : null,
                         );
                       }
-
-                      return CircularProgressIndicator();
-                    } else {
-                      String txt = "";
-                      if (prosnap.data == "") {
-                        txt = widget.alterName;
-                      } else {
-                        txt = "${widget.alterName}\n(${prosnap.data})";
-                      }
-
-                      return Text(
-                        txt,
-                        style: TextStyle(fontSize: 22, color: widget.textColor),
-                      );
-                    }
-                  },
-                ),
-                if (widget.showFrontingTime && widget.fronting)
-                  Text(
-                    "Fronting for: \n${calculateFrontingTime()}",
-                    style: TextStyle(fontSize: 20, color: widget.textColor),
+                    },
                   ),
-                if (!widget.fronting && widget.showFrontingTime)
-                  Text(
-                    "${calculateFrontingTime()}\n${getDateRange()}",
-                    style: TextStyle(color: widget.textColor, fontSize: 18),
-                  ),
-              ],
+                  if (widget.showFrontingTime && widget.fronting)
+                    Text(
+                      "Fronting for: \n${calculateFrontingTime()}",
+                      style: TextStyle(fontSize: 20, color: widget.textColor),
+                    ),
+                  if (!widget.fronting && widget.showFrontingTime)
+                    Text(
+                      "${calculateFrontingTime()}\n${getDateRange()}",
+                      style: TextStyle(color: widget.textColor, fontSize: 18),
+                    ),
+                ],
+              ),
             ),
           ],
         ),

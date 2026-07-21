@@ -247,6 +247,31 @@ class _visual extends State<AppearanceSettings> {
                           );
                         },
                       ),
+                      Divider(),
+                      SizedBox(height: 20),
+                      ListTile(
+                        title: Text("Text Overflow"),
+                        subtitle: Text(
+                          "Overflow text settings for very long text",
+                        ),
+                        leading: Icon(Icons.wrap_text),
+                        trailing: Icon(Icons.forward),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadiusGeometry.circular(8),
+                        ),
+                        onTap: () async {
+                          pageChanged();
+                          await Navigator.pushNamed(
+                            context,
+                            "/settings/appearance/overflow",
+                          );
+
+                          pageChanged();
+
+                          setState(() {});
+                        },
+                      ),
+                      SizedBox(height: 20),
                     ],
                   ),
                 ),

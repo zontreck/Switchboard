@@ -9,7 +9,7 @@ Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await LiquidGlassWidgets.initialize();
 
-  ms.applicationVersion = "0.3.5+0719261910";
+  ms.applicationVersion = "0.3.6+0720262149";
 
   runApp(Phoenix(child: LiquidGlassWidgets.wrap(child: Switchboard())));
 }
