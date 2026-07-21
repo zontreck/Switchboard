@@ -8,6 +8,7 @@
 
 - [x] Attempt to fix platform specific bug introduced in Android when fixing the permissions related to file browsing on iOS.
 - [x] Update links on the switchboard website.
+- [x] Mac builds now will be both dmg and tgz. Due to Apple's increased security.
 
 # 0.3.5+0719261955
 
