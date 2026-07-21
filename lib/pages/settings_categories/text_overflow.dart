@@ -1,4 +1,3 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:switchboard/dart/MemoryState.dart';
 import 'package:switchboard/dart/globalHelpers.dart';
@@ -6,6 +5,8 @@ import 'package:switchboard/globalHelpers.dart';
 import 'package:switchboard/pages/elements.dart';
 
 class TextOverflowSettings extends StatefulWidget {
+  const TextOverflowSettings({super.key});
+
   @override
   State<StatefulWidget> createState() {
     return _txtover();

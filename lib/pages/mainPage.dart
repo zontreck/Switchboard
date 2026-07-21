@@ -261,7 +261,7 @@ class _AccountPage extends State<AccountPage> {
               if (!this.singlet) {
                 Timer(Duration(seconds: 1), () async {
                   var list = await NetworkInterface.requestAltersList(null);
-                  this.alterCount = list.alters.length;
+                  alterCount = list.alters.length;
 
                   setState(() {});
                 });
@@ -383,7 +383,7 @@ class _alters extends State<AltersPage> {
                 children: [
                   ListView.builder(
                     itemCount: widget.singlet
-                        ? alters.length > 0
+                        ? alters.isNotEmpty
                               ? 1
                               : 0
                         : alters.length,
