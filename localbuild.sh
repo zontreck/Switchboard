@@ -53,3 +53,8 @@ then
 fi
 
 cp build/app/outputs/flutter-apk/app-release.apk outputs/switchboard.apk
+
+cd installers/macos
+appdmg config.json "Switchboard.dmg" || true # Expected fail on anywhere but mac
+mv Switchboard.dmg ../../outputs/ || true
+cd ../../

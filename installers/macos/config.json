@@ -1,0 +1,22 @@
+{
+  "title": "Switchboard",
+  "icon": "AppIcon.icns",
+  "background": "background.png",
+  "contents": [
+    {
+      "x": 95,
+      "y": 275,
+      "type": "file",
+      "path": "../../build/macos/Build/Products/Release/switchboard.app"
+    },
+    {
+      "x": 500,
+      "y": 275,
+      "type": "link",
+      "path": "/Applications"
+    }
+  ],
+  "code-sign": {
+    "signing-identity": "VZE385NP9Q"
+  }
+}

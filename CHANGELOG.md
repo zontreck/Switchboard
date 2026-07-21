@@ -1,5 +1,9 @@
 # 0.3.6
 
+## ADD:
+
+- [x] ci: Generate a macOS package dmg and stylize it a little bit.
+
 ## CHANGE:
 
 - [x] Attempt to fix platform specific bug introduced in Android when fixing the permissions related to file browsing on iOS.

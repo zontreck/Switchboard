@@ -124,15 +124,17 @@ pipeline {
                     flutter doctor
                     flutter build macos
 
-                    cd build/macos/Build/Products/Release/
-                    tar -cvf ../../../../../switchboard-macos.app.tgz switchboard.app
+                    cd installers/macos
+                    appdmg config.json "Switchboard.dmg"
+                    mv "Switchboard.dmg" ../../
+                    cd ../..
                     '''
                 }
             }
 
             post {
                 always {
-                    archiveArtifacts artifacts: "*.tgz"
+                    archiveArtifacts artifacts: "*.dmg"
 
                     cleanWs()
                 }
