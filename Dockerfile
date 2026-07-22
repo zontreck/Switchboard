@@ -1,4 +1,4 @@
-FROM git.zontreck.com/packages/arch:builder as builder
+FROM git.zontreck.com/packages/arch:build as builder
 
 WORKDIR /app
 RUN git clone https://git.zontreck.com/Astara/Switchboard.git
