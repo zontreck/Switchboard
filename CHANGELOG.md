@@ -8,6 +8,7 @@
 
 - [x] Codebase now uses two languages.
 - [x] Discord Bot no longer written in dart.
+- [x] Prototype bot switched over to a C# codebase.
 
 ## REMOVE:
 

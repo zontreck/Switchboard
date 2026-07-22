@@ -1,0 +1,8 @@
+<Solution>
+  <Folder Name="/LibSB/">
+    <Project Path="LibSB/LibSwitchboard.csproj" />
+  </Folder>
+  <Folder Name="/Main/">
+    <Project Path="Main/switchboard.csproj" />
+  </Folder>
+</Solution>

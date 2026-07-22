@@ -1,8 +1,0 @@
-#!/bin/bash
-
-scripts/clean
-rm -rf __pycache__
-scripts/set_up_venv
-source venv/bin/activate
-clear
-python3 -m switchboard

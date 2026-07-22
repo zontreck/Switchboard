@@ -1,4 +1,0 @@
-#!/bin/bash
-
-find switchboard -type f -name "*.pyc" -delete
-find switchboard -type d -name "__pycache__" -delete
