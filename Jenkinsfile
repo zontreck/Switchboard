@@ -98,7 +98,7 @@ pipeline {
                     bat "tar -cvf ../../../../../outputs/windows.tgz ."
                 }
 
-                bat "dart compile exe -o outputs/dlocto.exe bin/backupOctocon.dart"
+                bat "dart compile exe -o outputs/dlocto.exe cli/backupOctocon.dart"
 
                 dir("bot") {
                     bat "dotnet build -c Release"
