@@ -2,7 +2,7 @@
 
 $DEBUG = false;
 
-$VERSION = "0.3.3+0714261139";
+$VERSION = "0.4.0+0722261539";
 
 $DEFAULT_USER_FIELDS = array(
                             array(
@@ -36,6 +36,9 @@ if(defined("MAINTENANCE")) {
 $route = $_GET['rt'] ?? '';
 $request = $_SERVER['REQUEST_METHOD'];
 $ID = gen_uuid(); // Session ID, can be used for tracing back errors
+
+$impersonate=false;
+$impUser = "";
 
 header("Content-Type: application/json", true);
 header("Server: Switchboard/v".$VERSION, true);
@@ -72,6 +75,10 @@ class SATReply {
 }
 
 function ValidateSAT($SAT) {
+    global $impersonate, $impUser;
+    if($impersonate) {
+        return $impUser;
+    }
     $payload = base64_decode($SAT);
     $jsonPayload = json_decode($payload, true);
 
@@ -289,7 +296,9 @@ $db0->close();
 
 function processBotImpersonate() {
     global $request, $route, $ID;
-    if(!is_Admin()) return;
+    if(!is_Admin()) {
+        return new Impersonate(false, new SATReply(false, 0,0,"",""), "");
+    }
 
     $headers = apache_request_headers();
     $dnName = "Discord";
@@ -307,22 +316,28 @@ function processBotImpersonate() {
     $res = $stmt->get_result();
     if($res->num_rows == 0) {
         // This user has not yet linked a discord account.
-        die(json_encode(array(
-            "success" => false,
-            "reason" => "DiscordNotLinked",
-            "type" => $request,
-            "path" => $route,
-            "id" => $ID
-        )));
+        return new Impersonate(false, new SATReply(false, 0, 0, "", ""), "");
     } else {
         $row = $res->fetch_assoc();
+
+        // We want to now replace the SBReply with a new instance. One pointing to the user we intend on acting on behalf of.
+        return new Impersonate(true, new SATReply(true, 0, 0, "", ""), $row['UserID']);
     }
     
 }
+class Impersonate {
+    public bool $imp = false;
+    public SATReply $impUser = new SATReply(true, 0, 0, "", "");
+    public string $uid;
 
-if(is_Admin()) {
-    processBotImpersonate();
+    public function __construct($impersonate, $user, $id) {
+        $this->imp=$impersonate;
+        $this->impUser=$user;
+        $this->uid=$id;
+    }
 }
+
+processBotImpersonate();
 
 
 switch($route) {
@@ -345,6 +360,7 @@ switch($route) {
                 "reason" => "Administrative powers required"
             )));
         }
+        
         header("Content-Type: text/plain");
         echo("System Switchboard Server v/$VERSION (PHP)\n> Cron task script invoked.\n\n");
 
@@ -1122,6 +1138,7 @@ switch($route) {
             "id" => $ID,
             "path" => $route,
             "type" => $request,
+            "reason" => "",
             "data" => array(
                 "product" => "Switchboard API Server (PHP)",
                 "version" => $VERSION

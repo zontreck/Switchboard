@@ -9,6 +9,8 @@
 - [x] Codebase now uses two languages.
 - [x] Discord Bot no longer written in dart.
 - [x] Prototype bot switched over to a C# codebase.
+- [x] Implemented the `is_Admin` check in the backend code.
+- [x] Fixed a bug where the `/version` endpoint was missing the `reason` entry.
 
 ## REMOVE:
 
