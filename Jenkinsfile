@@ -37,11 +37,11 @@ pipeline {
 
                     docker system prune -a -f
 
-                    #docker build -t git.zontreck.com/packages/switchboard:builder docker/build-helper
-                    #docker push git.zontreck.com/packages/switchboard:builder
+                    docker build -t git.zontreck.com/packages/switchboard:builder docker/build-helper
+                    docker push git.zontreck.com/packages/switchboard:builder
 
-                    #docker build -t git.zontreck.com/packages/switchboard:latest "$(pwd)"
-                    #docker push git.zontreck.com/packages/switchboard:latest
+                    docker build -t git.zontreck.com/packages/switchboard:latest "$(pwd)"
+                    docker push git.zontreck.com/packages/switchboard:latest
 
                     '''
                 }
@@ -99,6 +99,13 @@ pipeline {
                 }
 
                 bat "dart compile exe -o outputs/dlocto.exe bin/backupOctocon.dart"
+
+                dir("bot") {
+                    bat "dotnet build -c Release"
+                    dir("Main/bin/Release/net10.0") {
+                        bat "tar -cvf ../../../../../outputs/proxybot-win-x64.tgz ."
+                    }
+                }
             }
 
             post {

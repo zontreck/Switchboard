@@ -11,6 +11,7 @@
 - [x] Prototype bot switched over to a C# codebase.
 - [x] Implemented the `is_Admin` check in the backend code.
 - [x] Fixed a bug where the `/version` endpoint was missing the `reason` entry.
+- [x] Updated the build chain for the proxy bot after switching away from dart for that part of the project.
 
 ## REMOVE:
 

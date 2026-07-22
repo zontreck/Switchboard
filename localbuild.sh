@@ -13,6 +13,12 @@ rm -rf outputs
 mkdir -pv outputs
 
 dart compile exe -o outputs/dlocto cli/backupOctocon.dart
+cd bot
+dotnet build -c Release
+cd Main/bin/Release/net10.0
+tar -cvf ../../../../../outputs/proxybot-linux-x64.tgz .
+cd ../../../../../
+
 flutter build linux || true
 flutter build windows || true
 flutter build macos || true

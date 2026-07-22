@@ -1,17 +1,22 @@
-FROM git.zontreck.com/packages/switchboard:builder AS builder
+FROM git.zontreck.com/packages/arch:builder as builder
 
 WORKDIR /app
 RUN git clone https://git.zontreck.com/Astara/Switchboard.git
 
 WORKDIR /app/Switchboard
 RUN mkdir outputs
-RUN dart compile exe -o outputs/proxybot-x86_64-linux bin/bot.dart
+
+WORKDIR /app/Switchboard/bot
+RUN dotnet build -c Release
+WORKDIR /app/Switchboard/bot/Main/bin/Release/net10.0
+RUN tar -cvf /app/Switchboard/outputs/proxybot-x86_64-linux.tgz .
 
 
-FROM git.zontreck.com/packages/flutter:arch
+FROM git.zontreck.com/packages/arch:base
 
 WORKDIR /app
-COPY --from=builder /app/Switchboard/outputs/proxybot-x86_64-linux /sbin/switchboard
+COPY --from=builder /app/Switchboard/outputs/proxybot-x86_64-linux.tgz /tmp/
+RUN tar -xvf /tmp/proxybot-x86_64-linux.tgz && rm /tmp/*.tgz
 RUN chmod +x /sbin/switchboard
 
 VOLUME ["/app/data"]
