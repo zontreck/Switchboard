@@ -142,3 +142,5 @@ test.nbt
 *.dmg
 
 bot/venv
+__pycache__
+*.pyc

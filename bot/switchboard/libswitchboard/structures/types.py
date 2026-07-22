@@ -8,11 +8,9 @@ class ServerVersion:
         self.product=product;
         self.version=version;
 
-    def encode(self):
-        return json.dumps(self);
+    def encode(self) -> dict:
+        return {"product": self.product, "version": self.version};
 
-    @staticmethod
-    def decode(encoded):
-        rep=json.loads(s=encoded);
-
-        return ServerVersion(rep["product"], rep["version"]);
+    def decode(self,encoded: dict):
+        self.product = encoded["product"];
+        self.version = encoded["version"];
