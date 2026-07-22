@@ -141,6 +141,9 @@ test.nbt
 ._DS_Store
 *.dmg
 
+bin
+obj
+
 bot/venv
 __pycache__
 *.pyc
