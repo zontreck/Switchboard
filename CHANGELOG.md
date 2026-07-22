@@ -1,3 +1,18 @@
+# 0.4.0+0722261100
+
+## ADD:
+
+- [x] C# Project for Discord bot.
+
+## CHANGE:
+
+- [x] Codebase now uses two languages.
+- [x] Discord Bot no longer written in dart.
+
+## REMOVE:
+
+- [x] Mineral has been removed as a package dependency. After numerous failures to get it to work, we decided to move on and use a different language.
+
 # 0.3.6+0720262149
 
 ## ADD:

@@ -22,6 +22,3 @@ flutter build apk
 cd build/app/outputs/flutter-apk
 cp app-release.apk ../../../../outputs/switchboard.apk
 cd ../../../../
-
-
-dart compile exe -o outputs/proxybot-x86_64-linux bin/bot.dart

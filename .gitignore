@@ -140,3 +140,5 @@ test.nbt
 .DS_Store
 ._DS_Store
 *.dmg
+
+bot/venv

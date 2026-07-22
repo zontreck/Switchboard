@@ -1,0 +1,5 @@
+#!/bin/bash
+
+scripts/set_up_venv
+source venv/bin/activate
+python3 -m switchboard

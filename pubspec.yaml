@@ -16,7 +16,7 @@ publish_to: "none" # Remove this line if you wish to publish to pub.dev
 # https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/CoreFoundationKeys.html
 # In Windows, build-name is used as the major, minor, and patch parts
 # of the product and file versions while build-number is used as the build suffix.
-version: 0.3.6+0720262149
+version: 0.3.6+0722261100
 
 environment:
   sdk: ^3.12.2
@@ -57,8 +57,6 @@ dependencies:
     version: ^1.1.1
   synchronized: ^3.4.0+1
   flutter_phoenix: ^1.1.1
-  mineral: ^5.0.0
-  mineral_cache: ^2.0.0
   text_scroll: ^0.2.1
 dev_dependencies:
   flutter_launcher_icons: "^0.14.1"
@@ -100,8 +98,8 @@ flutter:
   uses-material-design: true
 
   assets:
-  - assets/
-  - webassets/
+    - assets/
+    - webassets/
   # To add assets to your application, add an assets section, like this:
   # assets:
   #   - images/a_dot_burr.jpeg
@@ -119,32 +117,32 @@ flutter:
   # list giving the asset and other descriptors for the font. For
   # example:
   fonts:
-  - family: unitblock
-    fonts:
-    - asset: fonts/Unitblock.otf
-  - family: nixieone
-    fonts:
-    - asset: fonts/NixieOne.ttf
-  - family: merriweather
-    fonts:
-    - asset: fonts/merriweather/Merriweather-Regular.ttf
-    - asset: fonts/merriweather/Merriweather-Bold.ttf
-      weight: 700
-    - asset: fonts/merriweather/Merriweather-BoldIt.ttf
-      weight: 700
-      style: italic
-    - asset: fonts/merriweather/Merriweather-Italic.ttf
-      style: italic
-  - family: ptsans
-    fonts:
-    - asset: fonts/ptsans/PTS55F.ttf
-    - asset: fonts/ptsans/PTS56F.ttf
-      style: italic
-    - asset: fonts/ptsans/PTS75F.ttf
-      weight: 700
-    - asset: fonts/ptsans/PTS76F.ttf
-      weight: 700
-      style: italic
+    - family: unitblock
+      fonts:
+        - asset: fonts/Unitblock.otf
+    - family: nixieone
+      fonts:
+        - asset: fonts/NixieOne.ttf
+    - family: merriweather
+      fonts:
+        - asset: fonts/merriweather/Merriweather-Regular.ttf
+        - asset: fonts/merriweather/Merriweather-Bold.ttf
+          weight: 700
+        - asset: fonts/merriweather/Merriweather-BoldIt.ttf
+          weight: 700
+          style: italic
+        - asset: fonts/merriweather/Merriweather-Italic.ttf
+          style: italic
+    - family: ptsans
+      fonts:
+        - asset: fonts/ptsans/PTS55F.ttf
+        - asset: fonts/ptsans/PTS56F.ttf
+          style: italic
+        - asset: fonts/ptsans/PTS75F.ttf
+          weight: 700
+        - asset: fonts/ptsans/PTS76F.ttf
+          weight: 700
+          style: italic
   # fonts:
   #   - family: Schyler
   #     fonts:
