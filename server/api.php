@@ -2,7 +2,7 @@
 
 $DEBUG = false;
 
-$VERSION = "0.4.0+0722261753";
+$VERSION = "0.4.0+0722261814";
 
 $DEFAULT_USER_FIELDS = array(
                             array(
@@ -327,7 +327,7 @@ function processBotImpersonate() {
 }
 class Impersonate {
     public bool $imp = false;
-    public SATReply $impUser = null;
+    public ?SATReply $impUser = null;
     public string $uid;
 
     public function __construct($impersonate, $user, $id) {
