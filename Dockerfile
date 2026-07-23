@@ -12,7 +12,7 @@ WORKDIR /app/Switchboard/bot/Main/bin/Release/net10.0
 RUN tar -cvf /app/Switchboard/outputs/proxybot-x86_64-linux.tgz .
 
 
-FROM git.zontreck.com/packages/arch:base
+FROM git.zontreck.com/packages/arch:build
 
 WORKDIR /app/bin
 COPY --from=builder /app/Switchboard/outputs/proxybot-x86_64-linux.tgz /tmp/
