@@ -2,7 +2,7 @@
 
 $DEBUG = false;
 
-$VERSION = "0.4.0+0722261539";
+$VERSION = "0.4.0+0722261753";
 
 $DEFAULT_USER_FIELDS = array(
                             array(
@@ -327,7 +327,7 @@ function processBotImpersonate() {
 }
 class Impersonate {
     public bool $imp = false;
-    public SATReply $impUser = new SATReply(true, 0, 0, "", "");
+    public SATReply $impUser = null;
     public string $uid;
 
     public function __construct($impersonate, $user, $id) {
@@ -360,7 +360,7 @@ switch($route) {
                 "reason" => "Administrative powers required"
             )));
         }
-        
+
         header("Content-Type: text/plain");
         echo("System Switchboard Server v/$VERSION (PHP)\n> Cron task script invoked.\n\n");
 
