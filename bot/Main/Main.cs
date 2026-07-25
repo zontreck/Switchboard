@@ -1,5 +1,9 @@
 ﻿using DSharpPlus;
+using DSharpPlus.Commands;
 using DSharpPlus.Entities;
+using DSharpPlus.Interactivity;
+using DSharpPlus.Interactivity.Enums;
+using DSharpPlus.Interactivity.Extensions;
 using LibSwitchboard;
 using LibSwitchboard.Args;
 
@@ -54,10 +58,23 @@ class Program
 
     print("Loaded provided values...");
 
-    DiscordClient client = DiscordClientBuilder.CreateDefault(ms.DiscordToken, DiscordIntents.AllUnprivileged | DiscordIntents.GuildMembers | DiscordIntents.MessageContents).Build();
+    DiscordClientBuilder builder = DiscordClientBuilder.CreateDefault(ms.DiscordToken, DiscordIntents.AllUnprivileged | DiscordIntents.GuildMembers | DiscordIntents.MessageContents);
+
+    // Register all bot commands here.
+    builder.UseCommands((IServiceProvider provider, CommandsExtension ext) =>
+    {
+      //ext.AddCommand(typeof(LinkCommand));
+    });
+
+    builder.UseInteractivity(new InteractivityConfiguration()
+    {
+      PollBehaviour = PollBehaviour.KeepEmojis,
+      Timeout = TimeSpan.FromSeconds(30)
+    });
+
+    DiscordClient client = builder.Build();
+
     await client.ConnectAsync(activity: new DiscordActivity($"v{GlobalConsts.Version}", DiscordActivityType.Playing), status: DiscordUserStatus.Online);
-
-
 
     while (true)
     {
