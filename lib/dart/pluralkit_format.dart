@@ -23,10 +23,18 @@ class PluralKit {
       avatarUrl: data.avatar_url,
     );
     dat.alters = [];
+    Map<String, int> memberMap = {};
+    int iPointer = 0;
+    for (var entry in data.members ?? []) {
+      memberMap[entry.id] = iPointer;
+
+      iPointer++;
+    }
+
     for (PluralKitMember mbr in data.members ?? []) {
       dat.alters.add(
         OctoconAlter(
-          id: mbr.id,
+          id: memberMap[mbr.id] ?? 0,
           name: mbr.name,
           description: mbr.description ?? "",
           fields: [],
@@ -41,17 +49,24 @@ class PluralKit {
 
     dat.fronts = []; // We have no way to convert this at present time.
     dat.tags = [];
+    iPointer = 0;
+    Map<String, int> groupMap = {};
+    for (var entry in data.groups ?? []) {
+      groupMap[entry.id] = iPointer;
+
+      iPointer++;
+    }
     for (PluralKitGroup grp in data.groups ?? []) {
       dat.tags.add(
         OctoconTag(
-          id: "${grp.id}",
+          id: "${groupMap[grp.id] ?? 0}",
           name: grp.name,
           description: grp.description ?? "",
           color: grp.color ?? "#00000000",
           insertedAt: DateTime.now(),
           updatedAt: DateTime.now(),
           securityLevel: OctoconSecurityLevel.trusted,
-          alters: grp.members,
+          alters: grp.mapMembers(memberMap),
           parentTagId: "",
         ),
       );
@@ -128,8 +143,8 @@ class PluralKitData {
 class PluralKitGroup {
   String? color;
   String? description;
-  int id;
-  List<int> members;
+  String id;
+  List<String> members;
   String name;
 
   PluralKitGroup({
@@ -149,25 +164,37 @@ class PluralKitGroup {
     return {
       "color": color,
       "description": description,
-      "id": "$id",
+      "id": id,
       "members": members,
       "name": name,
     };
   }
 
   factory PluralKitGroup.fromJson(Map<String, dynamic> js) {
-    List<int> mbrs = [];
+    List<String> mbrs = [];
     for (var entry in js['members'] ?? []) {
-      mbrs.add(int.parse(entry));
+      mbrs.add(entry);
     }
 
     return PluralKitGroup(
-      id: int.parse(js['id'] ?? "0"),
+      id: js['id'],
       name: js['name'] ?? "",
       color: js['color'],
       description: js['description'],
       members: mbrs,
     );
+  }
+
+  /// DO NOT USE!
+  ///
+  /// This method should only be used by the remapper for imports. This will map the members list using the provided key map.
+  List<int> mapMembers(Map<String, int> memberMap) {
+    List<int> mbrs = [];
+    for (var entry in members) {
+      mbrs.add(memberMap[entry] ?? 0);
+    }
+
+    return mbrs;
   }
 }
 
@@ -176,7 +203,7 @@ class PluralKitMember {
   String? color;
   String? description;
   String? display_name;
-  int id;
+  String id;
   String name;
   String? pronouns;
   List<PluralKitProxyTag> proxy_tags;
@@ -217,7 +244,7 @@ class PluralKitMember {
     }
 
     return PluralKitMember(
-      id: int.parse(js['id'] ?? "0"),
+      id: js['id'],
       name: js['name'],
       proxy_tags: tags,
       avatar_url: js['avatar_url'],
@@ -240,7 +267,10 @@ class PluralKitProxyTag {
   }
 
   factory PluralKitProxyTag.fromJson(Map<String, dynamic> js) {
-    return PluralKitProxyTag(prefix: js['prefix'], suffix: js['suffix']);
+    return PluralKitProxyTag(
+      prefix: js['prefix'] ?? "",
+      suffix: js['suffix'] ?? "",
+    );
   }
 }
 

@@ -1,4 +1,4 @@
-# 0.4.0
+# 0.3.7+0809260000
 
 ## ADD:
 
@@ -12,6 +12,7 @@
 - [x] Implemented the `is_Admin` check in the backend code.
 - [x] Fixed a bug where the `/version` endpoint was missing the `reason` entry.
 - [x] Updated the build chain for the proxy bot after switching away from dart for that part of the project.
+- [x] FIX: PluralKit imports were broken, reported by Discord user `queerpunkrocker`.
 
 ## REMOVE:
 
