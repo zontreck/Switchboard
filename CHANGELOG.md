@@ -1,3 +1,18 @@
+# 0.4.0
+
+## ADD:
+
+- [x] NetCord is now a dependency of the ProxyBot
+- [x] Microsoft.Extensions.Hosting is now a dependency of the ProxyBot
+
+## CHANGE:
+
+- [x] Changed Discord Bot Library from DSharpPlus to NetCord
+
+## REMOVE:
+
+- [x] DSharpPlus is no longer a dependency of the ProxyBot
+
 # 0.3.7+0809260000
 
 ## ADD:
