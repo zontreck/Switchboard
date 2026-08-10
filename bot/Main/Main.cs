@@ -1,11 +1,10 @@
-﻿using DSharpPlus;
-using DSharpPlus.Commands;
-using DSharpPlus.Entities;
-using DSharpPlus.Interactivity;
-using DSharpPlus.Interactivity.Enums;
-using DSharpPlus.Interactivity.Extensions;
+﻿
 using LibSwitchboard;
 using LibSwitchboard.Args;
+using Microsoft.Extensions.Logging;
+using NetCord;
+using NetCord.Gateway;
+using NetCord.Logging;
 
 namespace switchboard;
 
@@ -58,29 +57,18 @@ class Program
 
     print("Loaded provided values...");
 
-    DiscordClientBuilder builder = DiscordClientBuilder.CreateDefault(ms.DiscordToken, DiscordIntents.AllUnprivileged | DiscordIntents.GuildMembers | DiscordIntents.MessageContents);
-
-    // Register all bot commands here.
-    builder.UseCommands((IServiceProvider provider, CommandsExtension ext) =>
+    GatewayClient client = new(new BotToken(ms.DiscordToken), new GatewayClientConfiguration()
     {
-      //ext.AddCommand(typeof(LinkCommand));
+      Logger = new ConsoleLogger(),
+      Intents = GatewayIntents.AllNonPrivileged | GatewayIntents.GuildUsers | GatewayIntents.MessageContent
     });
 
-    builder.UseInteractivity(new InteractivityConfiguration()
+    await client.StartAsync(new PresenceProperties(UserStatusType.Online)
     {
-      PollBehaviour = PollBehaviour.KeepEmojis,
-      Timeout = TimeSpan.FromSeconds(30)
+      Activities = [new UserActivityProperties($"v{GlobalConsts.Version}", UserActivityType.Playing)]
     });
 
-    DiscordClient client = builder.Build();
-
-    await client.ConnectAsync(activity: new DiscordActivity($"v{GlobalConsts.Version}", DiscordActivityType.Playing), status: DiscordUserStatus.Online);
-
-    while (true)
-    {
-      Thread.Sleep(1000);
-    }
-
+    await Task.Delay(-1);
     return 0;
   }
 }
