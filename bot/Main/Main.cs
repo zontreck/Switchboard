@@ -1,10 +1,18 @@
 ﻿
 using LibSwitchboard;
 using LibSwitchboard.Args;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using NetCord;
 using NetCord.Gateway;
+using NetCord.Hosting.Gateway;
+using NetCord.Hosting.Services;
+using NetCord.Hosting.Services.ApplicationCommands;
 using NetCord.Logging;
+using NetCord.Rest;
+using NetCord.Services;
+using NetCord.Services.ApplicationCommands;
+using NetCord.Services.ComponentInteractions;
 
 namespace switchboard;
 
@@ -62,6 +70,42 @@ class Program
       Logger = new ConsoleLogger(),
       Intents = GatewayIntents.AllNonPrivileged | GatewayIntents.GuildUsers | GatewayIntents.MessageContent
     });
+
+    var asm = typeof(Program).Assembly;
+
+    ApplicationCommandService<SlashCommandContext> slashCommands = new();
+    ApplicationCommandService<UserCommandContext> userCommands = new();
+    ComponentInteractionService<ModalInteractionContext> modalInteractions = new();
+    ComponentInteractionService<ModalInteractionContext> buttonInts = new();
+
+    slashCommands.AddModules(asm);
+    userCommands.AddModules(asm);
+    modalInteractions.AddModules(asm);
+    buttonInts.AddModules(asm);
+
+
+    client.InteractionCreate += async interaction =>
+    {
+      var result = await (interaction switch
+      {
+        SlashCommandInteraction sci => slashCommands.ExecuteAsync(new SlashCommandContext(sci, client)),
+        _ => throw new Exception("Invalid interaction")
+      });
+
+
+      if (result is not IFailResult res) return;
+
+      try
+      {
+        await interaction.SendResponseAsync(InteractionCallback.Message(res.Message));
+      }
+      catch
+      {
+
+      }
+    };
+
+    await slashCommands.RegisterCommandsAsync(client.Rest, client.Id);
 
     await client.StartAsync(new PresenceProperties(UserStatusType.Online)
     {
