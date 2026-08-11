@@ -3,11 +3,16 @@
 ## ADD:
 
 - [x] NetCord is now a dependency of the ProxyBot
-- [x] Microsoft.Extensions.Hosting is now a dependency of the ProxyBot
+- [ ] Server Endpoint : `/discord`, which will handle all actions and operations related to linking a discord account.
+  - [ ] Bot Link Code
+  - [ ] App Confirmation Code
+  - [ ] Ability to unlink if desired.
+  - [ ] Ability to store discord user preferences to the SB Account. For instance, proxy mode, etc.
 
 ## CHANGE:
 
 - [x] Changed Discord Bot Library from DSharpPlus to NetCord
+- [x] Prior to build 0810262004, the bot used `Microsoft.Extensions.Hosting`, and the `Hosting` packages of NetCord. These have been removed due to a lack of documentation clearly describing details like, how to set the bot token, or how to set the Bot's Activity Presence, which we use to display the version.
 
 ## REMOVE:
 
