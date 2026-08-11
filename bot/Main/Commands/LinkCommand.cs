@@ -15,7 +15,7 @@ public class LinkCommandModule : ApplicationCommandModule<ApplicationCommandCont
         guid = Guid.NewGuid();
 
         // TODO: Send the linking code to the Switchboard Backend, which the app will validate against.
-        var modal = new ModalProperties($"linkmodal:{guid}", "Link Switchboard Account");
+        var modal = new ModalProperties($"linkmodal", "Link Switchboard Account");
         modal.AddComponents(new TextDisplayProperties($"Please NOTE: Do not share any Switchboard Codes with others, it will weaken the security of your account.\nYour code is: {idCode}\n\nInput this code into the Switchboard App to receive the confirmation code."), new LabelProperties("Confirmation Code", new TextInputProperties("tip:linkconf", TextInputStyle.Short)
         {
             Required = true,
@@ -29,7 +29,7 @@ public class LinkCommandModule : ApplicationCommandModule<ApplicationCommandCont
 
 public class LinkModal : ComponentInteractionModule<ModalInteractionContext>
 {
-    [ComponentInteraction("linkmodal:*")]
+    [ComponentInteraction("linkmodal")]
     public async Task HandleModal(string id)
     {
         // Verify the modal ID later...
