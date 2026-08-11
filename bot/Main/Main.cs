@@ -74,11 +74,13 @@ class Program
     var asm = typeof(Program).Assembly;
 
     ApplicationCommandService<SlashCommandContext> slashCommands = new();
+    ApplicationCommandService<ApplicationCommandContext> appCommands = new();
     ApplicationCommandService<UserCommandContext> userCommands = new();
     ComponentInteractionService<ModalInteractionContext> modalInteractions = new();
     ComponentInteractionService<ButtonInteractionContext> buttonInts = new();
 
     slashCommands.AddModules(asm);
+    appCommands.AddModules(asm);
     userCommands.AddModules(asm);
     modalInteractions.AddModules(asm);
     buttonInts.AddModules(asm);
@@ -110,6 +112,8 @@ class Program
 
     await slashCommands.RegisterCommandsAsync(client.Rest, client.Id);
     await userCommands.RegisterCommandsAsync(client.Rest, client.Id);
+    await appCommands.RegisterCommandsAsync(client.Rest, client.Id);
+
 
     await client.StartAsync(new PresenceProperties(UserStatusType.Online)
     {
