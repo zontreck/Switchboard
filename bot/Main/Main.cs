@@ -1,13 +1,8 @@
 ﻿
 using LibSwitchboard;
 using LibSwitchboard.Args;
-using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
 using NetCord;
 using NetCord.Gateway;
-using NetCord.Hosting.Gateway;
-using NetCord.Hosting.Services;
-using NetCord.Hosting.Services.ApplicationCommands;
 using NetCord.Logging;
 using NetCord.Rest;
 using NetCord.Services;
@@ -79,6 +74,11 @@ class Program
     ComponentInteractionService<ModalInteractionContext> modalInteractions = new();
     ComponentInteractionService<ButtonInteractionContext> buttonInts = new();
 
+    ApplicationCommandServiceManager manager = new();
+    manager.AddService(slashCommands);
+    manager.AddService(appCommands);
+    manager.AddService(userCommands);
+
     slashCommands.AddModules(asm);
     appCommands.AddModules(asm);
     userCommands.AddModules(asm);
@@ -110,9 +110,7 @@ class Program
       }
     };
 
-    await slashCommands.RegisterCommandsAsync(client.Rest, client.Id);
-    await userCommands.RegisterCommandsAsync(client.Rest, client.Id);
-    await appCommands.RegisterCommandsAsync(client.Rest, client.Id);
+    await manager.RegisterCommandsAsync(client.Rest, client.Id);
 
 
     await client.StartAsync(new PresenceProperties(UserStatusType.Online)

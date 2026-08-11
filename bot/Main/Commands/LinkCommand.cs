@@ -10,7 +10,7 @@ namespace switchboard.Commands;
 public class LinkCommandModule : ApplicationCommandModule<ApplicationCommandContext>
 {
     [SlashCommand("link", "Initiate the process of linking to Switchboard")]
-    public async Task DoLink()
+    public async Task Link()
     {
         Guid guid = Guid.NewGuid();
         string idCode = guid.ToString().Substring(0, 6);
