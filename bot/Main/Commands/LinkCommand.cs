@@ -5,6 +5,8 @@ using NetCord.Rest;
 using NetCord.Services.ApplicationCommands;
 using NetCord.Services.ComponentInteractions;
 
+namespace switchboard.Commands;
+
 public class LinkCommandModule : ApplicationCommandModule<ApplicationCommandContext>
 {
     [SlashCommand("link", "Initiate the process of linking to Switchboard")]
@@ -40,14 +42,5 @@ public class LinkModal : ComponentInteractionModule<ModalInteractionContext>
             Content = "NOTE: This feature is not yet fully implemented.\nSuccess, your Discord account has been linked to Switchboard. You can now use the Proxy functionality.",
             Flags = MessageFlags.Ephemeral
         }));
-    }
-}
-
-public class LinkModalButtonPress : ComponentInteractionModule<ButtonInteractionContext>
-{
-    [ComponentInteraction("confirmLink")]
-    public static void ConfirmLinking()
-    {
-
     }
 }

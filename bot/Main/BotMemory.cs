@@ -1,3 +1,5 @@
+namespace switchboard;
+
 class MemoryState
 {
     /// <summary>

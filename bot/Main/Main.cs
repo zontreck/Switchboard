@@ -76,7 +76,7 @@ class Program
     ApplicationCommandService<SlashCommandContext> slashCommands = new();
     ApplicationCommandService<UserCommandContext> userCommands = new();
     ComponentInteractionService<ModalInteractionContext> modalInteractions = new();
-    ComponentInteractionService<ModalInteractionContext> buttonInts = new();
+    ComponentInteractionService<ButtonInteractionContext> buttonInts = new();
 
     slashCommands.AddModules(asm);
     userCommands.AddModules(asm);
@@ -89,6 +89,9 @@ class Program
       var result = await (interaction switch
       {
         SlashCommandInteraction sci => slashCommands.ExecuteAsync(new SlashCommandContext(sci, client)),
+        UserCommandInteraction uci => userCommands.ExecuteAsync(new UserCommandContext(uci, client)),
+        ModalInteraction mi => modalInteractions.ExecuteAsync(new ModalInteractionContext(mi, client)),
+        ButtonInteraction bi => buttonInts.ExecuteAsync(new ButtonInteractionContext(bi, client)),
         _ => throw new Exception("Invalid interaction")
       });
 
@@ -106,6 +109,7 @@ class Program
     };
 
     await slashCommands.RegisterCommandsAsync(client.Rest, client.Id);
+    await userCommands.RegisterCommandsAsync(client.Rest, client.Id);
 
     await client.StartAsync(new PresenceProperties(UserStatusType.Online)
     {
