@@ -68,18 +68,15 @@ class Program
 
     var asm = typeof(Program).Assembly;
 
-    ApplicationCommandService<SlashCommandContext> slashCommands = new();
     ApplicationCommandService<ApplicationCommandContext> appCommands = new();
     ApplicationCommandService<UserCommandContext> userCommands = new();
     ComponentInteractionService<ModalInteractionContext> modalInteractions = new();
     ComponentInteractionService<ButtonInteractionContext> buttonInts = new();
 
     ApplicationCommandServiceManager manager = new();
-    manager.AddService(slashCommands);
     manager.AddService(appCommands);
     manager.AddService(userCommands);
 
-    slashCommands.AddModules(asm);
     appCommands.AddModules(asm);
     userCommands.AddModules(asm);
     modalInteractions.AddModules(asm);
@@ -90,7 +87,7 @@ class Program
     {
       var result = await (interaction switch
       {
-        SlashCommandInteraction sci => slashCommands.ExecuteAsync(new SlashCommandContext(sci, client)),
+        SlashCommandInteraction sci => appCommands.ExecuteAsync(new ApplicationCommandContext(sci, client)),
         UserCommandInteraction uci => userCommands.ExecuteAsync(new UserCommandContext(uci, client)),
         ModalInteraction mi => modalInteractions.ExecuteAsync(new ModalInteractionContext(mi, client)),
         ButtonInteraction bi => buttonInts.ExecuteAsync(new ButtonInteractionContext(bi, client)),
