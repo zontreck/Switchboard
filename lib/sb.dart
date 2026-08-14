@@ -6,6 +6,7 @@ import 'package:switchboard/pages/aboutPage.dart';
 import 'package:switchboard/pages/mainPage.dart';
 import 'package:switchboard/pages/editAlter.dart';
 import 'package:switchboard/pages/settings_categories/appearance.dart';
+import 'package:switchboard/pages/settings_categories/development.dart';
 import 'package:switchboard/pages/settings_categories/editFields.dart';
 import 'package:switchboard/pages/feedbackHUB.dart';
 import 'package:switchboard/pages/settings_categories/fontPage.dart';
@@ -64,6 +65,7 @@ class _switchboard extends State<Switchboard> {
             "/settings/font": (ctx) => FontPage(),
             "/settings/ads": (ctx) => AdSettings(),
             "/settings/appearance": (ctx) => AppearanceSettings(),
+            "/settings/developer": (ctx) => DevelopmentSettings(),
             "/settings/appearance/overflow": (ctx) => TextOverflowSettings(),
             "/settings/account": (ctx) => AccountSettings(),
             "/settings/account/security": (ctx) => SecuritySettings(),

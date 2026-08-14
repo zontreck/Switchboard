@@ -137,6 +137,28 @@ class _settings extends State<SettingsPage> {
                           setState(() {});
                         },
                       ),
+                      Divider(),
+                      ListTile(
+                        title: Text("Developer Settings"),
+                        subtitle: Text(
+                          "View and manage advanced settings that are mostly only useful to developers.",
+                        ),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadiusGeometry.circular(8),
+                        ),
+                        leading: Icon(Icons.developer_board),
+                        trailing: Icon(Icons.forward),
+                        onTap: () async {
+                          pageChanged();
+                          await Navigator.pushNamed(
+                            context,
+                            "/settings/developer",
+                          );
+                          pageChanged();
+
+                          setState(() {});
+                        },
+                      ),
                     ],
                   ),
                 ),
