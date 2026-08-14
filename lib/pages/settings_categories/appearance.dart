@@ -511,7 +511,9 @@ class _visual extends State<AppearanceSettings> {
                       ListTile(
                         title: Text("Restore Default Theme"),
                         leading: Icon(Icons.restore_from_trash),
-                        subtitle: Text("Reset all defaults for the app theme"),
+                        subtitle: Text(
+                          "Restore all defaults for the app theme",
+                        ),
                         tileColor: LibACFlutterConstants.TITLEBAR_COLOR,
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadiusGeometry.circular(16),
