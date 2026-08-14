@@ -74,6 +74,8 @@ pipeline {
                     RELEASE=1 ./localbuild.sh || true
 
                     cd server
+                    cp ../assets/privacypolicy.md .
+                    cp ../assets/tos.md .
                     tar -cvf ../outputs/cdnserver.tgz .
                     cd ..
                     '''
@@ -95,6 +97,7 @@ pipeline {
 
             steps {
                 bat "flutter pub get"
+                bat "dart run cli/generate_build_inf.dart"
                 bat "flutter build windows"
                 bat "mkdir outputs"
                 dir ("build/windows/x64/runner/Release") {
@@ -131,6 +134,7 @@ pipeline {
                     source ~/.zshrc
 
                     flutter doctor
+                    dart run cli/generate_build_inf.dart
                     flutter build macos
                     
                     cd build/macos/Build/Products/Release/
@@ -168,6 +172,7 @@ pipeline {
                     source ~/.zshrc
 
                     flutter doctor
+                    dart run cli/generate_build_inf.dart
                     flutter build ios
                     flutter build ipa
 
