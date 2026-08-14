@@ -1,6 +1,8 @@
 /// This file is auto-generated at build time.
 ///
 /// DO NOT EDIT MANUALLY!
+///
+/// What you see is a template file to allow for the app to correctly build, even without generating this file.
 class SBProject {
   static const String BRANCH = "<GIT_BRANCH>";
   static const String COMMIT_SHORT = "<GIT_COMMIT_SHORT>";

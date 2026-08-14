@@ -31,7 +31,7 @@ void main() async {
       "--tags",
       "--always",
       "--dirty",
-    ], expectNonZero: false);
+    ], expectNonZero: true);
   } catch (_) {}
 
   String template =
@@ -53,12 +53,12 @@ class SBProject {
 
 
   static String get versionString =>
-      \\\"
-Version: \\\$PUBSPEC_VERSION
-Commit: \\\$COMMIT
-Branch: \\\$BRANCH
-Production: \\\$isProduction
-\\\";
+      \'\'\'
+Version: \$PUBSPEC_VERSION
+Commit: \$COMMIT
+Branch: \$BRANCH
+Production: \$isProduction
+\'\'\';
 
 
   static bool get isProduction => BRANCH == 'master' && !DIRTY;
@@ -84,7 +84,7 @@ Production: \\\$isProduction
   print(">> /!\\ Saved SBProject to lib/dart/sbproj.dart /!\\");
 }
 
-Future<String> _runGit(List<String> args, {bool expectNonZero = true}) async {
+Future<String> _runGit(List<String> args, {bool expectNonZero = false}) async {
   var res = await Process.run("git", args);
   if ((expectNonZero && res.exitCode == 0) ||
       (!expectNonZero && res.exitCode != 0)) {

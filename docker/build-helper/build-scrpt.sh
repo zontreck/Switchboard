@@ -8,6 +8,8 @@ flutter clean
 flutter doctor
 flutter doctor --android-licenses
 
+dart run cli/generate_build_inf.dart
+
 flutter build web
 cd build/web
 tar -cvf ../../outputs/web.tgz .
