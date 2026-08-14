@@ -7,3 +7,6 @@ call dart fix --apply
 
 git add --all .
 git commit -m "[dart] autofixes"
+
+
+color
