@@ -26,6 +26,9 @@ pipeline {
         }
 
         stage ("Build Docker") {
+            when {
+                branch "develop" // The switchboard bot will always be built from the develop branch. This is to ensure that the bot can communicate with both databases. 
+            }
             agent {
                 label "dockermain"
             }
