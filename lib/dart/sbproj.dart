@@ -19,10 +19,10 @@ class SBProject {
 
   static String get versionString =>
       '''
-Version: ${PUBSPEC_VERSION}
-Commit: ${COMMIT}
-Branch: ${BRANCH}
-Production: ${isProduction}
+Version: $PUBSPEC_VERSION
+Commit: $COMMIT
+Branch: $BRANCH
+Production: $isProduction
 ''';
 
   static bool get isProduction => BRANCH == 'master' && !DIRTY;
