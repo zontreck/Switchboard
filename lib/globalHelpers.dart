@@ -796,27 +796,22 @@ Future<String> getChosenServerURL() async {
       prefs.getString("apiserver") ??
       (SBProject.isProduction ? getMainServerURL() : getTestServerURL());
 
-  _serverURL = url;
+  NetworkInterface.apiServerURL = url;
   return url;
 }
-
-String _serverURL =
-    "https://api.systemswitchboard.com"; // This will be automatically updated after the first instance of 'getChosenServerURL' is executed.
 
 Future<void> setServerURL(String url) async {
   SharedPreferences prefs = await SharedPreferences.getInstance();
   await prefs.setString("apiserver", url);
-
-  NetworkCaches.invalidate();
+  NetworkInterface.apiServerURL = url; // This invalidates caches.
 }
 
 Future<void> resetServerURL() async {
   SharedPreferences prefs = await SharedPreferences.getInstance();
   await prefs.remove("apiserver");
-
-  NetworkCaches.invalidate();
+  NetworkInterface.apiServerURL = getMainServerURL();
 }
 
 String getServerURL() {
-  return _serverURL;
+  return NetworkInterface.apiServerURL;
 }

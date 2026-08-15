@@ -10,6 +10,9 @@
   - [ ] Ability to store discord user preferences to the SB Account. For instance, proxy mode, etc.
 - [x] A way for the code to detect origin source code branch
   - The repository now contains a code generator, which will fill out the template file seen in `lib/dart/sbproj.dart`. That file will be regenerated every build. The app will check against `SBProject.BRANCH` to know your current branch. This will inform it what URL to use! Additionally, the `SBProject.isProduction` flag will inform the app's Onboarding process whether your current and past environments have changed. If they have, it will ask you if you would like to switch to a different database.
+- [x] A developer settings menu
+- [x] A way to change the active server URL
+  - This now enables self-hosting.
 
 ## CHANGE:
 
