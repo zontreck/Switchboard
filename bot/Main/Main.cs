@@ -33,8 +33,11 @@ class Program
 
     print("\n\n");
 
-    var response = await NetworkInterface.GetServerVersion();
+    var response = await NetworkInterface.GetServerVersion(GlobalConsts.OfficialServer);
     print($"Server version: {response.data.product}/{response.data.version}");
+    var testResponse = await NetworkInterface.GetServerVersion(GlobalConsts.OfficialTestServer);
+    print($"Test server version: {response.data.product}/{response.data.version}");
+
     print($"Switchboard Discord Bot Version: {GlobalConsts.Version}");
 
     // Two args need parsing: token, botpsk
@@ -43,6 +46,7 @@ class Program
     ArgumentBuilder bldr = new ArgumentBuilder();
     bldr.withStringArgument("token", required: true, value: "Discord Token");
     bldr.withStringArgument("botpsk", required: true, value: "Required PSK");
+    bldr.withBooleanArgument("docker", required: false, value: false);
     bldr.withBooleanArgument("help", required: false, value: false);
 
     Arguments defaults = bldr.Build();
@@ -51,14 +55,20 @@ class Program
     Arguments user = ArgumentParser.Parse(args);
     if (user.HasArg("help") || !user.HasArg("token") || !user.HasArg("botpsk"))
     {
-      print(ArgumentHelpers.GenerateHelpMessage(new List<IArgument>(defaults.GetAllArguments()), "switchboard --token [] --botpsk []"));
+      print(ArgumentHelpers.GenerateHelpMessage(new List<IArgument>(defaults.GetAllArguments()), "switchboard --token [] --botpsk [] (OPTIONAL PARAMETERS)"));
       return 1;
     }
-    MemoryState ms = new MemoryState();
+    MemoryState ms = MemoryState.Instance;
     ms.DiscordToken = user.GetArgument("token").GetValue() as string;
     ms.PSK = user.GetArgument("botpsk").GetValue() as string;
+    if (user.HasArg("docker")) ms.DockerEnv = true;
 
     print("Loaded provided values...");
+    print($"Data Directory: {DataStore.GetDataPath()}");
+    if (ms.DockerEnv)
+    {
+      print(">> Running under docker");
+    }
 
     GatewayClient client = new(new BotToken(ms.DiscordToken), new GatewayClientConfiguration()
     {
