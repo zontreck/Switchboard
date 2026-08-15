@@ -4,7 +4,7 @@
 ///
 /// What you see is a template file to allow for the app to correctly build, even without generating this file.
 class SBProject {
-  static const String BRANCH = "<GIT_BRANCH>";
+  static const String BRANCH = "develop";
   static const String COMMIT_SHORT = "<GIT_COMMIT_SHORT>";
   static const String COMMIT = "<GIT_COMMIT>";
   static const String PUBSPEC_VERSION = "<PUBSPEC_VERSION>";

@@ -3,7 +3,6 @@ import 'package:glow_container/glow_container.dart';
 import 'package:libac_dart/utils/TimeUtils.dart';
 import 'package:switchboard/dart/MemoryState.dart';
 import 'package:switchboard/dart/globalHelpers.dart';
-import 'package:switchboard/dart/privacyPolicy.dart';
 import 'package:switchboard/globalHelpers.dart';
 import 'package:switchboard/pages/elements.dart';
 
@@ -332,7 +331,7 @@ class _presets extends State<GlowPresets> {
                   alterID: UUID_ZERO,
                   onTap: () {},
                   alterName: "Sample Alter",
-                  url: "${getAPIServerURL()}/avatar/null",
+                  url: "${getServerURL()}/avatar/null",
                   withFronterElement: false,
                   frontID: UUID_ZERO,
                   frontStartTime: TimeUtils.getUnixTimestamp(),

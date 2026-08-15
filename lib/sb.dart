@@ -54,8 +54,9 @@ class _switchboard extends State<Switchboard> {
           initialRoute: "/onboarding/0",
           routes: {
             "/onboarding/0": (ctx) => FirstRunPage(),
-            "/onboarding/1": (ctx) => OnboardingTermsOfServicePage(),
-            "/onboarding/2": (ctx) => OnboardingPrivacyPolicyPage(),
+            "/onboarding/1": (ctx) => OnboardingServerSelection(),
+            "/onboarding/2": (ctx) => OnboardingTermsOfServicePage(),
+            "/onboarding/3": (ctx) => OnboardingPrivacyPolicyPage(),
             "/login": (ctx) => SBLoginPage(),
             "/about": (ctx) => SBAboutPage(),
             "/register": (ctx) => SBRegisterPage(),

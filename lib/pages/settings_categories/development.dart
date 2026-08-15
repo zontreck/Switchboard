@@ -3,8 +3,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_phoenix/flutter_phoenix.dart';
 import 'package:libacflutter/Constants.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:switchboard/dart/api.dart';
 import 'package:switchboard/dart/sbproj.dart';
 import 'package:switchboard/dart/storage.dart';
+import 'package:switchboard/globalHelpers.dart';
 
 class DevelopmentSettings extends StatefulWidget {
   @override
@@ -14,6 +16,8 @@ class DevelopmentSettings extends StatefulWidget {
 }
 
 class _devSettings extends State<DevelopmentSettings> {
+  TextEditingController customServerURL = TextEditingController();
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -91,6 +95,26 @@ class _devSettings extends State<DevelopmentSettings> {
                           );
                         },
                       ),
+                      SizedBox(height: 20),
+                      ListTile(
+                        title: Text("Go back to Onboarding"),
+                        subtitle: Text(
+                          "Clear flags and go back to the onboarding screens. Does not log you out or invalidate any data except network caches.",
+                        ),
+                        tileColor: LibACFlutterConstants.TITLEBAR_COLOR,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadiusGeometry.circular(8),
+                        ),
+                        leading: Icon(Icons.restore),
+                        onTap: () async {
+                          await updateOnboardingPhase(0);
+                          NetworkCaches.invalidate();
+
+                          setState(() {});
+
+                          Phoenix.rebirth(context);
+                        },
+                      ),
                     ],
                   ),
                 ),
@@ -102,57 +126,112 @@ class _devSettings extends State<DevelopmentSettings> {
                   style: TextStyle(fontSize: 20),
                 ),
               ),
-              Card(
-                elevation: 8,
-                child: Padding(
-                  padding: EdgeInsetsGeometry.all(8),
-                  child: Column(
-                    children: [
-                      ListTile(
-                        title: Text("Production"),
-                        subtitle: Text("${SBProject.isProduction}"),
-                      ),
-                      ListTile(
-                        title: Text("Can use test database?"),
-                        subtitle: Text("${(SBProject.BRANCH == 'develop')}"),
-                      ),
-                      ListTile(
-                        title: Text("Code Branch"),
-                        subtitle: Text("${SBProject.BRANCH}"),
-                      ),
-                      Divider(),
-                      Text(
-                        "NOTE: If the above text indicates you are *NOT* running a version of the app eligible to use the test database, you are limited to only using the Official server, or a self-hosted one.",
-                      ),
-                      Divider(),
-                      Center(
-                        child: Text(
-                          "Official Server",
-                          style: TextStyle(fontSize: 20),
+              FutureBuilder(
+                future: getChosenServerURL(),
+                builder: (context, snapshot) {
+                  if (!snapshot.hasData) {
+                    return CircularProgressIndicator();
+                  } else {
+                    String url = snapshot.data ?? getMainServerURL();
+                    customServerURL.text = url;
+
+                    return Card(
+                      elevation: 8,
+                      child: Padding(
+                        padding: EdgeInsetsGeometry.all(8),
+                        child: Column(
+                          children: [
+                            ListTile(
+                              title: Text("Production"),
+                              subtitle: Text("${SBProject.isProduction}"),
+                            ),
+                            ListTile(
+                              title: Text("Can use test database?"),
+                              subtitle: Text(
+                                "${(SBProject.BRANCH == 'develop')}",
+                              ),
+                            ),
+                            ListTile(
+                              title: Text("Code Branch"),
+                              subtitle: Text("${SBProject.BRANCH}"),
+                            ),
+                            Divider(),
+                            Text(
+                              "NOTE: If the above text indicates you are *NOT* running a version of the app eligible to use the test database, you are limited to only using the Official server, or a self-hosted one.",
+                            ),
+                            Divider(),
+                            Center(
+                              child: Text(
+                                "Official Server",
+                                style: TextStyle(fontSize: 20),
+                              ),
+                            ),
+                            CheckboxListTile(
+                              value: url == getMainServerURL(),
+                              onChanged: (B) async {
+                                await setServerURL(getMainServerURL());
+
+                                setState(() {});
+                              },
+                              title: Text("Production Server"),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadiusGeometry.circular(8),
+                              ),
+                              subtitle: Text(
+                                "The main database, runs off the stable codebase, and is never reset.",
+                              ),
+                            ),
+                            SizedBox(height: 25),
+                            CheckboxListTile(
+                              value: url == getTestServerURL(),
+                              enabled: SBProject.BRANCH != 'master',
+                              onChanged: (B) async {
+                                await setServerURL(getTestServerURL());
+                                setState(() {});
+                              },
+                              title: Text("Test Server"),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadiusGeometry.circular(8),
+                              ),
+                              subtitle: Text(
+                                "Testing Server that runs off of unstable code. This database will mirror the production database. It resets testing changes every 2 hours.",
+                              ),
+                            ),
+                            SizedBox(height: 25),
+                            CheckboxListTile(
+                              value:
+                                  url != getMainServerURL() &&
+                                  url != getTestServerURL(),
+                              onChanged: (B) async {},
+                              title: Text("Custom Server URL"),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadiusGeometry.circular(8),
+                              ),
+                            ),
+                            SizedBox(height: 25),
+                            TextField(
+                              controller: customServerURL,
+                              onTapOutside: (event) async {
+                                await setServerURL(customServerURL.text);
+                                FocusManager.instance.primaryFocus?.unfocus();
+
+                                setState(() {});
+                              },
+                              decoration: InputDecoration(
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(16),
+                                ),
+                              ),
+                            ),
+                            SizedBox(height: 25),
+                          ],
                         ),
                       ),
-                      CheckboxListTile(
-                        value: false,
-                        onChanged: (B) async {},
-                        title: Text("Production Server"),
-                        subtitle: Text(
-                          "The main database, runs off the stable codebase, and is never reset.",
-                        ),
-                      ),
-                      SizedBox(height: 25),
-                      CheckboxListTile(
-                        value: false,
-                        enabled: SBProject.BRANCH == 'develop',
-                        onChanged: (B) async {},
-                        title: Text("Test Server"),
-                        subtitle: Text(
-                          "Testing Server that runs off of unstable code. This database will mirror the production database. It resets testing changes every 2 hours.",
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
+                    );
+                  }
+                },
               ),
+              SizedBox(height: 100),
             ],
           ),
         ),

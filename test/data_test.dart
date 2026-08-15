@@ -3,7 +3,7 @@ import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:libac_dart/utils/uuid/UUID.dart';
-import 'package:switchboard/dart/octocon_format.dart';
+import 'package:switchboard/dart/codecs/octocon_format.dart';
 import 'package:switchboard/globalHelpers.dart';
 
 void main() {

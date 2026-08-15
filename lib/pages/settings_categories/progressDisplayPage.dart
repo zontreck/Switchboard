@@ -5,8 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:libacflutter/utils/colorHelpers.dart';
 import 'package:liquid_glass_widgets/widgets/feedback/glass_progress_indicator.dart';
 import 'package:switchboard/dart/globalHelpers.dart';
-import 'package:switchboard/dart/octocon_format.dart';
-import 'package:switchboard/dart/privacyPolicy.dart';
+import 'package:switchboard/dart/codecs/octocon_format.dart';
 import 'package:switchboard/dart/storage.dart';
 import 'package:switchboard/globalHelpers.dart';
 import 'package:switchboard/pages/editAlter.dart';
@@ -310,7 +309,7 @@ class _mav extends State<MigrateAltersView> {
               Image.network(
                 _mem.args.data.alters[_mem.cur].avatarURL.isNotEmpty
                     ? _mem.args.data.alters[_mem.cur].avatarURL
-                    : "${getAPIServerURL()}/avatar/null",
+                    : "${getServerURL()}/avatar/null",
                 width: 175,
                 height: 175,
               ),
@@ -789,7 +788,7 @@ class _mfdv extends State<MigrateFieldDataView> {
               Image.network(
                 _mem.args.data.alters[_mem.cur].avatarURL.isNotEmpty
                     ? _mem.args.data.alters[_mem.cur].avatarURL
-                    : "${getAPIServerURL()}/avatar/null",
+                    : "${getServerURL()}/avatar/null",
                 width: 175,
                 height: 175,
               ),

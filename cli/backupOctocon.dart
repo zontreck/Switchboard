@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:dio/dio.dart';
-import 'package:switchboard/dart/octocon_format.dart';
+import 'package:switchboard/dart/codecs/octocon_format.dart';
 
 Future<int> main(List<String> args) async {
   // We need to load the file in the args, and save both it, and the Octocon backup file.

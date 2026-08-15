@@ -15,7 +15,10 @@ import 'package:package_info_plus/package_info_plus.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:switchboard/dart/MemoryState.dart';
+import 'package:switchboard/dart/api.dart';
 import 'package:switchboard/dart/globalHelpers.dart';
+import 'package:switchboard/dart/sbproj.dart';
+import 'package:switchboard/dart/storage.dart';
 import 'package:switchboard/sb.dart';
 
 final ValueNotifier<String> customFontNotifier = ValueNotifier(
@@ -785,4 +788,35 @@ void pageChanged() {
   }
 
   setAppSettings();
+}
+
+Future<String> getChosenServerURL() async {
+  SharedPreferences prefs = await SharedPreferences.getInstance();
+  String url =
+      prefs.getString("apiserver") ??
+      (SBProject.isProduction ? getMainServerURL() : getTestServerURL());
+
+  _serverURL = url;
+  return url;
+}
+
+String _serverURL =
+    "https://api.systemswitchboard.com"; // This will be automatically updated after the first instance of 'getChosenServerURL' is executed.
+
+Future<void> setServerURL(String url) async {
+  SharedPreferences prefs = await SharedPreferences.getInstance();
+  await prefs.setString("apiserver", url);
+
+  NetworkCaches.invalidate();
+}
+
+Future<void> resetServerURL() async {
+  SharedPreferences prefs = await SharedPreferences.getInstance();
+  await prefs.remove("apiserver");
+
+  NetworkCaches.invalidate();
+}
+
+String getServerURL() {
+  return _serverURL;
 }

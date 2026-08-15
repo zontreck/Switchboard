@@ -5,7 +5,6 @@ import 'package:libac_dart/utils/TimeUtils.dart';
 import 'package:libacflutter/utils/colorHelpers.dart';
 import 'package:switchboard/dart/MemoryState.dart';
 import 'package:switchboard/dart/globalHelpers.dart';
-import 'package:switchboard/dart/privacyPolicy.dart';
 import 'package:switchboard/globalHelpers.dart';
 import 'package:switchboard/pages/elements.dart';
 import 'package:switchboard/sb.dart';
@@ -36,7 +35,7 @@ class _glowSettings extends State<GlowSettingsPage> {
                   alterID: UUID_ZERO,
                   onTap: () {},
                   alterName: "Sample Alter",
-                  url: "${getAPIServerURL()}/avatar/null",
+                  url: "${getServerURL()}/avatar/null",
                   withFronterElement: false,
                   frontID: UUID_ZERO,
                   frontEndTime: 0,
