@@ -133,6 +133,13 @@ pipeline {
                     #!/bin/zsh
                     source ~/.zshrc
 
+                    flutter clean
+
+                    rm -rf ~/Library/Developer/Xcode/DerivedData/*
+
+                    flutter pub get
+                    
+
                     flutter doctor
                     dart run cli/generate_build_inf.dart
                     flutter build macos
@@ -170,6 +177,12 @@ pipeline {
                     sh '''
                     #!/bin/zsh
                     source ~/.zshrc
+
+                    flutter clean
+
+                    rm -rf ~/Library/Developer/Xcode/DerivedData/*
+
+                    flutter pub get
 
                     flutter doctor
                     dart run cli/generate_build_inf.dart
