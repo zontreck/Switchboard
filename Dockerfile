@@ -1,10 +1,10 @@
 FROM git.zontreck.com/packages/arch:build as builder
 
-WORKDIR /app
-RUN git clone https://git.zontreck.com/Astara/Switchboard.git
-
 WORKDIR /app/Switchboard
-RUN mkdir outputs
+COPY . .
+
+RUN git clean -xfd && git reset --hard && mkdir outputs
+# This allows any branch to be built
 
 WORKDIR /app/Switchboard/bot
 RUN dotnet build -c Release
