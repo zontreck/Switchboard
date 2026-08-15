@@ -9,6 +9,8 @@ import 'package:switchboard/dart/storage.dart';
 import 'package:switchboard/globalHelpers.dart';
 
 class DevelopmentSettings extends StatefulWidget {
+  const DevelopmentSettings({super.key});
+
   @override
   State<StatefulWidget> createState() {
     return _devSettings();
@@ -69,7 +71,6 @@ class _devSettings extends State<DevelopmentSettings> {
                                 ),
                                 actions: [
                                   CupertinoDialogAction(
-                                    child: Text("Yes"),
                                     isDefaultAction: false,
                                     isDestructiveAction: true,
                                     onPressed: () async {
@@ -81,13 +82,14 @@ class _devSettings extends State<DevelopmentSettings> {
 
                                       Phoenix.rebirth(context);
                                     },
+                                    child: Text("Yes"),
                                   ),
                                   CupertinoDialogAction(
-                                    child: Text("Cancel"),
                                     isDefaultAction: true,
                                     onPressed: () {
                                       Navigator.pop(context);
                                     },
+                                    child: Text("Cancel"),
                                   ),
                                 ],
                               );
@@ -153,7 +155,7 @@ class _devSettings extends State<DevelopmentSettings> {
                             ),
                             ListTile(
                               title: Text("Code Branch"),
-                              subtitle: Text("${SBProject.BRANCH}"),
+                              subtitle: Text(SBProject.BRANCH),
                             ),
                             Divider(),
                             Text(

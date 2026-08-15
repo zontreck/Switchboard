@@ -148,6 +148,8 @@ class _firstRun extends State<FirstRunPage> {
 }
 
 class OnboardingServerSelection extends StatefulWidget {
+  const OnboardingServerSelection({super.key});
+
   @override
   State<StatefulWidget> createState() {
     return _serverPage();
