@@ -22,6 +22,7 @@
 ## REMOVE:
 
 - [x] DSharpPlus is no longer a dependency of the ProxyBot
+- [x] Bot and backend no longer use a PreSharedKey, this is a move that aligns best with accepting custom server urls. Instead, the server's administrator (Level 99 or 100) will need to generate an Access Token that is explicitly set to never expire, and has a scope of 'Administrator'. The access token must be set when you enable the custom server.
 
 # 0.3.7+0809260000
 

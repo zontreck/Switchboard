@@ -48,6 +48,8 @@ public class DataStore
 public class PersistentMemory
 {
     public String GlobalURL = GlobalConsts.OfficialServer;
+    public Dictionary<ulong, string> UserServerPreference = [];
+    public Dictionary<ulong, string> GuildServerPreference = [];
 
 
     public void saveToFile()
@@ -60,7 +62,7 @@ public class PersistentMemory
     public static PersistentMemory loadFromFile()
     {
         string path = Path.Combine(DataStore.GetDataPath(), "persist.json");
-        if(!File.Exists(path))
+        if (!File.Exists(path))
         {
             return new();
         }

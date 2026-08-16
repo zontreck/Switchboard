@@ -23,7 +23,6 @@ WORKDIR /app/data
 VOLUME ["/app/data"]
 
 ENV BOT_TOKEN NotSet
-ENV SB_BOTPSK NotSet
 
 ADD ./entrypoint.sh /bin/entrypoint
 RUN chmod +x /bin/entrypoint

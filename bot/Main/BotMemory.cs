@@ -26,9 +26,9 @@ class MemoryState
     public string DiscordToken;
 
     /// <summary>
-    /// This is used to control the backend. This is an admin code that needs to be set both here, and on the backend php server.
+    /// This is used to control the backend. This is a Access Token created within the app by a user with Administrator permissions. This token must have a scope of 80, and an expiry of Never. This token can be revoked later if it is ever leaked by the server's administrator.
     /// </summary>
-    public string PSK;
+    public string AccessToken;
 
     /// <summary>
     /// Used to indicate where we find the persistent data files

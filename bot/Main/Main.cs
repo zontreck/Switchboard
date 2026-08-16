@@ -41,11 +41,9 @@ class Program
     print($"Switchboard Discord Bot Version: {GlobalConsts.Version}");
 
     // Two args need parsing: token, botpsk
-    // PSK is used for administrative actions. 
     // Token is the Discord bot token.
     ArgumentBuilder bldr = new ArgumentBuilder();
     bldr.withStringArgument("token", required: true, value: "Discord Token");
-    bldr.withStringArgument("botpsk", required: true, value: "Required PSK");
     bldr.withBooleanArgument("docker", required: false, value: false);
     bldr.withBooleanArgument("help", required: false, value: false);
 
@@ -53,14 +51,13 @@ class Program
 
 
     Arguments user = ArgumentParser.Parse(args);
-    if (user.HasArg("help") || !user.HasArg("token") || !user.HasArg("botpsk"))
+    if (user.HasArg("help") || !user.HasArg("token"))
     {
-      print(ArgumentHelpers.GenerateHelpMessage(new List<IArgument>(defaults.GetAllArguments()), "switchboard --token [] --botpsk [] (OPTIONAL PARAMETERS)"));
+      print(ArgumentHelpers.GenerateHelpMessage(new List<IArgument>(defaults.GetAllArguments()), "switchboard --token []  (OPTIONAL PARAMETERS)"));
       return 1;
     }
     MemoryState ms = MemoryState.Instance;
     ms.DiscordToken = user.GetArgument("token").GetValue() as string;
-    ms.PSK = user.GetArgument("botpsk").GetValue() as string;
     if (user.HasArg("docker")) ms.DockerEnv = true;
 
     print("Loaded provided values...");
