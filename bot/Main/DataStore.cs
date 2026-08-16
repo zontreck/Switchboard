@@ -59,7 +59,12 @@ public class PersistentMemory
 
     public static PersistentMemory loadFromFile()
     {
-        string encoded = File.ReadAllText(Path.Combine(DataStore.GetDataPath(), "persist.json"));
+        string path = Path.Combine(DataStore.GetDataPath(), "persist.json");
+        if(!File.Exists(path))
+        {
+            return new();
+        }
+        string encoded = File.ReadAllText(path);
         return JsonConvert.DeserializeObject<PersistentMemory>(encoded) ?? new();
     }
 }
