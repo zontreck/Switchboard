@@ -129,7 +129,7 @@ class NetworkInterface {
       }
       Dio dio = Dio();
       dio.options.contentType = "application/json";
-      var reply = await dio.get("${await apiServerURL}/version");
+      var reply = await dio.get("$apiServerURL/version");
 
       print(reply.data);
       setCache("getServerVersion", reply.data);
@@ -146,7 +146,7 @@ class NetworkInterface {
       Dio dio = Dio();
       dio.options.contentType = "application/json";
       var reply = await dio.put(
-        "${await apiServerURL}/user/$username",
+        "$apiServerURL/user/$username",
         data: {"auth": Hashing.md5Hash(password)},
       );
 
@@ -173,7 +173,7 @@ class NetworkInterface {
       dio.options.headers["X-SB-Auth"] = MemoryState.A.authenticationToken;
 
       var reply = await dio.get(
-        "${await apiServerURL}/user${username.isNotEmpty ? "/$username" : ""}",
+        "$apiServerURL/user${username.isNotEmpty ? "/$username" : ""}",
       );
 
       print(reply.data);
@@ -192,7 +192,7 @@ class NetworkInterface {
       dio.options.headers["Content-Type"] = "application/json";
 
       var reply = await dio.post(
-        "${await apiServerURL}/auth/login",
+        "$apiServerURL/auth/login",
         data: {"username": username, "auth": Hashing.md5Hash(password)},
       );
 
@@ -210,7 +210,7 @@ class NetworkInterface {
       dio.options.headers["Content-Type"] = "application/json";
       dio.options.headers["X-SB-Auth"] = ms.authenticationToken;
 
-      var reply = await dio.get("${await apiServerURL}/auth/check");
+      var reply = await dio.get("$apiServerURL/auth/check");
 
       print(reply.data);
 
@@ -225,7 +225,7 @@ class NetworkInterface {
       dio.options.headers["Content-Type"] = "application/json";
       dio.options.headers["X-SB-Auth"] = ms.authenticationToken;
 
-      var reply = await dio.get("${await apiServerURL}/auth/refresh");
+      var reply = await dio.get("$apiServerURL/auth/refresh");
 
       print(reply.data);
       return S2CAuthenticationRefreshResponse.decode(
@@ -257,7 +257,7 @@ class NetworkInterface {
         dio.options.headers["X-SB-Count"] = "$request";
 
         var reply = await dio.get(
-          "${await apiServerURL}/alters${user == null ? '?skip=$skip&count=$request' : "/${user.toString()}"}?skip=$skip&count=$request",
+          "$apiServerURL/alters${user == null ? '?skip=$skip&count=$request' : "/${user.toString()}"}?skip=$skip&count=$request",
         );
 
         print(reply.data);
@@ -311,7 +311,7 @@ class NetworkInterface {
 
       // Send the creation packet!
       var reply = await dio.put(
-        "${await apiServerURL}/alter/new",
+        "$apiServerURL/alter/new",
         data: {
           "alter": {
             "name": name,
@@ -341,7 +341,7 @@ class NetworkInterface {
       dio.options.headers["Content-Type"] = "application/json";
       dio.options.headers["X-SB-Auth"] = ms.authenticationToken;
 
-      var reply = await dio.get("${await apiServerURL}/alter/${id.toString()}");
+      var reply = await dio.get("$apiServerURL/alter/${id.toString()}");
 
       print(reply.data);
       setCache("getAlter${id.toString()}", reply.data);
@@ -362,7 +362,7 @@ class NetworkInterface {
       dio.options.headers["Content-Type"] = "application/json";
       dio.options.headers["X-SB-Auth"] = ms.authenticationToken;
 
-      var reply = await dio.get("${await apiServerURL}/fields");
+      var reply = await dio.get("$apiServerURL/fields");
       print(reply.data);
       setCache("getDataFields", reply.data);
 
@@ -381,7 +381,7 @@ class NetworkInterface {
       dio.options.headers["X-SB-Auth"] = ms.authenticationToken;
 
       var reply = await dio.post(
-        "${await apiServerURL}/field/${field.id.toString()}",
+        "$apiServerURL/field/${field.id.toString()}",
         data: payload,
       );
 
@@ -408,7 +408,7 @@ class NetworkInterface {
       dio.options.headers["X-SB-Auth"] = ms.authenticationToken;
 
       var reply = await dio.get(
-        "${await apiServerURL}/field/${fieldID.toString()}",
+        "$apiServerURL/field/${fieldID.toString()}",
       );
 
       print(reply.data);
@@ -439,7 +439,7 @@ class NetworkInterface {
         order: 999,
       );
       var reply = await dio.post(
-        "${await apiServerURL}/field/new",
+        "$apiServerURL/field/new",
         data: newField.toJson(),
       );
 
@@ -465,7 +465,7 @@ class NetworkInterface {
       dio.options.headers["X-SB-Auth"] = ms.authenticationToken;
 
       var reply = await dio.delete(
-        "${await apiServerURL}/field/${id.toString()}",
+        "$apiServerURL/field/${id.toString()}",
       );
       NetworkCaches.invalidate();
 
@@ -503,7 +503,7 @@ class NetworkInterface {
       }
 
       var reply = await dio.patch(
-        "${await apiServerURL}/alter/${alter.id.toString()}",
+        "$apiServerURL/alter/${alter.id.toString()}",
         data: reqData,
       );
       NetworkCaches.invalidate();
@@ -526,7 +526,7 @@ class NetworkInterface {
       dio.options.headers["X-SB-Auth"] = ms.authenticationToken;
 
       var reply = await dio.delete(
-        "${await apiServerURL}/avatar/${alter.id.toString()}",
+        "$apiServerURL/avatar/${alter.id.toString()}",
       );
       print(reply.data);
       NetworkCaches.invalidate();
@@ -551,7 +551,7 @@ class NetworkInterface {
       dio.options.headers["X-SB-Auth"] = ms.authenticationToken;
 
       var reply = await dio.post(
-        "${await apiServerURL}/avatar/${alter.id.toString()}",
+        "$apiServerURL/avatar/${alter.id.toString()}",
         data: {"image": base64EncodedImage},
       );
 
@@ -606,7 +606,7 @@ class NetworkInterface {
       dio.options.headers["Content-Type"] = "application/json";
       dio.options.headers["X-SB-Auth"] = ms.authenticationToken;
 
-      var reply = await dio.get("${await apiServerURL}/wipe");
+      var reply = await dio.get("$apiServerURL/wipe");
       NetworkCaches.invalidate();
 
       return S2CLazyResponse.decode(typeCorrectJson(reply.data));
@@ -631,7 +631,7 @@ class NetworkInterface {
       dio.options.headers["X-SB-Auth"] = ms.authenticationToken;
 
       var reply = await dio.get(
-        "${await apiServerURL}/fronting?history=$history",
+        "$apiServerURL/fronting?history=$history",
       );
       setCache("getFronters${history ? "history" : "active"}", reply.data);
       print(reply.data);
@@ -652,7 +652,7 @@ class NetworkInterface {
       dio.options.headers["X-SB-Auth"] = ms.authenticationToken;
 
       var reply = await dio.post(
-        "${await apiServerURL}/fronting",
+        "$apiServerURL/fronting",
         data: {"alter": alterID.toString()},
       );
       NetworkCaches.invalidate();
@@ -673,7 +673,7 @@ class NetworkInterface {
       dio.options.headers["X-SB-Auth"] = ms.authenticationToken;
 
       var reply = await dio.put(
-        "${await apiServerURL}/fronting",
+        "$apiServerURL/fronting",
         data: front.toJson(),
       );
       NetworkCaches.invalidate();
@@ -695,7 +695,7 @@ class NetworkInterface {
       dio.options.headers["X-SB-Auth"] = ms.authenticationToken;
 
       var reply = await dio.delete(
-        "${await apiServerURL}/fronting",
+        "$apiServerURL/fronting",
         data: {"id": front.toString()},
       );
       NetworkCaches.invalidate();
@@ -716,7 +716,7 @@ class NetworkInterface {
       dio.options.headers["X-SB-Auth"] = ms.authenticationToken;
 
       var reply = await dio.patch(
-        "${await apiServerURL}/fronting",
+        "$apiServerURL/fronting",
         data: {"id": alter.toString()},
       );
       NetworkCaches.invalidate();
@@ -737,7 +737,7 @@ class NetworkInterface {
       dio.options.headers["Content-Type"] = "application/json";
       dio.options.headers["X-SB-Auth"] = ms.authenticationToken;
 
-      var reply = await dio.delete("${await apiServerURL}/alter/$alter");
+      var reply = await dio.delete("$apiServerURL/alter/$alter");
 
       NetworkCaches.invalidate();
       print(reply.data);
@@ -766,7 +766,7 @@ class NetworkInterface {
       dio.options.headers["X-SB-Auth"] = ms.authenticationToken;
 
       var reply = await dio.patch(
-        "${await apiServerURL}/folders",
+        "$apiServerURL/folders",
         data: {
           "id": id,
           "name": name,
@@ -798,7 +798,7 @@ class NetworkInterface {
       dio.options.headers["X-SB-Auth"] = ms.authenticationToken;
 
       var reply = await dio.delete(
-        "${await apiServerURL}/folders",
+        "$apiServerURL/folders",
         data: {"id": id, "folder": isFolder ? 1 : 0},
       );
       print(reply.data);
@@ -821,7 +821,7 @@ class NetworkInterface {
       dio.options.headers["X-SB-Auth"] = ms.authenticationToken;
 
       var reply = await dio.post(
-        "${await apiServerURL}/folders",
+        "$apiServerURL/folders",
         data: {"name": name},
       );
       print(reply.data);
@@ -869,7 +869,7 @@ class NetworkInterface {
       dio.options.headers["X-SB-Auth"] = ms.authenticationToken;
 
       var reply = await dio.put(
-        "${await apiServerURL}/folders",
+        "$apiServerURL/folders",
         data: {
           "id": id,
           "name": name,
@@ -907,7 +907,7 @@ class NetworkInterface {
       var q = {"id": id, "root": rootOnly ? 1 : 0};
       var qStr = base64Encoder.base64Enc(json.encode(q));
 
-      var reply = await dio.get("${await apiServerURL}/folders?q=$qStr");
+      var reply = await dio.get("$apiServerURL/folders?q=$qStr");
       print(reply.data);
 
       setCache("getFolderOrItem${rootOnly ? "root" : id}", reply.data);
@@ -926,7 +926,7 @@ class NetworkInterface {
       dio.options.headers["X-SB-Auth"] = MemoryState.A.authenticationToken;
 
       var reply = await dio.post(
-        "${await apiServerURL}/auth/password",
+        "$apiServerURL/auth/password",
         data: {"auth": MD5Hash},
       );
 
