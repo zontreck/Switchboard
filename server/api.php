@@ -2,7 +2,7 @@
 
 $DEBUG = false;
 
-$VERSION = "0.4.0+0810262209";
+$VERSION = "0.4.0+0816261431";
 
 $DEFAULT_USER_FIELDS = array(
                             array(
@@ -114,22 +114,6 @@ function get_Authorization()
     }
     
     return "XX";
-}
-
-function get_SuperAdmin() {
-    $headers = apache_request_headers();
-    foreach ($headers as $header => $value) {
-        if(strtolower($header) == "x-sb-token") {
-            return $value;
-        }
-    }
-
-    return "XX";
-}
-
-function is_Admin() {
-    global $BOTTOKEN;
-    return get_SuperAdmin() == $BOTTOKEN;
 }
 
 function get_DB($dbname)
@@ -294,50 +278,6 @@ logAudit($ID, $request, $route, $db0);
 
 $db0->close();
 
-function processBotImpersonate() {
-    global $request, $route, $ID;
-    if(!is_Admin()) {
-        return new Impersonate(false, new SATReply(false, 0,0,"",""), "");
-    }
-
-    $headers = apache_request_headers();
-    $dnName = "Discord";
-    foreach ($headers as $header => $value) {
-        if(strtolower($header) == "x-sb-discord") { // Set to Linked Discord Name. Linking accounts will be required for this.
-            $dnName = $value;
-        }
-    }
-
-    $DB = get_DB("switchboard");
-
-    $stmt = $DB->prepare("SELECT * FROM `Discord` WHERE `Username`=?;");
-    $stmt->bind_param("s", $dnName);
-    $stmt->execute();
-    $res = $stmt->get_result();
-    if($res->num_rows == 0) {
-        // This user has not yet linked a discord account.
-        return new Impersonate(false, new SATReply(false, 0, 0, "", ""), "");
-    } else {
-        $row = $res->fetch_assoc();
-
-        // We want to now replace the SBReply with a new instance. One pointing to the user we intend on acting on behalf of.
-        return new Impersonate(true, new SATReply(true, 0, 0, "", ""), $row['UserID']);
-    }
-    
-}
-class Impersonate {
-    public bool $imp = false;
-    public ?SATReply $impUser = null;
-    public string $uid;
-
-    public function __construct($impersonate, $user, $id) {
-        $this->imp=$impersonate;
-        $this->impUser=$user;
-        $this->uid=$id;
-    }
-}
-
-processBotImpersonate();
 
 
 switch($route) {

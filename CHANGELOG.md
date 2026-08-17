@@ -18,6 +18,7 @@
 
 - [x] Changed Discord Bot Library from DSharpPlus to NetCord
 - [x] Prior to build 0810262004, the bot used `Microsoft.Extensions.Hosting`, and the `Hosting` packages of NetCord. These have been removed due to a lack of documentation clearly describing details like, how to set the bot token, or how to set the Bot's Activity Presence, which we use to display the version.
+- [x] API Server now uses Composer to make things a lot simpler, but also far more professional.
 
 ## REMOVE:
 
