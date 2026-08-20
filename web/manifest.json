@@ -5,7 +5,7 @@
     "display": "standalone",
     "background_color": "#13121f",
     "theme_color": "#4e4695",
-    "description": "A app for DID, OSDD, plurals, and roleplay",
+    "description": "An app for DID, OSDD, plurals, and for roleplay",
     "orientation": "portrait-primary",
     "prefer_related_applications": false,
     "icons": [

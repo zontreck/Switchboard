@@ -6,7 +6,7 @@ plugins {
 
 android {
     namespace = "com.zontreck.switchboard"
-    compileSdk = 37
+    compileSdk = flutter.compileSdkVersion
     ndkVersion = flutter.ndkVersion
 
     compileOptions {
@@ -28,7 +28,7 @@ android {
         versionCode = flutter.versionCode
         versionName = flutter.versionName
     }
-
+    
     signingConfigs {
         create("release") {
             val storeFilePath = System.getenv("KEYSTORE_FILE")
