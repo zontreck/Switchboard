@@ -47,6 +47,9 @@ class SBProject {
   static const String PUBSPEC_VERSION = '${_escapeSingleQuotes(pubspecVersion)}';
   static const String BUILD_TIMESTAMP = '${_escapeSingleQuotes(buildTimestamp)}';
 
+  /// Indicates whether the project is being run from a development/modified codebase.
+  ///
+  /// This is so we can display a warning/disclaimer to the user that the app was built from modified code, and may not be an official build.
   static const bool DIRTY = $dirty;
 
   static const String TAG = '${_escapeSingleQuotes(gitTag)}';

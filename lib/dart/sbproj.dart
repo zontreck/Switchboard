@@ -1,15 +1,18 @@
 /// AUTO-GENERATED FILE - DO NOT EDIT MANUALLY
-/// Generated on 2026-09-09T13:51:36.126609
+/// Generated on 2026-09-09T13:59:29.342357
 /// To regenerate, build and run 'cli/generate_build_inf.dart'
 
 class SBProject {
   static const String BRANCH = 'develop';
-  static const String COMMIT_SHORT = 'e8cae29';
-  static const String COMMIT = 'e8cae290e0c85ada40363b3172abc36e6d4bb7d5';
-  static const String PUBSPEC_VERSION = '0.4.0+0909260017';
-  static const String BUILD_TIMESTAMP = '2026-09-09T13:51:36.126609';
+  static const String COMMIT_SHORT = '61db767';
+  static const String COMMIT = '61db76713966bdf400434d47a894d8346aca69d1';
+  static const String PUBSPEC_VERSION = '0.4.0+0909261357';
+  static const String BUILD_TIMESTAMP = '2026-09-09T13:59:29.342357';
 
-  static const bool DIRTY = false;
+  /// Indicates whether the project is being run from a development/modified codebase.
+  ///
+  /// This is so we can display a warning/disclaimer to the user that the app was built from modified code, and may not be an official build.
+  static const bool DIRTY = true;
 
   static const String TAG = 'untagged';
 
