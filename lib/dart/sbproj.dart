@@ -1,21 +1,18 @@
-/// This file is auto-generated at build time.
-///
-/// DO NOT EDIT MANUALLY!
-///
-/// What you see is a template file to allow for the app to correctly build, even without generating this file.
-class SBProject {
-  static const String BRANCH = "<GIT_BRANCH>";
-  static const String COMMIT_SHORT = "<GIT_COMMIT_SHORT>";
-  static const String COMMIT = "<GIT_COMMIT>";
-  static const String PUBSPEC_VERSION = "<PUBSPEC_VERSION>";
-  static const String BUILD_TIMESTAMP = "<BUILD_TIMESTAMP>";
+/// AUTO-GENERATED FILE - DO NOT EDIT MANUALLY
+/// Generated on 2026-09-09T13:51:36.126609
+/// To regenerate, build and run 'cli/generate_build_inf.dart'
 
-  /// Indicates whether the project is being run from a development/modified codebase.
-  ///
-  /// This is so we can display a warning/disclaimer to the user that the app was built from modified code, and may not be an official build.
+class SBProject {
+  static const String BRANCH = 'develop';
+  static const String COMMIT_SHORT = 'e8cae29';
+  static const String COMMIT = 'e8cae290e0c85ada40363b3172abc36e6d4bb7d5';
+  static const String PUBSPEC_VERSION = '0.4.0+0909260017';
+  static const String BUILD_TIMESTAMP = '2026-09-09T13:51:36.126609';
+
   static const bool DIRTY = false;
 
-  static const String TAG = "<GIT_TAG>";
+  static const String TAG = 'untagged';
+
 
   static String get versionString =>
       '''
@@ -24,6 +21,7 @@ Commit: $COMMIT
 Branch: $BRANCH
 Production: $isProduction
 ''';
+
 
   static bool get isProduction => BRANCH == 'master' && !DIRTY;
 

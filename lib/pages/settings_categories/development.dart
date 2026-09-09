@@ -157,6 +157,10 @@ class _devSettings extends State<DevelopmentSettings> {
                               title: Text("Code Branch"),
                               subtitle: Text(SBProject.BRANCH),
                             ),
+                            ListTile(
+                              title: Text("Commit ID"),
+                              subtitle: Text(SBProject.COMMIT_SHORT),
+                            ),
                             Divider(),
                             Text(
                               "NOTE: If the above text indicates you are *NOT* running a version of the app eligible to use the test database, you are limited to only using the Official server, or a self-hosted one.",
