@@ -95,6 +95,9 @@ class _settings extends State<SettingsPage> {
                         ),
                         trailing: Icon(Icons.forward),
                         leading: Icon(Icons.settings),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadiusGeometry.circular(8),
+                        ),
                         onTap: () async {
                           pageChanged();
                           await Navigator.pushNamed(
@@ -126,6 +129,9 @@ class _settings extends State<SettingsPage> {
                         subtitle: Text("Configure the app appearance settings"),
                         leading: Icon(Icons.settings),
                         trailing: Icon(Icons.forward),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadiusGeometry.circular(8),
+                        ),
                         onTap: () async {
                           pageChanged();
                           await Navigator.pushNamed(
