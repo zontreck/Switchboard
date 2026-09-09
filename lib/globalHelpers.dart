@@ -131,7 +131,7 @@ class Capabilities {
   static bool get macOS => Platform.isMacOS;
 
   /// Controls whether the file selector in the picture browser will use the full access browser, or the media only browser.
-  static bool get requiresMedia => isApple && iOS;
+  static bool get requiresMedia => iOS;
 
   /// Wrapper for Platform.isAndroid
   static bool get android => Platform.isAndroid;
@@ -139,7 +139,7 @@ class Capabilities {
   /// Checks if the platform is mobile. If it is, then permissions must be used for actions.
   ///
   /// NOTE: MacOS now uses access permissions, which means we must classify it as a Mobile Device for the purposes of our internal checks. It will still allow full disk access though per the [Capabilities.requiresMedia] flag.
-  static bool get isMobile => iOS || android || macOS;
+  static bool get isMobile => iOS || android;
 
   /// This changes even more behaviors, since web requires the file picker to react differently. This will tell us if we need to respond slightly different due to the dartJS library differences.
   static bool get isWeb => kIsWeb;

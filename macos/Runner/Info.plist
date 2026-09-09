@@ -22,10 +22,18 @@
 	<string>$(FLUTTER_BUILD_NUMBER)</string>
 	<key>LSMinimumSystemVersion</key>
 	<string>$(MACOSX_DEPLOYMENT_TARGET)</string>
+	<key>NSDesktopFolderUsageDescription</key>
+	<string>Access files</string>
+	<key>NSDocumentsFolderUsageDescription</key>
+	<string>Access files</string>
+	<key>NSDownloadsFolderUsageDescription</key>
+	<string>Access files</string>
 	<key>NSHumanReadableCopyright</key>
 	<string>$(PRODUCT_COPYRIGHT)</string>
 	<key>NSMainNibFile</key>
 	<string>MainMenu</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Alter images</string>
 	<key>NSPrincipalClass</key>
 	<string>NSApplication</string>
 </dict>
