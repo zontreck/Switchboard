@@ -35,13 +35,15 @@ class FileLoader {
       }
     }
 
-    PlatformFile? result = await FilePicker.pickFile(
+    FilePickerResult? result = await FilePicker.pickFiles(
+      allowMultiple: false,
       allowedExtensions: exts,
       type: selType,
+      withData: true,
     );
 
     if (result == null) return null;
 
-    return await result.readAsBytes();
+    return result.files.first.bytes;
   }
 }
