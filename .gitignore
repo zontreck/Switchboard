@@ -149,3 +149,5 @@ __pycache__
 *.pyc
 
 .vscode
+
+lib/sbproj.dart
