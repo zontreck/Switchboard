@@ -36,10 +36,10 @@ dependencies:
   cupertino_icons: ^1.0.8
   libac_dart:
     hosted: https://git.zontreck.com/api/packages/Packages/pub/
-    version: ^1.5.0+0516261654
+    version: 1.5.1+0909261609
   libacflutter:
     hosted: https://git.zontreck.com/api/packages/Packages/pub/
-    version: ^1.5.0+0516261711
+    version: 1.5.0+0909261612
   dio: ^5.9.2
   mysql_client: ^0.0.27
   http: ^1.6.0
