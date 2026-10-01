@@ -89,7 +89,7 @@ pipeline {
                 }
             }
         }
-
+/*
         stage ("Build Windows") {
             agent {
                 label "windows"
@@ -121,6 +121,7 @@ pipeline {
                 }
             }
         }
+        */
 
         stage("Build MacOS") {
             agent {
