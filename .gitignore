@@ -151,3 +151,7 @@ __pycache__
 .vscode
 
 sbproj.dart
+
+# Prevent someone from committing any sort of AI files when contributing.
+AGENTS.md
+plan/
