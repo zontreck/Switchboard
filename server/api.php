@@ -167,14 +167,9 @@ switch($route) {
             case "PUT": {
                 if($username) {
                     // Check for an existing user.
-                    $stmt = $DB->prepare("SELECT * FROM users WHERE UserName=?;");
-                    $stmt->bind_param("s", $username);
-                    $stmt->execute();
-                    $R = $stmt->get_result();
-                    
-                    if($R->num_rows != 0) {
+                    if(userNameExists($username)) {
                         $success=false;
-                        $reason = "User exists";
+                        $replyPayload->Reason = "User Exists";
                         break;
                     }
                     // Update user info

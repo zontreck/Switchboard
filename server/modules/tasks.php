@@ -60,4 +60,30 @@ function getUsernameFromID($DB, $userID) {
     return $username;
 }
 
+function userIDExists($DB, $ID) {
+    $stmt = $DB->prepare("SELECT * FROM `users` WHERE `ID`=?;");
+    $stmt->bind_param("s", $ID);
+    $stmt->execute();
+
+    $res = $stmt->get_result();
+    if($res->num_rows > 0) {
+        return TRUE;
+    } else {
+        return FALSE;
+    }
+}
+
+function userNameExists($DB, $username) {
+    $stmt = $DB->prepare("SELECT * FROM `users` WHERE `UserName`=?;");
+    $stmt->bind_param("s", $username);
+    $stmt->execute();
+
+    $res = $stmt->get_result();
+    if($res->num_rows > 0) {
+        return TRUE;
+    } else {
+        return FALSE;
+    }
+}
+
 ?>
