@@ -2,7 +2,7 @@
 
 $DEBUG = false;
 
-$VERSION = "0.4.0+1028261107";
+$VERSION = "0.4.0+1028261126";
 
 $DEFAULT_USER_FIELDS = array(
                             array(
@@ -157,14 +157,7 @@ switch($route) {
             $SBAuth = ValidateSAT(get_Authorization());
             if($SBAuth->Success) {
                 $userId = $SBAuth->UserID;
-
-                $ustmt = $DB->prepare("SELECT * FROM `users` WHERE `ID` = ?;");
-                $ustmt->bind_param("s", $userId);
-                $ustmt->execute();
-                $res = $ustmt->get_result();
-                $row = $res->fetch_assoc();
-                $username = $row['UserName'];
-                $ustmt->close();
+                $username = getUsernameFromID($DB, $userId);
             }
         }
         $success=false;

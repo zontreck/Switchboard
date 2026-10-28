@@ -47,4 +47,17 @@ function executeCronJobs() {
     );
 }
 
+
+function getUsernameFromID($DB, $userID) {
+    $ustmt = $DB->prepare("SELECT * FROM `users` WHERE `ID` = ?;");
+    $ustmt->bind_param("s", $userID);
+    $ustmt->execute();
+    $res = $ustmt->get_result();
+    $row = $res->fetch_assoc();
+    $username = $row['UserName'];
+    $ustmt->close();
+
+    return $username;
+}
+
 ?>
