@@ -86,4 +86,16 @@ function userNameExists($DB, $username) {
     }
 }
 
+
+function insertNewUser($DB, $username, $salt, $hash, $userID) {
+
+    $stmt = $DB->prepare("INSERT INTO users (UserName, PasswordSalt, PasswordHash, DisplayName, ID) VALUES (?,?,?,?, ?);");
+
+    $stmt->bind_param("sssss", $username, $salt, $hash, $username, $userID);
+    $stmt->execute();
+    $stmt->close();
+
+    $DB->commit();
+}
+
 ?>

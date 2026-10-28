@@ -182,13 +182,8 @@ switch($route) {
                     $Hash = MakePasswordHash($HashedPwd, $Salt);
                     $userid = gen_uuid();
 
-                    $stmt = $DB->prepare("INSERT INTO users (UserName, PasswordSalt, PasswordHash, DisplayName, ID) VALUES (?,?,?,?, ?);");
+                    insertNewUser($DB, $username, $Salt, $Hash, $userid);
 
-                    $stmt->bind_param("sssss", $username, $Salt, $Hash, $username, $userid);
-                    $stmt->execute();
-                    $stmt->close();
-
-                    $DB->commit();
 
                     $success=true;
                     $reason="User created";
