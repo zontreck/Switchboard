@@ -370,9 +370,8 @@ class _presets extends State<GlowPresets> {
                 child: _selectedPreset == index
                     ? GlowContainer(
                         gradientColors: [getNavSelColor()],
-                        animations: MemoryState.A.disableGlowAnimations
-                            ? false
-                            : true,
+                        enableRotationAnimation:
+                            MemoryState.A.disableGlowAnimations ? false : true,
                         child: getCard(index),
                       )
                     : getCard(index),
