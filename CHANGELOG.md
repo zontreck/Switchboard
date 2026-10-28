@@ -23,6 +23,8 @@
 - [x] Fix macos file selector
 - [x] Fixes some list tile shapes to be rounded.
 - [x] Add commit short code to the developer settings screen.
+- [x] Update `glow_containers` package back to the live version after our pull request was merged.
+- [x] Fix the scroll view on the Onboarding Server select screen.
 
 ## REMOVE:
 
