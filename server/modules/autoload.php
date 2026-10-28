@@ -6,6 +6,7 @@ require_once("replies.php");
 require_once("db.php");
 require_once("Migrator.php");
 require_once("audit.php");
+require_once("tasks.php");
 
 // Handlers
 

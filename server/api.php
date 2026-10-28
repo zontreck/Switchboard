@@ -130,47 +130,18 @@ $db0->close();
 
 switch($route) {
     case "/": {
-        die(invalid_endpoint());
+        die(invalid_endpoint($replyPayload));
         break;
     }
 
     case "/cron": {
         // Execute recurring cron tasks, such as checking for expired content in the database and cleaning it up.
-        if(!is_Admin()) {
-            die(json_encode(array(
-                "success" => false,
-                "reason" => "Administrative powers required"
-            )));
-        }
-
-        header("Content-Type: text/plain");
-        echo("System Switchboard Server v/$VERSION (PHP)\n> Cron task script invoked.\n\n");
-
-        echo("> Processing audit log prune...\n");
-        $DB = get_DB("switchboard");
-        // First, figure out the exact time for prune.
-        $now = time();
-        $oneDay = (60*60*24);
-        $yesterday = time()-$oneDay;
-        $pruneStmt = $DB->prepare("DELETE FROM `Audit` WHERE Timestamp < ?;");
-        $pruneStmt->bind_param("i", $yesterday);
-        $pruneStmt->execute();
-        $pruneResult = $pruneStmt->get_result();
-        echo("> Pruned ".$pruneResult->num_rows." entries from audit log\n");
-        $pruneStmt->close();
-        $DB->commit();
-
-        echo("> Processing access token prune...\n");
-        $pruneStmt = $DB->prepare("DELETE FROM `Access` WHERE Expire < ?;");
-        $pruneStmt->bind_param("i", $now);
-        $pruneStmt->execute();
-        $pruneResult = $pruneStmt->get_result();
-        echo("> Pruned ".$pruneResult->num_rows." entries from access token registry.\n");
-        $pruneStmt->close();
-        $DB->commit();
-
-        $DB->close();
-        die("\n\nFinished with all tasks"); // Currently, no task logic exists here.
+        $repData = executeCronJobs();
+        $repData["server"] = $VERSION;
+        $replyPayload->Data = $repData;
+        $replyPayload->Reason = "";
+        
+        die($replyPayload->encode());
         break;
     }
     

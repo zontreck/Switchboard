@@ -9,4 +9,8 @@ function isCommandLineInterface()
     return (php_sapi_name() === 'cli');
 }
 
+function is_Admin() {
+    return isCommandLineInterface();
+}
+
 ?>
