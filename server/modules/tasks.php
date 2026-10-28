@@ -98,4 +98,38 @@ function insertNewUser($DB, $username, $salt, $hash, $userID) {
     $DB->commit();
 }
 
+function sanityCheckUserFields($userid) {
+    // This function will check if default fields exist, then create them if not.
+    foreach ($DEFAULT_USER_FIELDS as $value) {
+        // Create the default fields for the specified user.
+        if(fieldExists($userid, $value["Type"])) {
+            continue;
+        }
+
+        $fieldID = gen_uuid();
+        $dfStmt = $DB->prepare("INSERT INTO `Fields` (`User`, `ID`, `FieldName`, `FieldType`, `SortOrder`) VALUES (?,?,?,?, ?);");
+        $dfStmt->bind_param("sssii", $userid, $fieldID, $value["Name"], $value["Type"], $value["Order"]);
+        $dfStmt->execute();
+        $dfStmt->close();
+        $DB->commit();
+    }
+}
+
+function getFieldIDForUser($userID, $fieldType) {
+    $stmt = $DB->prepare("SELECT * FROM `Fields` WHERE `User` = ? AND `FieldType` = ?;");
+    $stmt->bind_param("si", $userID, $fieldType);
+    $stmt->execute();
+    $res = $stmt->get_result();
+    if($res->num_rows == 0) {
+        return null_uuid();
+    }
+
+    $row = $res->fetch_assoc();
+    return $row['ID'];
+}
+
+function fieldExists($userID, $type) {
+    return getFieldIDForUser($userID, $type) != null_uuid();
+}
+
 ?>

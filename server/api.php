@@ -188,15 +188,7 @@ switch($route) {
                     $success=true;
                     $reason="User created";
 
-                    foreach ($DEFAULT_USER_FIELDS as $value) {
-                        // Create the default fields for the specified user.
-                        $fieldID = gen_uuid();
-                        $dfStmt = $DB->prepare("INSERT INTO `Fields` (`User`, `ID`, `FieldName`, `FieldType`, `SortOrder`) VALUES (?,?,?,?, ?);");
-                        $dfStmt->bind_param("sssii", $userid, $fieldID, $value["Name"], $value["Type"], $value["Order"]);
-                        $dfStmt->execute();
-                        $dfStmt->close();
-                        $DB->commit();
-                    }
+                    sanityCheckUserFields($userid);
 
                     $rootFolder = gen_uuid();
                     $rfTime = time();
