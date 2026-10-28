@@ -215,122 +215,126 @@ class _serverPage extends State<OnboardingServerSelection> {
           ),
         ),
       ),
-      body: Padding(
-        padding: EdgeInsetsGeometry.all(16),
-        child: FutureBuilder(
-          future: getChosenServerURL(),
-          builder: (context, snapshot) {
-            if (!snapshot.hasData) {
-              return CircularProgressIndicator();
-            } else {
-              String url = snapshot.data ?? getMainServerURL();
-              return Column(
-                mainAxisAlignment: MainAxisAlignment.start,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Center(child: Text("Server", style: TextStyle(fontSize: 20))),
-                  Card(
-                    elevation: 8,
-                    child: Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: Column(
-                        children: [
-                          if (shouldShowPreviousServerWarning)
-                            ListTile(
-                              title: Text("A Brief Warning"),
-                              subtitle: Text(
-                                "It appears your app's distribution channel may have changed. If you switched from a test version of the app to the main version, that can cause this message to appear, or, vice-versa. Please note that the live version of the app cannot talk to the testing server as the capabilities and feature-sets may have changed. For this reason, we disallow targetting the test server on the live app. You can however specify a custom server URL.",
+      body: SingleChildScrollView(
+        child: Padding(
+          padding: EdgeInsetsGeometry.all(16),
+          child: FutureBuilder(
+            future: getChosenServerURL(),
+            builder: (context, snapshot) {
+              if (!snapshot.hasData) {
+                return CircularProgressIndicator();
+              } else {
+                String url = snapshot.data ?? getMainServerURL();
+                return Column(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Center(
+                      child: Text("Server", style: TextStyle(fontSize: 20)),
+                    ),
+                    Card(
+                      elevation: 8,
+                      child: Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Column(
+                          children: [
+                            if (shouldShowPreviousServerWarning)
+                              ListTile(
+                                title: Text("A Brief Warning"),
+                                subtitle: Text(
+                                  "It appears your app's distribution channel may have changed. If you switched from a test version of the app to the main version, that can cause this message to appear, or, vice-versa. Please note that the live version of the app cannot talk to the testing server as the capabilities and feature-sets may have changed. For this reason, we disallow targetting the test server on the live app. You can however specify a custom server URL.",
+                                ),
                               ),
-                            ),
-                          CheckboxListTile(
-                            value: url == getMainServerURL(),
-                            onChanged: (B) async {
-                              await setServerURL(getMainServerURL());
-                              await _scan();
-                            },
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadiusGeometry.circular(8),
-                            ),
-                            title: Text("Production Server"),
-                            subtitle: Text("Official Server for Switchboard"),
-                          ),
-                          SizedBox(height: 25),
-                          CheckboxListTile(
-                            value: url == getTestServerURL(),
-                            enabled: SBProject.BRANCH == "develop",
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadiusGeometry.circular(8),
-                            ),
-                            onChanged: (B) async {
-                              await setServerURL(getTestServerURL());
-                              await _scan();
-                            },
-                            title: Text("Testing Server"),
-                            subtitle: Text(
-                              "Official Test Server for Switchboard",
-                            ),
-                          ),
-                          SizedBox(height: 25),
-                          CheckboxListTile(
-                            value: (!isUsingMainServer && !isUsingTestServer),
-                            onChanged: (B) async {
-                              await setServerURL(serverURLController.text);
-                              await _scan();
-                            },
-                            title: Text("Use Custom Server URL"),
-                            subtitle: Text("Use the specified server URL"),
-                          ),
-                          SizedBox(height: 12),
-                          TextField(
-                            controller: serverURLController,
-                            onTapOutside: (event) {
-                              FocusManager.instance.primaryFocus?.unfocus();
-                            },
-                            decoration: InputDecoration(
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(16),
-                              ),
-                              hintText: "https://api.example.com",
-                            ),
-                          ),
-                          SizedBox(height: 8),
-                          ListTile(
-                            title: Text("Confirm Selection"),
-                            subtitle: Text(
-                              "Your Server URL choices will be saved and applied.",
-                            ),
-                            leading: Icon(Icons.check),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadiusGeometry.circular(16),
-                            ),
-                            tileColor: Color.fromARGB(255, 0, 75, 0),
-                            onTap: () async {
-                              if (isUsingMainServer) {
+                            CheckboxListTile(
+                              value: url == getMainServerURL(),
+                              onChanged: (B) async {
                                 await setServerURL(getMainServerURL());
-                              }
-                              if (isUsingTestServer) {
+                                await _scan();
+                              },
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadiusGeometry.circular(8),
+                              ),
+                              title: Text("Production Server"),
+                              subtitle: Text("Official Server for Switchboard"),
+                            ),
+                            SizedBox(height: 25),
+                            CheckboxListTile(
+                              value: url == getTestServerURL(),
+                              enabled: SBProject.BRANCH == "develop",
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadiusGeometry.circular(8),
+                              ),
+                              onChanged: (B) async {
                                 await setServerURL(getTestServerURL());
-                              }
-
-                              if (!isUsingMainServer && !isUsingTestServer) {
+                                await _scan();
+                              },
+                              title: Text("Testing Server"),
+                              subtitle: Text(
+                                "Official Test Server for Switchboard",
+                              ),
+                            ),
+                            SizedBox(height: 25),
+                            CheckboxListTile(
+                              value: (!isUsingMainServer && !isUsingTestServer),
+                              onChanged: (B) async {
                                 await setServerURL(serverURLController.text);
-                              }
+                                await _scan();
+                              },
+                              title: Text("Use Custom Server URL"),
+                              subtitle: Text("Use the specified server URL"),
+                            ),
+                            SizedBox(height: 12),
+                            TextField(
+                              controller: serverURLController,
+                              onTapOutside: (event) {
+                                FocusManager.instance.primaryFocus?.unfocus();
+                              },
+                              decoration: InputDecoration(
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(16),
+                                ),
+                                hintText: "https://api.example.com",
+                              ),
+                            ),
+                            SizedBox(height: 8),
+                            ListTile(
+                              title: Text("Confirm Selection"),
+                              subtitle: Text(
+                                "Your Server URL choices will be saved and applied.",
+                              ),
+                              leading: Icon(Icons.check),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadiusGeometry.circular(16),
+                              ),
+                              tileColor: Color.fromARGB(255, 0, 75, 0),
+                              onTap: () async {
+                                if (isUsingMainServer) {
+                                  await setServerURL(getMainServerURL());
+                                }
+                                if (isUsingTestServer) {
+                                  await setServerURL(getTestServerURL());
+                                }
 
-                              await updateOnboardingPhase(2);
-                              Navigator.pushReplacementNamed(
-                                context,
-                                "/onboarding/2",
-                              );
-                            },
-                          ),
-                        ],
+                                if (!isUsingMainServer && !isUsingTestServer) {
+                                  await setServerURL(serverURLController.text);
+                                }
+
+                                await updateOnboardingPhase(2);
+                                Navigator.pushReplacementNamed(
+                                  context,
+                                  "/onboarding/2",
+                                );
+                              },
+                            ),
+                          ],
+                        ),
                       ),
                     ),
-                  ),
-                ],
-              );
-            }
-          },
+                  ],
+                );
+              }
+            },
+          ),
         ),
       ),
     );
