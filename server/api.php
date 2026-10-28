@@ -2,7 +2,7 @@
 
 $DEBUG = false;
 
-$VERSION = "0.4.0+0816261431";
+$VERSION = "0.4.0+1028261107";
 
 $DEFAULT_USER_FIELDS = array(
                             array(
@@ -23,6 +23,7 @@ $DEFAULT_USER_FIELDS = array(
                         );
 
 require_once("dbconfig.php");
+require_once("modules/autoload.php");
 
 if(defined("MAINTENANCE")) {
     header("Content-Type: application/json");
@@ -35,7 +36,10 @@ if(defined("MAINTENANCE")) {
 
 $route = $_GET['rt'] ?? '';
 $request = $_SERVER['REQUEST_METHOD'];
-$ID = gen_uuid(); // Session ID, can be used for tracing back errors
+$replyPayload = new ServerReply();
+$replyPayload->Type = $request;
+$replyPayload->Path = $route;
+$ID = $replyPayload->ID; // Session ID, can be used for tracing back errors
 
 $impersonate=false;
 $impUser = "";
@@ -52,10 +56,6 @@ function MakeSAT($Token, $Expire, $ISS) {
         "iss" => $ISS,
         "valid_for" => (60*60*24) // one day
     )));
-}
-
-function null_uuid() {
-    return "00000000-0000-0000-0000-000000000000";
 }
 
 class SATReply {
@@ -116,161 +116,9 @@ function get_Authorization()
     return "XX";
 }
 
-function get_DB($dbname)
-{
-    global $HOST, $DBUSER, $DBPASS;
-
-    $DB_Handle = new mysqli($HOST, $DBUSER, $DBPASS, $dbname);
-
-
-    return $DB_Handle;
-}
-
-
-function gen_uuid()
-{
-    return sprintf(
-        '%04x%04x-%04x-%04x-%04x-%04x%04x%04x',
-        // 32 bits for "time_low"
-        mt_rand(0, 0xffff),
-        mt_rand(0, 0xffff),
-
-        // 16 bits for "time_mid"
-        mt_rand(0, 0xffff),
-
-        // 16 bits for "time_hi_and_version",
-        // four most significant bits holds version number 4
-        mt_rand(0, 0x0fff) | 0x4000,
-
-        // 16 bits, 8 bits for "clk_seq_hi_res",
-        // 8 bits for "clk_seq_low",
-        // two most significant bits holds zero and one for variant DCE1.1
-        mt_rand(0, 0x3fff) | 0x8000,
-
-        // 48 bits for "node"
-        mt_rand(0, 0xffff),
-        mt_rand(0, 0xffff),
-        mt_rand(0, 0xffff)
-    );
-}
 
 // SANITY CHECK
 $db0 = get_DB("switchboard");
-
-function runMigrations(mysqli $conn, string $dir = __DIR__ . '/migrations'): void
-{
-    if (!is_dir($dir)) {
-        throw new Exception("Migration directory not found: $dir");
-    }
-
-    // Get migration files
-    $files = array_filter(scandir($dir), function ($file) {
-        return pathinfo($file, PATHINFO_EXTENSION) === 'php';
-    });
-
-    sort($files);
-
-    // Check if migrations table exists
-    $migrationsTableExists = false;
-    $result = $conn->query("SHOW TABLES LIKE 'migrations'");
-    if ($result && $result->num_rows > 0) {
-        $migrationsTableExists = true;
-    }
-
-    // Load applied migrations
-    $applied = [];
-
-    if ($migrationsTableExists) {
-        $result = $conn->query("SELECT migration FROM migrations");
-        while ($row = $result->fetch_assoc()) {
-            $applied[$row['migration']] = true;
-        }
-    }
-
-    foreach ($files as $file) {
-        $name = pathinfo($file, PATHINFO_FILENAME);
-        $path = $dir . '/' . $file;
-
-
-        // Skip if already applied
-        if (isset($applied[$name])) {
-            //echo "Skipping already applied migration: $name\n";
-            continue;
-        }
-
-        // Bootstrap migrations table if needed
-        if (!$migrationsTableExists) {
-            //echo "Bootstrapping migrations table using: $file\n";
-
-            $migration = require $path;
-
-            if (is_callable($migration)) {
-                $migration($conn);
-            }
-
-            $migrationsTableExists = true;
-
-            // Mark this migration as applied
-            $stmt = $conn->prepare("INSERT INTO migrations (migration) VALUES (?)");
-            $stmt->bind_param("s", $name);
-            $stmt->execute();
-            $stmt->close();
-
-            //echo "Migrations table created.\n";
-            continue;
-        }
-
-        // Skip already applied
-        if (isset($applied[$name])) {
-            continue;
-        }
-
-        //echo "Applying migration: $name\n";
-
-        try {
-            $conn->begin_transaction();
-
-            $migration = require $path;
-
-            if (is_callable($migration)) {
-                $migration($conn);
-            }
-
-            // Record migration
-            $stmt = $conn->prepare("INSERT INTO migrations (migration) VALUES (?)");
-            $stmt->bind_param("s", $name);
-            $stmt->execute();
-            $stmt->close();
-
-            $conn->commit();
-
-            //echo "Applied: $name\n";
-
-        } catch (Throwable $e) {
-            $conn->rollback();
-            //echo "Failed: $name\n";
-            throw $e;
-        }
-    }
-
-    //echo "All migrations complete.\n";
-}
-
-function logAudit($ID, $Type, $Path, $DBHandle) {
-    $payload = file_get_contents("php://input");
-
-    $STMT = $DBHandle->prepare("INSERT INTO Audit (ID, RequestType, RequestPath, RequestData, Timestamp, RequestHeaders) VALUES (?, ?, ?, ?, ?, ?);");
-    $STMT->bind_param("ssssis", $ID, $Type, $Path, $payload, time(), json_encode(apache_request_headers()));
-    try {
-        $STMT->execute();
-
-    }catch(Exception $E) {
-        $payload="payload too long to cache";
-        $STMT->execute();
-    }
-    $STMT->close();
-    $DBHandle->commit();
-}
 
 runMigrations($db0);
 
@@ -282,13 +130,7 @@ $db0->close();
 
 switch($route) {
     case "/": {
-        die(json_encode(array(
-            "success"=> false,
-            "reason" => "Invalid endpoint",
-            "type"=> $request,
-            "path"=> $route,
-            "id"=> $ID
-        )));
+        die(invalid_endpoint());
         break;
     }
 
@@ -410,6 +252,7 @@ switch($route) {
                     $rfStmt->execute();
                     $rfStmt->close();
                     $DB->commit();
+
 
                     $data = array(
                         "user" => $username,

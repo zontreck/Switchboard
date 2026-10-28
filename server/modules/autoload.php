@@ -1,0 +1,15 @@
+<?php
+
+require_once("id.php");
+require_once("cli.php");
+require_once("replies.php");
+require_once("db.php");
+require_once("Migrator.php");
+require_once("audit.php");
+
+// Handlers
+
+require_once("handlers/null.php");
+
+
+?>

@@ -25,6 +25,7 @@
 - [x] Add commit short code to the developer settings screen.
 - [x] Update `glow_containers` package back to the live version after our pull request was merged.
 - [x] Fix the scroll view on the Onboarding Server select screen.
+- [x] Begin server overhaul to clean up the API, and split the functions out so they can be invoked easier. For instance, the `/user/` endpoint is designed to return the User folders and fields, and the user creation method is designed to do this as well. It would be easiest to move this to a function instead of having duplicated code.
 
 ## REMOVE:
 
