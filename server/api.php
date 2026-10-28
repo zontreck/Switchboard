@@ -178,8 +178,8 @@ switch($route) {
                         $HashedPwd = md5($packet['authRaw']); // For security reasons, this is disabled when debug is turned off.
                         // We must enforce security in a production environment.
                     }
-                    $Salt = md5(md5(time()).":".time().md5($HashedPwd));
-                    $Hash = md5($HashedPwd.":".$Salt);
+                    $Salt = MakePasswordSalt();
+                    $Hash = MakePasswordHash($HashedPwd, $Salt);
                     $userid = gen_uuid();
 
                     $stmt = $DB->prepare("INSERT INTO users (UserName, PasswordSalt, PasswordHash, DisplayName, ID) VALUES (?,?,?,?, ?);");

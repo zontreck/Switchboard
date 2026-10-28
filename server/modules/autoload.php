@@ -7,6 +7,7 @@ require_once("db.php");
 require_once("Migrator.php");
 require_once("audit.php");
 require_once("tasks.php");
+require_once("security.php");
 
 // Handlers
 
