@@ -138,7 +138,7 @@ pipeline {
 
                     rm -rf ~/Library/Developer/Xcode/DerivedData/*
 
-                    flutter pub get
+                    while ! flutter pub get; do sleep 1; done
                     
 
                     flutter doctor
@@ -182,8 +182,8 @@ pipeline {
                     flutter clean
 
                     rm -rf ~/Library/Developer/Xcode/DerivedData/*
-
-                    flutter pub get
+                    
+                    while ! flutter pub get; do sleep 1; done
 
                     flutter doctor
                     dart run cli/generate_build_inf.dart

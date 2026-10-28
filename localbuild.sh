@@ -3,7 +3,8 @@
 rel="$RELEASE"
 
 flutter clean
-flutter pub get
+true
+while ! flutter pub get; do sleep 1; done
 
 flutter doctor
 flutter doctor --android-licenses
