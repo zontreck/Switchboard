@@ -2,7 +2,7 @@
 
 $DEBUG = false;
 
-$VERSION = "0.4.0+1028261247";
+$VERSION = "0.4.0+1102261336";
 
 $DEFAULT_USER_FIELDS = array(
                             array(
@@ -190,14 +190,9 @@ switch($route) {
 
                     sanityCheckUserFields($userid);
 
-                    $rootFolder = gen_uuid();
-                    $rfTime = time();
-                    $rootName = "root";
-                    $rfStmt = $DB->prepare("INSERT INTO `Folders` (`ID`, `Name`, `ParentFolder`, `UserID`, `Created`, `Modified`) VALUES (?, ?, ?, ?, ?, ?);");
-                    $rfStmt->bind_param("ssssii", $rootFolder, $rootName, $null, $userid, $rfTime, $rfTime);
-                    $rfStmt->execute();
-                    $rfStmt->close();
-                    $DB->commit();
+                    createNewFolder($null, gen_uuid(), "root", $userid, $rfTime);
+
+                    $replyPayload->Success = TRUE;
 
 
                     $data = array(
@@ -220,18 +215,8 @@ switch($route) {
             case "GET": {
                 if($username) {
                     // Fetch user info
-                    $fetchStmt = $DB->prepare("SELECT * FROM users WHERE UserName=?;");
-                    $fetchStmt->bind_param("s", $username);
-                    $fetchStmt->execute();
-                    $resp = $fetchStmt->get_result();
+                    $userId = getUserIDFromName($username);
 
-                    if($resp->num_rows == 0) {
-                        $success = false;
-                        $reason = "No such user";
-                        break;
-                    }
-                    $row = $resp->fetch_assoc();
-                    $userId = $row['ID'];
                     $alterFetch = $DB->prepare("SELECT * FROM Alters WHERE User=?;");
                     $alterFetch->bind_param("s", $userId);
                     $alterFetch->execute();

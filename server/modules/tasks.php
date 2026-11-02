@@ -35,7 +35,6 @@ function prune_accessTokens() {
 }
 
 
-
 function executeCronJobs() {
     $audit = pruneAudit();
     $accessTokens = prune_accessTokens();
@@ -130,6 +129,28 @@ function getFieldIDForUser($userID, $fieldType) {
 
 function fieldExists($userID, $type) {
     return getFieldIDForUser($userID, $type) != null_uuid();
+}
+
+
+function createNewFolder($rootFolder, $folderID, $folderName, $userid, $folderCreationTime) {
+    $rfStmt = $DB->prepare("INSERT INTO `Folders` (`ID`, `Name`, `ParentFolder`, `UserID`, `Created`, `Modified`) VALUES (?, ?, ?, ?, ?, ?);");
+    $rfStmt->bind_param("ssssii", $folderID, $folderName, $rootFolder, $userid, $folderCreationTime, $folderCreationTime);
+    $rfStmt->execute();
+    $rfStmt->close();
+    $DB->commit();
+}
+
+function getUserIDFromName($username) {
+    if(!userNameExists($username)) {
+        return null_uuid();
+    }
+    $DB = get_DB("switchboard");
+    $stmt = $DB->prepare("SELECT * FROM users WHERE UserName=?;");
+    $stmt->bind_param("s", $username);
+    $stmt->execute();
+    $res = $stmt->get_result();
+    $row = $res->fetch_assoc();
+    return $row['ID'];
 }
 
 ?>
