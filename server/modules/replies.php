@@ -6,7 +6,7 @@ class ServerReply {
     public string $Type;
     public string $Path;
     public string $ID;
-    public array $Data;
+    public object $Data;
 
     public function __construct() {
         $this->ID = gen_uuid();
