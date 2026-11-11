@@ -34,7 +34,9 @@ dependencies:
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.8
-  switchboardd:
+  #switchboardd:   # <--- Commented out until the first initial revision of this API package is published.  The API for the backend will almost always rest on the major version and not include a build datetime as the build number. The backend will instead use a different versioning scheme consistent with only being interface compatible with the release and patch version. Special API updates may occur to the backend using build number patches, but these are not going to introduce new API calls, and will be limited to fixes only.
+  #  hosted: https://git.zontreck.com/api/packages/Packages/pub/
+  #  version: 4.0.0
   libac_dart:
     hosted: https://git.zontreck.com/api/packages/Packages/pub/
     version: 1.5.1+0909261609

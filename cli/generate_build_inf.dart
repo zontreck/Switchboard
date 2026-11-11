@@ -19,6 +19,17 @@ void main() async {
   dynamic yamlDoc = loadYaml(yamlStr);
   String pubspecVersion = yamlDoc["version"]?.toString() ?? "0.0.0";
 
+  File pubspecBackend = File("pubspec.yaml");
+  if (!await pubspecBackend.exists()) {
+    throw Exception(
+      "Pubspec.yaml file not found. This tool MUST be run from the project root.",
+    );
+  }
+  String yamlStrBackend = await pubspecBackend.readAsString();
+  dynamic yamlDocBackend = loadYaml(yamlStrBackend);
+  String pubspecVersionBackend =
+      yamlDocBackend["version"]?.toString() ?? "0.0.0";
+
   String gitStatus = await _runGit(["status", "--porcelain"]);
   bool dirty = gitStatus.trim().isNotEmpty;
 
@@ -46,6 +57,8 @@ class SBProject {
   static const String COMMIT = '${_escapeSingleQuotes(gitCommitHash)}';
   static const String PUBSPEC_VERSION = '${_escapeSingleQuotes(pubspecVersion)}';
   static const String BUILD_TIMESTAMP = '${_escapeSingleQuotes(buildTimestamp)}';
+  /// DO NOT USE outside of the switchboardd project, this value will mean nothing elsewhere.
+  static const String BACKEND_VERSION = '${_escapeSingleQuotes(pubspecVersionBackend)}';
 
   /// Indicates whether the project is being run from a development/modified codebase.
   ///

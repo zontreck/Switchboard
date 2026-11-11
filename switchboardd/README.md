@@ -11,10 +11,7 @@ Firstly, start your terminal session in the root project, Switchboard, and run t
 ```bash
 
 flutter pub get
-dart compile exe -o sbgen cli/generate_build_inf.dart
-./sbgen
-
-cp lib/dart/sbproj.dart switchboardd/lib/dart/sbproj.dart
+dart run cli/generate_build_inf.dart
 
 cd switchboardd
 
