@@ -1,4 +1,4 @@
-FROM archlinux:latest as builder
+FROM git.zontreck.com/packages/flutter:arch as builder
 
 COPY . /app
 WORKDIR /app
