@@ -84,7 +84,10 @@ Production: \$isProduction
 ''';
 
   await File("lib/dart/sbproj.dart").writeAsString(template);
-  print(">> /!\\ Saved SBProject to lib/dart/sbproj.dart /!\\");
+  await File("switchboardd/lib/dart/sbproj.dart").writeAsString(template);
+  print(
+    ">> /!\\ Saved SBProject to lib/dart/sbproj.dart & switchboardd/lib/dart/sbproj.dart /!\\",
+  );
 }
 
 Future<String> _runGit(List<String> args, {bool expectNonZero = false}) async {
