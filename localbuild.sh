@@ -17,7 +17,6 @@ dart compile exe -o outputs/dlocto cli/backupOctocon.dart
 dart compile exe -o outputs/sbprojgen cli/generate_build_inf.dart
 dart run cli/generate_build_inf.dart
 
-cp lib/dart/sbproj.dart switchboardd/lib/dart/sbproj.dart
 cd switchboardd
 dart compile exe -o ../outputs/switchboardd-linux-x64 bin/exe.dart
 
