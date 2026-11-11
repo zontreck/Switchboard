@@ -17,6 +17,10 @@ dart compile exe -o outputs/dlocto cli/backupOctocon.dart
 dart compile exe -o outputs/sbprojgen cli/generate_build_inf.dart
 dart run cli/generate_build_inf.dart
 
+cd switchboardd
+../outputs/sbprojgen
+cd ..
+
 cd bot
 dotnet build -c Release
 cd Main/bin/Release/net10.0

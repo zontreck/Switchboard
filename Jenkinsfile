@@ -46,6 +46,9 @@ pipeline {
                     docker build -t git.zontreck.com/packages/switchboard:latest "$(pwd)"
                     docker push git.zontreck.com/packages/switchboard:latest
 
+                    docker build -t git.zontreck.com/packages/switchboard:server switchboardd/
+                    docker push git.zontreck.com/packages/switchboard:server
+
                     '''
                 }
             }
