@@ -25,6 +25,29 @@ pipeline {
             }
         }
 
+        stage ("Generate Build Information") {
+            agent {
+                label "flutter"
+            }
+
+            steps {
+                script {
+                    sh '''
+                    #!/bin/bash
+
+                    dart run cli/generate_build_inf.dart
+                    '''
+                }
+            }
+            post {
+                always {
+                    stash(includes: "**/lib/dart/sbproj.dart", name: "sbproj")
+
+                    cleanWs()
+                }
+            }
+        }
+
         stage ("Build Docker") {
             when {
                 branch "develop" // The switchboard bot will always be built from the develop branch. This is to ensure that the bot can communicate with both databases. 
@@ -34,6 +57,7 @@ pipeline {
             }
 
             steps {
+                unstash "sbproj"
                 script {
                     sh '''
                     #!/bin/bash
