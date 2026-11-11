@@ -4,7 +4,7 @@ COPY . /app
 WORKDIR /app
 
 RUN dart pub get
-RUN dart compile exe -o switchboardd bin/exe.dart
+RUN dart compile exe -o switchboardd cli/switchboardd.dart
 
 
 FROM archlinux:latest

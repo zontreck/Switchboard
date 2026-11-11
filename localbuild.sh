@@ -18,7 +18,7 @@ dart compile exe -o outputs/sbprojgen cli/generate_build_inf.dart
 dart run cli/generate_build_inf.dart
 
 cd switchboardd
-dart compile exe -o ../outputs/switchboardd-linux-x64 bin/exe.dart
+dart compile exe -o ../outputs/switchboardd-linux-x64 cli/switchboardd.dart
 
 cd bot
 dotnet build -c Release
