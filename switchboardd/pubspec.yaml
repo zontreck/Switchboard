@@ -9,10 +9,13 @@ environment:
 
 # Add regular dependencies here.
 dependencies:
-  dart_jsonwebtoken: ^3.4.1
+  dart_jsonwebtoken:
   dio: ^5.11.1
   mysql_dart: ^4.0.1
   path: ^1.9.0
+  libac_dart:
+    hosted: https://git.zontreck.com/api/packages/Packages/pub/
+    version: 1.5.2+1112261641
 
 dev_dependencies:
   lints: ^6.0.0
