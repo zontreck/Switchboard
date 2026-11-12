@@ -19,7 +19,7 @@ void main() async {
   dynamic yamlDoc = loadYaml(yamlStr);
   String pubspecVersion = yamlDoc["version"]?.toString() ?? "0.0.0";
 
-  File pubspecBackend = File("pubspec.yaml");
+  File pubspecBackend = File("switchboardd/pubspec.yaml");
   if (!await pubspecBackend.exists()) {
     throw Exception(
       "Pubspec.yaml file not found. This tool MUST be run from the project root.",
