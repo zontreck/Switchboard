@@ -101,7 +101,7 @@ pipeline {
                     RELEASE=1 ./localbuild.sh || true
 
                     cd switchboardd
-                    dart pub publish || true
+                    dart pub publish -f || true
                     cd ..
 
                     cd server
