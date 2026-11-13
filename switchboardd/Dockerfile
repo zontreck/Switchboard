@@ -14,4 +14,6 @@ ADD ./entry.sh /bin/entrypoint
 RUN chmod +x /bin/entrypoint
 VOLUME [ "/keys" ]
 
+
+WORKDIR /
 ENTRYPOINT [ "/bin/entrypoint" ]

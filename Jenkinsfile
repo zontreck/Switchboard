@@ -100,6 +100,10 @@ pipeline {
                     chmod +x localbuild.sh
                     RELEASE=1 ./localbuild.sh || true
 
+                    cd switchboardd
+                    dart pub publish || true
+                    cd ..
+
                     cd server
                     cp ../assets/privacypolicy.md .
                     cp ../assets/tos.md .
