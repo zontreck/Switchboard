@@ -1,3 +1,3 @@
 #!/bin/bash
 
-switchboardd --dbhost="$1" --dbpass="$2" --dbuser="$3" --dbname="$4"
+switchboardd --dbhost="$SB_MSQL_HOST" --dbpass="$SB_MSQL_PASS" --dbuser="$SB_MSQL_USER" --dbname="$SB_MSQL_NAME"
