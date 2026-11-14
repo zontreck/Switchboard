@@ -172,5 +172,8 @@ Future<void> main(List<String> arguments) async {
           break;
         }
     }
+
+    await request.response.flush();
+    await request.response.close();
   }
 }
