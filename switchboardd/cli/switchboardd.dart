@@ -102,12 +102,13 @@ Future<void> main(List<String> arguments) async {
   print("[OK]  Loaded Key Pair from Disk");
 
   print("> Attempting to establish connection to database...");
-  final conn = await MySQLConnection.createConnection(
+  final conn = MySQLConnectionPool(
     host: dbhost,
     port: 3306,
     userName: dbuser,
     password: dbpass,
     databaseName: dbname,
+    maxConnections: 999,
   );
   print("[OK]  Database connection established");
 

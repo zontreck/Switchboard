@@ -290,31 +290,33 @@ class Migrator {
   ///
   /// Checks which migrations have already been executed and runs any
   /// migrations that are missing from the database.
-  static Future<void> performMigrations(MySQLConnection connection) async {
+  static Future<void> performMigrations(MySQLConnectionPool connection) async {
     // Ensure the migration tracking table exists before checking migrations.
-    await _migrations.first.execute(connection);
+    await connection.withConnection((conn) async {
+      await _migrations.first.execute(conn);
 
-    for (final migration in _migrations.skip(1)) {
-      final alreadyRun = await _migrationAlreadyRun(
-        connection,
-        migration.migrationID,
-      );
+      for (final migration in _migrations.skip(1)) {
+        final alreadyRun = await _migrationAlreadyRun(
+          conn,
+          migration.migrationID,
+        );
 
-      if (alreadyRun) {
-        continue;
-      }
+        if (alreadyRun) {
+          continue;
+        }
 
-      print("> Executing Migration: ${migration.migrationID}");
-      await migration.execute(connection);
+        print("> Executing Migration: ${migration.migrationID}");
+        await migration.execute(conn);
 
-      await connection.execute(
-        '''
+        await conn.execute(
+          '''
         INSERT INTO migrations (migration)
         VALUES (:migration)
         ''',
-        {'migration': migration.migrationID},
-      );
-    }
+          {'migration': migration.migrationID},
+        );
+      }
+    });
   }
 
   /// Checks whether a migration has already been executed.
