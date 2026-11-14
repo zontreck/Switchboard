@@ -10,6 +10,7 @@ import 'package:libac_dart/encryption/jwt.dart';
 import 'package:libac_dart/utils/uuid/UUID.dart';
 import 'package:mysql_dart/mysql_dart.dart';
 import 'package:switchboardd/dart/sbproj.dart';
+import 'package:switchboardd/migrations.dart';
 import 'package:switchboardd/payloads.dart';
 
 Future<void> main(List<String> arguments) async {
@@ -101,13 +102,18 @@ Future<void> main(List<String> arguments) async {
   print("[OK]  Loaded Key Pair from Disk");
 
   print("> Attempting to establish connection to database...");
-  final conn = MySQLConnection.createConnection(
+  final conn = await MySQLConnection.createConnection(
     host: dbhost,
     port: 3306,
     userName: dbuser,
     password: dbpass,
     databaseName: dbname,
   );
+  print("[OK]  Database connection established");
+
+  print("> Executing database migrator if needed...");
+  await Migrator.performMigrations(conn);
+  print("[OK]  Migrator loaded");
 
   print("> This server will run indefinitely until terminated manually <");
   print(
