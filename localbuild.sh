@@ -20,6 +20,7 @@ dart run cli/generate_build_inf.dart
 cd switchboardd
 dart pub get
 dart compile exe -o ../outputs/switchboardd-linux-x64 cli/switchboardd.dart
+cd ..
 
 cd bot
 dotnet build -c Release
