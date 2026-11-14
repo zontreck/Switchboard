@@ -109,6 +109,7 @@ Future<void> main(List<String> arguments) async {
     password: dbpass,
     databaseName: dbname,
     maxConnections: 999,
+    verifyServerCertificate: false,
   );
   print("[OK]  Database connection established");
 
