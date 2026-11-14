@@ -121,10 +121,12 @@ Future<void> main(List<String> arguments) async {
   await for (final request in server) {
     String requestPath = request.uri.path;
     String requestMethod = request.method;
+
     String requestIP =
         request.connectionInfo?.remoteAddress.address ??
         "0.0.0.0"; // placeholder for a unknown origin IP
     Map<String, List<String>> headers = {};
+    print("> [${requestIP}] ${requestMethod}: ${requestPath}");
 
     request.headers.forEach((key, values) {
       headers[key] = values;
