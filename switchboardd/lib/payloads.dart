@@ -19,7 +19,7 @@ class BasicResponse {
   void decode(Map<String, dynamic> js) {
     Success = js['success'] ?? false;
     Path = js['path'] ?? "/";
-    Method = js['method'] ?? "GET";
+    Method = js['type'] ?? "GET";
     ID = js['id'] ?? UUID_ZERO;
     Reason = js['reason'] ?? "";
   }
@@ -29,7 +29,7 @@ class BasicResponse {
     return {
       "success": Success,
       "path": Path,
-      "method": Method,
+      "type": Method,
       "id": ID,
       "reason": Reason,
     };

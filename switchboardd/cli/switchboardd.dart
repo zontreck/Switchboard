@@ -9,6 +9,7 @@ import 'package:libac_dart/argparse/types/String.dart';
 import 'package:libac_dart/encryption/jwt.dart';
 import 'package:libac_dart/utils/uuid/UUID.dart';
 import 'package:mysql_dart/mysql_dart.dart';
+import 'package:switchboardd/audit.dart';
 import 'package:switchboardd/dart/sbproj.dart';
 import 'package:switchboardd/migrations.dart';
 import 'package:switchboardd/payloads.dart';
@@ -117,6 +118,10 @@ Future<void> main(List<String> arguments) async {
   await Migrator.performMigrations(conn);
   print("[OK]  Migrator loaded");
 
+  print("> Initializing Auditor...");
+  Auditor auditLogger = Auditor(pool: conn);
+  print("[OK]  Auditor has been initialized");
+
   print("> This server will run indefinitely until terminated manually <");
   print(
     "/!\\ To terminate, use CTRL+C, or, if using docker, kill the container. /!\\\n\n",
@@ -142,6 +147,14 @@ Future<void> main(List<String> arguments) async {
     String rayID = UUID.generate(4).toString();
 
     final body = await utf8.decoder.bind(request).join();
+
+    await auditLogger.log(
+      rayID,
+      requestPath,
+      requestMethod,
+      json.encode(headers),
+      body,
+    );
 
     switch (requestPath) {
       case "/robots.txt":
