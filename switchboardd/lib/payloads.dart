@@ -114,3 +114,44 @@ class ServerVersionResponse extends BasicResponse {
     return base;
   }
 }
+
+class ServerPolicyResponse extends BasicResponse {
+  String termsOfService;
+  String privacyPolicy;
+  bool policiesEnabled;
+  ServerPolicyResponse({
+    required this.termsOfService,
+    required this.privacyPolicy,
+    required this.policiesEnabled,
+    required super.Success,
+    required super.Path,
+    required super.Method,
+    required super.ID,
+    required super.Reason,
+  });
+
+  ServerPolicyResponse.fromJson(Map<String, dynamic> js)
+    : termsOfService = "",
+      privacyPolicy = "",
+      policiesEnabled = false,
+      super(ID: "", Success: false, Path: "", Method: "", Reason: "") {
+    super.decode(js);
+
+    policiesEnabled = js['enabled'];
+    if (!policiesEnabled) return;
+    termsOfService = js['tos'];
+    privacyPolicy = js['privacy'];
+  }
+
+  @override
+  Map<String, dynamic> encode() {
+    var js = super.encode();
+    if (policiesEnabled) {
+      js['data'] = {"tos": termsOfService, "privacy": privacyPolicy};
+    } else {
+      js['data'] = {"enabled": false};
+    }
+
+    return js;
+  }
+}

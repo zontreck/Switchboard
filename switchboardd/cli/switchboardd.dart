@@ -189,6 +189,29 @@ Future<void> main(List<String> arguments) async {
             ..write(json.encode(svr.encode()));
           break;
         }
+      case var path when path.startsWith("/user/"):
+        {
+          break;
+        }
+      case "/sync/policy":
+        {
+          ServerPolicyResponse spr = ServerPolicyResponse(
+            termsOfService: SBProject.BACKEND_TOS,
+            privacyPolicy: SBProject.BACKEND_PRIVACY,
+            policiesEnabled: SBProject.BACKEND_POLICIES_ENABLED,
+            Success: true,
+            Path: requestPath,
+            Method: requestMethod,
+            ID: rayID,
+            Reason: "",
+          );
+
+          request.response
+            ..statusCode = HttpStatus.ok
+            ..headers.contentType = ContentType.json
+            ..write(json.encode(spr.encode()));
+          break;
+        }
 
       default:
         {
