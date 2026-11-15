@@ -35,6 +35,26 @@ void main() async {
 
   String buildTimestamp = DateTime.now().toIso8601String();
 
+  bool policiesEnabled = true;
+  int noPol = 0;
+  String termsOfService =
+      "This server has elected to not use a Terms of Service.";
+  String privacyPolicy = "This server has elected to not use a Privacy Policy.";
+  if (!(await File("assets/tos.md").exists())) {
+    noPol++;
+  } else {
+    termsOfService = await File("assets/tos.md").readAsString();
+  }
+  if (!(await File("assets/privacypolicy.md").exists())) {
+    noPol++;
+  } else {
+    privacyPolicy = await File("assets/privacypolicy.md").readAsString();
+  }
+
+  if (noPol == 2) {
+    policiesEnabled = false;
+  }
+
   String gitTag = "untagged";
   try {
     gitTag = await _runGit([
@@ -59,6 +79,11 @@ class SBProject {
   static const String BUILD_TIMESTAMP = '${_escapeSingleQuotes(buildTimestamp)}';
   /// DO NOT USE outside of the switchboardd project, this value will mean nothing elsewhere.
   static const String BACKEND_VERSION = '${_escapeSingleQuotes(pubspecVersionBackend)}';
+  /// DO NOT USE outside of the switchboardd project, this value will mean nothing elsewhere.
+  static const String BACKEND_TOS = \'\'\'${_escapeSingleQuotes(termsOfService)}\'\'\';
+  /// DO NOT USE outside of the switchboardd project, this value will mean nothing elsewhere.
+  static const String BACKEND_PRIVACY = \'\'\'${_escapeSingleQuotes(privacyPolicy)}\'\'\';
+  static const bool BACKEND_POLICIES_ENABLED = ${policiesEnabled};
 
   /// Indicates whether the project is being run from a development/modified codebase.
   ///
