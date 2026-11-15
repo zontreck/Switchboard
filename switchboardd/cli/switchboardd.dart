@@ -170,6 +170,24 @@ Future<void> main(List<String> arguments) async {
             ..write(json.encode(spkr.encode()));
           break;
         }
+      case "/version":
+        {
+          ServerVersionResponse svr = ServerVersionResponse(
+            product: "Switchboard API Server (switchboardd)",
+            version: SBProject.BACKEND_VERSION,
+            Success: true,
+            Path: requestPath,
+            Method: requestMethod,
+            ID: rayID,
+            Reason: "",
+          );
+
+          request.response
+            ..statusCode = HttpStatus.ok
+            ..headers.contentType = ContentType.json
+            ..write(json.encode(svr.encode()));
+          break;
+        }
 
       default:
         {
