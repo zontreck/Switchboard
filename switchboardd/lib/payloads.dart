@@ -77,10 +77,12 @@ class ServerPublicKeyResponse extends BasicResponse {
 class ServerVersionResponse extends BasicResponse {
   String product;
   String version;
+  String backendVersion;
 
   ServerVersionResponse({
     required this.product,
     required this.version,
+    required this.backendVersion,
     required super.Success,
     required super.Path,
     required super.Method,
@@ -91,17 +93,23 @@ class ServerVersionResponse extends BasicResponse {
   ServerVersionResponse.fromJson(Map<String, dynamic> js)
     : product = "",
       version = "",
+      backendVersion = "",
       super(ID: "", Success: true, Method: "", Reason: "", Path: "") {
     super.decode(js);
 
     product = js['product'] as String;
     version = js['version'] as String;
+    backendVersion = js['backend'] as String;
   }
 
   @override
   Map<String, dynamic> encode() {
     var base = super.encode();
-    base["data"] = {"product": product, "version": version};
+    base["data"] = {
+      "product": product,
+      "version": version,
+      "backend": backendVersion,
+    };
 
     return base;
   }

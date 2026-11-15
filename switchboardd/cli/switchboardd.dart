@@ -174,7 +174,8 @@ Future<void> main(List<String> arguments) async {
         {
           ServerVersionResponse svr = ServerVersionResponse(
             product: "Switchboard API Server (switchboardd)",
-            version: SBProject.BACKEND_VERSION,
+            version: SBProject.PUBSPEC_VERSION,
+            backendVersion: SBProject.BACKEND_VERSION,
             Success: true,
             Path: requestPath,
             Method: requestMethod,
