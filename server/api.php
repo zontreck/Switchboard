@@ -62,21 +62,6 @@ $db0->close();
 
 
 switch($route) {
-    case "/": {
-        die(invalid_endpoint($replyPayload));
-        break;
-    }
-
-    case "/cron": {
-        // Execute recurring cron tasks, such as checking for expired content in the database and cleaning it up.
-        $repData = executeCronJobs();
-        $repData["server"] = $VERSION;
-        $replyPayload->Data = $repData;
-        $replyPayload->Reason = "";
-        
-        die($replyPayload->encode());
-        break;
-    }
     
     // Handle /user or /user/{username}
     case preg_match('#^/user(?:/([^/]+))?$#', $route, $matches) === 1: {
@@ -778,20 +763,6 @@ switch($route) {
         break;
     }
 
-
-    case "/version": {
-        die(json_encode(array(
-            "success" => true,
-            "id" => $ID,
-            "path" => $route,
-            "type" => $request,
-            "reason" => "",
-            "data" => array(
-                "product" => "Switchboard API Server (PHP)",
-                "version" => $VERSION
-            )
-        )));
-    }
 
     case preg_match('#^/images(?:/([^/]+))?$#', $route, $matches) === 1: {
 
@@ -1805,18 +1776,6 @@ switch($route) {
             "data" => $data
         )));
 
-        break;
-    }
-
-    case "/robots.txt": {
-        header("Content-Type: text/plain");
-        http_response_code(200);
-        die("User-agent: *\nDisallow: /");
-    }
-
-    default: {
-        $replyPayload->Success=false;
-        die(invalid_endpoint($replyPayload));
         break;
     }
 }
