@@ -1,7 +1,7 @@
 name: switchboardd
 description: A backend server for switchboard
 version: 0.4.0+3
-publish_to: https://git.zontreck.com/api/packages/Packages/pub/
+publish_to: https://git.zontreck.com/api/packages/Packages/pub
 repository: https://git.zontreck.com/Astara/Switchboard
 
 environment:
