@@ -8,11 +8,15 @@ import 'package:libac_dart/argparse/Parser.dart';
 import 'package:libac_dart/argparse/types/Bool.dart';
 import 'package:libac_dart/argparse/types/String.dart';
 import 'package:libac_dart/encryption/jwt.dart';
+import 'package:libac_dart/utils/TimeUtils.dart';
 import 'package:libac_dart/utils/uuid/UUID.dart';
 import 'package:mysql_dart/mysql_dart.dart';
 import 'package:switchboardd/audit.dart';
+import 'package:switchboardd/consts.dart';
 import 'package:switchboardd/dart/sbproj.dart';
+import 'package:switchboardd/funcs.dart';
 import 'package:switchboardd/migrations.dart';
+import 'package:switchboardd/network.dart';
 import 'package:switchboardd/payloads.dart';
 import 'package:switchboardd/tokens.dart';
 
@@ -149,6 +153,7 @@ Future<void> main(List<String> arguments) async {
     String rayID = UUID.generate(4).toString();
 
     final body = await utf8.decoder.bind(request).join();
+    Map<String, dynamic> bodyJs = json.decode(body);
 
     await auditLogger.log(
       rayID,
@@ -240,9 +245,85 @@ Future<void> main(List<String> arguments) async {
         }
       case var path when path.startsWith("/user/"):
         {
+          String username = "";
           List<String> pathParts = path.split('/');
           if (pathParts.length == 1) {
             // Username being absent, check the Authorization header.
+            username = authorization!.username;
+          } else {
+            username = pathParts[1];
+          }
+
+          switch (requestMethod) {
+            case "PUT":
+              {
+                if (username.isEmpty) {
+                  request.response
+                    ..statusCode = HttpStatus.ok
+                    ..headers.contentType = ContentType.json
+                    ..write(
+                      json.encode(
+                        (BasicResponse(
+                          ID: rayID,
+                          Success: false,
+                          Path: requestPath,
+                          Method: requestMethod,
+                          Reason: "E0A0A",
+                        )),
+                      ),
+                    );
+                } else {
+                  // We're creating the user
+                  String hashedPassword = bodyJs['auth'];
+
+                  String pwdSalt = ServerSecurityHelpers.makePasswordSalt();
+                  String pwdHash = ServerSecurityHelpers.makePasswordHash(
+                    hashedPassword,
+                    pwdSalt,
+                  );
+
+                  String userID = UUID.generate(4).toString();
+                  String rootFolderID = UUID.generate(4).toString();
+
+                  await insertNewUser(conn, username, userID, pwdHash, pwdSalt);
+                  await sanityCheckUserFields(conn, userID);
+                  await createNewFolder(
+                    conn,
+                    userID,
+                    rootFolderID,
+                    "root",
+                    null,
+                    TimeUtils.getUnixTimestamp(),
+                    TimeUtils.getUnixTimestamp(),
+                  );
+
+                  final userFields = await getAllUserFields(conn, userID);
+
+                  int userLevel = await getUserAccountLevel(conn, userID);
+
+                  ServerUserResponse SUR = ServerUserResponse(
+                    user: username,
+                    displayName: username,
+                    alterCount: 0,
+                    accountLevel: userLevel,
+                    id: userID,
+                    rootFolder: rootFolderID,
+                    fields: userFields,
+                    Success: true,
+                    Path: requestPath,
+                    Method: requestMethod,
+                    ID: rayID,
+                    Reason: "",
+                  );
+
+                  request.response
+                    ..statusCode = HttpStatus.ok
+                    ..headers.contentType = ContentType.json
+                    ..write(SUR.encode());
+                }
+                if (await usernameExists(conn, username)) {}
+                break;
+              }
           }
           break;
         }

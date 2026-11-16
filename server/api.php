@@ -41,24 +41,11 @@ $replyPayload->Type = $request;
 $replyPayload->Path = $route;
 $ID = $replyPayload->ID; // Session ID, can be used for tracing back errors
 
-$impersonate=false;
-$impUser = "";
 
 header("Content-Type: application/json", true);
 header("Server: Switchboard/v".$VERSION, true);
 header("Expires: 0", true);
 header("Cache-Control: max-age=0, no-store, no-cache, must-revalidate, proxy-revalidate", true);
-
-
-$db0 = get_DB("switchboard");
-
-// SANITY CHECK
-runMigrations($db0);
-
-logAudit($ID, $request, $route, $db0);
-
-$db0->close();
-
 
 
 switch($route) {
@@ -82,54 +69,6 @@ switch($route) {
         $data = null;
 
         switch($request) {
-            case "PUT": {
-                if($username) {
-                    // Check for an existing user.
-                    if(userNameExists($username)) {
-                        $success=false;
-                        $replyPayload->Reason = "User Exists";
-                        break;
-                    }
-                    // Update user info
-                    $HashedPwd = $packet['auth'];
-                    if(isset($packet['authRaw']) && $DEBUG) {
-                        $HashedPwd = md5($packet['authRaw']); // For security reasons, this is disabled when debug is turned off.
-                        // We must enforce security in a production environment.
-                    }
-                    $Salt = MakePasswordSalt();
-                    $Hash = MakePasswordHash($HashedPwd, $Salt);
-                    $userid = gen_uuid();
-
-                    insertNewUser($DB, $username, $Salt, $Hash, $userid);
-
-
-                    $success=true;
-                    $reason="User created";
-
-                    sanityCheckUserFields($userid);
-
-                    createNewFolder($null, gen_uuid(), "root", $userid, $rfTime);
-
-                    $replyPayload->Success = TRUE;
-
-
-                    $data = array(
-                        "user" => $username,
-                        "displayName" => $username,
-                        "alter_count" => 0,
-                        "level" => 1,
-                        "id" => $userid,
-                        "root_folder" => $rootFolder,
-                        "fields" => null // I am lazy, and do not feel like iterating over this. We'll just have the user send a request.
-                    );
-                } else {
-                    // Handle error: username missing
-                    $success=false;
-                    $reason = "Username required";
-                }
-                break;
-            }
-
             case "GET": {
                 if($username) {
                     // Fetch user info

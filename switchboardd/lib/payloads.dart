@@ -155,3 +155,105 @@ class ServerPolicyResponse extends BasicResponse {
     return js;
   }
 }
+
+class ServerUserResponse extends BasicResponse {
+  String user;
+  String displayName;
+  int alterCount;
+  int accountLevel;
+  String id;
+  String rootFolder;
+  List<Field> fields;
+
+  ServerUserResponse({
+    required this.user,
+    required this.displayName,
+    required this.alterCount,
+    required this.accountLevel,
+    required this.id,
+    required this.rootFolder,
+    required this.fields,
+    required super.Success,
+    required super.Path,
+    required super.Method,
+    required super.ID,
+    required super.Reason,
+  });
+
+  ServerUserResponse.fromJson(Map<String, dynamic> js)
+    : user = "",
+      displayName = "",
+      alterCount = 0,
+      accountLevel = 0,
+      id = "",
+      rootFolder = "",
+      fields = [],
+      super(ID: "", Path: "", Success: false, Method: "", Reason: "") {
+    decode(js);
+
+    user = js['user'];
+    displayName = js['displayName'];
+    alterCount = js['alter_count'];
+    accountLevel = js['level'];
+    id = js['id'];
+    rootFolder = js['root_folder'];
+    List<Map<String, dynamic>> lst = js['fields'];
+    fields = [];
+    for (var field in lst) {
+      fields.add(Field.fromJson(field));
+    }
+  }
+
+  @override
+  Map<String, dynamic> encode() {
+    var base = super.encode();
+    List<Map<String, dynamic>> lst = [];
+    for (var field in fields) {
+      lst.add(field.encode());
+    }
+
+    base["data"] = {
+      "user": user,
+      "displayName": displayName,
+      "alter_count": alterCount,
+      "level": accountLevel,
+      "id": id,
+      "root_folder": rootFolder,
+      "fields": lst,
+    };
+
+    return base;
+  }
+}
+
+class Field {
+  String fieldID;
+  String fieldName;
+  int fieldType;
+  int sortOrder;
+
+  Field({
+    required this.fieldID,
+    required this.fieldName,
+    required this.fieldType,
+    required this.sortOrder,
+  });
+
+  Map<String, dynamic> encode() {
+    return {
+      "id": fieldID,
+      "name": fieldName,
+      "type": fieldType,
+      "order": sortOrder,
+    };
+  }
+
+  factory Field.fromJson(Map<String, dynamic> js) {
+    return Field(
+      fieldID: js['id'],
+      fieldName: js['name'],
+      fieldType: js['type'],
+      sortOrder: js['order'],
+    );
+  }
+}

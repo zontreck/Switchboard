@@ -1,3 +1,7 @@
+## 0.4.0+5
+
+- Implemented the /user endpoint for user creation.
+
 ## 0.4.0+3
 
 ADD:
