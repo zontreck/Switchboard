@@ -169,6 +169,7 @@ Future<void> main(List<String> arguments) async {
     );
 
     String authorizationToken = "";
+    ServerAuthToken? authorization;
     if (headers.containsKey("Authorization")) {
       authorizationToken = headers["Authorization"]?.first ?? "";
       List<String> atParts = authorizationToken.split(' ');
@@ -177,11 +178,11 @@ Future<void> main(List<String> arguments) async {
       } else {
         authorizationToken = atParts[0];
       }
+      authorization = ServerAuthToken.performVerification(
+        authorizationToken,
+        RSAPublicKey(publicKey),
+      );
     }
-    ServerAuthToken? authorization = ServerAuthToken.performVerification(
-      authorizationToken,
-      RSAPublicKey(publicKey),
-    );
 
     switch (requestPath) {
       case "/robots.txt":
