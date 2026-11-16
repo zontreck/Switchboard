@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:dart_jsonwebtoken/dart_jsonwebtoken.dart';
 import 'package:libac_dart/argparse/Builder.dart';
 import 'package:libac_dart/argparse/CLIHelper.dart';
 import 'package:libac_dart/argparse/Parser.dart';
@@ -13,6 +14,7 @@ import 'package:switchboardd/audit.dart';
 import 'package:switchboardd/dart/sbproj.dart';
 import 'package:switchboardd/migrations.dart';
 import 'package:switchboardd/payloads.dart';
+import 'package:switchboardd/tokens.dart';
 
 Future<void> main(List<String> arguments) async {
   final args = ArgumentParser.parse(arguments);
@@ -156,6 +158,21 @@ Future<void> main(List<String> arguments) async {
       body,
     );
 
+    String authorizationToken = "";
+    if (headers.containsKey("Authorization")) {
+      authorizationToken = headers["Authorization"]?.first ?? "";
+      List<String> atParts = authorizationToken.split(' ');
+      if (atParts[0] == "Bearer") {
+        authorizationToken = atParts[1];
+      } else {
+        authorizationToken = atParts[0];
+      }
+    }
+    ServerAuthToken? authorization = ServerAuthToken.performVerification(
+      authorizationToken,
+      RSAPublicKey(publicKey),
+    );
+
     switch (requestPath) {
       case "/robots.txt":
         {
@@ -223,6 +240,10 @@ Future<void> main(List<String> arguments) async {
         }
       case var path when path.startsWith("/user/"):
         {
+          List<String> pathParts = path.split('/');
+          if (pathParts.length == 1) {
+            // Username being absent, check the Authorization header.
+          }
           break;
         }
 
