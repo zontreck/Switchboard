@@ -2,17 +2,28 @@ import 'package:dart_jsonwebtoken/dart_jsonwebtoken.dart';
 
 class ServerAuthToken {
   String username;
+  String id;
   int level;
 
-  ServerAuthToken({required this.username, required this.level});
+  ServerAuthToken({
+    required this.username,
+    required this.level,
+    required this.id,
+  });
 
   Map<String, dynamic> toJson() {
-    return {"username": username, "level": level, "type": getTokenType()};
+    return {
+      "username": username,
+      "level": level,
+      "type": getTokenType(),
+      "id": id,
+    };
   }
 
   void decode(Map<String, dynamic> js) {
     username = js['username'];
     level = js['level'] as int;
+    id = js['id'];
   }
 
   String getTokenType() {
@@ -31,9 +42,13 @@ class ServerAuthToken {
     return jwt.sign(RSAPrivateKey(rsaKey), expiresIn: Duration(days: 1));
   }
 
-  ServerAuthToken.fromJs(Map<String, dynamic> js) : username = "", level = 0 {
+  ServerAuthToken.fromJs(Map<String, dynamic> js)
+    : username = "",
+      level = 0,
+      id = "" {
     username = js['username'];
     level = js['level'];
+    id = js['id'];
   }
 
   static ServerAuthToken? performVerification(
