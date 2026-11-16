@@ -153,7 +153,12 @@ Future<void> main(List<String> arguments) async {
     String rayID = UUID.generate(4).toString();
 
     final body = await utf8.decoder.bind(request).join();
-    Map<String, dynamic> bodyJs = json.decode(body);
+    Map<String, dynamic> bodyJs = {};
+    try {
+      bodyJs = json.decode(body);
+    } catch (e) {
+      // Ignore error, this just means there was either no body, or the body was not in json.
+    }
 
     await auditLogger.log(
       rayID,
