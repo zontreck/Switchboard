@@ -162,3 +162,60 @@ Future<int> getUserAccountLevel(MySQLConnectionPool pool, String userID) async {
 
   return 0;
 }
+
+Future<ServerUser?> getServerUser(
+  MySQLConnectionPool pool,
+  String userID,
+) async {
+  await pool.withConnection((conn) async {
+    var res = await conn.execute("SELECT * FROM users WHERE `ID` = :id;", {
+      "id": userID,
+    });
+
+    await for (final row in res.rowsStream) {
+      var assocRow = row.assoc();
+      ServerUser user = ServerUser(
+        username: assocRow["UserName"],
+        userID: userID,
+        accountLevel: assocRow["AccountLevel"],
+        passwordHash: assocRow["PasswordHash"],
+        passwordSalt: assocRow["PasswordSalt"],
+        displayName: assocRow["DisplayName"],
+      );
+
+      return user;
+    }
+  });
+
+  return null;
+}
+
+Future<ServerUser?> getServerUserByName(
+  MySQLConnectionPool pool,
+  String username,
+) async {
+  await pool.withConnection((conn) async {
+    var res = await conn.execute(
+      "SELECT * FROM users WHERE `UserName` = :name;",
+      {"name": username},
+    );
+
+    if (res.numOfRows == 0) return null;
+
+    await for (final row in res.rowsStream) {
+      var assocRow = row.assoc();
+      ServerUser user = ServerUser(
+        username: assocRow["UserName"],
+        userID: assocRow['ID'],
+        accountLevel: assocRow["AccountLevel"],
+        passwordHash: assocRow["PasswordHash"],
+        passwordSalt: assocRow["PasswordSalt"],
+        displayName: assocRow["DisplayName"],
+      );
+
+      return user;
+    }
+  });
+
+  return null;
+}

@@ -1,4 +1,6 @@
+import 'package:libac_dart/utils/Hashing.dart';
 import 'package:switchboardd/consts.dart';
+import 'package:switchboardd/users.dart';
 
 class BasicResponse {
   bool Success = false;
@@ -255,5 +257,38 @@ class Field {
       fieldType: js['type'],
       sortOrder: js['order'],
     );
+  }
+}
+
+class ServerUser {
+  String username;
+  String userID;
+  int accountLevel;
+  String passwordHash;
+  String passwordSalt;
+  String displayName;
+
+  String getAccountLevelStr() {
+    return getAccountLevel(accountLevel);
+  }
+
+  ServerUser({
+    required this.username,
+    required this.userID,
+    required this.accountLevel,
+    required this.passwordHash,
+    required this.passwordSalt,
+    required this.displayName,
+  });
+
+  bool authenticate(String hashedPassword) {
+    bool res = Hashing.md5Hash("$hashedPassword:$passwordSalt") == passwordHash;
+
+    if (res) {
+      passwordHash = "";
+      passwordSalt = "";
+    }
+
+    return res;
   }
 }

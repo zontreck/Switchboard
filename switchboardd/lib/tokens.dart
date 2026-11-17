@@ -38,8 +38,12 @@ class ServerAuthToken {
     );
   }
 
-  String signJWT(JWT jwt, String rsaKey) {
-    return jwt.sign(RSAPrivateKey(rsaKey), expiresIn: Duration(days: 1));
+  String signJWT(
+    JWT jwt,
+    String rsaKey, {
+    Duration expiration = const Duration(days: 1),
+  }) {
+    return jwt.sign(RSAPrivateKey(rsaKey), expiresIn: expiration);
   }
 
   ServerAuthToken.fromJs(Map<String, dynamic> js)

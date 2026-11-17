@@ -333,6 +333,61 @@ Future<void> main(List<String> arguments) async {
           }
           break;
         }
+      case "/auth/login":
+        {
+          String username = bodyJs['username'];
+          String hashedPwd = bodyJs['auth'];
+
+          ServerUser? user = await getServerUserByName(conn, username);
+          if (user == null) {
+            // user does not exist
+            request.response
+              ..statusCode = HttpStatus.ok
+              ..headers.contentType = ContentType.json
+              ..write(
+                json.encode(
+                  BasicResponse(
+                    Success: false,
+                    Path: requestPath,
+                    Method: requestMethod,
+                    ID: rayID,
+                    Reason: "E1A00",
+                  ).encode(),
+                ),
+              );
+          } else {
+            bool login = user.authenticate(hashedPwd);
+            if (login) {
+              // Generate a authentication token
+              ServerAuthToken nAuthToken = ServerAuthToken(
+                username: username,
+                level: user.accountLevel,
+                id: user.userID,
+              );
+              String jWebToken = nAuthToken.signJWT(
+                nAuthToken.encodeJWT(),
+                privateKey,
+                expiration: Duration(days: 7),
+              );
+            } else {
+              request.response
+                ..statusCode = HttpStatus.ok
+                ..headers.contentType = ContentType.json
+                ..write(
+                  json.encode(
+                    BasicResponse(
+                      Success: false,
+                      Path: requestPath,
+                      Method: requestMethod,
+                      ID: rayID,
+                      Reason: "E1A01",
+                    ).encode(),
+                  ),
+                );
+            }
+          }
+          break;
+        }
 
       default:
         {
