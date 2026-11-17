@@ -35,6 +35,11 @@ class MIGCreateMigrationsTable implements Migration {
         migration VARCHAR(255) NOT NULL UNIQUE PRIMARY KEY
       )
     ''');
+
+    await connection.execute(
+      "INSERT INTO migrations (migration) VALUES (:mig)",
+      {"mig": migrationID},
+    );
   }
 }
 
