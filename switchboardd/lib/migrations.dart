@@ -212,7 +212,8 @@ class MIGFolders implements Migration {
         UNIQUE KEY `UK_Folder_Name` (`ParentFolder`,`Name`),  
         KEY `FK_Folders_User` (`UserID`),  
         CONSTRAINT `FK_Folders_Parent` FOREIGN KEY (`ParentFolder`) REFERENCES `Folders` (`ID`) ON DELETE SET NULL ON UPDATE CASCADE,  
-        CONSTRAINT `FK_Folders_User` FOREIGN KEY (`UserID`) REFERENCES `users` (`ID`) ON DELETE CASCADE ON UPDATE CASCADE);
+        CONSTRAINT `FK_Folders_User` FOREIGN KEY (`UserID`) REFERENCES `users` (`ID`) ON DELETE CASCADE ON UPDATE CASCADE) 
+        ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
     ''');
 
     await connection.execute('''
@@ -228,7 +229,8 @@ class MIGFolders implements Migration {
         UNIQUE KEY `UK_Entry_Name` (`FolderID`,`Name`),  
         KEY `FKUserID` (`UserID`),  
         CONSTRAINT `FKUserID` FOREIGN KEY (`UserID`) REFERENCES `users` (`ID`) ON DELETE CASCADE ON UPDATE CASCADE,  
-        CONSTRAINT `FK_FolderEntries_Folder` FOREIGN KEY (`FolderID`) REFERENCES `Folders` (`ID`) ON DELETE CASCADE ON UPDATE CASCADE);
+        CONSTRAINT `FK_FolderEntries_Folder` FOREIGN KEY (`FolderID`) REFERENCES `Folders` (`ID`) ON DELETE CASCADE ON UPDATE CASCADE) 
+        ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
     ''');
 
     final users = await connection.execute("SELECT * FROM `users`;");
