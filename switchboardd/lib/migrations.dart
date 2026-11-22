@@ -20,8 +20,11 @@ abstract class Migration {
   String get migrationID;
 
   /// Executes the migration.
-  Future<bool> execute(MySQLConnection connection);
+  Future<void> execute(MySQLConnection connection);
 }
+
+/// A very basic signal that can be thrown in the event a migration has already been executed and should be skipped.
+class MigrationExecutedException implements Exception {}
 
 /// Creates the table used to track executed migrations.
 class MIGCreateMigrationsTable implements Migration {
@@ -29,14 +32,16 @@ class MIGCreateMigrationsTable implements Migration {
   String get migrationID => '0001_MakeMigrationsTable';
 
   @override
-  Future<bool> execute(MySQLConnection connection) async {
-    var res = await connection.execute('''
-      CREATE TABLE IF NOT EXISTS migrations (
+  Future<void> execute(MySQLConnection connection) async {
+    try {
+      await connection.execute('''
+      CREATE TABLE migrations (
         migration VARCHAR(255) NOT NULL UNIQUE PRIMARY KEY
       )
     ''');
-
-    return res.affectedRows > BigInt.zero;
+    } catch (E) {
+      throw MigrationExecutedException();
+    }
   }
 }
 
@@ -45,9 +50,10 @@ class MIGCreateMigrationsTable implements Migration {
 /// NOTE: Migration history was squashed after the alpha build was stabilized.
 class MIGInitializeDB implements Migration {
   @override
-  Future<bool> execute(MySQLConnection connection) async {
-    await connection.execute('''
-      CREATE TABLE IF NOT EXISTS `users` (
+  Future<void> execute(MySQLConnection connection) async {
+    try {
+      await connection.execute('''
+      CREATE TABLE `users` (
         `UserName` varchar(64) DEFAULT NULL, 
         `PasswordSalt` varchar(255) DEFAULT NULL, 
         `PasswordHash` varchar(255) DEFAULT NULL, 
@@ -59,8 +65,8 @@ class MIGInitializeDB implements Migration {
         ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
     ''');
 
-    await connection.execute('''
-      CREATE TABLE IF NOT EXISTS `Access` (  
+      await connection.execute('''
+      CREATE TABLE `Access` (  
         `User` varchar(64) DEFAULT NULL,  
         `Token` varchar(64) NOT NULL,  
         `TokenScope` int(11) NOT NULL DEFAULT 0,  
@@ -73,8 +79,8 @@ class MIGInitializeDB implements Migration {
         ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
     ''');
 
-    await connection.execute('''
-      CREATE TABLE IF NOT EXISTS `Alters` (  
+      await connection.execute('''
+      CREATE TABLE `Alters` (  
         `User` varchar(64) NOT NULL,  
         `ID` varchar(64) NOT NULL,  
         `Name` varchar(255) DEFAULT NULL,  
@@ -89,8 +95,8 @@ class MIGInitializeDB implements Migration {
         CONSTRAINT `Alters_ibfk_1` FOREIGN KEY (`User`) REFERENCES `users` (`ID`) ON DELETE CASCADE ON UPDATE CASCADE) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
     ''');
 
-    await connection.execute('''
-      CREATE TABLE IF NOT EXISTS `Audit` ( 
+      await connection.execute('''
+      CREATE TABLE `Audit` ( 
         `ID` varchar(64) NOT NULL,  
         `RequestType` varchar(12) DEFAULT NULL,  
         `RequestPath` varchar(255) DEFAULT NULL,  
@@ -100,8 +106,8 @@ class MIGInitializeDB implements Migration {
         PRIMARY KEY (`ID`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
     ''');
 
-    await connection.execute('''
-      CREATE TABLE IF NOT EXISTS `Avatars` (  
+      await connection.execute('''
+      CREATE TABLE `Avatars` (  
         `User` varchar(64) NOT NULL,  
         `AlterId` varchar(64) NOT NULL,  
         `ImageType` varchar(255) NOT NULL DEFAULT 'image/webp',  
@@ -114,8 +120,8 @@ class MIGInitializeDB implements Migration {
         CONSTRAINT `Avatars_ibfk_2` FOREIGN KEY (`AlterId`) REFERENCES `Alters` (`ID`) ON DELETE CASCADE ON UPDATE CASCADE) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
     ''');
 
-    await connection.execute('''
-      CREATE TABLE IF NOT EXISTS `Feedback` (  
+      await connection.execute('''
+      CREATE TABLE `Feedback` (  
         `User` varchar(64) NOT NULL,  
         `ID` varchar(64) NOT NULL,  
         `Name` varchar(255) NOT NULL,  
@@ -131,8 +137,8 @@ class MIGInitializeDB implements Migration {
         CONSTRAINT `Feedback_ibfk_1` FOREIGN KEY (`User`) REFERENCES `users` (`ID`) ON DELETE CASCADE ON UPDATE CASCADE) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
     ''');
 
-    await connection.execute('''
-      CREATE TABLE IF NOT EXISTS `FeedbackMessages` (  
+      await connection.execute('''
+      CREATE TABLE `FeedbackMessages` (  
         `ID` varchar(64) NOT NULL,  
         `Feedback` varchar(64) NOT NULL,  
         `User` varchar(64) NOT NULL,  
@@ -146,8 +152,8 @@ class MIGInitializeDB implements Migration {
         CONSTRAINT `FeedbackMessages_ibfk_2` FOREIGN KEY (`Feedback`) REFERENCES `Feedback` (`ID`) ON DELETE CASCADE ON UPDATE CASCADE) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
     ''');
 
-    await connection.execute('''
-      CREATE TABLE IF NOT EXISTS `Fields` (  
+      await connection.execute('''
+      CREATE TABLE `Fields` (  
         `User` varchar(64) NOT NULL,  
         `ID` varchar(64) NOT NULL,  
         `FieldName` varchar(255) NOT NULL,  
@@ -158,8 +164,8 @@ class MIGInitializeDB implements Migration {
         CONSTRAINT `Fields_ibfk_1` FOREIGN KEY (`User`) REFERENCES `users` (`ID`) ON DELETE CASCADE ON UPDATE CASCADE) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
     ''');
 
-    await connection.execute('''
-      CREATE TABLE IF NOT EXISTS `Fronting` ( 
+      await connection.execute('''
+      CREATE TABLE `Fronting` ( 
         `ID` varchar(64) NOT NULL,  
         `User` varchar(64) NOT NULL,  
         `AlterID` varchar(64) NOT NULL,  
@@ -173,8 +179,8 @@ class MIGInitializeDB implements Migration {
         CONSTRAINT `Fronting_ibfk_2` FOREIGN KEY (`AlterID`) REFERENCES `Alters` (`ID`) ON DELETE CASCADE ON UPDATE CASCADE) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
     ''');
 
-    await connection.execute('''
-      CREATE TABLE IF NOT EXISTS `Images` (  
+      await connection.execute('''
+      CREATE TABLE `Images` (  
         `OwnerID` varchar(64) NOT NULL,  
         `ImageID` varchar(64) NOT NULL,  
         `ImageType` varchar(255) NOT NULL DEFAULT 'image/webp', 
@@ -185,8 +191,9 @@ class MIGInitializeDB implements Migration {
         KEY `OwnerID` (`OwnerID`),  
         CONSTRAINT `Images_ibfk_1` FOREIGN KEY (`OwnerID`) REFERENCES `users` (`ID`) ON DELETE CASCADE ON UPDATE CASCADE) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
     ''');
-
-    return true;
+    } catch (E) {
+      throw MigrationExecutedException();
+    }
   }
 
   @override
@@ -196,8 +203,9 @@ class MIGInitializeDB implements Migration {
 /// Creates the folders support tables and migrates existing users accordingly
 class MIGFolders implements Migration {
   @override
-  Future<bool> execute(MySQLConnection connection) async {
-    await connection.execute('''
+  Future<void> execute(MySQLConnection connection) async {
+    try {
+      await connection.execute('''
       CREATE TABLE `Folders` (  
         `ID` varchar(64) NOT NULL,  
         `ParentFolder` varchar(64) DEFAULT NULL,  
@@ -214,7 +222,7 @@ class MIGFolders implements Migration {
         ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
     ''');
 
-    await connection.execute('''
+      await connection.execute('''
       CREATE TABLE `FolderEntries` (  
         `ID` varchar(64) NOT NULL,  
         `FolderID` varchar(64) NOT NULL,  
@@ -231,34 +239,36 @@ class MIGFolders implements Migration {
         ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
     ''');
 
-    final users = await connection.execute("SELECT * FROM `users`;");
-    for (ResultSetRow row in users.rows) {
-      final rootID = UUID.generate(4).toString();
-      final rootName = "root";
-      final rowAssoc = row.assoc();
-      final userID = rowAssoc["ID"];
-      final parentFolder = NULL_KEY;
-      final creationTime = TimeUtils.getUnixTimestamp();
-      final color = "[0,0,0,0]";
-      final description = "";
+      final users = await connection.execute("SELECT * FROM `users`;");
+      for (ResultSetRow row in users.rows) {
+        final rootID = UUID.generate(4).toString();
+        final rootName = "root";
+        final rowAssoc = row.assoc();
+        final userID = rowAssoc["ID"];
+        final parentFolder = NULL_KEY;
+        final creationTime = TimeUtils.getUnixTimestamp();
+        final color = "[0,0,0,0]";
+        final description = "";
 
-      await connection.execute(
-        '''
+        await connection.execute(
+          '''
         INSERT INTO `Folders` (`ID`, `ParentFolder`, `Name`, `UserID`, `Created`, `Modified`, `Color`, `Description`) VALUES (:ID, :Parent, :Name, :UID, :Created, :Mod, :Color, :Desc);
       ''',
-        {
-          "ID": rootID,
-          "Parent": parentFolder,
-          "Name": rootName,
-          "UID": userID,
-          "Created": creationTime,
-          "Mod": creationTime,
-          "Color": color,
-          "Desc": description,
-        },
-      );
+          {
+            "ID": rootID,
+            "Parent": parentFolder,
+            "Name": rootName,
+            "UID": userID,
+            "Created": creationTime,
+            "Mod": creationTime,
+            "Color": color,
+            "Desc": description,
+          },
+        );
+      }
+    } catch (E) {
+      throw MigrationExecutedException();
     }
-    return true;
   }
 
   @override
@@ -268,16 +278,18 @@ class MIGFolders implements Migration {
 /// Add necessary data fields for proxy info to alters
 class MIGProxyInfo implements Migration {
   @override
-  Future<bool> execute(MySQLConnection connection) async {
-    await connection.execute('''
+  Future<void> execute(MySQLConnection connection) async {
+    try {
+      await connection.execute('''
       ALTER TABLE `Alters` ADD ProxyName VARCHAR(64) NOT NULL DEFAULT '' AFTER Flags;
     ''');
 
-    await connection.execute('''
+      await connection.execute('''
       ALTER TABLE `Alters` ADD Proxies TEXT NULL AFTER ProxyName;
     ''');
-
-    return true;
+    } catch (E) {
+      throw MigrationExecutedException();
+    }
   }
 
   @override
@@ -301,8 +313,8 @@ class Migrator {
   static Future<void> performMigrations(MySQLConnectionPool connection) async {
     // Ensure the migration tracking table exists before checking migrations.
     await connection.withConnection((conn) async {
-      var res = await _migrations.first.execute(conn);
-      if (res) {
+      try {
+        await _migrations.first.execute(conn);
         await conn.execute(
           '''
         INSERT INTO migrations (migration)
@@ -310,7 +322,9 @@ class Migrator {
         ''',
           {'migration': _migrations.first.migrationID},
         );
-      }
+      } on MigrationExecutedException catch (e) {
+        // Skip this migration silently.
+      } catch (x) {}
 
       for (final migration in _migrations.skip(1)) {
         final alreadyRun = await _migrationAlreadyRun(
@@ -323,8 +337,15 @@ class Migrator {
         }
 
         print("> Executing Migration: ${migration.migrationID}");
-        await migration.execute(conn);
+        try {
+          await migration.execute(conn);
+        } on MigrationExecutedException catch (mee, stack) {
+          print(stack);
+        } catch (e) {
+          // Catch everything else.
+        }
 
+        // Mark the migration as executed.
         await conn.execute(
           '''
         INSERT INTO migrations (migration)
