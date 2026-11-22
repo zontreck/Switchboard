@@ -211,7 +211,6 @@ class MIGFolders implements Migration {
         PRIMARY KEY (`ID`),  
         UNIQUE KEY `UK_Folder_Name` (`ParentFolder`,`Name`),  
         KEY `FK_Folders_User` (`UserID`),  
-        CONSTRAINT `FK_Folders_Parent` FOREIGN KEY (`ParentFolder`) REFERENCES `Folders` (`ID`) ON DELETE SET NULL ON UPDATE CASCADE,  
         CONSTRAINT `FK_Folders_User` FOREIGN KEY (`UserID`) REFERENCES `users` (`ID`) ON DELETE CASCADE ON UPDATE CASCADE) 
         ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
     ''');
