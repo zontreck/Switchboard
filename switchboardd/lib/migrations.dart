@@ -20,7 +20,7 @@ abstract class Migration {
   String get migrationID;
 
   /// Executes the migration.
-  Future<void> execute(MySQLConnection connection);
+  Future<bool> execute(MySQLConnection connection);
 }
 
 /// Creates the table used to track executed migrations.
@@ -29,17 +29,14 @@ class MIGCreateMigrationsTable implements Migration {
   String get migrationID => '0001_MakeMigrationsTable';
 
   @override
-  Future<void> execute(MySQLConnection connection) async {
-    await connection.execute('''
+  Future<bool> execute(MySQLConnection connection) async {
+    var res = await connection.execute('''
       CREATE TABLE IF NOT EXISTS migrations (
         migration VARCHAR(255) NOT NULL UNIQUE PRIMARY KEY
       )
     ''');
 
-    await connection.execute(
-      "INSERT INTO migrations (migration) VALUES (:mig)",
-      {"mig": migrationID},
-    );
+    return res.affectedRows > BigInt.zero;
   }
 }
 
@@ -48,7 +45,7 @@ class MIGCreateMigrationsTable implements Migration {
 /// NOTE: Migration history was squashed after the alpha build was stabilized.
 class MIGInitializeDB implements Migration {
   @override
-  Future<void> execute(MySQLConnection connection) async {
+  Future<bool> execute(MySQLConnection connection) async {
     await connection.execute('''
       CREATE TABLE IF NOT EXISTS `users` (
         `UserName` varchar(64) DEFAULT NULL, 
@@ -188,6 +185,8 @@ class MIGInitializeDB implements Migration {
         KEY `OwnerID` (`OwnerID`),  
         CONSTRAINT `Images_ibfk_1` FOREIGN KEY (`OwnerID`) REFERENCES `users` (`ID`) ON DELETE CASCADE ON UPDATE CASCADE) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
     ''');
+
+    return true;
   }
 
   @override
@@ -197,7 +196,7 @@ class MIGInitializeDB implements Migration {
 /// Creates the folders support tables and migrates existing users accordingly
 class MIGFolders implements Migration {
   @override
-  Future<void> execute(MySQLConnection connection) async {
+  Future<bool> execute(MySQLConnection connection) async {
     await connection.execute('''
       CREATE TABLE `Folders` (  
         `ID` varchar(64) NOT NULL,  
@@ -259,6 +258,7 @@ class MIGFolders implements Migration {
         },
       );
     }
+    return true;
   }
 
   @override
@@ -268,7 +268,7 @@ class MIGFolders implements Migration {
 /// Add necessary data fields for proxy info to alters
 class MIGProxyInfo implements Migration {
   @override
-  Future<void> execute(MySQLConnection connection) async {
+  Future<bool> execute(MySQLConnection connection) async {
     await connection.execute('''
       ALTER TABLE `Alters` ADD ProxyName VARCHAR(64) NOT NULL DEFAULT '' AFTER Flags;
     ''');
@@ -276,6 +276,8 @@ class MIGProxyInfo implements Migration {
     await connection.execute('''
       ALTER TABLE `Alters` ADD Proxies TEXT NULL AFTER ProxyName;
     ''');
+
+    return true;
   }
 
   @override
@@ -299,7 +301,16 @@ class Migrator {
   static Future<void> performMigrations(MySQLConnectionPool connection) async {
     // Ensure the migration tracking table exists before checking migrations.
     await connection.withConnection((conn) async {
-      await _migrations.first.execute(conn);
+      var res = await _migrations.first.execute(conn);
+      if (res) {
+        await conn.execute(
+          '''
+        INSERT INTO migrations (migration)
+        VALUES (:migration)
+        ''',
+          {'migration': _migrations.first.migrationID},
+        );
+      }
 
       for (final migration in _migrations.skip(1)) {
         final alreadyRun = await _migrationAlreadyRun(

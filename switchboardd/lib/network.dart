@@ -76,7 +76,7 @@ Future<String> getFieldIDForUser(
 ) async {
   await pool.withConnection((conn) async {
     var result = await conn.execute(
-      "SELECT * FROM `Fields` WHERE `User` = :user AND `Type` = :type;",
+      "SELECT * FROM `Fields` WHERE `User` = :user AND `FieldType` = :type;",
       {"user": userID, "type": fieldType},
       true,
     );
