@@ -39,10 +39,10 @@ dependencies:
   #  version: 4.0.0
   libac_dart:
     hosted: https://git.zontreck.com/api/packages/Packages/pub/
-    version: 1.5.2+1112261641
+    version: ^1.5.3
   libacflutter:
     hosted: https://git.zontreck.com/api/packages/Packages/pub/
-    version: 1.5.1+1112261643
+    version: ^1.5.2
   dio: ^5.9.2
   mysql_client: ^0.0.27
   http: ^1.6.0

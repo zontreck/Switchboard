@@ -15,7 +15,7 @@ dependencies:
   path: ^1.9.0
   libac_dart:
     hosted: https://git.zontreck.com/api/packages/Packages/pub/
-    version: 1.5.2+1112261641
+    version: ^1.5.3
   image: ^4.13.1
 
 dev_dependencies:

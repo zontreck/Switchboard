@@ -241,7 +241,7 @@ class MIGFolders implements Migration {
 
       final users = await connection.execute("SELECT * FROM `users`;");
       for (ResultSetRow row in users.rows) {
-        final rootID = UUID.generate(4).toString();
+        final rootID = UUID.v4().toString();
         final rootName = "root";
         final rowAssoc = row.assoc();
         final userID = rowAssoc["ID"];

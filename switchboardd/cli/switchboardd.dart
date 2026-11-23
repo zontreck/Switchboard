@@ -150,7 +150,7 @@ Future<void> main(List<String> arguments) async {
     request.headers.forEach((key, values) {
       headers[key] = values;
     });
-    String rayID = UUID.generate(4).toString();
+    String rayID = UUID.v4().toString();
 
     final body = await utf8.decoder.bind(request).join();
     Map<String, dynamic> bodyJs = {};
@@ -288,8 +288,8 @@ Future<void> main(List<String> arguments) async {
                     pwdSalt,
                   );
 
-                  String userID = UUID.generate(4).toString();
-                  String rootFolderID = UUID.generate(4).toString();
+                  String userID = UUID.v4().toString();
+                  String rootFolderID = UUID.v4().toString();
 
                   await insertNewUser(conn, username, userID, pwdHash, pwdSalt);
                   await sanityCheckUserFields(conn, userID);

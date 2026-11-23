@@ -53,7 +53,7 @@ Future<void> sanityCheckUserFields(
         continue;
       }
       // Generate the field in the database.
-      String fieldID = UUID.generate(4).toString();
+      String fieldID = UUID.v4().toString();
 
       await conn.execute(
         "INSERT INTO `Fields` (ID, User, FieldName, FieldType, SortOrder) VALUES (:id, :user, :name, :type, :order);",
