@@ -34,7 +34,8 @@ pipeline {
                 script {
                     sh '''
                     #!/bin/bash
-
+                    
+                    git checkout "$BRANCH_NAME"
                     dart run cli/generate_build_inf.dart
                     '''
                 }
@@ -61,6 +62,8 @@ pipeline {
                 script {
                     sh '''
                     #!/bin/bash
+                    
+                    git checkout "$BRANCH_NAME"
 
                     docker system prune -a -f
 
@@ -97,6 +100,9 @@ pipeline {
                 script {
                     sh '''
                     #!/bin/bash
+                    
+                    git checkout "$BRANCH_NAME"
+
                     chmod +x localbuild.sh
                     RELEASE=1 ./localbuild.sh || true
 
@@ -163,6 +169,9 @@ pipeline {
                 script {
                     sh '''
                     #!/bin/zsh
+                    
+                    git checkout "$BRANCH_NAME"
+
                     source ~/.zshrc
 
                     flutter clean
@@ -208,6 +217,9 @@ pipeline {
                 script {
                     sh '''
                     #!/bin/zsh
+                    
+                    git checkout "$BRANCH_NAME"
+                    
                     source ~/.zshrc
 
                     flutter clean
