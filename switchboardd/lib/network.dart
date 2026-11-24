@@ -26,7 +26,7 @@ Future<bool> usernameExists(MySQLConnectionPool pool, String username) async {
 Future<void> insertNewUser(
   MySQLConnectionPool pool,
   String username,
-  String userID,
+  UUID userID,
   String passwordHash,
   String passwordSalt,
 ) async {
@@ -34,7 +34,7 @@ Future<void> insertNewUser(
     await conn.execute(
       "INSERT INTO users (ID, UserName, PasswordHash, PasswordSalt, DisplayName) VALUES (:id, :username, :hash, :salt, :username);",
       {
-        "id": userID,
+        "id": userID.toString(),
         "username": username,
         "hash": passwordHash,
         "salt": passwordSalt,
@@ -45,7 +45,7 @@ Future<void> insertNewUser(
 
 Future<void> sanityCheckUserFields(
   MySQLConnectionPool pool,
-  String userID,
+  UUID userID,
 ) async {
   await pool.withConnection((conn) async {
     for (var field in defaultUserFields) {
@@ -53,13 +53,13 @@ Future<void> sanityCheckUserFields(
         continue;
       }
       // Generate the field in the database.
-      String fieldID = UUID.v4().toString();
+      UUID fieldID = UUID.v4();
 
       await conn.execute(
         "INSERT INTO `Fields` (ID, User, FieldName, FieldType, SortOrder) VALUES (:id, :user, :name, :type, :order);",
         {
-          "id": fieldID,
-          "user": userID,
+          "id": fieldID.toString(),
+          "user": userID.toString(),
           "name": field["Name"],
           "type": field["Type"],
           "order": field["Order"],
@@ -69,39 +69,39 @@ Future<void> sanityCheckUserFields(
   });
 }
 
-Future<String> getFieldIDForUser(
+Future<UUID> getFieldIDForUser(
   MySQLConnectionPool pool,
-  String userID,
+  UUID userID,
   int fieldType,
 ) async {
   await pool.withConnection((conn) async {
     var result = await conn.execute(
       "SELECT * FROM `Fields` WHERE `User` = :user AND `FieldType` = :type;",
-      {"user": userID, "type": fieldType},
+      {"user": userID.toString(), "type": fieldType},
       true,
     );
 
-    if (result.numOfRows == 0) return UUID_ZERO;
+    if (result.numOfRows == 0) return UUID.ZERO;
 
     var assoc = result.rows.first.assoc();
-    return assoc["ID"];
+    return UUID.parse(assoc["ID"]);
   });
 
-  return UUID_ZERO;
+  return UUID.ZERO;
 }
 
 Future<bool> fieldExists(
   MySQLConnectionPool pool,
-  String userID,
+  UUID userID,
   int fieldType,
 ) async {
-  return (await getFieldIDForUser(pool, userID, fieldType)) != UUID_ZERO;
+  return (await getFieldIDForUser(pool, userID, fieldType)) != UUID.ZERO;
 }
 
 Future<void> createNewFolder(
   MySQLConnectionPool pool,
-  String userID,
-  String folderID,
+  UUID userID,
+  UUID folderID,
   String folderName,
   String? parentFolder,
   int createdAt,
@@ -111,10 +111,10 @@ Future<void> createNewFolder(
     await conn.execute(
       "INSERT INTO `Folders` (ID, Name, ParentFolder, UserID, Created, Modified) VALUES (:id, :name, :parent, :user, :created, :mod);",
       {
-        "id": folderID,
+        "id": folderID.toString(),
         "name": folderName,
         "parent": parentFolder,
-        "user": userID,
+        "user": userID.toString(),
         "created": createdAt,
         "mod": lastModified,
       },
@@ -124,13 +124,13 @@ Future<void> createNewFolder(
 
 Future<List<Field>> getAllUserFields(
   MySQLConnectionPool pool,
-  String userID,
+  UUID userID,
 ) async {
   List<Field> fields = [];
   await pool.withConnection((conn) async {
     var result = await conn.execute(
       "SELECT * FROM `Fields` WHERE `User` = :user;",
-      {"user": userID},
+      {"user": userID.toString()},
       true,
     );
 
@@ -138,7 +138,7 @@ Future<List<Field>> getAllUserFields(
       final assocRow = row.assoc();
       fields.add(
         Field(
-          fieldID: assocRow["ID"],
+          fieldID: UUID.parse(assocRow["ID"]),
           fieldName: assocRow["FieldName"],
           fieldType: assocRow["FieldType"],
           sortOrder: assocRow["SortOrder"],
@@ -150,10 +150,10 @@ Future<List<Field>> getAllUserFields(
   return fields;
 }
 
-Future<int> getUserAccountLevel(MySQLConnectionPool pool, String userID) async {
+Future<int> getUserAccountLevel(MySQLConnectionPool pool, UUID userID) async {
   await pool.withConnection((conn) async {
     var res = await conn.execute("SELECT * FROM users WHERE ID=:id;", {
-      "id": userID,
+      "id": userID.toString(),
     }, true);
     await for (var row in res.rowsStream) {
       return row.assoc()["AccountLevel"];
@@ -163,13 +163,10 @@ Future<int> getUserAccountLevel(MySQLConnectionPool pool, String userID) async {
   return 0;
 }
 
-Future<ServerUser?> getServerUser(
-  MySQLConnectionPool pool,
-  String userID,
-) async {
+Future<ServerUser?> getServerUser(MySQLConnectionPool pool, UUID userID) async {
   await pool.withConnection((conn) async {
     var res = await conn.execute("SELECT * FROM users WHERE `ID` = :id;", {
-      "id": userID,
+      "id": userID.toString(),
     });
 
     await for (final row in res.rowsStream) {
@@ -206,7 +203,7 @@ Future<ServerUser?> getServerUserByName(
       var assocRow = row.assoc();
       ServerUser user = ServerUser(
         username: assocRow["UserName"],
-        userID: assocRow['ID'],
+        userID: UUID.parse(assocRow['ID']),
         accountLevel: assocRow["AccountLevel"],
         passwordHash: assocRow["PasswordHash"],
         passwordSalt: assocRow["PasswordSalt"],

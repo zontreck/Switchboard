@@ -296,6 +296,22 @@ class MIGProxyInfo implements Migration {
   String get migrationID => "0004_AddProxyInfoToAlters";
 }
 
+/// Adapt the access table
+class MIGAccessTokens implements Migration {
+  @override
+  Future<void> execute(MySQLConnection connection) async {
+    await connection.execute('''ALTER TABLE `Access`
+    MODIFY COLUMN `Token` VARCHAR(255) NOT NULL,
+    DROP COLUMN `TokenScope`,
+    DROP COLUMN `TokenFlags`,
+    DROP COLUMN `Expire`,
+    DROP COLUMN `IssuedAt`;''');
+  }
+
+  @override
+  String get migrationID => "0005_AccessTokens";
+}
+
 /// Handles database migrations.
 class Migrator {
   /// Register migrations here, in execution order.
@@ -304,6 +320,7 @@ class Migrator {
     MIGInitializeDB(),
     MIGFolders(),
     MIGProxyInfo(),
+    MIGAccessTokens(),
   ];
 
   /// Executes all pending migrations.

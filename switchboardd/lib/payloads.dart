@@ -1,4 +1,5 @@
 import 'package:libac_dart/utils/Hashing.dart';
+import 'package:libac_dart/utils/uuid/UUID.dart';
 import 'package:switchboardd/consts.dart';
 import 'package:switchboardd/users.dart';
 
@@ -6,7 +7,7 @@ class BasicResponse {
   bool Success = false;
   String Path = "/";
   String Method = "GET";
-  String ID = UUID_ZERO;
+  UUID ID = UUID.ZERO;
   String Reason = "";
 
   BasicResponse({
@@ -57,7 +58,7 @@ class ServerPublicKeyResponse extends BasicResponse {
         Success: false,
         Path: "/",
         Method: "GET",
-        ID: UUID_ZERO,
+        ID: UUID.ZERO,
         Reason: "",
       ) {
     super.decode(js);
@@ -96,7 +97,7 @@ class ServerVersionResponse extends BasicResponse {
     : product = "",
       version = "",
       backendVersion = "",
-      super(ID: "", Success: true, Method: "", Reason: "", Path: "") {
+      super(ID: UUID.ZERO, Success: true, Method: "", Reason: "", Path: "") {
     super.decode(js);
 
     product = js['product'] as String;
@@ -136,7 +137,7 @@ class ServerPolicyResponse extends BasicResponse {
     : termsOfService = "",
       privacyPolicy = "",
       policiesEnabled = false,
-      super(ID: "", Success: false, Path: "", Method: "", Reason: "") {
+      super(ID: UUID.ZERO, Success: false, Path: "", Method: "", Reason: "") {
     super.decode(js);
 
     policiesEnabled = js['enabled'];
@@ -163,8 +164,8 @@ class ServerUserResponse extends BasicResponse {
   String displayName;
   int alterCount;
   int accountLevel;
-  String id;
-  String rootFolder;
+  UUID id;
+  UUID rootFolder;
   List<Field> fields;
 
   ServerUserResponse({
@@ -187,18 +188,18 @@ class ServerUserResponse extends BasicResponse {
       displayName = "",
       alterCount = 0,
       accountLevel = 0,
-      id = "",
-      rootFolder = "",
+      id = UUID.ZERO,
+      rootFolder = UUID.ZERO,
       fields = [],
-      super(ID: "", Path: "", Success: false, Method: "", Reason: "") {
+      super(ID: UUID.ZERO, Path: "", Success: false, Method: "", Reason: "") {
     decode(js);
 
     user = js['user'];
     displayName = js['displayName'];
     alterCount = js['alter_count'];
     accountLevel = js['level'];
-    id = js['id'];
-    rootFolder = js['root_folder'];
+    id = UUID.parse(js['id']);
+    rootFolder = UUID.parse(js['root_folder']);
     List<Map<String, dynamic>> lst = js['fields'];
     fields = [];
     for (var field in lst) {
@@ -228,8 +229,40 @@ class ServerUserResponse extends BasicResponse {
   }
 }
 
+class ServerAuthenticationResponse extends BasicResponse {
+  String username;
+  String token;
+
+  ServerAuthenticationResponse({
+    required this.username,
+    required this.token,
+    required super.Success,
+    required super.Path,
+    required super.Method,
+    required super.ID,
+    required super.Reason,
+  });
+
+  ServerAuthenticationResponse.fromJson(Map<String, dynamic> js)
+    : username = "",
+      token = "",
+      super(Success: false, Path: "", Method: "", ID: UUID.ZERO, Reason: "") {
+    decode(js);
+    username = js['username'];
+    token = js['token'];
+  }
+
+  @override
+  Map<String, dynamic> encode() {
+    var payload = super.encode();
+    payload['data'] = {"username": username, "token": token};
+
+    return payload;
+  }
+}
+
 class Field {
-  String fieldID;
+  UUID fieldID;
   String fieldName;
   int fieldType;
   int sortOrder;
@@ -243,7 +276,7 @@ class Field {
 
   Map<String, dynamic> encode() {
     return {
-      "id": fieldID,
+      "id": fieldID.toString(),
       "name": fieldName,
       "type": fieldType,
       "order": sortOrder,
@@ -252,7 +285,7 @@ class Field {
 
   factory Field.fromJson(Map<String, dynamic> js) {
     return Field(
-      fieldID: js['id'],
+      fieldID: UUID.parse(js['id']),
       fieldName: js['name'],
       fieldType: js['type'],
       sortOrder: js['order'],
@@ -262,7 +295,7 @@ class Field {
 
 class ServerUser {
   String username;
-  String userID;
+  UUID userID;
   int accountLevel;
   String passwordHash;
   String passwordSalt;

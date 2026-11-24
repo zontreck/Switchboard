@@ -12,7 +12,6 @@ import 'package:libac_dart/utils/TimeUtils.dart';
 import 'package:libac_dart/utils/uuid/UUID.dart';
 import 'package:mysql_dart/mysql_dart.dart';
 import 'package:switchboardd/audit.dart';
-import 'package:switchboardd/consts.dart';
 import 'package:switchboardd/dart/sbproj.dart';
 import 'package:switchboardd/funcs.dart';
 import 'package:switchboardd/migrations.dart';
@@ -150,7 +149,7 @@ Future<void> main(List<String> arguments) async {
     request.headers.forEach((key, values) {
       headers[key] = values;
     });
-    String rayID = UUID.v4().toString();
+    UUID rayID = UUID.v4();
 
     final body = await utf8.decoder.bind(request).join();
     Map<String, dynamic> bodyJs = {};
@@ -288,8 +287,8 @@ Future<void> main(List<String> arguments) async {
                     pwdSalt,
                   );
 
-                  String userID = UUID.v4().toString();
-                  String rootFolderID = UUID.v4().toString();
+                  UUID userID = UUID.v4();
+                  UUID rootFolderID = UUID.v4();
 
                   await insertNewUser(conn, username, userID, pwdHash, pwdSalt);
                   await sanityCheckUserFields(conn, userID);
@@ -363,12 +362,33 @@ Future<void> main(List<String> arguments) async {
                 username: username,
                 level: user.accountLevel,
                 id: user.userID,
+                scope: TOKEN_SCOPE_LOGIN,
+                flags: TOKEN_FLAGS_NONE,
               );
               String jWebToken = nAuthToken.signJWT(
                 nAuthToken.encodeJWT(),
                 privateKey,
                 expiration: Duration(days: 7),
               );
+
+              ServerAuthenticationResponse sar = ServerAuthenticationResponse(
+                username: username,
+                token: jWebToken,
+                Success: true,
+                Path: requestPath,
+                Method: requestMethod,
+                ID: rayID,
+                Reason: "",
+              );
+
+              // Add the access token to the database.
+              // This is a layer of redundancy, as we can check the database for the token.
+
+              request.response
+                ..statusCode = HttpStatus.ok
+                ..headers.add("Authentication", jWebToken)
+                ..headers.contentType = ContentType.json
+                ..write(json.encode(sar.encode()));
             } else {
               request.response
                 ..statusCode = HttpStatus.ok
