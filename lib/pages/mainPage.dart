@@ -208,22 +208,6 @@ class _AccountPage extends State<AccountPage> {
                 },
               ),
               ListTile(
-                title: Text("Patreon"),
-                subtitle: Text("Open our Patreon in your browser"),
-                leading: Icon(Icons.monetization_on),
-                onTap: () async {
-                  launchUrlString("https://patreon.com/astarastudios");
-                },
-              ),
-              ListTile(
-                title: Text("Ko-Fi"),
-                subtitle: Text("Open our Ko-Fi in your browser"),
-                leading: Icon(Icons.monetization_on),
-                onTap: () async {
-                  launchUrlString("https://ko-fi.com/zontreck");
-                },
-              ),
-              ListTile(
                 title: Text("Feedback"),
                 subtitle: Text(
                   "Feedback HUB. Submit requests, feedback, and bug reports.",
