@@ -23,7 +23,7 @@ class BasicResponse {
     Success = js['success'] ?? false;
     Path = js['path'] ?? "/";
     Method = js['type'] ?? "GET";
-    ID = js['id'] ?? UUID_ZERO;
+    ID = UUID.parse(js['id']);
     Reason = js['reason'] ?? "";
   }
 
@@ -33,7 +33,7 @@ class BasicResponse {
       "success": Success,
       "path": Path,
       "type": Method,
-      "id": ID,
+      "id": ID.toString(),
       "reason": Reason,
     };
   }

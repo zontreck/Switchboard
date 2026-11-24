@@ -1,3 +1,7 @@
+# 0.0.10
+
+- Patch a error which occurred in the uuid impl
+
 # 0.0.9
 
 - Migrate over `/auth/login`
