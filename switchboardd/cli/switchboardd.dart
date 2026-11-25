@@ -547,6 +547,42 @@ Future<void> main(List<String> arguments) async {
           }
           break;
         }
+      case "/fields":
+        {
+          if (loggedIn) {
+            var fields = await getAllUserFields(conn, authorization.id);
+
+            ServerFieldsResponse sfr = ServerFieldsResponse(
+              fields: fields,
+              Success: true,
+              Path: requestPath,
+              Method: requestMethod,
+              ID: rayID,
+              Reason: "",
+            );
+
+            request.response
+              ..statusCode = HttpStatus.ok
+              ..headers.contentType = ContentType.json
+              ..write(json.encode(sfr.encode()));
+          } else {
+            request.response
+              ..statusCode = HttpStatus.ok
+              ..headers.contentType = ContentType.json
+              ..write(
+                json.encode(
+                  BasicResponse(
+                    Success: false,
+                    Path: requestPath,
+                    Method: requestMethod,
+                    ID: rayID,
+                    Reason: "E1A01",
+                  ).encode(),
+                ),
+              );
+          }
+          break;
+        }
 
       default:
         {

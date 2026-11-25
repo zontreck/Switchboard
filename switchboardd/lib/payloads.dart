@@ -292,6 +292,43 @@ class Field {
   }
 }
 
+class ServerFieldsResponse extends BasicResponse {
+  List<Field> fields;
+
+  ServerFieldsResponse({
+    required this.fields,
+    required super.Success,
+    required super.Path,
+    required super.Method,
+    required super.ID,
+    required super.Reason,
+  });
+
+  ServerFieldsResponse.fromJson(Map<String, dynamic> js)
+    : fields = [],
+      super(ID: UUID.ZERO, Reason: "", Success: false, Path: "", Method: "") {
+    super.decode(js);
+
+    fields = [];
+    for (var entry in js['data']) {
+      fields.add(Field.fromJson(entry));
+    }
+  }
+
+  @override
+  Map<String, dynamic> encode() {
+    var ret = super.encode();
+    List<Map<String, dynamic>> lst = [];
+    for (var entry in fields) {
+      lst.add(entry.encode());
+    }
+
+    ret['data'] = lst;
+
+    return ret;
+  }
+}
+
 class ServerUser {
   String username;
   UUID userID;

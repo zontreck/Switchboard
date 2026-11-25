@@ -11,47 +11,6 @@ import 'package:switchboard/dart/exceptions.dart';
 import 'package:switchboard/dart/globalHelpers.dart';
 import 'package:synchronized/synchronized.dart';
 
-class NetworkCache {
-  String path;
-  DateTime requestTime;
-  dynamic responseData;
-
-  bool isStale() {
-    return DateTime.now().difference(requestTime).inMinutes > 5;
-  }
-
-  NetworkCache({
-    required this.path,
-    required this.requestTime,
-    required this.responseData,
-  });
-}
-
-class NetworkCaches {
-  static Map<String, NetworkCache> registry = {};
-  static bool _blkRefresh = false;
-  static void suspendRefresh() {
-    _blkRefresh = true;
-  }
-
-  static void resumeRefresh() {
-    _blkRefresh = false;
-  }
-
-  static bool get refreshSuspended => _blkRefresh;
-
-  static void Function() onInvalidate = () {};
-
-  /// To be used by any methods that would change server-side data, to force refresh on next call.
-  static void invalidate() {
-    if (refreshSuspended) {
-      return;
-    }
-    registry.clear();
-    onInvalidate();
-  }
-}
-
 /// Here, we will have a packet system to send and receive data.
 /// If a packet has been tested using a testsuite, and it worked, it will have been turned into a Packet here.
 class NetworkInterface {
@@ -407,9 +366,7 @@ class NetworkInterface {
       dio.options.headers["Content-Type"] = "application/json";
       dio.options.headers["X-SB-Auth"] = ms.authenticationToken;
 
-      var reply = await dio.get(
-        "$apiServerURL/field/${fieldID.toString()}",
-      );
+      var reply = await dio.get("$apiServerURL/field/${fieldID.toString()}");
 
       print(reply.data);
       S2CFieldResponse sfr = S2CFieldResponse.decode(
@@ -464,9 +421,7 @@ class NetworkInterface {
       dio.options.headers["Content-Type"] = "application/json";
       dio.options.headers["X-SB-Auth"] = ms.authenticationToken;
 
-      var reply = await dio.delete(
-        "$apiServerURL/field/${id.toString()}",
-      );
+      var reply = await dio.delete("$apiServerURL/field/${id.toString()}");
       NetworkCaches.invalidate();
 
       print(reply.data);
@@ -630,9 +585,7 @@ class NetworkInterface {
       dio.options.headers["Content-Type"] = "application/json";
       dio.options.headers["X-SB-Auth"] = ms.authenticationToken;
 
-      var reply = await dio.get(
-        "$apiServerURL/fronting?history=$history",
-      );
+      var reply = await dio.get("$apiServerURL/fronting?history=$history");
       setCache("getFronters${history ? "history" : "active"}", reply.data);
       print(reply.data);
 
@@ -672,10 +625,7 @@ class NetworkInterface {
       dio.options.headers["Content-Type"] = "application/json";
       dio.options.headers["X-SB-Auth"] = ms.authenticationToken;
 
-      var reply = await dio.put(
-        "$apiServerURL/fronting",
-        data: front.toJson(),
-      );
+      var reply = await dio.put("$apiServerURL/fronting", data: front.toJson());
       NetworkCaches.invalidate();
       print(reply.data);
 
@@ -820,10 +770,7 @@ class NetworkInterface {
       dio.options.headers["Content-Type"] = "application/json";
       dio.options.headers["X-SB-Auth"] = ms.authenticationToken;
 
-      var reply = await dio.post(
-        "$apiServerURL/folders",
-        data: {"name": name},
-      );
+      var reply = await dio.post("$apiServerURL/folders", data: {"name": name});
       print(reply.data);
       NetworkCaches.invalidate();
 

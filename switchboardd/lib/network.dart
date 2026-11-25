@@ -2,6 +2,47 @@ import 'package:libac_dart/utils/uuid/UUID.dart';
 import 'package:mysql_dart/mysql_dart.dart';
 import 'package:switchboardd/payloads.dart';
 
+class NetworkCache {
+  String path;
+  DateTime requestTime;
+  dynamic responseData;
+
+  bool isStale() {
+    return DateTime.now().difference(requestTime).inMinutes > 5;
+  }
+
+  NetworkCache({
+    required this.path,
+    required this.requestTime,
+    required this.responseData,
+  });
+}
+
+class NetworkCaches {
+  static Map<String, NetworkCache> registry = {};
+  static bool _blkRefresh = false;
+  static void suspendRefresh() {
+    _blkRefresh = true;
+  }
+
+  static void resumeRefresh() {
+    _blkRefresh = false;
+  }
+
+  static bool get refreshSuspended => _blkRefresh;
+
+  static void Function() onInvalidate = () {};
+
+  /// To be used by any methods that would change server-side data, to force refresh on next call.
+  static void invalidate() {
+    if (refreshSuspended) {
+      return;
+    }
+    registry.clear();
+    onInvalidate();
+  }
+}
+
 List<Map<String, dynamic>> defaultUserFields = [
   {"Name": "Description", "Type": -1, "Order": 0},
   {"Name": "Color", "Type": -2, "Order": 1},

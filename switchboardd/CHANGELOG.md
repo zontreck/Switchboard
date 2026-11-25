@@ -1,3 +1,8 @@
+# 0.0.17
+
+- Migrate `/fields`
+- Migrate json helper code and network caching system
+
 # 0.0.16
 
 - Migrate `/wipe`

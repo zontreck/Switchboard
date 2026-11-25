@@ -1046,46 +1046,6 @@ switch($route) {
         break;
     }
 
-    case "/fields": {
-
-        $AuthHeader = get_Authorization();
-        $AuthReply = ValidateSAT($AuthHeader);
-
-        if(!$AuthReply->Success) {
-            $success=false;
-            $reason = "Not Logged In";
-        } else {
-            $DB = get_DB("switchboard");
-            $stmt = $DB->prepare("SELECT * FROM Fields WHERE User=?;");
-            $stmt->bind_param("s", $AuthReply->UserID);
-            $success=true;
-            $stmt->execute();
-            $res = $stmt->get_result();
-
-            $data = array();
-
-            while($row = $res->fetch_assoc()) {
-                array_push($data, array(
-                    "id" => $row['ID'],
-                    "name" => $row['FieldName'],
-                    "type" => $row['FieldType'],
-                    "order" => $row['SortOrder']
-                ));
-            }
-        }
-        
-
-
-        die(json_encode(array(
-            "success" => $success,
-            "path" => $route,
-            "type" => $request,
-            "reason" => $reason,
-            "id" => $ID,
-            "data" => $data
-        )));
-        break;
-    }
 
     case preg_match('#^/field(?:/([^/]+))?$#', $route, $matches) === 1: {
         $success=true;
