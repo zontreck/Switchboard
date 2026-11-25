@@ -1,3 +1,7 @@
+# 0.0.14
+
+- Add response header: `X-Authorization-Expired`
+
 # 0.0.13
 
 - Migrate `/auth/check`

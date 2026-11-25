@@ -70,6 +70,7 @@ class ServerAuthToken {
   static ServerAuthToken? performVerification(
     String authToken,
     RSAPublicKey publicKey,
+    Function() onExpired,
   ) {
     try {
       JWT token = JWT.verify(authToken, publicKey);
@@ -77,6 +78,7 @@ class ServerAuthToken {
       return ServerAuthToken.fromJs(payload);
     } on JWTExpiredException {
       // The token has expired
+      onExpired();
       return null;
     } on JWTInvalidException {
       return null;

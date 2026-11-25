@@ -195,6 +195,9 @@ Future<void> main(List<String> arguments) async {
       authorization = ServerAuthToken.performVerification(
         authorizationToken,
         RSAPublicKey(publicKey),
+        () {
+          request.response.headers.add("X-Authorization-Expired", true);
+        },
       );
     }
 
