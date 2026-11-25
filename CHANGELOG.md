@@ -14,6 +14,7 @@
 - [x] A way to change the active server URL
   - This now enables self-hosting.
 - [x] Add to `.gitignore`: `lib/sbproj.dart`
+- [x] Depend on the Switchboardd project for the server APIs
 
 ## CHANGE:
 
