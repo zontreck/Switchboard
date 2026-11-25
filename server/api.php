@@ -515,27 +515,6 @@ switch($route) {
         break;
     }
 
-    case "/auth/check": {
-        $success = false;
-        $auth = get_Authorization();
-
-        $reply = ValidateSAT($auth);
-
-        $success = $reply->Success;
-
-        die(json_encode(array(
-            "success" => $success,
-            "path" => $route,
-            "type" => $request,
-            "id" => $ID,
-            "data" =>  array(
-                "id" => $reply->UserID
-            )
-        )));
-
-        break;
-    }
-
     case "/auth/refresh": {
         $success = false;
         $packet = json_decode(file_get_contents("php://input"), true);

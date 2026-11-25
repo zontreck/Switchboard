@@ -1,3 +1,7 @@
+# 0.0.13
+
+- Migrate `/auth/check`
+
 # 0.0.10
 
 - Patch a error which occurred in the uuid impl

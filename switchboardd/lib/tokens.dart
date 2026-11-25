@@ -64,6 +64,9 @@ class ServerAuthToken {
     decode(js);
   }
 
+  /// Performs verification of the authentication token through the same methods that the client would.
+  ///
+  /// On Success, returns a authentication token, but on failure, returns null.
   static ServerAuthToken? performVerification(
     String authToken,
     RSAPublicKey publicKey,

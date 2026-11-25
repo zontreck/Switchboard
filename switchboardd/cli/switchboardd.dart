@@ -423,6 +423,42 @@ Future<void> main(List<String> arguments) async {
           }
           break;
         }
+      case "/auth/check":
+        {
+          // Check the user's authentication token.
+          if (authorization == null) {
+            request.response
+              ..statusCode = HttpStatus.ok
+              ..headers.contentType = ContentType.json
+              ..write(
+                json.encode(
+                  BasicResponse(
+                    Success: false,
+                    Path: requestPath,
+                    Method: requestMethod,
+                    ID: rayID,
+                    Reason: "E2A00",
+                  ).encode(),
+                ),
+              );
+          } else {
+            request.response
+              ..statusCode = HttpStatus.ok
+              ..headers.contentType = ContentType.json
+              ..write(
+                json.encode(
+                  BasicResponse(
+                    Success: true,
+                    Path: requestPath,
+                    Method: requestMethod,
+                    ID: rayID,
+                    Reason: "",
+                  ),
+                ),
+              );
+          }
+          break;
+        }
 
       default:
         {
