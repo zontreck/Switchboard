@@ -204,7 +204,7 @@ class _loginState extends State<SBLoginPage> {
                     return CircularProgressIndicator();
                   } else {
                     return Text(
-                      "\nServer Version: ${snap.data!.data.product} / v${snap.data!.data.version}\nClient Version: ${ms.applicationVersion}",
+                      "\nServer Version: ${snap.data!.product} / v${snap.data!.version}\nClient Version: ${ms.applicationVersion}",
                     );
                   }
                 },

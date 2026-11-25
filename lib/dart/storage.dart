@@ -11,6 +11,7 @@ import 'package:switchboard/dart/exceptions.dart';
 import 'package:switchboard/dart/globalHelpers.dart';
 import 'package:switchboardd/funcs.dart';
 import 'package:switchboardd/network.dart';
+import 'package:switchboardd/payloads.dart';
 import 'package:synchronized/synchronized.dart';
 
 /// Here, we will have a packet system to send and receive data.
@@ -80,11 +81,11 @@ class NetworkInterface {
     );
   }
 
-  static Future<S2CServerVersionPacket> getServerVersion() async {
+  static Future<ServerVersionResponse> getServerVersion() async {
     return await _lGetServerVersion.synchronized(() async {
       var cached = getCache("getServerVersion");
       if (cached != null) {
-        return S2CServerVersionPacket.decode(
+        return ServerVersionResponse.fromJson(
           typeCorrectJson(cached.responseData),
         );
       }
@@ -95,7 +96,7 @@ class NetworkInterface {
       print(reply.data);
       setCache("getServerVersion", reply.data);
 
-      return S2CServerVersionPacket.decode(typeCorrectJson(reply.data));
+      return ServerVersionResponse.fromJson(typeCorrectJson(reply.data));
     });
   }
 
@@ -1021,67 +1022,6 @@ class S2CLazyResponse implements ResponsePacket {
       "reason": reason,
       "type": type,
     };
-  }
-}
-
-class ServerVersion {
-  String product;
-  String version;
-
-  ServerVersion({required this.product, required this.version});
-
-  static ServerVersion deserialize(Map<String, dynamic> js) {
-    return ServerVersion(
-      product: js['product'] as String,
-      version: js['version'] as String,
-    );
-  }
-
-  Map<String, dynamic> encode() {
-    return {"product": product, "version": version};
-  }
-}
-
-class S2CServerVersionPacket extends S2CLazyResponse {
-  ServerVersion data;
-
-  S2CServerVersionPacket({
-    required this.data,
-    required super.id,
-    required super.path,
-    required super.reason,
-    required super.success,
-    required super.type,
-  });
-
-  @override
-  void _decode(Map<String, dynamic> js) {
-    super._decode(js);
-    data = ServerVersion.deserialize(
-      js['data'] ?? {"product": "null", "version": "null"},
-    );
-  }
-
-  factory S2CServerVersionPacket.decode(Map<String, dynamic> js) {
-    S2CServerVersionPacket svp = S2CServerVersionPacket(
-      data: ServerVersion(product: "", version: "version"),
-      id: UUID_ZERO,
-      path: "path",
-      reason: "",
-      success: false,
-      type: "type",
-    );
-    svp._decode(js);
-
-    return svp;
-  }
-
-  @override
-  Map<String, dynamic> encode() {
-    Map<String, dynamic> enc = super.encode();
-
-    enc.addAll({"data": data.encode()});
-    return enc;
   }
 }
 
