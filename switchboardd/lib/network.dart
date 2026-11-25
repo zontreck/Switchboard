@@ -1,6 +1,5 @@
 import 'package:libac_dart/utils/uuid/UUID.dart';
 import 'package:mysql_dart/mysql_dart.dart';
-import 'package:switchboardd/consts.dart';
 import 'package:switchboardd/payloads.dart';
 
 List<Map<String, dynamic>> defaultUserFields = [

@@ -83,7 +83,7 @@ class SBProject {
   static const String BACKEND_TOS = \'\'\'${_escapeSingleQuotes(termsOfService)}\'\'\';
   /// DO NOT USE outside of the switchboardd project, this value will mean nothing elsewhere.
   static const String BACKEND_PRIVACY = \'\'\'${_escapeSingleQuotes(privacyPolicy)}\'\'\';
-  static const bool BACKEND_POLICIES_ENABLED = ${policiesEnabled};
+  static const bool BACKEND_POLICIES_ENABLED = $policiesEnabled;
 
   /// Indicates whether the project is being run from a development/modified codebase.
   ///

@@ -1,6 +1,5 @@
 import 'package:libac_dart/utils/Hashing.dart';
 import 'package:libac_dart/utils/uuid/UUID.dart';
-import 'package:switchboardd/consts.dart';
 import 'package:switchboardd/users.dart';
 
 class BasicResponse {

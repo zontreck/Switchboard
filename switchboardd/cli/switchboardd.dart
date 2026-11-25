@@ -144,7 +144,7 @@ Future<void> main(List<String> arguments) async {
         request.connectionInfo?.remoteAddress.address ??
         "0.0.0.0"; // placeholder for a unknown origin IP
     Map<String, List<String>> headers = {};
-    print("> [${requestIP}] ${requestMethod}: ${requestPath}");
+    print("> [$requestIP] $requestMethod: $requestPath");
 
     request.headers.forEach((key, values) {
       headers[key] = values;

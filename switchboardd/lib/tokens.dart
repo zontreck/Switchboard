@@ -75,7 +75,7 @@ class ServerAuthToken {
     } on JWTExpiredException {
       // The token has expired
       return null;
-    } on JWTInvalidException catch (EX) {
+    } on JWTInvalidException {
       return null;
     }
   }

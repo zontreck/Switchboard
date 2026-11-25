@@ -339,9 +339,9 @@ class Migrator {
         ''',
           {'migration': _migrations.first.migrationID},
         );
-      } on MigrationExecutedException catch (e) {
+      } on MigrationExecutedException {
         // Skip this migration silently.
-      } catch (x) {}
+      }
 
       for (final migration in _migrations.skip(1)) {
         final alreadyRun = await _migrationAlreadyRun(
