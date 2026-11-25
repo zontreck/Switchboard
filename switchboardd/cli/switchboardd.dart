@@ -506,6 +506,48 @@ Future<void> main(List<String> arguments) async {
           break;
         }
 
+      case "/wipe":
+        {
+          if (loggedIn) {
+            // Get the current user
+            UUID userID = authorization.id;
+            // Initiate Wipe Account
+
+            await wipeAccount(conn, userID);
+
+            request.response
+              ..statusCode = HttpStatus.ok
+              ..headers.contentType = ContentType.json
+              ..write(
+                json.encode(
+                  BasicResponse(
+                    Success: true,
+                    Path: requestPath,
+                    Method: requestMethod,
+                    ID: rayID,
+                    Reason: "",
+                  ).encode(),
+                ),
+              );
+          } else {
+            request.response
+              ..statusCode = HttpStatus.ok
+              ..headers.contentType = ContentType.json
+              ..write(
+                json.encode(
+                  BasicResponse(
+                    Success: false,
+                    Path: requestPath,
+                    Method: requestMethod,
+                    ID: rayID,
+                    Reason: "E1A01",
+                  ),
+                ),
+              );
+          }
+          break;
+        }
+
       default:
         {
           request.response

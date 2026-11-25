@@ -109,12 +109,6 @@ pipeline {
                     cd switchboardd
                     dart pub publish -f || true
                     cd ..
-
-                    cd server
-                    cp ../assets/privacypolicy.md .
-                    cp ../assets/tos.md .
-                    tar -cvf ../outputs/cdnserver.tgz .
-                    cd ..
                     '''
                 }
             }

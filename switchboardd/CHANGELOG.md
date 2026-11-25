@@ -1,3 +1,8 @@
+# 0.0.16
+
+- Migrate `/wipe`
+- Migrate the placeholder avatar png
+
 # 0.0.15
 
 - Migrate `/auth/refresh`

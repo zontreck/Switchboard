@@ -215,3 +215,48 @@ Future<ServerUser?> getServerUserByName(
 
   return null;
 }
+
+Future<void> wipeAccount(MySQLConnectionPool pool, UUID userID) async {
+  await pool.withConnection((conn) async {
+    // Alters
+    await conn.execute("DELETE FROM `Alters` WHERE `User`=:user;", {
+      "user": userID.toString(),
+    });
+
+    // Avatars
+    await conn.execute("DELETE FROM `Avatars` WHERE `User`=:user;", {
+      "user": userID.toString(),
+    });
+
+    // Fields
+    await conn.execute(
+      "DELETE FROM `Fields` WHERE `User`=:user AND `FieldType` >= 0;",
+      {"user": userID.toString()},
+    );
+
+    // Images
+    await conn.execute("DELETE FROM `Images` WHERE `OwnerID`=:user;", {
+      "user": userID.toString(),
+    });
+
+    // Fronting
+    await conn.execute("DELETE FROM `Fronting` WHERE `User`=:user;", {
+      "user": userID.toString(),
+    });
+
+    // FolderEntries
+    await conn.execute("DELETE FROM `FolderEntries` WHERE `UserID`=:user;", {
+      "user": userID.toString(),
+    });
+
+    // Folders
+    await conn.execute(
+      "DELETE FROM `Folders` WHERE `UserID`=:user AND `ParentFolder` IS NULL AND `Name` != 'root';",
+      {"user": userID.toString()},
+    );
+    await conn.execute(
+      "DELETE FROM `Folders` WHERE `UserID`=:user AND `ParentFolder` IS NOT NULL;",
+      {"user": userID.toString()},
+    );
+  });
+}

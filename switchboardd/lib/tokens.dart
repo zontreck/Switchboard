@@ -1,5 +1,6 @@
 import 'package:dart_jsonwebtoken/dart_jsonwebtoken.dart';
 import 'package:libac_dart/utils/uuid/UUID.dart';
+import 'package:switchboardd/users.dart';
 
 class TokenScopeHelper {
   static Duration getDurationForScope(int scope) {
@@ -29,7 +30,12 @@ class ServerAuthToken {
     required this.id,
     required this.scope,
     required this.flags,
-  });
+  }) {
+    if (level & USER_LEVEL_APP_STORE == USER_LEVEL_APP_STORE ||
+        level & USER_LEVEL_TESTER == USER_LEVEL_TESTER) {
+      flags |= TOKEN_FLAGS_RESTRICTED; // Ensure that the login session is appropriately restricted at the token level.
+    }
+  }
 
   Map<String, dynamic> toJson() {
     return {
@@ -109,3 +115,6 @@ const int TOKEN_SCOPE_LOGIN = 1;
 
 /// No flags. This is common for account logins.
 const int TOKEN_FLAGS_NONE = 0;
+
+/// A special token flag that should be issued if the user account level includes a restriction like App Store or Tester, which would prevent changing the password.
+const int TOKEN_FLAGS_RESTRICTED = 1;

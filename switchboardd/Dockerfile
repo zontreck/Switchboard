@@ -11,6 +11,7 @@ FROM archlinux:latest
 
 COPY --from=builder /app/switchboardd /bin/switchboardd
 ADD ./entry.sh /bin/entrypoint
+ADD ./placeholder_avatar.png /app/placeholder_avatar.png
 RUN chmod +x /bin/entrypoint
 VOLUME [ "/keys" ]
 
