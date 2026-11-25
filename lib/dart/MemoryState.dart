@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:switchboard/dart/globalHelpers.dart';
 import 'package:switchboard/dart/storage.dart';
+import 'package:switchboardd/funcs.dart';
 
 class MemoryState {
   static final MemoryState _state = MemoryState._init();

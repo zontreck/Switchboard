@@ -10,6 +10,7 @@ import 'package:switchboard/dart/storage.dart';
 import 'package:switchboard/globalHelpers.dart';
 import 'package:switchboard/pages/editAlter.dart';
 import 'package:switchboard/sb.dart';
+import 'package:switchboardd/network.dart';
 import 'package:synchronized/synchronized.dart';
 
 class ThirdPartyMigrationProgress extends StatefulWidget {

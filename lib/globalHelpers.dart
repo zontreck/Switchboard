@@ -20,6 +20,7 @@ import 'package:switchboard/dart/globalHelpers.dart';
 import 'package:switchboard/dart/sbproj.dart';
 import 'package:switchboard/dart/storage.dart';
 import 'package:switchboard/sb.dart';
+import 'package:switchboardd/funcs.dart';
 
 final ValueNotifier<String> customFontNotifier = ValueNotifier(
   MemoryState.A.customFontFamily,

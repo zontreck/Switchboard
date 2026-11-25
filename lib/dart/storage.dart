@@ -9,6 +9,8 @@ import 'package:switchboard/dart/MemoryState.dart';
 import 'package:switchboard/dart/api.dart';
 import 'package:switchboard/dart/exceptions.dart';
 import 'package:switchboard/dart/globalHelpers.dart';
+import 'package:switchboardd/funcs.dart';
+import 'package:switchboardd/network.dart';
 import 'package:synchronized/synchronized.dart';
 
 /// Here, we will have a packet system to send and receive data.

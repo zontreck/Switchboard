@@ -9,6 +9,7 @@ import 'package:switchboard/dart/globalHelpers.dart';
 import 'package:switchboard/dart/storage.dart';
 import 'package:switchboard/dart/users.dart';
 import 'package:switchboard/globalHelpers.dart';
+import 'package:switchboardd/network.dart';
 
 class AccountSettings extends StatefulWidget {
   const AccountSettings({super.key});

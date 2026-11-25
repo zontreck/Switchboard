@@ -22,6 +22,7 @@ import 'package:switchboard/pages/settings_categories/account.dart';
 import 'package:switchboard/pages/settings_categories/ads.dart';
 import 'package:switchboard/pages/settings_categories/security.dart';
 import 'package:switchboard/pages/settings_categories/text_overflow.dart';
+import 'package:switchboardd/network.dart';
 
 class Switchboard extends StatefulWidget {
   static void Function() rebuild = () {

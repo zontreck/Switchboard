@@ -4,6 +4,7 @@ import 'package:switchboard/dart/MemoryState.dart';
 import 'package:switchboard/dart/globalHelpers.dart';
 import 'package:switchboard/dart/storage.dart';
 import 'package:switchboard/globalHelpers.dart';
+import 'package:switchboardd/network.dart';
 
 class SecuritySettings extends StatefulWidget {
   const SecuritySettings({super.key});

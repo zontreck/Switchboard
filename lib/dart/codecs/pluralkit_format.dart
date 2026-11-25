@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:switchboard/dart/globalHelpers.dart';
 import 'package:switchboard/dart/codecs/octocon_format.dart';
+import 'package:switchboardd/funcs.dart';
 
 /// A class containing helpers for decoding and encoding PluralKit json data.
 class PluralKit {

@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:libac_dart/utils/TimeUtils.dart';
 import 'package:switchboard/dart/globalHelpers.dart';
 import 'package:switchboard/dart/codecs/octocon_format.dart';
+import 'package:switchboardd/funcs.dart';
 
 class Ourcana {
   static OurcanaData decode(Map<String, dynamic> js) {

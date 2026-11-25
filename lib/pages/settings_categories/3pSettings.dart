@@ -11,6 +11,7 @@ import 'package:switchboard/dart/storage.dart';
 import 'package:switchboard/file_picker.dart';
 import 'package:switchboard/globalHelpers.dart';
 import 'package:switchboard/pages/settings_categories/progressDisplayPage.dart';
+import 'package:switchboardd/funcs.dart';
 
 class ThirdPartyImport extends StatefulWidget {
   const ThirdPartyImport({super.key});
