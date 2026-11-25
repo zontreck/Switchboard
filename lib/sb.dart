@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:switchboard/dart/storage.dart';
 import 'package:switchboard/globalHelpers.dart';
 import 'package:switchboard/pages/FirstRunPage.dart';
 import 'package:switchboard/pages/aboutPage.dart';

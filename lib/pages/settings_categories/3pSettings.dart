@@ -3,7 +3,6 @@ import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:libacflutter/Constants.dart';
 import 'package:markdown_widget/widget/markdown_block.dart';
-import 'package:switchboard/dart/globalHelpers.dart';
 import 'package:switchboard/dart/codecs/octocon_format.dart';
 import 'package:switchboard/dart/codecs/ourcana_format.dart';
 import 'package:switchboard/dart/codecs/pluralkit_format.dart';

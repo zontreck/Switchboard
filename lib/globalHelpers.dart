@@ -16,7 +16,6 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:switchboard/dart/MemoryState.dart';
 import 'package:switchboard/dart/api.dart';
-import 'package:switchboard/dart/globalHelpers.dart';
 import 'package:switchboard/dart/sbproj.dart';
 import 'package:switchboard/dart/storage.dart';
 import 'package:switchboard/sb.dart';
