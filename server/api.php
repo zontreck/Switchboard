@@ -2,44 +2,6 @@
 
 $DEBUG = false;
 
-$VERSION = "0.4.0+1111260104";
-
-$DEFAULT_USER_FIELDS = array(
-                            array(
-                                "Name" => "Description",
-                                "Type" => -1,
-                                "Order" => 0
-                            ),
-                            array(
-                                "Name" => "Color",
-                                "Type" => -2,
-                                "Order" => 1
-                            ),
-                            array(
-                                "Name" => "Pronouns",
-                                "Type" => -3,
-                                "Order" => 2
-                            )
-                        );
-
-require_once("dbconfig.php");
-require_once("modules/autoload.php");
-
-if(defined("MAINTENANCE")) {
-    header("Content-Type: application/json");
-    die(json_encode(array(
-        "result" => "fail",
-        "maintenance" => true,
-        "reason" => "The server is in maintenance mode. Try again later."
-    )));
-}
-
-$route = $_GET['rt'] ?? '';
-$request = $_SERVER['REQUEST_METHOD'];
-$replyPayload = new ServerReply();
-$replyPayload->Type = $request;
-$replyPayload->Path = $route;
-$ID = $replyPayload->ID; // Session ID, can be used for tracing back errors
 
 
 header("Content-Type: application/json", true);
