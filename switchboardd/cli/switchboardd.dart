@@ -143,6 +143,11 @@ Future<void> main(List<String> arguments) async {
     String requestIP =
         request.connectionInfo?.remoteAddress.address ??
         "0.0.0.0"; // placeholder for a unknown origin IP
+    var proxyIP = request.headers.value("X-Forwarded-For");
+    if (proxyIP != null) {
+      requestIP = proxyIP;
+    }
+
     Map<String, List<String>> headers = {};
     print("> [$requestIP] $requestMethod: $requestPath");
 
