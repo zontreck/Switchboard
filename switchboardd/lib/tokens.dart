@@ -1,6 +1,21 @@
 import 'package:dart_jsonwebtoken/dart_jsonwebtoken.dart';
 import 'package:libac_dart/utils/uuid/UUID.dart';
 
+class TokenScopeHelper {
+  static Duration getDurationForScope(int scope) {
+    switch (scope) {
+      case TOKEN_SCOPE_LOGIN:
+        {
+          return Duration(days: 7);
+        }
+      default:
+        {
+          return Duration(seconds: 1); // No scope gets immediate expiration
+        }
+    }
+  }
+}
+
 class ServerAuthToken {
   String username;
   UUID id;

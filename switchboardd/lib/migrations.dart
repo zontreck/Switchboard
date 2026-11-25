@@ -312,6 +312,19 @@ class MIGAccessTokens implements Migration {
   String get migrationID => "0005_AccessTokens";
 }
 
+/// Remove the access table.
+///
+/// The new signed JWT Tokens do not require us to store anything, and the issuer can still be validated.
+class MIGAccessTokens2 implements Migration {
+  @override
+  Future<void> execute(MySQLConnection connection) async {
+    await connection.execute('''DROP TABLE `Access`;''');
+  }
+
+  @override
+  String get migrationID => "0005_AccessTokens2";
+}
+
 /// Handles database migrations.
 class Migrator {
   /// Register migrations here, in execution order.
@@ -321,6 +334,7 @@ class Migrator {
     MIGFolders(),
     MIGProxyInfo(),
     MIGAccessTokens(),
+    MIGAccessTokens2(),
   ];
 
   /// Executes all pending migrations.

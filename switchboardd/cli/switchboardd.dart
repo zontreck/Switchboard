@@ -200,6 +200,7 @@ Future<void> main(List<String> arguments) async {
         },
       );
     }
+    bool loggedIn = authorization != null;
 
     switch (requestPath) {
       case "/robots.txt":
@@ -399,9 +400,6 @@ Future<void> main(List<String> arguments) async {
                 Reason: "",
               );
 
-              // Add the access token to the database.
-              // This is a layer of redundancy, as we can check the database for the token.
-
               request.response
                 ..statusCode = HttpStatus.ok
                 ..headers.add("Authentication", jWebToken)
@@ -429,7 +427,7 @@ Future<void> main(List<String> arguments) async {
       case "/auth/check":
         {
           // Check the user's authentication token.
-          if (authorization == null) {
+          if (!loggedIn) {
             request.response
               ..statusCode = HttpStatus.ok
               ..headers.contentType = ContentType.json
@@ -457,6 +455,51 @@ Future<void> main(List<String> arguments) async {
                     ID: rayID,
                     Reason: "",
                   ),
+                ),
+              );
+          }
+          break;
+        }
+      case "/auth/refresh":
+        {
+          if (loggedIn) {
+            // Generate a new access token with the same scope and flags.
+            var newToken = authorization.signJWT(
+              authorization.encodeJWT(),
+              privateKey,
+              expiration: TokenScopeHelper.getDurationForScope(
+                authorization.scope,
+              ),
+            );
+
+            ServerAuthenticationResponse sar = ServerAuthenticationResponse(
+              username: authorization.username,
+              token: newToken,
+              Success: true,
+              Path: requestPath,
+              Method: requestMethod,
+              ID: rayID,
+              Reason: "",
+            );
+
+            request.response
+              ..statusCode = HttpStatus.ok
+              ..headers.contentType = ContentType.json
+              ..write(json.encode(sar.encode()));
+          } else {
+            // Respond with a basic failure
+            request.response
+              ..statusCode = HttpStatus.ok
+              ..headers.contentType = ContentType.json
+              ..write(
+                json.encode(
+                  BasicResponse(
+                    Success: false,
+                    Path: requestPath,
+                    Method: requestMethod,
+                    ID: rayID,
+                    Reason: "E2A01",
+                  ).encode(),
                 ),
               );
           }

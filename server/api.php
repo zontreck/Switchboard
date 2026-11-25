@@ -515,54 +515,6 @@ switch($route) {
         break;
     }
 
-    case "/auth/refresh": {
-        $success = false;
-        $packet = json_decode(file_get_contents("php://input"), true);
-
-        $DB = get_DB("switchboard");
-        $NewToken = "";
-
-        $AuthHeader = get_Authorization();
-        $reply = ValidateSAT($AuthHeader);
-        if($reply->Success) {
-            // Valid SAT. Now verify the token's scope and flags. In both instances it should just be a 1.
-            if($reply->Scope == 1 && $reply->Flags == 1) {
-                $success = true;
-                // Make new token
-                $token = gen_uuid();
-                $iss = time();
-                $expire = $iss + (60*60*24);
-                $id = $reply->UserID;
-
-                // Delete the old token and insert the new one
-                //$DB->query("DELETE FROM Access WHERE Token='".$reply->Token."';");
-                $stmt = $DB->prepare("INSERT INTO Access (User, Token, TokenScope, TokenFlags, Expire, IssuedAt) VALUES (?,?,?,?,?,?);");
-                $stmt->bind_param("ssiiii", $id, $token, $reply->Scope, $reply->Flags, $expire, $iss);
-                $stmt->execute();
-                $stmt->close();
-
-                $DB->commit();
-
-                $NewToken = MakeSAT($token, $expire, $iss);
-            }
-        } else {
-            $success = false;
-            $NewToken = "";
-        }
-
-        die(json_encode(array(
-            "success" => $success,
-            "path" => $route,
-            "id" => $ID,
-            "type" => $request,
-            "data" => array(
-                "token" => $NewToken
-            )
-        )));
-
-        break;
-    }
-
 
     case preg_match('#^/images(?:/([^/]+))?$#', $route, $matches) === 1: {
 
