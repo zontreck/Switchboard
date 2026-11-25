@@ -301,3 +301,21 @@ Future<void> wipeAccount(MySQLConnectionPool pool, UUID userID) async {
     );
   });
 }
+
+Future<void> updateUserPassword(
+  MySQLConnectionPool pool,
+  UUID user,
+  String hash,
+  String salt,
+) async {
+  await pool.withConnection((conn) async {
+    await conn.execute(
+      "UPDATE `users` SET `PasswordSalt` = :salt WHERE `ID` = :id;",
+      {"salt": salt, "id": user.toString()},
+    );
+    await conn.execute(
+      "UPDATE `users` SET `PasswordHash` = :hash WHERE `ID` = :id;",
+      {"hash": hash, "id": user.toString()},
+    );
+  });
+}

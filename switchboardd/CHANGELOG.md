@@ -1,3 +1,8 @@
+# 0.0.18
+
+- Utilize typeCorrectJson in the server for decoding request payload.
+- Migrate `/auth/password`
+
 # 0.0.17
 
 - Migrate `/fields`

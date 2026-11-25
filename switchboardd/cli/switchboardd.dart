@@ -169,7 +169,7 @@ Future<void> main(List<String> arguments) async {
     final body = await utf8.decoder.bind(request).join();
     Map<String, dynamic> bodyJs = {};
     try {
-      bodyJs = json.decode(body);
+      bodyJs = typeCorrectJsonDecode(body);
     } catch (e) {
       // Ignore error, this just means there was either no body, or the body was not in json.
     }
@@ -566,6 +566,73 @@ Future<void> main(List<String> arguments) async {
               ..headers.contentType = ContentType.json
               ..write(json.encode(sfr.encode()));
           } else {
+            request.response
+              ..statusCode = HttpStatus.ok
+              ..headers.contentType = ContentType.json
+              ..write(
+                json.encode(
+                  BasicResponse(
+                    Success: false,
+                    Path: requestPath,
+                    Method: requestMethod,
+                    ID: rayID,
+                    Reason: "E1A01",
+                  ).encode(),
+                ),
+              );
+          }
+          break;
+        }
+      case "/auth/password":
+        {
+          if (loggedIn) {
+            // We can try to proceed
+            if (authorization.flags & TOKEN_FLAGS_RESTRICTED ==
+                TOKEN_FLAGS_RESTRICTED) {
+              request.response
+                ..statusCode = HttpStatus.ok
+                ..headers.contentType = ContentType.json
+                ..write(
+                  json.encode(
+                    BasicResponse(
+                      Success: false,
+                      Path: requestPath,
+                      Method: requestMethod,
+                      ID: rayID,
+                      Reason: "E1A02",
+                    ).encode(),
+                  ),
+                );
+            } else {
+              // No account restriction, and user is logged in.
+              String hashedPassword = bodyJs["auth"];
+
+              // Generate a new password salt
+              var salt = ServerSecurityHelpers.makePasswordSalt();
+              var hash = ServerSecurityHelpers.makePasswordHash(
+                hashedPassword,
+                salt,
+              );
+
+              await updateUserPassword(conn, authorization.id, hash, salt);
+
+              request.response
+                ..statusCode = HttpStatus.ok
+                ..headers.contentType = ContentType.json
+                ..write(
+                  json.encode(
+                    BasicResponse(
+                      Success: true,
+                      Path: requestPath,
+                      Method: requestMethod,
+                      ID: rayID,
+                      Reason: "",
+                    ).encode(),
+                  ),
+                );
+            }
+          } else {
+            // Return error E1A01
             request.response
               ..statusCode = HttpStatus.ok
               ..headers.contentType = ContentType.json
