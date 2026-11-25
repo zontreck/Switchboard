@@ -3,13 +3,6 @@
 $DEBUG = false;
 
 
-
-header("Content-Type: application/json", true);
-header("Server: Switchboard/v".$VERSION, true);
-header("Expires: 0", true);
-header("Cache-Control: max-age=0, no-store, no-cache, must-revalidate, proxy-revalidate", true);
-
-
 switch($route) {
     
     // Handle /user or /user/{username}

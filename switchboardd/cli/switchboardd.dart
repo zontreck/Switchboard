@@ -148,6 +148,16 @@ Future<void> main(List<String> arguments) async {
       requestIP = proxyIP;
     }
 
+    request.response.headers.add(
+      "Server",
+      "Switchboard/v${SBProject.BACKEND_VERSION}",
+    );
+    request.response.headers.expires = DateTime.fromMillisecondsSinceEpoch(0);
+    request.response.headers.add(
+      "Cache-Control",
+      "max-age=0, no-store, no-cache, must-revalidate, proxy-revalidate",
+    );
+
     Map<String, List<String>> headers = {};
     print("> [$requestIP] $requestMethod: $requestPath");
 
