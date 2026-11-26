@@ -1,3 +1,8 @@
+# 0.0.20
+
+- Refactor some factories to static methods
+- Refactor to add "Server" before most type classes
+
 # 0.0.19
 
 - Migrate `/alters/{id}`

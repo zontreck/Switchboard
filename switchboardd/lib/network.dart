@@ -165,11 +165,11 @@ Future<void> createNewFolder(
   });
 }
 
-Future<List<Field>> getAllUserFields(
+Future<List<ServerField>> getAllUserFields(
   MySQLConnectionPool pool,
   UUID userID,
 ) async {
-  List<Field> fields = [];
+  List<ServerField> fields = [];
   await pool.withConnection((conn) async {
     var result = await conn.execute(
       "SELECT * FROM `Fields` WHERE `User` = :user;",
@@ -180,7 +180,7 @@ Future<List<Field>> getAllUserFields(
     await for (final row in result.rowsStream) {
       final assocRow = row.assoc();
       fields.add(
-        Field(
+        ServerField(
           fieldID: UUID.parse(assocRow["ID"]),
           fieldName: assocRow["FieldName"],
           fieldType: assocRow["FieldType"],

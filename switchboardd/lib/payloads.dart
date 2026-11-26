@@ -169,7 +169,7 @@ class ServerUserResponse extends BasicResponse {
   int accountLevel;
   UUID id;
   UUID rootFolder;
-  List<Field> fields;
+  List<ServerField> fields;
 
   ServerUserResponse({
     required this.user,
@@ -206,7 +206,7 @@ class ServerUserResponse extends BasicResponse {
     List<Map<String, dynamic>> lst = js['fields'];
     fields = [];
     for (var field in lst) {
-      fields.add(Field.fromJson(field));
+      fields.add(ServerField.decode(field));
     }
   }
 
@@ -264,13 +264,13 @@ class ServerAuthenticationResponse extends BasicResponse {
   }
 }
 
-class Field {
+class ServerField {
   UUID fieldID;
   String fieldName;
   int fieldType;
   int sortOrder;
 
-  Field({
+  ServerField({
     required this.fieldID,
     required this.fieldName,
     required this.fieldType,
@@ -286,8 +286,8 @@ class Field {
     };
   }
 
-  factory Field.fromJson(Map<String, dynamic> js) {
-    return Field(
+  static ServerField decode(Map<String, dynamic> js) {
+    return ServerField(
       fieldID: UUID.parse(js['id']),
       fieldName: js['name'],
       fieldType: js['type'],
@@ -297,7 +297,7 @@ class Field {
 }
 
 class ServerFieldsResponse extends BasicResponse {
-  List<Field> fields;
+  List<ServerField> fields;
 
   ServerFieldsResponse({
     required this.fields,
@@ -315,7 +315,7 @@ class ServerFieldsResponse extends BasicResponse {
 
     fields = [];
     for (var entry in js['data']) {
-      fields.add(Field.fromJson(entry));
+      fields.add(ServerField.decode(entry));
     }
   }
 
@@ -366,18 +366,18 @@ class ServerUser {
   }
 }
 
-class FieldData {
+class ServerFieldData {
   UUID id;
   Map<String, dynamic> data = {};
 
-  FieldData({required this.id, required this.data});
+  ServerFieldData({required this.id, required this.data});
 
   Map<String, dynamic> toJson() {
     return {"id": id.toString(), "value": data};
   }
 
-  factory FieldData.decode(Map<String, dynamic> js) {
-    return FieldData(id: UUID.parse(js['id']), data: js['value']);
+  static ServerFieldData decode(Map<String, dynamic> js) {
+    return ServerFieldData(id: UUID.parse(js['id']), data: js['value']);
   }
 }
 
@@ -389,7 +389,7 @@ class ServerAlter {
   int subid;
   UUID parent;
   int flags;
-  List<FieldData> fields;
+  List<ServerFieldData> fields;
   String proxyName;
   List<String> proxies;
 
@@ -435,7 +435,7 @@ class ServerAlter {
     return fieldsJs;
   }
 
-  factory ServerAlter.decode(Map<String, dynamic> js) {
+  static ServerAlter decode(Map<String, dynamic> js) {
     var fieldsJs = parseFields(js['fields']);
     List<dynamic> proxies = js['proxies'] ?? [];
 
@@ -455,10 +455,10 @@ class ServerAlter {
     return alter;
   }
 
-  static List<FieldData> decodeFields(List<dynamic> js) {
-    List<FieldData> fields = [];
+  static List<ServerFieldData> decodeFields(List<dynamic> js) {
+    List<ServerFieldData> fields = [];
     for (var entry in js) {
-      fields.add(FieldData.decode(entry));
+      fields.add(ServerFieldData.decode(entry));
     }
 
     return fields;
