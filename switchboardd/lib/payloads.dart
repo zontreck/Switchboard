@@ -1,5 +1,9 @@
+import 'dart:convert';
+
+import 'package:libac_dart/utils/Converter.dart';
 import 'package:libac_dart/utils/Hashing.dart';
 import 'package:libac_dart/utils/uuid/UUID.dart';
+import 'package:switchboardd/funcs.dart';
 import 'package:switchboardd/users.dart';
 
 class BasicResponse {
@@ -359,5 +363,168 @@ class ServerUser {
     }
 
     return res;
+  }
+}
+
+class FieldData {
+  UUID id;
+  Map<String, dynamic> data = {};
+
+  FieldData({required this.id, required this.data});
+
+  Map<String, dynamic> toJson() {
+    return {"id": id.toString(), "value": data};
+  }
+
+  factory FieldData.decode(Map<String, dynamic> js) {
+    return FieldData(id: UUID.parse(js['id']), data: js['value']);
+  }
+}
+
+class ServerAlter {
+  UUID id;
+  UUID user;
+  String name;
+  String avatarUrl;
+  int subid;
+  UUID parent;
+  int flags;
+  List<FieldData> fields;
+  String proxyName;
+  List<String> proxies;
+
+  ServerAlter({
+    required this.id,
+    required this.user,
+    required this.name,
+    required this.avatarUrl,
+    required this.subid,
+    required this.parent,
+    required this.flags,
+    required this.fields,
+    required this.proxyName,
+    required this.proxies,
+  });
+
+  Map<String, dynamic> encode() {
+    return {
+      "id": id.toString(),
+      "user": user.toString(),
+      "name": name,
+      "avatar_url": avatarUrl,
+      "subid": subid,
+      "parent": parent.toString(),
+      "flags": flags,
+      "fields": base64Encoder.base64Enc(json.encode({"A": encodeFields()})),
+      "proxy_name": proxyName,
+      "proxies": proxies,
+    };
+  }
+
+  static List<dynamic> parseFields(dynamic js) {
+    List<dynamic> fieldsJs = [];
+    try {
+      var jsA = js;
+      jsA ??= "eyJBIjogW119";
+
+      var jsB = base64Encoder.base64Dec(jsA);
+      var jsC = typeCorrectJsonDecode(jsB);
+      fieldsJs = jsC["A"];
+    } catch (A) {}
+
+    return fieldsJs;
+  }
+
+  factory ServerAlter.decode(Map<String, dynamic> js) {
+    var fieldsJs = parseFields(js['fields']);
+    List<dynamic> proxies = js['proxies'] ?? [];
+
+    var alter = ServerAlter(
+      id: UUID.parse(js['id']),
+      user: UUID.parse(js['user']),
+      name: js['name'],
+      avatarUrl: js['avatar_url'],
+      subid: js['subid'],
+      parent: UUID.parse(js['parent']),
+      flags: js['flags'],
+      fields: decodeFields(fieldsJs),
+      proxyName: js['proxy_name'] ?? "",
+      proxies: proxies.isEmpty ? [] : proxies as List<String>,
+    );
+
+    return alter;
+  }
+
+  static List<FieldData> decodeFields(List<dynamic> js) {
+    List<FieldData> fields = [];
+    for (var entry in js) {
+      fields.add(FieldData.decode(entry));
+    }
+
+    return fields;
+  }
+
+  List<Map<String, dynamic>> encodeFields() {
+    List<Map<String, dynamic>> ret = [];
+    for (var entry in fields) {
+      ret.add(entry.toJson());
+    }
+
+    return ret;
+  }
+}
+
+class ServerAltersResponse extends BasicResponse {
+  List<ServerAlter> alters = [];
+  int alterCount;
+  int totalAlters;
+  bool done;
+
+  ServerAltersResponse({
+    required this.alters,
+    required this.alterCount,
+    required this.totalAlters,
+    required this.done,
+    required super.Success,
+    required super.Path,
+    required super.Method,
+    required super.ID,
+    required super.Reason,
+  });
+
+  ServerAltersResponse.fromJs(Map<String, dynamic> js)
+    : alters = [],
+      alterCount = 0,
+      totalAlters = 0,
+      done = false,
+      super(ID: UUID.ZERO, Success: false, Path: "", Method: "", Reason: "") {
+    alters = [];
+    alterCount = js['data']['count'];
+    totalAlters = js['data']['total'];
+    done = js['data']['done'];
+    super.decode(js);
+
+    for (var entry in js['data']['alters']) {
+      alters.add(ServerAlter.decode(entry));
+    }
+  }
+
+  @override
+  Map<String, dynamic> encode() {
+    var js = super.encode();
+    List<Map<String, dynamic>> alterLst = [];
+
+    for (var alter in alters) {
+      alterLst.add(alter.encode());
+    }
+
+    js['data'] = {
+      "count": alterCount,
+      "total": totalAlters,
+      "alters": alterLst,
+      "done": done,
+    };
+
+    return js;
   }
 }

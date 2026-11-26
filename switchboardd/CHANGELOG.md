@@ -1,3 +1,7 @@
+# 0.0.19
+
+- Migrate `/alters/{id}`
+
 # 0.0.18
 
 - Utilize typeCorrectJson in the server for decoding request payload.

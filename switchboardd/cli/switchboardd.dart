@@ -13,6 +13,7 @@ import 'package:libac_dart/utils/uuid/UUID.dart';
 import 'package:mysql_dart/mysql_dart.dart';
 import 'package:switchboardd/audit.dart';
 import 'package:switchboardd/dart/sbproj.dart';
+import 'package:switchboardd/errors.dart';
 import 'package:switchboardd/funcs.dart';
 import 'package:switchboardd/migrations.dart';
 import 'package:switchboardd/network.dart';
@@ -292,7 +293,7 @@ Future<void> main(List<String> arguments) async {
                           Success: false,
                           Path: requestPath,
                           Method: requestMethod,
-                          Reason: "E0A0A",
+                          Reason: ServerErrorCodes.error_user_creation_noname,
                         )),
                       ),
                     );
@@ -369,7 +370,7 @@ Future<void> main(List<String> arguments) async {
                     Path: requestPath,
                     Method: requestMethod,
                     ID: rayID,
-                    Reason: "E1A00",
+                    Reason: ServerErrorCodes.error_no_such_user,
                   ).encode(),
                 ),
               );
@@ -416,7 +417,7 @@ Future<void> main(List<String> arguments) async {
                       Path: requestPath,
                       Method: requestMethod,
                       ID: rayID,
-                      Reason: "E1A01",
+                      Reason: ServerErrorCodes.error_authentication_failed,
                     ).encode(),
                   ),
                 );
@@ -438,7 +439,7 @@ Future<void> main(List<String> arguments) async {
                     Path: requestPath,
                     Method: requestMethod,
                     ID: rayID,
-                    Reason: "E2A00",
+                    Reason: ServerErrorCodes.error_auth_check,
                   ).encode(),
                 ),
               );
@@ -476,7 +477,7 @@ Future<void> main(List<String> arguments) async {
                       Path: requestPath,
                       Method: requestMethod,
                       ID: rayID,
-                      Reason: "E1A02",
+                      Reason: ServerErrorCodes.error_account_restricted,
                     ).encode(),
                   ),
                 );
@@ -520,7 +521,7 @@ Future<void> main(List<String> arguments) async {
                     Path: requestPath,
                     Method: requestMethod,
                     ID: rayID,
-                    Reason: "E1A01",
+                    Reason: ServerErrorCodes.error_authentication_failed,
                   ).encode(),
                 ),
               );
@@ -565,7 +566,7 @@ Future<void> main(List<String> arguments) async {
                     Path: requestPath,
                     Method: requestMethod,
                     ID: rayID,
-                    Reason: "E2A01",
+                    Reason: ServerErrorCodes.error_refresh_failure,
                   ).encode(),
                 ),
               );
@@ -607,7 +608,7 @@ Future<void> main(List<String> arguments) async {
                     Path: requestPath,
                     Method: requestMethod,
                     ID: rayID,
-                    Reason: "E1A01",
+                    Reason: ServerErrorCodes.error_authentication_failed,
                   ),
                 ),
               );
@@ -643,11 +644,85 @@ Future<void> main(List<String> arguments) async {
                     Path: requestPath,
                     Method: requestMethod,
                     ID: rayID,
-                    Reason: "E1A01",
+                    Reason: ServerErrorCodes.error_authentication_failed,
                   ).encode(),
                 ),
               );
           }
+          break;
+        }
+      case var path when path.startsWith("/alters"):
+        {
+          if (!loggedIn) {
+            // Throw an error
+            request.response
+              ..statusCode = HttpStatus.ok
+              ..headers.contentType = ContentType.json
+              ..write(
+                json.encode(
+                  BasicResponse(
+                    Success: false,
+                    Path: requestPath,
+                    Method: requestMethod,
+                    ID: rayID,
+                    Reason: ServerErrorCodes.error_authentication_failed,
+                  ).encode(),
+                ),
+              );
+          } else {
+            UUID userID = UUID.ZERO;
+            List<String> pathParts = path.split('/');
+            if (pathParts.length == 1) {
+              // Username being absent, check the Authorization header.
+              userID = authorization.id;
+            } else {
+              userID = UUID.parse(pathParts[1]);
+            }
+
+            int skipCount = bodyJs["skip"];
+            int chunkCount = bodyJs["count"];
+            bool chunking = chunkCount > 0;
+
+            // This endpoint does not care what method is used.
+            List<ServerAlter> alters = await getAlters(
+              conn,
+              userID,
+              skip: skipCount,
+              count: chunkCount,
+              chunking: chunking,
+            );
+
+            bool done = false;
+            int totalAlters = await getAlterCount(conn, userID);
+            if (!chunking) {
+              done = true;
+            } else {
+              if (skipCount + alters.length == totalAlters ||
+                  chunkCount > alters.length) {
+                done = true;
+              } else {
+                done = false;
+              }
+            }
+
+            ServerAltersResponse sar = ServerAltersResponse(
+              alters: alters,
+              alterCount: alters.length,
+              totalAlters: totalAlters,
+              done: done,
+              Success: true,
+              Path: requestPath,
+              Method: requestMethod,
+              ID: rayID,
+              Reason: "",
+            );
+
+            request.response
+              ..statusCode = HttpStatus.ok
+              ..headers.contentType = ContentType.json
+              ..write(json.encode(sar.encode()));
+          }
+
           break;
         }
 

@@ -1,3 +1,6 @@
+import 'dart:convert';
+
+import 'package:libac_dart/utils/Converter.dart';
 import 'package:libac_dart/utils/uuid/UUID.dart';
 import 'package:mysql_dart/mysql_dart.dart';
 import 'package:switchboardd/payloads.dart';
@@ -318,4 +321,70 @@ Future<void> updateUserPassword(
       {"hash": hash, "id": user.toString()},
     );
   });
+}
+
+Future<List<ServerAlter>> getAlters(
+  MySQLConnectionPool pool,
+  UUID user, {
+  int skip = 0,
+  int count = 0,
+  bool chunking = false,
+}) async {
+  // Get a list of alters from the server.
+  await pool.withConnection((conn) async {
+    IResultSet res;
+    if (!chunking) {
+      res = await conn.execute(
+        "SELECT * FROM `Alters` WHERE `User` = :user ORDER BY SubID ASC;",
+        {"user": user.toString()},
+        true,
+      );
+    } else {
+      res = await conn.execute(
+        "SELECT * FROM `Alters` WHERE `User` = :user ORDER BY SubID ASC LIMIT :count OFFSET :skip;",
+        {"user": user.toString(), "count": count, "skip": skip},
+        true,
+      );
+    }
+
+    // Iterate the result to generate the list of alters
+    List<ServerAlter> ret = [];
+    await for (final rw in res.rowsStream) {
+      var row = rw.assoc();
+
+      ServerAlter alter = ServerAlter(
+        id: UUID.parse(row['ID']),
+        user: UUID.parse(row['User']),
+        name: row['Name'],
+        avatarUrl: row['Avatar'],
+        subid: row['SubID'],
+        parent: UUID.parse(row['ParentID']),
+        flags: row['Flags'],
+        fields: ServerAlter.decodeFields(
+          ServerAlter.parseFields(base64Encoder.base64Enc(row['Fields'])),
+        ),
+        proxyName: row['ProxyName'],
+        proxies: json.decode(row['Proxies']),
+      );
+
+      ret.add(alter);
+    }
+
+    return ret;
+  });
+
+  return [];
+}
+
+Future<int> getAlterCount(MySQLConnectionPool pool, UUID user) async {
+  await pool.withConnection((conn) async {
+    var res = await conn.execute(
+      "SELECT * FROM `Alters` WHERE `User` = :user;",
+      {"user": user.toString()},
+    );
+
+    return res.numOfRows;
+  });
+
+  return 0;
 }
