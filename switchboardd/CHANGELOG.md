@@ -1,3 +1,7 @@
+# 0.0.21
+
+- Move ServerFieldType from client app
+
 # 0.0.20
 
 - Refactor some factories to static methods

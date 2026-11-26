@@ -264,10 +264,71 @@ class ServerAuthenticationResponse extends BasicResponse {
   }
 }
 
+enum ServerFieldType {
+  Description(-1),
+  ColorSys(-2),
+  Pronouns(-3),
+  Unknown(-9999),
+  PlainText(0),
+  Markdown(1),
+  Color(2),
+  Date(3),
+  Number(4),
+  Boolean(5);
+
+  const ServerFieldType(int type) : _type = type;
+
+  final int _type;
+
+  static ServerFieldType valueOf(int type) {
+    if (Description._type == type) return Description;
+    if (ColorSys._type == type) return ColorSys;
+    if (Pronouns._type == type) return Pronouns;
+    if (PlainText._type == type) return PlainText;
+    if (Markdown._type == type) return Markdown;
+    if (Color._type == type) return Color;
+    if (Date._type == type) return Date;
+    if (Number._type == type) return Number;
+    if (Boolean._type == type) return Boolean;
+
+    return Unknown;
+  }
+
+  int value() {
+    return _type;
+  }
+
+  @override
+  String toString() {
+    switch (this) {
+      case Description:
+        return "Description (Markdown, System Field)";
+      case ColorSys:
+        return "Color (System Field)";
+      case Pronouns:
+        return "Pronouns (Plain Text, System Field)";
+      case Unknown:
+        return "Unknown Type";
+      case PlainText:
+        return "Plain Text";
+      case Markdown:
+        return "Text (Markdown)";
+      case Color:
+        return "Color";
+      case Date:
+        return "Date";
+      case Number:
+        return "Number";
+      case Boolean:
+        return "Boolean (Yes/No)";
+    }
+  }
+}
+
 class ServerField {
   UUID fieldID;
   String fieldName;
-  int fieldType;
+  ServerFieldType fieldType;
   int sortOrder;
 
   ServerField({
@@ -281,7 +342,7 @@ class ServerField {
     return {
       "id": fieldID.toString(),
       "name": fieldName,
-      "type": fieldType,
+      "type": fieldType.value(),
       "order": sortOrder,
     };
   }
@@ -290,7 +351,7 @@ class ServerField {
     return ServerField(
       fieldID: UUID.parse(js['id']),
       fieldName: js['name'],
-      fieldType: js['type'],
+      fieldType: ServerFieldType.valueOf(js['type']),
       sortOrder: js['order'],
     );
   }
