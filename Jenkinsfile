@@ -103,12 +103,16 @@ pipeline {
                     
                     git checkout "$BRANCH_NAME"
 
-                    chmod +x localbuild.sh
-                    RELEASE=1 ./localbuild.sh || true
+                    flutter pub get
+                    dart run cli/generate_build_inf.dart
 
                     cd switchboardd
+                    dart pub get
                     dart pub publish -f || true
                     cd ..
+
+                    chmod +x localbuild.sh
+                    RELEASE=1 ./localbuild.sh || true
                     '''
                 }
             }
