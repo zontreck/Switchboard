@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:libac_dart/utils/Converter.dart';
 import 'package:libac_dart/utils/Hashing.dart';
+import 'package:libac_dart/utils/TimeUtils.dart';
 import 'package:libac_dart/utils/uuid/UUID.dart';
 import 'package:switchboardd/funcs.dart';
 import 'package:switchboardd/users.dart';
@@ -39,6 +40,21 @@ class BasicResponse {
       "id": ID.toString(),
       "reason": Reason,
     };
+  }
+}
+
+class LazyResponse extends BasicResponse {
+  LazyResponse({
+    required super.Success,
+    required super.Path,
+    required super.Method,
+    required super.ID,
+    required super.Reason,
+  });
+
+  LazyResponse.fromJson(Map<String, dynamic> js)
+    : super(ID: UUID.ZERO, Success: false, Path: "", Method: "", Reason: "") {
+    decode(js);
   }
 }
 
@@ -232,6 +248,128 @@ class ServerUserResponse extends BasicResponse {
   }
 }
 
+class ClientUser {
+  UUID ID;
+  String Name;
+  String DisplayName;
+  int AccountLevel;
+  int AlterCount;
+  int FetchTime;
+  List<ServerField> Fields;
+
+  factory ClientUser.NUL() {
+    return ClientUser(
+      ID: UUID.ZERO,
+      Name: "N/A",
+      DisplayName: "N/A",
+      AccountLevel: 0,
+      AlterCount: 0,
+      Fields: [],
+    );
+  }
+
+  ClientUser({
+    required this.ID,
+    required this.Name,
+    required this.DisplayName,
+    required this.AccountLevel,
+    required this.AlterCount,
+    required this.Fields,
+  }) : FetchTime = TimeUtils.getUnixTimestamp();
+
+  factory ClientUser.deserialize(Map<String, dynamic> js) {
+    UUID idx = UUID.ZERO;
+    if (js.containsKey("id")) {
+      idx = js['id'];
+    }
+
+    String username = "";
+    if (js.containsKey("user")) {
+      username = js['user'];
+    }
+
+    String displayName = "";
+    if (js.containsKey("displayName")) {
+      displayName = js['displayName'];
+    }
+
+    int alterCount = 0;
+    if (js.containsKey("alter_count")) {
+      alterCount = js['alter_count'] as int;
+    }
+
+    int accountLevel = 0;
+    if (js.containsKey("level")) {
+      accountLevel = js['level'];
+    }
+    List<ServerField> fields = [];
+    if (js.containsKey("fields")) {
+      List<dynamic> jsFields = js['fields'];
+      for (var field in jsFields) {
+        fields.add(ServerField.decode(field));
+      }
+    }
+
+    return ClientUser(
+      ID: idx,
+      Name: username,
+      DisplayName: displayName,
+      AccountLevel: accountLevel,
+      AlterCount: alterCount,
+      Fields: fields,
+    );
+  }
+
+  Map<String, dynamic> encode() {
+    return {
+      "id": ID.toString(),
+      "user": Name,
+      "displayName": DisplayName,
+      "alter_count": AlterCount,
+      "level": AccountLevel,
+    };
+  }
+}
+
+class ServerUser {
+  String username;
+  UUID userID;
+  int accountLevel;
+  int alterCount;
+
+  // Unavailable on the client
+  String passwordHash;
+
+  // Unavailable on the client
+  String passwordSalt;
+  String displayName;
+
+  String getAccountLevelStr() {
+    return getAccountLevel(accountLevel);
+  }
+
+  ServerUser({
+    required this.username,
+    required this.userID,
+    required this.accountLevel,
+    required this.alterCount,
+    required this.passwordHash,
+    required this.passwordSalt,
+    required this.displayName,
+  });
+
+  bool authenticate(String hashedPassword) {
+    bool res = Hashing.md5Hash("$hashedPassword:$passwordSalt") == passwordHash;
+
+    if (res) {
+      passwordHash = "";
+      passwordSalt = "";
+    }
+
+    return res;
+  }
+}
+
 class ServerAuthenticationResponse extends BasicResponse {
   String username;
   String token;
@@ -391,39 +529,6 @@ class ServerFieldsResponse extends BasicResponse {
     ret['data'] = lst;
 
     return ret;
-  }
-}
-
-class ServerUser {
-  String username;
-  UUID userID;
-  int accountLevel;
-  String passwordHash;
-  String passwordSalt;
-  String displayName;
-
-  String getAccountLevelStr() {
-    return getAccountLevel(accountLevel);
-  }
-
-  ServerUser({
-    required this.username,
-    required this.userID,
-    required this.accountLevel,
-    required this.passwordHash,
-    required this.passwordSalt,
-    required this.displayName,
-  });
-
-  bool authenticate(String hashedPassword) {
-    bool res = Hashing.md5Hash("$hashedPassword:$passwordSalt") == passwordHash;
-
-    if (res) {
-      passwordHash = "";
-      passwordSalt = "";
-    }
-
-    return res;
   }
 }
 

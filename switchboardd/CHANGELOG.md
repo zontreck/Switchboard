@@ -1,3 +1,8 @@
+# 0.0.22
+
+- Add `ClientUser`, alongside some basic changes
+- Add `LazyResponse` which just adds a fromJson method to BasicResponse
+
 # 0.0.21
 
 - Move ServerFieldType from client app

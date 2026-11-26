@@ -217,6 +217,7 @@ Future<ServerUser?> getServerUser(MySQLConnectionPool pool, UUID userID) async {
       ServerUser user = ServerUser(
         username: assocRow["UserName"],
         userID: userID,
+        alterCount: await getAlterCount(pool, userID),
         accountLevel: assocRow["AccountLevel"],
         passwordHash: assocRow["PasswordHash"],
         passwordSalt: assocRow["PasswordSalt"],
@@ -247,6 +248,7 @@ Future<ServerUser?> getServerUserByName(
       ServerUser user = ServerUser(
         username: assocRow["UserName"],
         userID: UUID.parse(assocRow['ID']),
+        alterCount: await getAlterCount(pool, UUID.parse(assocRow['ID'])),
         accountLevel: assocRow["AccountLevel"],
         passwordHash: assocRow["PasswordHash"],
         passwordSalt: assocRow["PasswordSalt"],
