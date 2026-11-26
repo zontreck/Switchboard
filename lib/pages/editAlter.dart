@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_colorpicker/flutter_colorpicker.dart';
 import 'package:libac_dart/utils/Converter.dart';
 import 'package:libac_dart/utils/TimeUtils.dart';
+import 'package:libac_dart/utils/uuid/UUID.dart';
 import 'package:libacflutter/Constants.dart';
 import 'package:libacflutter/Prompt.dart';
 import 'package:libacflutter/utils/colorHelpers.dart';
@@ -14,6 +15,7 @@ import 'package:switchboard/file_picker.dart';
 import 'package:switchboard/globalHelpers.dart';
 import 'package:switchboard/pages/elements.dart';
 import 'package:switchboard/sb.dart';
+import 'package:switchboardd/payloads.dart';
 
 class EditAlterPage extends StatefulWidget {
   const EditAlterPage({super.key});
@@ -28,12 +30,12 @@ class _editAlter extends State<EditAlterPage> {
   String alterId = UUID_ZERO;
   bool previewMode = false;
   Alter alter = Alter(
-    id: UUID_ZERO,
-    user: UUID_ZERO,
+    id: UUID.ZERO,
+    user: UUID.ZERO,
     name: "name",
     avatarUrl: "avatarUrl",
     subid: 0,
-    parent: UUID_ZERO,
+    parent: UUID.ZERO,
     flags: 0,
     fields: [],
     proxyName: "",
@@ -199,7 +201,7 @@ class _editAlter extends State<EditAlterPage> {
                                 var success =
                                     await NetworkInterface.migrateAvatar(
                                       url,
-                                      alter.id,
+                                      alter.id.toString(),
                                     );
                                 if (success) {
                                   alter.avatarUrl = alter.id.toString();
@@ -364,7 +366,9 @@ class _editAlter extends State<EditAlterPage> {
 
                     if (reply is bool) {
                       if (reply == true) {
-                        var resp = await NetworkInterface.deleteAlter(alter.id);
+                        var resp = await NetworkInterface.deleteAlter(
+                          alter.id.toString(),
+                        );
                         if (resp.success) {
                           Switchboard.rebuild();
                           Navigator.pop(context);
@@ -407,20 +411,20 @@ class _editAlter extends State<EditAlterPage> {
       fields = await NetworkInterface.getDataFields();
     }
 
-    List<Field> fieldVals = fields.data;
+    List<ServerField> fieldVals = fields.data;
     fieldVals.sort((F1, F2) {
-      return F1.order.compareTo(F2.order);
+      return F1.sortOrder.compareTo(F2.sortOrder);
     });
 
     for (var field in fieldVals) {
-      widgets.add(Text(field.name, style: TextStyle(fontSize: 22)));
+      widgets.add(Text(field.fieldName, style: TextStyle(fontSize: 22)));
       widgets.add(
         AlterFieldData(
-          data: alter.getDataByFieldID(field.id),
-          type: field.type,
+          data: alter.getDataByFieldID(field.fieldID),
+          type: field.fieldType,
           alter: alter,
-          order: field.order,
-          fieldName: field.name,
+          order: field.sortOrder,
+          fieldName: field.fieldName,
           preview: previewMode,
         ),
       );
@@ -432,8 +436,8 @@ class _editAlter extends State<EditAlterPage> {
 }
 
 class AlterFieldData extends StatefulWidget {
-  FieldData data;
-  FieldType type;
+  ServerFieldData data;
+  ServerFieldType type;
   Alter alter;
   int order;
   String fieldName;
@@ -648,10 +652,10 @@ class _alterFieldData extends State<AlterFieldData> {
   void didChangeDependencies() {
     super.didChangeDependencies();
 
-    if (widget.type == FieldType.PlainText ||
-        widget.type == FieldType.Markdown ||
-        widget.type == FieldType.Description ||
-        widget.type == FieldType.Pronouns) {
+    if (widget.type == ServerFieldType.PlainText ||
+        widget.type == ServerFieldType.Markdown ||
+        widget.type == ServerFieldType.Description ||
+        widget.type == ServerFieldType.Pronouns) {
       if (widget.data.data["type"] != FieldStorageType.Text.id) {
         widget.data.data = {};
       }
@@ -662,8 +666,8 @@ class _alterFieldData extends State<AlterFieldData> {
       FieldStorage store = FieldStorage.fromJson(widget.data.data);
 
       controlHolders[widget.data.id.toString()] = store;
-    } else if (widget.type == FieldType.Color ||
-        widget.type == FieldType.ColorSys) {
+    } else if (widget.type == ServerFieldType.Color ||
+        widget.type == ServerFieldType.ColorSys) {
       if (widget.data.data["type"] != FieldStorageType.Color.id) {
         widget.data.data = {};
       }
@@ -677,7 +681,7 @@ class _alterFieldData extends State<AlterFieldData> {
       FieldStorage store = FieldStorage.fromJson(widget.data.data);
 
       controlHolders[widget.data.id.toString()] = store;
-    } else if (widget.type == FieldType.Date) {
+    } else if (widget.type == ServerFieldType.Date) {
       if (widget.data.data["type"] != FieldStorageType.Date.id) {
         widget.data.data = {};
       }
@@ -688,7 +692,7 @@ class _alterFieldData extends State<AlterFieldData> {
 
       FieldStorage store = FieldStorage.fromJson(widget.data.data);
       controlHolders[widget.data.id.toString()] = store;
-    } else if (widget.type == FieldType.Number) {
+    } else if (widget.type == ServerFieldType.Number) {
       if (widget.data.data["type"] != FieldStorageType.Number.id) {
         widget.data.data = {};
       }
@@ -699,7 +703,7 @@ class _alterFieldData extends State<AlterFieldData> {
 
       FieldStorage store = FieldStorage.fromJson(widget.data.data);
       controlHolders[widget.data.id.toString()] = store;
-    } else if (widget.type == FieldType.Boolean) {
+    } else if (widget.type == ServerFieldType.Boolean) {
       if (widget.data.data["type"] != FieldStorageType.Boolean.id) {
         widget.data.data = {};
       }
@@ -716,8 +720,8 @@ class _alterFieldData extends State<AlterFieldData> {
   @override
   Widget build(BuildContext context) {
     switch (widget.type) {
-      case FieldType.Pronouns:
-      case FieldType.PlainText:
+      case ServerFieldType.Pronouns:
+      case ServerFieldType.PlainText:
         {
           if (!widget.preview) {
             return TextField(
@@ -732,7 +736,7 @@ class _alterFieldData extends State<AlterFieldData> {
                         as TextFieldStorage);
 
                 widget.alter.addOrUpdateField(
-                  FieldData(id: widget.data.id, data: tfs.toJson()),
+                  ServerFieldData(id: widget.data.id, data: tfs.toJson()),
                 );
 
                 setState(() {});
@@ -751,8 +755,8 @@ class _alterFieldData extends State<AlterFieldData> {
             );
           }
         }
-      case FieldType.Color:
-      case FieldType.ColorSys:
+      case ServerFieldType.Color:
+      case ServerFieldType.ColorSys:
         {
           // Both color and Color System have the same controls for editing. So we'll just preserve that here, and reduce the redundancy.
           return ListTile(
@@ -782,7 +786,7 @@ class _alterFieldData extends State<AlterFieldData> {
                   ElevatedButton(
                     onPressed: () async {
                       widget.alter.addOrUpdateField(
-                        FieldData(id: widget.data.id, data: Cfs.toJson()),
+                        ServerFieldData(id: widget.data.id, data: Cfs.toJson()),
                       );
                       setState(() {});
                       Navigator.of(context).pop();
@@ -807,8 +811,8 @@ class _alterFieldData extends State<AlterFieldData> {
             },
           );
         }
-      case FieldType.Markdown:
-      case FieldType.Description:
+      case ServerFieldType.Markdown:
+      case ServerFieldType.Description:
         {
           return Column(
             children: [
@@ -842,7 +846,10 @@ class _alterFieldData extends State<AlterFieldData> {
                                 as TextFieldStorage);
 
                         widget.alter.addOrUpdateField(
-                          FieldData(id: widget.data.id, data: tfs.toJson()),
+                          ServerFieldData(
+                            id: widget.data.id,
+                            data: tfs.toJson(),
+                          ),
                         );
 
                         setState(() {});
@@ -851,7 +858,7 @@ class _alterFieldData extends State<AlterFieldData> {
             ],
           );
         }
-      case FieldType.Date:
+      case ServerFieldType.Date:
         {
           return Column(
             children: [
@@ -875,7 +882,10 @@ class _alterFieldData extends State<AlterFieldData> {
                               "${dt.month}/${dt.day}/${dt.year}";
 
                           widget.alter.addOrUpdateField(
-                            FieldData(id: widget.data.id, data: tfs.toJson()),
+                            ServerFieldData(
+                              id: widget.data.id,
+                              data: tfs.toJson(),
+                            ),
                           );
 
                           setState(() {});
@@ -897,7 +907,7 @@ class _alterFieldData extends State<AlterFieldData> {
             ],
           );
         }
-      case FieldType.Number:
+      case ServerFieldType.Number:
         {
           return TextField(
             controller:
@@ -925,14 +935,14 @@ class _alterFieldData extends State<AlterFieldData> {
                       as NumberFieldStorage);
 
               widget.alter.addOrUpdateField(
-                FieldData(id: widget.data.id, data: tfs.toJson()),
+                ServerFieldData(id: widget.data.id, data: tfs.toJson()),
               );
 
               setState(() {});
             },
           );
         }
-      case FieldType.Boolean:
+      case ServerFieldType.Boolean:
         {
           return CheckboxListTile(
             title: Text(widget.fieldName),
@@ -947,7 +957,7 @@ class _alterFieldData extends State<AlterFieldData> {
                   x;
 
               widget.alter.addOrUpdateField(
-                FieldData(
+                ServerFieldData(
                   id: widget.data.id,
                   data:
                       (controlHolders[widget.data.id.toString()]

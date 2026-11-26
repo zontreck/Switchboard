@@ -73,7 +73,7 @@ class _AccountPage extends State<AccountPage> {
             context,
             "/editAlter",
             arguments: EditAlterArguments(
-              alterId: newAlter.data!.id,
+              alterId: newAlter.data!.id.toString(),
               instance: newAlter.data!,
             ),
           );
@@ -400,7 +400,7 @@ class _alters extends State<AltersPage> {
                                 Fronter(
                                   id: UUID_ZERO,
                                   front: Front(
-                                    alterId: alters[index].id,
+                                    alterId: alters[index].id.toString(),
                                     start: 0,
                                     end: 0,
                                   ),
@@ -444,7 +444,8 @@ class _alters extends State<AltersPage> {
                                           context,
                                           "/editAlter",
                                           arguments: EditAlterArguments(
-                                            alterId: alters[index].id,
+                                            alterId: alters[index].id
+                                                .toString(),
                                             instance: alters[index],
                                           ),
                                         );
@@ -461,7 +462,7 @@ class _alters extends State<AltersPage> {
                                             ),
                                             onPressed: () async {
                                               await NetworkInterface.setFronting(
-                                                alters[index].id,
+                                                alters[index].id.toString(),
                                               );
                                               setState(() {});
                                               Navigator.pop(context);
@@ -475,7 +476,7 @@ class _alters extends State<AltersPage> {
                                             ),
                                             onPressed: () async {
                                               await NetworkInterface.unfrontFronter(
-                                                alters[index].id,
+                                                alters[index].id.toString(),
                                               );
                                               setState(() {});
                                               Navigator.pop(context);
@@ -499,7 +500,7 @@ class _alters extends State<AltersPage> {
                                             if (resp is bool) {
                                               if (resp == true) {
                                                 await NetworkInterface.deleteAlter(
-                                                  alters[index].id,
+                                                  alters[index].id.toString(),
                                                 );
                                                 setState(() {});
                                               }
@@ -516,7 +517,7 @@ class _alters extends State<AltersPage> {
                                         backgroundColor,
                                         getAlterTextColor(),
                                       ),
-                                      alterID: alters[index].id,
+                                      alterID: alters[index].id.toString(),
                                       alterName: alters[index].name,
                                       url: alters[index].avatarUrl.isNotEmpty
                                           ? alters[index].avatarUrl
@@ -614,7 +615,7 @@ class _fronting extends State<FrontingPage> {
                                 backgroundColor,
                                 getAlterTextColor(),
                               ),
-                              alterID: alter.id,
+                              alterID: alter.id.toString(),
                               longPressMenu: true,
                               onTap: () async {
                                 pageChanged();
@@ -622,7 +623,7 @@ class _fronting extends State<FrontingPage> {
                                   context,
                                   "/editAlter",
                                   arguments: EditAlterArguments(
-                                    alterId: alter.id,
+                                    alterId: alter.id.toString(),
                                     instance: alter,
                                   ),
                                 );
@@ -639,7 +640,7 @@ class _fronting extends State<FrontingPage> {
                                     ),
                                     onPressed: () async {
                                       await NetworkInterface.setFronting(
-                                        alter.id,
+                                        alter.id.toString(),
                                       );
                                       setState(() {});
                                       Navigator.pop(context);
@@ -653,7 +654,7 @@ class _fronting extends State<FrontingPage> {
                                     ),
                                     onPressed: () async {
                                       await NetworkInterface.unfrontFronter(
-                                        alter.id,
+                                        alter.id.toString(),
                                       );
                                       setState(() {});
                                       Navigator.pop(context);
@@ -674,7 +675,7 @@ class _fronting extends State<FrontingPage> {
                                     if (resp is bool) {
                                       if (resp == true) {
                                         await NetworkInterface.deleteAlter(
-                                          alter.id,
+                                          alter.id.toString(),
                                         );
                                         setState(() {});
                                       }
@@ -777,7 +778,7 @@ class _history extends State<FrontHistoryPage> {
                                     backgroundColor,
                                     getAlterTextColor(),
                                   ),
-                                  alterID: alter.id,
+                                  alterID: alter.id.toString(),
                                   alterName: alter.name,
                                   url: alter.avatarUrl.isNotEmpty
                                       ? alter.avatarUrl

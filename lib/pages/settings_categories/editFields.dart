@@ -5,6 +5,7 @@ import 'package:libacflutter/Prompt.dart';
 import 'package:switchboard/dart/storage.dart';
 import 'package:switchboard/globalHelpers.dart';
 import 'package:switchboard/pages/elements.dart';
+import 'package:switchboardd/payloads.dart';
 
 class EditFieldsPage extends StatefulWidget {
   const EditFieldsPage({super.key});
@@ -16,7 +17,7 @@ class EditFieldsPage extends StatefulWidget {
 }
 
 class _editFields extends State<EditFieldsPage> {
-  List<Field> fields = [];
+  List<ServerField> fields = [];
   bool _dirty = false;
 
   @override
@@ -125,7 +126,7 @@ class _editFields extends State<EditFieldsPage> {
     if (fields.isEmpty) {
       S2CFieldsResponse reply = await NetworkInterface.getDataFields();
       fields = reply.data;
-      fields.sort((a, b) => a.order.compareTo(b.order));
+      fields.sort((a, b) => a.sortOrder.compareTo(b.sortOrder));
 
       await sanityCheckFields();
     }
@@ -158,7 +159,7 @@ class _editFields extends State<EditFieldsPage> {
           backgroundColor: getAlterBackgroundColor(),
           textColor: getAlterTextColor(),
           enableReorder: true,
-          key: ValueKey(field.id.toString()),
+          key: ValueKey(field.fieldID.toString()),
         ),
       );
     }
@@ -170,7 +171,7 @@ class _editFields extends State<EditFieldsPage> {
       itemCount: widgets.length,
       onReorder: (oldIndex, newIndex) async {
         // 1. Update the data source (fields)
-        final Field item = fields.removeAt(oldIndex);
+        final ServerField item = fields.removeAt(oldIndex);
 
         if (newIndex > oldIndex) {
           newIndex -= 1;
@@ -204,15 +205,17 @@ class _editFields extends State<EditFieldsPage> {
   Future<void> sanityCheckFields() async {
     int index = 0;
     for (var field in fields) {
-      field.order = index;
-      print("Set field ${field.id} to order ${field.order}");
+      field.sortOrder = index;
+      print(
+        "Set field ${field.fieldID.toString()} to order ${field.sortOrder}",
+      );
 
       index++;
     }
   }
 }
 
-Widget getSampleWidgetByType(FieldType type) {
+Widget getSampleWidgetByType(ServerFieldType type) {
   switch (type) {
     default:
       {
@@ -231,17 +234,17 @@ class EditField extends StatefulWidget {
 }
 
 class _editField extends State<EditField> {
-  Field? initialField;
+  ServerField? initialField;
   TextEditingController fieldName = TextEditingController();
-  FieldType fieldType = FieldType.Unknown;
+  ServerFieldType fieldType = ServerFieldType.Unknown;
 
   @override
   void didChangeDependencies() {
     // Check if this has already been run
     if (initialField == null) {
-      initialField = ModalRoute.of(context)!.settings.arguments as Field;
-      fieldType = initialField!.type;
-      fieldName.text = initialField!.name;
+      initialField = ModalRoute.of(context)!.settings.arguments as ServerField;
+      fieldType = initialField!.fieldType;
+      fieldName.text = initialField!.fieldName;
     }
 
     super.didChangeDependencies();
@@ -270,8 +273,8 @@ class _editField extends State<EditField> {
           // Upload the field to the server, and close the editor.
           FocusManager.instance.primaryFocus?.unfocus();
 
-          initialField!.name = fieldName.text;
-          initialField!.type = fieldType;
+          initialField!.fieldName = fieldName.text;
+          initialField!.fieldType = fieldType;
 
           setState(() {});
           // Upload field
@@ -309,15 +312,15 @@ class _editField extends State<EditField> {
                                 style: TextStyle(fontSize: 22),
                               ),
                               subtitle: Text(
-                                initialField!.id.toString(),
+                                initialField!.fieldID.toString(),
                                 style: TextStyle(fontSize: 16),
                               ),
                             ),
 
-                            if (initialField!.type.value() < 0)
+                            if (initialField!.fieldType.value() < 0)
                               SizedBox(height: 50),
 
-                            if (initialField!.type.value() < 0)
+                            if (initialField!.fieldType.value() < 0)
                               ListTile(
                                 title: Text("System Field"),
                                 subtitle: Text(
@@ -413,7 +416,8 @@ class _editField extends State<EditField> {
                             ),
                             FutureBuilder(
                               future: getFieldMenuEntries(
-                                includeSystem: initialField!.type.value() <= -1,
+                                includeSystem:
+                                    initialField!.fieldType.value() <= -1,
                               ),
                               builder: (bldr, snap) {
                                 if (!snap.hasData) {
@@ -423,9 +427,10 @@ class _editField extends State<EditField> {
                                     dropdownMenuEntries:
                                         snap.data
                                             as List<
-                                              DropdownMenuEntry<FieldType>
+                                              DropdownMenuEntry<ServerFieldType>
                                             >,
-                                    enabled: initialField!.type.value() >= 0,
+                                    enabled:
+                                        initialField!.fieldType.value() >= 0,
                                     initialSelection: fieldType,
                                     expandedInsets: EdgeInsets.zero,
                                     onSelected: (value) {
@@ -441,15 +446,15 @@ class _editField extends State<EditField> {
                       ),
                     ),
                     SizedBox(height: 25),
-                    if (initialField!.type.value() >= 0)
+                    if (initialField!.fieldType.value() >= 0)
                       Center(
                         child: Text(
                           "DANGER",
                           style: TextStyle(fontSize: 22, color: Colors.red),
                         ),
                       ),
-                    if (initialField!.type.value() >= 0) Divider(),
-                    if (initialField!.type.value() >= 0)
+                    if (initialField!.fieldType.value() >= 0) Divider(),
+                    if (initialField!.fieldType.value() >= 0)
                       Card(
                         child: Padding(
                           padding: EdgeInsetsGeometry.all(8),
@@ -517,7 +522,7 @@ class _editField extends State<EditField> {
                                   } else {
                                     var deleteReply =
                                         await NetworkInterface.deleteField(
-                                          initialField!.id,
+                                          initialField!.fieldID.toString(),
                                         );
 
                                     if (deleteReply.success) {

@@ -3,6 +3,7 @@ import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:switchboard/dart/MemoryState.dart';
 import 'package:switchboard/dart/storage.dart';
 import 'package:switchboard/globalHelpers.dart';
+import 'package:switchboardd/payloads.dart';
 
 class SBLoginPage extends StatefulWidget {
   const SBLoginPage({super.key});
@@ -50,17 +51,15 @@ class _loginState extends State<SBLoginPage> {
           passwordController.text = "************";
           setState(() {});
 
-          S2CAuthenticationResponse auth = await NetworkInterface.authenticate(
-            ms.username,
-            ms.password,
-          );
-          if (!auth.success) {
+          ServerAuthenticationResponse auth =
+              await NetworkInterface.authenticate(ms.username, ms.password);
+          if (!auth.Success) {
             // password changed?
             // erase remembered settings, show snackbar Alert
             ScaffoldMessenger.of(context).showMaterialBanner(
               MaterialBanner(
                 content: Text(
-                  "ALERT: Login failed. The stored username and password were denied by the server. If you believe this is an error, please contact the administrator. To try again, fully close and reopen the app.\nRequest ID: ${auth.id}",
+                  "ALERT: Login failed. The stored username and password were denied by the server. If you believe this is an error, please contact the administrator. To try again, fully close and reopen the app.\nRequest ID: ${auth.ID}",
                 ),
                 actions: [
                   IconButton(
@@ -77,7 +76,7 @@ class _loginState extends State<SBLoginPage> {
             passwordController.text = "";
             setState(() {});
           } else {
-            ms.authenticationToken = auth.data.token!;
+            ms.authenticationToken = auth.token;
             await setAuthToken(ms.authenticationToken);
 
             tryAuthToken();
@@ -293,23 +292,23 @@ class _loginState extends State<SBLoginPage> {
           // Perform Login
           FocusManager.instance.primaryFocus?.unfocus();
 
-          S2CAuthenticationResponse authReply =
+          ServerAuthenticationResponse authReply =
               await NetworkInterface.authenticate(
                 usernameController.text,
                 passwordController.text,
               );
 
-          if (!authReply.success) {
+          if (!authReply.Success) {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
                 content: Text(
-                  "ERROR [${authReply.id}] Login failed for reason:\n${authReply.reason}",
+                  "ERROR [${authReply.ID.toString()}] Login failed for reason:\n${authReply.Reason}",
                 ),
               ),
             );
           } else {
             MemoryState ms = MemoryState();
-            ms.authenticationToken = authReply.data.token!;
+            ms.authenticationToken = authReply.token;
             if (ms.rememberMe) {
               ms.username = usernameController.text;
               ms.password = passwordController.text;

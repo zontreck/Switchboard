@@ -5,6 +5,7 @@ import 'package:dio/dio.dart';
 import 'package:libac_dart/utils/Converter.dart';
 import 'package:libac_dart/utils/Hashing.dart';
 import 'package:libac_dart/utils/TimeUtils.dart';
+import 'package:libac_dart/utils/uuid/UUID.dart';
 import 'package:switchboard/dart/MemoryState.dart';
 import 'package:switchboard/dart/api.dart';
 import 'package:switchboard/dart/exceptions.dart';
@@ -100,7 +101,7 @@ class NetworkInterface {
     });
   }
 
-  static Future<S2CLazyResponse> putNewUser(
+  static Future<ServerUserResponse> putNewUser(
     String username,
     String password,
   ) async {
@@ -115,9 +116,7 @@ class NetworkInterface {
       print(reply.data);
 
       // Deserialize the make new user packet
-      S2CLazyResponse response = S2CLazyResponse.decode(
-        typeCorrectJson(reply.data),
-      );
+      var response = ServerUserResponse.fromJson(typeCorrectJson(reply.data));
       NetworkCaches.invalidate();
 
       return response;
@@ -132,7 +131,7 @@ class NetworkInterface {
       }
       Dio dio = Dio();
       dio.options.contentType = "application/json";
-      dio.options.headers["X-SB-Auth"] = MemoryState.A.authenticationToken;
+      dio.options.headers["Authorization"] = MemoryState.A.authenticationToken;
 
       var reply = await dio.get(
         "$apiServerURL/user${username.isNotEmpty ? "/$username" : ""}",
@@ -145,7 +144,7 @@ class NetworkInterface {
     });
   }
 
-  static Future<S2CAuthenticationResponse> authenticate(
+  static Future<ServerAuthenticationResponse> authenticate(
     String username,
     String password,
   ) async {
@@ -161,22 +160,31 @@ class NetworkInterface {
       print(reply.data);
       MemoryState.A.username = username;
 
-      return S2CAuthenticationResponse.decode(typeCorrectJson(reply.data));
+      return ServerAuthenticationResponse.fromJson(typeCorrectJson(reply.data));
     });
   }
 
-  static Future<S2CAuthenticationCheckResponse> checkAuth() async {
+  static Future<BasicResponse> checkAuth() async {
     return await _lCheckAuth.synchronized(() async {
       MemoryState ms = MemoryState();
       Dio dio = Dio();
       dio.options.headers["Content-Type"] = "application/json";
-      dio.options.headers["X-SB-Auth"] = ms.authenticationToken;
+      dio.options.headers["Authorization"] = ms.authenticationToken;
 
       var reply = await dio.get("$apiServerURL/auth/check");
 
       print(reply.data);
 
-      return S2CAuthenticationCheckResponse.decode(typeCorrectJson(reply.data));
+      BasicResponse br = BasicResponse(
+        Success: false,
+        Path: "Path",
+        Method: "Method",
+        ID: UUID.ZERO,
+        Reason: "Reason",
+      );
+      br.decode(typeCorrectJson(reply.data));
+
+      return br;
     });
   }
 
@@ -332,10 +340,10 @@ class NetworkInterface {
     });
   }
 
-  static Future<S2CFieldResponse> updateField(Field field) async {
+  static Future<S2CFieldResponse> updateField(ServerField field) async {
     return await _lUpdateField.synchronized(() async {
       // Construct a packet to update the field!
-      Map<String, dynamic> payload = field.toJson();
+      Map<String, dynamic> payload = field.encode();
       Dio dio = Dio();
       MemoryState ms = MemoryState();
 
@@ -343,7 +351,7 @@ class NetworkInterface {
       dio.options.headers["X-SB-Auth"] = ms.authenticationToken;
 
       var reply = await dio.post(
-        "$apiServerURL/field/${field.id.toString()}",
+        "$apiServerURL/field/${field.fieldID.toString()}",
         data: payload,
       );
 
@@ -392,15 +400,15 @@ class NetworkInterface {
       dio.options.headers["Content-Type"] = "application/json";
       dio.options.headers["X-SB-Auth"] = ms.authenticationToken;
 
-      Field newField = Field(
-        id: UUID_ZERO,
-        name: name,
-        type: FieldType.PlainText,
-        order: 999,
+      ServerField newField = ServerField(
+        fieldID: UUID.ZERO,
+        fieldName: name,
+        fieldType: ServerFieldType.PlainText,
+        sortOrder: 999,
       );
       var reply = await dio.post(
         "$apiServerURL/field/new",
-        data: newField.toJson(),
+        data: newField.encode(),
       );
 
       print(reply.data);
@@ -1026,7 +1034,7 @@ class S2CLazyResponse implements ResponsePacket {
 }
 
 class S2CUserPacket extends S2CLazyResponse {
-  User? data;
+  ClientUser? data;
 
   S2CUserPacket({
     required this.data,
@@ -1051,7 +1059,7 @@ class S2CUserPacket extends S2CLazyResponse {
     super._decode(js);
 
     if (js['data'] != null) {
-      data = User.deserialize(js['data']);
+      data = ClientUser.deserialize(js['data']);
     }
   }
 
@@ -1067,215 +1075,6 @@ class S2CUserPacket extends S2CLazyResponse {
     pkt._decode(js);
 
     return pkt;
-  }
-}
-
-class User {
-  String ID;
-  String Name;
-  String DisplayName;
-  int AccountLevel;
-  int AlterCount;
-  int FetchTime;
-  List<Field> Fields;
-
-  factory User.NUL() {
-    return User(
-      ID: UUID_ZERO,
-      Name: "N/A",
-      DisplayName: "N/A",
-      AccountLevel: 0,
-      AlterCount: 0,
-      Fields: [],
-    );
-  }
-
-  User({
-    required this.ID,
-    required this.Name,
-    required this.DisplayName,
-    required this.AccountLevel,
-    required this.AlterCount,
-    required this.Fields,
-  }) : FetchTime = TimeUtils.getUnixTimestamp();
-
-  factory User.deserialize(Map<String, dynamic> js) {
-    String idx = UUID_ZERO;
-    if (js.containsKey("id")) {
-      idx = js['id'];
-    }
-
-    String username = "";
-    if (js.containsKey("user")) {
-      username = js['user'];
-    }
-
-    String displayName = "";
-    if (js.containsKey("displayName")) {
-      displayName = js['displayName'];
-    }
-
-    int alterCount = 0;
-    if (js.containsKey("alter_count")) {
-      alterCount = js['alter_count'] as int;
-    }
-
-    int accountLevel = 0;
-    if (js.containsKey("level")) {
-      accountLevel = js['level'];
-    }
-    List<Field> fields = [];
-    if (js.containsKey("fields")) {
-      List<dynamic> jsFields = js['fields'];
-      for (var field in jsFields) {
-        fields.add(Field.fromJson(field));
-      }
-    }
-
-    return User(
-      ID: idx,
-      Name: username,
-      DisplayName: displayName,
-      AccountLevel: accountLevel,
-      AlterCount: alterCount,
-      Fields: fields,
-    );
-  }
-
-  Map<String, dynamic> encode() {
-    return {
-      "id": ID.toString(),
-      "user": Name,
-      "displayName": DisplayName,
-      "alter_count": AlterCount,
-      "level": AccountLevel,
-    };
-  }
-}
-
-class AuthReply {
-  String? token;
-  String? username;
-
-  Map<String, dynamic> encode() {
-    return {"username": username, "token": token};
-  }
-
-  AuthReply({required this.token, required this.username});
-  factory AuthReply.decode(Map<String, dynamic> js) {
-    if (!js.containsKey("token")) {
-      throw InvalidServerResponseException(
-        reason:
-            "The data field does not conform to the Authentication Reply format",
-      );
-    }
-    return AuthReply(token: js['token'], username: js['username']);
-  }
-}
-
-class S2CAuthenticationResponse extends S2CLazyResponse {
-  AuthReply data;
-
-  S2CAuthenticationResponse({
-    required this.data,
-    required super.id,
-    required super.path,
-    required super.reason,
-    required super.success,
-    required super.type,
-  });
-
-  @override
-  Map<String, dynamic> encode() {
-    var enc = super.encode();
-    enc.addAll({"data": data.encode()});
-
-    return enc;
-  }
-
-  @override
-  void _decode(Map<String, dynamic> js) {
-    super._decode(js);
-
-    data = AuthReply.decode(js['data']);
-  }
-
-  factory S2CAuthenticationResponse.decode(Map<String, dynamic> js) {
-    S2CAuthenticationResponse auth = S2CAuthenticationResponse(
-      data: AuthReply(token: "token", username: "username"),
-      id: UUID_ZERO,
-      path: "path",
-      reason: "reason",
-      success: false,
-      type: "type",
-    );
-    auth._decode(js);
-
-    return auth;
-  }
-}
-
-class AuthCheck {
-  String? id;
-
-  Map<String, dynamic> encode() {
-    return {"id": id};
-  }
-
-  AuthCheck({required this.id});
-
-  factory AuthCheck.decode(Map<String, dynamic> js) {
-    return AuthCheck(id: js['id'] ?? UUID_ZERO);
-  }
-}
-
-class S2CAuthenticationCheckResponse implements ResponsePacket {
-  @override
-  String id;
-
-  @override
-  String path;
-
-  @override
-  String? reason;
-
-  @override
-  bool success;
-
-  @override
-  String type;
-
-  AuthCheck data;
-
-  Map<String, dynamic> encode() {
-    return {
-      "id": id,
-      "path": path,
-      "reason": reason,
-      "success": success,
-      "type": type,
-      "data": data.encode(),
-    };
-  }
-
-  S2CAuthenticationCheckResponse({
-    required this.id,
-    required this.path,
-    required this.reason,
-    required this.success,
-    required this.type,
-    required this.data,
-  });
-
-  factory S2CAuthenticationCheckResponse.decode(Map<String, dynamic> js) {
-    return S2CAuthenticationCheckResponse(
-      id: js['id'],
-      path: js['path'],
-      reason: js['reason'],
-      success: js['success'],
-      type: js['type'],
-      data: AuthCheck.decode(js['data']),
-    );
   }
 }
 
@@ -1393,28 +1192,6 @@ class S2CAltersPartialResponse implements ResponsePacket {
   }
 }
 
-/**
- * {
- *  "id": uuid,
- * "path": /request/path
- * "reason": reason for error,
- * "success": boolean
- * "type": "POST/PUT/GET/DELETE/PATCH/etc",
- * "data": {
- *    "count": number of alters iterated,
- *    "alters": [
- *      
-                        "user" => $row['User'],
-                        "id" => $row['ID'],
-                        "name" => $row['Name'],
-                        "avatar_url" => $row['Avatar'],
-                        "subid" => $row['SubID'],
-                        "parent" => $row['ParentID'],
-                        "flags" => $row['Flags']
- *    ]
- * }
- * }
- */
 class PartialAlters {
   int count;
   List<Alter> alters;
@@ -1443,99 +1220,6 @@ class PartialAlters {
   }
 }
 
-enum FieldType {
-  Description(-1),
-  ColorSys(-2),
-  Pronouns(-3),
-  Unknown(-9999),
-  PlainText(0),
-  Markdown(1),
-  Color(2),
-  Date(3),
-  Number(4),
-  Boolean(5);
-
-  const FieldType(int type) : _type = type;
-
-  final int _type;
-
-  static FieldType valueOf(int type) {
-    if (Description._type == type) return Description;
-    if (ColorSys._type == type) return ColorSys;
-    if (Pronouns._type == type) return Pronouns;
-    if (PlainText._type == type) return PlainText;
-    if (Markdown._type == type) return Markdown;
-    if (Color._type == type) return Color;
-    if (Date._type == type) return Date;
-    if (Number._type == type) return Number;
-    if (Boolean._type == type) return Boolean;
-
-    return Unknown;
-  }
-
-  int value() {
-    return _type;
-  }
-
-  @override
-  String toString() {
-    switch (this) {
-      case Description:
-        return "Description (Markdown, System Field)";
-      case ColorSys:
-        return "Color (System Field)";
-      case Pronouns:
-        return "Pronouns (Plain Text, System Field)";
-      case Unknown:
-        return "Unknown Type";
-      case PlainText:
-        return "Plain Text";
-      case Markdown:
-        return "Text (Markdown)";
-      case Color:
-        return "Color";
-      case Date:
-        return "Date";
-      case Number:
-        return "Number";
-      case Boolean:
-        return "Boolean (Yes/No)";
-    }
-  }
-}
-
-class Field {
-  String id;
-  String name;
-  FieldType type;
-  int order;
-
-  Field({
-    required this.id,
-    required this.name,
-    required this.type,
-    required this.order,
-  });
-
-  Map<String, dynamic> toJson() {
-    return {
-      "id": id.toString(),
-      "name": name,
-      "type": type.value(),
-      "order": order,
-    };
-  }
-
-  factory Field.fromJson(Map<String, dynamic> js) {
-    String id = js['id'] ?? UUID_ZERO;
-    String name = js['name'];
-    FieldType type = FieldType.valueOf(js['type']);
-    int order = js['order'] ?? 0;
-
-    return Field(id: id, name: name, type: type, order: order);
-  }
-}
-
 class S2CFieldsResponse implements ResponsePacket {
   @override
   String id;
@@ -1552,7 +1236,7 @@ class S2CFieldsResponse implements ResponsePacket {
   @override
   String type;
 
-  List<Field> data;
+  List<ServerField> data;
 
   S2CFieldsResponse({
     required this.id,
@@ -1567,7 +1251,7 @@ class S2CFieldsResponse implements ResponsePacket {
     List<Map<String, dynamic>> fieldJs = [];
 
     for (var field in data) {
-      fieldJs.add(field.toJson());
+      fieldJs.add(field.encode());
     }
 
     return {
@@ -1587,9 +1271,9 @@ class S2CFieldsResponse implements ResponsePacket {
       );
     }
 
-    List<Field> fieldList = [];
+    List<ServerField> fieldList = [];
     for (var entry in js['data']) {
-      fieldList.add(Field.fromJson(entry));
+      fieldList.add(ServerField.decode(entry));
     }
 
     return S2CFieldsResponse(
@@ -1600,21 +1284,6 @@ class S2CFieldsResponse implements ResponsePacket {
       type: js['type'],
       data: fieldList,
     );
-  }
-}
-
-class FieldData {
-  String id;
-  Map<String, dynamic> data = {};
-
-  FieldData({required this.id, required this.data});
-
-  Map<String, dynamic> toJson() {
-    return {"id": id.toString(), "value": data};
-  }
-
-  factory FieldData.decode(Map<String, dynamic> js) {
-    return FieldData(id: js['id'] ?? UUID_ZERO, data: js['value']);
   }
 }
 
@@ -1634,18 +1303,38 @@ class ChangeDetector {
   }
 }
 
-class Alter {
-  String id;
-  String user;
-  String name;
-  String avatarUrl;
-  int subid;
-  String parent;
-  int flags;
-  List<FieldData> fields;
-  String proxyName;
-  List<String> proxies;
+class Alter extends ServerAlter {
   bool _stale = false;
+
+  Alter({
+    required super.id,
+    required super.user,
+    required super.name,
+    required super.avatarUrl,
+    required super.subid,
+    required super.parent,
+    required super.flags,
+    required super.fields,
+    required super.proxyName,
+    required super.proxies,
+  });
+
+  factory Alter.decode(Map<String, dynamic> js) {
+    var x = ServerAlter.decode(js);
+
+    return Alter(
+      id: x.id,
+      user: x.user,
+      name: x.name,
+      avatarUrl: x.avatarUrl,
+      subid: x.subid,
+      parent: x.parent,
+      flags: x.flags,
+      fields: x.fields,
+      proxyName: x.proxyName,
+      proxies: x.proxies,
+    );
+  }
 
   void markStale() {
     _stale = true;
@@ -1655,20 +1344,20 @@ class Alter {
 
   Future<void> pullUpdates() async {
     if (!stale) return;
-    var reply = await NetworkInterface.getAlterByID(id);
+    var reply = await NetworkInterface.getAlterByID(super.id.toString());
     if (reply.success) {
       Alter alter = reply.data!;
-      id = alter.id;
-      user = alter.user;
+      super.id = alter.id;
+      super.user = alter.user;
       _stale = false;
-      name = alter.name;
-      avatarUrl = alter.avatarUrl;
-      subid = alter.subid;
-      parent = alter.parent;
-      flags = alter.flags;
-      fields = alter.fields;
-      proxyName = alter.proxyName;
-      proxies = alter.proxies;
+      super.name = alter.name;
+      super.avatarUrl = alter.avatarUrl;
+      super.subid = alter.subid;
+      super.parent = alter.parent;
+      super.flags = alter.flags;
+      super.fields = alter.fields;
+      super.proxyName = alter.proxyName;
+      super.proxies = alter.proxies;
       await isFronting();
     }
   }
@@ -1676,9 +1365,9 @@ class Alter {
   Future<String> getPronouns() async {
     var reply = await NetworkInterface.getDataFields();
     for (var field in reply.data) {
-      if (field.type == FieldType.Pronouns) {
+      if (field.fieldType == ServerFieldType.Pronouns) {
         for (var entry in fields) {
-          if (entry.id.toString() == field.id.toString()) {
+          if (entry.id.toString() == field.fieldID.toString()) {
             return entry.data["data"];
           }
         }
@@ -1688,86 +1377,8 @@ class Alter {
     return "";
   }
 
-  void onNewFieldData(FieldData data) {
+  void onNewFieldData(ServerFieldData data) {
     addOrUpdateField(data);
-  }
-
-  Alter({
-    required this.id,
-    required this.user,
-    required this.name,
-    required this.avatarUrl,
-    required this.subid,
-    required this.parent,
-    required this.flags,
-    required this.fields,
-    required this.proxyName,
-    required this.proxies,
-  });
-
-  Map<String, dynamic> encode() {
-    return {
-      "id": id.toString(),
-      "user": user.toString(),
-      "name": name,
-      "avatar_url": avatarUrl,
-      "subid": subid,
-      "parent": parent.toString(),
-      "flags": flags,
-      "fields": base64Encoder.base64Enc(json.encode({"A": encodeFields()})),
-      "proxy_name": proxyName,
-      "proxies": proxies,
-    };
-  }
-
-  factory Alter.decode(Map<String, dynamic> js) {
-    if (!js.containsKey("subid")) {
-      throw InvalidServerResponseException(reason: "Not alter formatted data");
-    }
-    List<dynamic> fieldsJs = [];
-    try {
-      var jsA = js['fields'];
-      jsA ??= "eyJBIjogW119";
-
-      var jsB = base64Encoder.base64Dec(jsA);
-      var jsC = typeCorrectJsonDecode(jsB);
-      fieldsJs = jsC["A"];
-    } catch (A) {}
-
-    List<dynamic> proxies = js['proxies'] ?? [];
-
-    var alter = Alter(
-      id: js['id'],
-      user: js['user'],
-      name: js['name'],
-      avatarUrl: js['avatar_url'],
-      subid: js['subid'],
-      parent: js['parent'],
-      flags: js['flags'],
-      fields: decodeFields(fieldsJs),
-      proxyName: js['proxy_name'] ?? "",
-      proxies: proxies.isEmpty ? [] : proxies as List<String>,
-    );
-
-    return alter;
-  }
-
-  static List<FieldData> decodeFields(List<dynamic> js) {
-    List<FieldData> fields = [];
-    for (var entry in js) {
-      fields.add(FieldData.decode(entry));
-    }
-
-    return fields;
-  }
-
-  List<Map<String, dynamic>> encodeFields() {
-    List<Map<String, dynamic>> ret = [];
-    for (var entry in fields) {
-      ret.add(entry.toJson());
-    }
-
-    return ret;
   }
 
   /// This helper function determines if the proper URL is to the Switchboard CDN, or a external network.
@@ -1788,15 +1399,15 @@ class Alter {
     return url;
   }
 
-  FieldData getDataByFieldID(String id) {
+  ServerFieldData getDataByFieldID(UUID id) {
     for (var field in fields) {
       if (field.id.toString() == id.toString()) return field;
     }
 
-    return FieldData(id: id, data: {});
+    return ServerFieldData(id: id, data: {});
   }
 
-  void addOrUpdateField(FieldData data) {
+  void addOrUpdateField(ServerFieldData data) {
     int indx = -1;
     for (var field in fields) {
       if (field.id.toString() == data.id.toString()) {
@@ -1833,19 +1444,19 @@ class Alter {
   Future<List<int>> getAlterColor() async {
     // Download all fields so we have the ID codes
     var reply = await NetworkInterface.getDataFields();
-    List<Field> srvFields = reply.data;
+    List<ServerField> srvFields = reply.data;
 
-    late Field targetField;
+    late ServerField targetField;
 
     for (var field in srvFields) {
-      if (field.type == FieldType.ColorSys) {
+      if (field.fieldType == ServerFieldType.ColorSys) {
         targetField = field;
       }
     }
 
     // Enumerate the data to find the field
     for (var data in fields) {
-      if (data.id.toString() == targetField.id.toString()) {
+      if (data.id.toString() == targetField.fieldID.toString()) {
         if (data.data["data"] == [0, 0, 0, 0]) return [];
         return data.data["data"];
       }
@@ -1864,7 +1475,7 @@ class Alter {
 
     return Fronter(
       id: UUID_ZERO,
-      front: Front(alterId: id, start: 0, end: 0),
+      front: Front(alterId: id.toString(), start: 0, end: 0),
     );
   }
 }
@@ -1926,7 +1537,7 @@ class S2CAlterResponse implements ResponsePacket {
 }
 
 class S2CFieldResponse extends S2CLazyResponse {
-  Field data;
+  ServerField data;
 
   S2CFieldResponse({
     required super.id,
@@ -1941,14 +1552,14 @@ class S2CFieldResponse extends S2CLazyResponse {
   void _decode(Map<String, dynamic> js) {
     super._decode(js);
 
-    data = Field.fromJson(js['data']);
+    data = ServerField.decode(js['data']);
   }
 
   @override
   Map<String, dynamic> encode() {
     Map<String, dynamic> enc = super.encode();
 
-    enc.addAll({"data": data.toJson()});
+    enc.addAll({"data": data.encode()});
 
     return enc;
   }
@@ -1960,11 +1571,11 @@ class S2CFieldResponse extends S2CLazyResponse {
       reason: "reason",
       success: false,
       type: "type",
-      data: Field(
-        id: UUID_ZERO,
-        name: "name",
-        type: FieldType.Unknown,
-        order: 0,
+      data: ServerField(
+        fieldID: UUID.ZERO,
+        fieldName: "name",
+        fieldType: ServerFieldType.Unknown,
+        sortOrder: 0,
       ),
     );
 

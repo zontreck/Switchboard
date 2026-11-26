@@ -9,6 +9,7 @@ import 'package:switchboard/dart/MemoryState.dart';
 import 'package:switchboard/dart/globalHelpers.dart';
 import 'package:switchboard/dart/storage.dart';
 import 'package:switchboard/globalHelpers.dart';
+import 'package:switchboardd/payloads.dart';
 import 'package:text_scroll/text_scroll.dart';
 
 class AlterWidget extends StatefulWidget {
@@ -363,7 +364,7 @@ class AlterImage extends StatelessWidget {
     return AlterImage(
       squarePics: ms.squarePicture,
       flush: ms.flushPictures,
-      alterID: alter.id,
+      alterID: alter.id.toString(),
       url: alter.getAvatarURL(),
       width: width ?? 75,
       height: height ?? 75,
@@ -433,7 +434,7 @@ class NetImage extends StatelessWidget {
 
 class FieldWidget extends StatelessWidget {
   bool roundedElement = true;
-  Field field;
+  ServerField field;
   Color backgroundColor;
   Color textColor;
   Function() onTap;
@@ -458,17 +459,17 @@ class FieldWidget extends StatelessWidget {
       color: backgroundColor,
 
       child: SizedBox(
-        height: field.type.value() <= -1 ? 95 : 75,
+        height: field.fieldType.value() <= -1 ? 95 : 75,
         child: ListTile(
           leading: Icon(Icons.edit),
           title: Text(
-            field.name,
+            field.fieldName,
             style: TextStyle(fontSize: 22, color: textColor),
           ),
           onTap: onTap,
           trailing: enableReorder ? Icon(Icons.menu) : null,
           subtitle: Text(
-            "Order: ${field.order}${field.type.value() <= -1 ? "\n(REQUIRED FIELD)" : ""}",
+            "Order: ${field.sortOrder}${field.fieldType.value() <= -1 ? "\n(REQUIRED FIELD)" : ""}",
           ),
         ),
       ),
@@ -476,12 +477,12 @@ class FieldWidget extends StatelessWidget {
   }
 }
 
-Future<List<DropdownMenuEntry<FieldType>>> getFieldMenuEntries({
+Future<List<DropdownMenuEntry<ServerFieldType>>> getFieldMenuEntries({
   bool includeSystem = false,
 }) async {
-  List<DropdownMenuEntry<FieldType>> entries = [];
-  for (var val in FieldType.values) {
-    if (val != FieldType.Unknown) {
+  List<DropdownMenuEntry<ServerFieldType>> entries = [];
+  for (var val in ServerFieldType.values) {
+    if (val != ServerFieldType.Unknown) {
       if (includeSystem || val.value() >= 0) {
         entries.add(DropdownMenuEntry(value: val, label: val.toString()));
       }

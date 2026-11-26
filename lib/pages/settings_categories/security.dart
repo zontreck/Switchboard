@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_phoenix/flutter_phoenix.dart';
+import 'package:libac_dart/utils/uuid/UUID.dart';
 import 'package:switchboard/dart/MemoryState.dart';
 import 'package:switchboard/dart/globalHelpers.dart';
 import 'package:switchboard/dart/storage.dart';
@@ -117,7 +118,7 @@ class _security extends State<SecuritySettings> {
                               MemoryState.A.authenticationToken = "";
                               MemoryState.A.password = "";
                               MemoryState.A.username = "";
-                              MemoryState.A.currentUser.ID = UUID_ZERO;
+                              MemoryState.A.currentUser.ID = UUID.ZERO;
                               await setAuthToken("");
                               await setAppSettings();
 

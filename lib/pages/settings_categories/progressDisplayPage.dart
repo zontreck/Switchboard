@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:libac_dart/utils/uuid/UUID.dart';
 import 'package:libacflutter/utils/colorHelpers.dart';
 import 'package:liquid_glass_widgets/widgets/feedback/glass_progress_indicator.dart';
 import 'package:switchboard/dart/globalHelpers.dart';
@@ -11,6 +12,7 @@ import 'package:switchboard/globalHelpers.dart';
 import 'package:switchboard/pages/editAlter.dart';
 import 'package:switchboard/sb.dart';
 import 'package:switchboardd/network.dart';
+import 'package:switchboardd/payloads.dart';
 import 'package:synchronized/synchronized.dart';
 
 class ThirdPartyMigrationProgress extends StatefulWidget {
@@ -134,7 +136,7 @@ class _mav extends State<MigrateAltersView> {
     if (_mem.cur == -1) {
       return;
     }
-    List<Field> fields = _mem.allFields!.data;
+    List<ServerField> fields = _mem.allFields!.data;
 
     OctoconAlter alter = _mem.args.data.alters[_mem.cur];
     _mem.statusMessage = "Create Alter";
@@ -149,31 +151,37 @@ class _mav extends State<MigrateAltersView> {
       newAlter = nAlter.data!;
     }
 
-    _mem.alterIDMap[alter.id] = newAlter.id;
+    _mem.alterIDMap[alter.id] = newAlter.id.toString();
 
     _mem.statusMessage = "Copying over field data...";
     setState(() {});
     for (var field in fields) {
-      if (field.type == FieldType.Description) {
+      if (field.fieldType == ServerFieldType.Description) {
         TextFieldStorage TFS = TextFieldStorage();
         TFS.controller.text = alter.description;
         print("set description to: ${alter.description}");
 
-        newAlter.addOrUpdateField(FieldData(id: field.id, data: TFS.toJson()));
+        newAlter.addOrUpdateField(
+          ServerFieldData(id: field.fieldID, data: TFS.toJson()),
+        );
       }
-      if (field.type == FieldType.ColorSys) {
+      if (field.fieldType == ServerFieldType.ColorSys) {
         ColorFieldStorage CFS = ColorFieldStorage();
         CFS.data = htmlColorToFlutter(alter.color);
         print("set color to: ${alter.color}");
 
-        newAlter.addOrUpdateField(FieldData(id: field.id, data: CFS.toJson()));
+        newAlter.addOrUpdateField(
+          ServerFieldData(id: field.fieldID, data: CFS.toJson()),
+        );
       }
-      if (field.type == FieldType.Pronouns) {
+      if (field.fieldType == ServerFieldType.Pronouns) {
         TextFieldStorage TFS = TextFieldStorage();
         TFS.controller.text = alter.pronouns;
         print("set pronouns to: ${alter.pronouns}");
 
-        newAlter.addOrUpdateField(FieldData(id: field.id, data: TFS.toJson()));
+        newAlter.addOrUpdateField(
+          ServerFieldData(id: field.fieldID, data: TFS.toJson()),
+        );
       }
     }
     newAlter.subid = alter.id;
@@ -188,7 +196,10 @@ class _mav extends State<MigrateAltersView> {
     if (alter.avatarURL.isNotEmpty) {
       _mem.statusMessage = "Migrating Profile Picture...";
       setState(() {});
-      await NetworkInterface.migrateAvatar(alter.avatarURL, newAlter.id);
+      await NetworkInterface.migrateAvatar(
+        alter.avatarURL,
+        newAlter.id.toString(),
+      );
       newAlter.avatarUrl = newAlter.id.toString();
 
       await NetworkInterface.updateAlter(newAlter);
@@ -516,19 +527,20 @@ class _mfv extends State<MigrateFieldsView> {
     OctoconField field = fields[_mem.cur];
 
     var srvField = await NetworkInterface.newField(field.name);
-    Field myField = srvField.data;
+    ServerField myField = srvField.data;
     if (field.type == "text") {
-      myField.type = FieldType.Markdown;
+      myField.fieldType = ServerFieldType.Markdown;
     } else if (field.type == "number") {
-      myField.type = FieldType.Number;
+      myField.fieldType = ServerFieldType.Number;
     } else if (field.type == "boolean") {
-      myField.type = FieldType.Boolean;
+      myField.fieldType = ServerFieldType.Boolean;
     }
 
     await NetworkInterface.updateField(myField);
-    _mem.fieldIDMap[field.id.toString()] = myField.id;
+    _mem.fieldIDMap[field.id.toString()] = myField.fieldID.toString();
 
-    _mem.statusMessage = "Created field: ${myField.name},\n${myField.toJson()}";
+    _mem.statusMessage =
+        "Created field: ${myField.fieldName},\n${myField.encode()}";
   }
 
   void scheduleFields() {
@@ -684,7 +696,9 @@ class _mfdv extends State<MigrateFieldDataView> {
           storebfs.data = bool.parse(field.value);
         }
 
-        myAlter.addOrUpdateField(FieldData(id: newField, data: store.toJson()));
+        myAlter.addOrUpdateField(
+          ServerFieldData(id: UUID.parse(newField), data: store.toJson()),
+        );
       }
     }
 

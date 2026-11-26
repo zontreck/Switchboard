@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:switchboard/dart/storage.dart';
+import 'package:switchboardd/payloads.dart';
 
 class SBRegisterPage extends StatefulWidget {
   const SBRegisterPage({super.key});
@@ -49,12 +50,12 @@ class _SBRegister extends State<SBRegisterPage> {
             return;
           }
           // do register
-          S2CLazyResponse usrPkt = await NetworkInterface.putNewUser(
+          ServerUserResponse usrPkt = await NetworkInterface.putNewUser(
             usernameController.text,
             passwordController.text,
           );
 
-          if (usrPkt.success) {
+          if (usrPkt.Success) {
             ScaffoldMessenger.of(
               context,
             ).showSnackBar(SnackBar(content: Text("User Account Created!")));
@@ -63,7 +64,7 @@ class _SBRegister extends State<SBRegisterPage> {
             // Show error message
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
-                content: Text("ERROR ${usrPkt.reason}"),
+                content: Text("ERROR ${usrPkt.Reason}"),
                 backgroundColor: Colors.redAccent,
               ),
             );

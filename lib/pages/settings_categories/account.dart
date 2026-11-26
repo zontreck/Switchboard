@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_phoenix/flutter_phoenix.dart';
+import 'package:libac_dart/utils/uuid/UUID.dart';
 import 'package:libacflutter/Constants.dart';
 import 'package:libacflutter/Prompt.dart';
 import 'package:switchboard/dart/MemoryState.dart';
@@ -67,13 +68,14 @@ class _acct extends State<AccountSettings> {
                             ListTile(
                               title: Text("User ID"),
                               subtitle: Text(
-                                "${MemoryState.A.currentUser.ID}\nTap to copy | Needed for Wiping or Deleting account",
+                                "${MemoryState.A.currentUser.ID.toString()}\nTap to copy | Needed for Wiping or Deleting account",
                               ),
                               leading: Icon(Icons.perm_identity),
                               onTap: () async {
                                 await Clipboard.setData(
                                   ClipboardData(
-                                    text: MemoryState.A.currentUser.ID,
+                                    text: MemoryState.A.currentUser.ID
+                                        .toString(),
                                   ),
                                 );
                               },
@@ -331,7 +333,7 @@ class _acct extends State<AccountSettings> {
                             ms.username = "";
                             ms.password = "";
                             ms.authenticationToken = "";
-                            MemoryState.A.currentUser.ID = UUID_ZERO;
+                            MemoryState.A.currentUser.ID = UUID.ZERO;
 
                             await setAuthToken("");
                             await setAppSettings();
@@ -398,10 +400,8 @@ class _acct extends State<AccountSettings> {
                                             type: InputPromptType.Text,
                                             successAction: (p0) async {
                                               if (p0 !=
-                                                  MemoryState
-                                                      .A
-                                                      .currentUser
-                                                      .ID) {
+                                                  MemoryState.A.currentUser.ID
+                                                      .toString()) {
                                                 // ABORT!!
                                                 ScaffoldMessenger.of(
                                                   context,

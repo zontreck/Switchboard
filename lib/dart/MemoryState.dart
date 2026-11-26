@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:switchboard/dart/globalHelpers.dart';
 import 'package:switchboard/dart/storage.dart';
 import 'package:switchboardd/funcs.dart';
+import 'package:switchboardd/payloads.dart';
 
 class MemoryState {
   static final MemoryState _state = MemoryState._init();
@@ -102,7 +103,7 @@ class MemoryState {
   List<int> NavSelColor = [255, 0, 183, 255];
   List<int> NavUnSelColor = [255, 105, 105, 205];
 
-  User currentUser = User.NUL();
+  ClientUser currentUser = ClientUser.NUL();
 
   void fromJson(Map<String, dynamic> js, {bool theme = false}) {
     js = typeCorrectJson(js); // Fix the types real fast.
